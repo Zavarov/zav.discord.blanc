@@ -1,0 +1,24 @@
+<configuration debug="false">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>[%date{HH:mm:ss}] [ %-5level] [%logger{0}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MEMORY_LOG" class="vartas.discordbot.DiscordLogListener">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>[%date{HH:mm:ss}] [ %-5level] [%logger{0}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="MEMORY_LOG"/>
+    </root>
+</configuration>

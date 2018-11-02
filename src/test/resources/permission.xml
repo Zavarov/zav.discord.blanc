@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<permission>
+    <entry key="ROOT">1</entry>
+    <entry key="DEVELOPER">2</entry>
+    <entry key="REDDIT">1</entry>
+    <entry key="REDDIT">3</entry>
+</permission>
