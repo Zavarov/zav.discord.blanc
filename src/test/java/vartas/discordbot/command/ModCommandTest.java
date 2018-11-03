@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.OfflineInstance;
+import vartas.discordbot.threads.MessageTracker;
 import vartas.xml.XMLPermission;
 
 /**
@@ -51,6 +52,7 @@ public class ModCommandTest {
         command.setConfig(instance.config);
         command.setParameter(Arrays.asList());
         command.setPermission(permission);
+        command.setMessageTracker(new MessageTracker(100));
     }
     
     @Test

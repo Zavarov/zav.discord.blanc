@@ -43,6 +43,6 @@ public class ErrorCommand extends Command{
           error.nextPage();
         }
         log.error(String.format("%s",exception.toString()));
-        error.build().send();
+        error.build().send(interactives::add);
     }
 }

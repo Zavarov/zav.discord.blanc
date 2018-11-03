@@ -251,7 +251,7 @@ public abstract class Command implements Runnable{
               error.nextPage();
             }
             log.error(String.format("%s",e.toString()));
-            error.build().send();
+            error.build().send(interactives::add);
         }
         log.info(String.format("Command executed by %s in %s %s",
                 message.getAuthor().getName(),

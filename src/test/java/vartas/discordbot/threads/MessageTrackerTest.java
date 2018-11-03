@@ -45,6 +45,7 @@ public class MessageTrackerTest {
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(instance.channel1, instance.user);
         builder.nextPage();
         message = builder.build();
+        message.send((c) -> {});
         message.accept(instance.guild_message);
         tracker.put(0L, message);
     }
@@ -85,6 +86,13 @@ public class MessageTrackerTest {
         assertFalse(tracker.executor.isShutdown());
         tracker.shutdown();
         assertTrue(tracker.executor.isShutdown());
+    }
+    @Test
+    public void addTest(){
+        tracker.clear();
+        assertFalse(tracker.containsValue(message));
+        tracker.add(message);
+        assertTrue(tracker.containsValue(message));
     }
     
     

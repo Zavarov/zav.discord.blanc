@@ -74,6 +74,10 @@ public class InteractiveMessage implements Consumer<Message>{
      */
     protected Message current_message;
     /**
+     * The consumer that deals with interactive messages.
+     */
+    protected Consumer<InteractiveMessage> consumer;
+    /**
      * creates an message with the specified pages.
      * @param channel the channel the message is in.
      * @param author the author who can interact with the message.
@@ -87,8 +91,10 @@ public class InteractiveMessage implements Consumer<Message>{
     }
     /**
      * Submits this message to the Discord API.
+     * @param consumer the consumer that will add this message to the thread that manages interactive messages.
      */
-    public void send(){
+    public void send(Consumer<InteractiveMessage> consumer){
+        this.consumer = consumer;
         DiscordBot.sendAction(channel.sendMessage(pages.get(current_page)),InteractiveMessage.this);
     }
     
@@ -156,6 +162,7 @@ public class InteractiveMessage implements Consumer<Message>{
         current_message = message;
         DiscordBot.sendAction(message.addReaction(ARROW_LEFT));
         DiscordBot.sendAction(message.addReaction(ARROW_RIGHT));
+        consumer.accept(this);
     }
     /**
      * The builder for creating this kind of messages.

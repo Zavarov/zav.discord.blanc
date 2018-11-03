@@ -71,6 +71,7 @@ public class DiscordBotTest {
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(instance.channel1, instance.user);
         builder.addLines(Arrays.asList("aaaaa","bbbbb"), 1);
         message = builder.build();
+        message.send((c) -> {});
         message.accept(instance.guild_message);
         
         File file = new File("src/test/resources/guilds");
@@ -80,6 +81,7 @@ public class DiscordBotTest {
                 guild.delete();
             }
         }
+        instance.messages.clear();
     }
     @After
     public void cleanUp(){

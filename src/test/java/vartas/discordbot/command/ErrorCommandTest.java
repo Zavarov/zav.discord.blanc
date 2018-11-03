@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.OfflineInstance;
+import vartas.discordbot.threads.MessageTracker;
 import vartas.xml.XMLPermission;
 
 /**
@@ -39,6 +40,7 @@ public class ErrorCommandTest {
         command.setParameter(Collections.emptyList());
         command.setBot(instance.bot);
         command.setConfig(instance.config);
+        command.setMessageTracker(new MessageTracker(100));
         command.setPermission(XMLPermission.create(new File("src/test/resources/permission.xml")));
     }
     @Test

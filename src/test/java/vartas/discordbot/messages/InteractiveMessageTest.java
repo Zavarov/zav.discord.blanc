@@ -222,11 +222,12 @@ public class InteractiveMessageTest {
     @Test
     public void sendTest(){
         assertTrue(instance.messages.isEmpty());
-        message.send();
+        message.send((c) -> {});
         assertEquals(instance.messages.size(),1);
     }
     @Test
     public void acceptTest(){
+        message.consumer = (c) -> {};
         assertNotEquals(message.current_message,instance.private_message);
         assertTrue(instance.actions.isEmpty());
         message.accept(instance.private_message);

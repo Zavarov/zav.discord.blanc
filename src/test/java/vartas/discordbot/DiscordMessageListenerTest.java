@@ -59,8 +59,10 @@ public class DiscordMessageListenerTest {
         message = new InteractiveMessage.Builder(instance.channel1, instance.self)
                 .addLines(Arrays.asList("aaaaa","bbbbb"), 1)
                 .build();
+        message.send((c) -> {});
         message.accept(instance.guild_message);
         listener.messages.put(message.getCurrentMessage().getIdLong(),message);
+        instance.messages.clear();
     }
     @Test
     public void shutdownTest(){

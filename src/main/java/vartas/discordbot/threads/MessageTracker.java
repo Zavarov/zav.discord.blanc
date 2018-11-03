@@ -58,6 +58,13 @@ public class MessageTracker extends HashMap<Long,InteractiveMessage> implements 
         executor.scheduleAtFixedRate(MessageTracker.this, interval, interval, TimeUnit.MINUTES);
     }
     /**
+     * Adds the message to the underlying map.
+     * @param message the message.
+     */
+    public synchronized void add(InteractiveMessage message){
+        put(message.getCurrentMessage().getIdLong(),message);
+    }
+    /**
      * Forwards the reaction to the message, if such a message exists.
      * @param id the id of the message.
      * @param user the user that reacted.

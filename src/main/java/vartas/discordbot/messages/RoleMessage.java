@@ -152,7 +152,6 @@ public final class RoleMessage {
             }
             builder.nextPage();
         }
-        builder.build().send();
     }
     
     /**
