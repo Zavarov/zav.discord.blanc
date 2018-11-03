@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javax.imageio.ImageIO;
-import net.dean.jraw.http.NetworkAdapter;
-import net.dean.jraw.http.OkHttpNetworkAdapter;
-import net.dean.jraw.http.UserAgent;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -40,6 +36,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
 import vartas.discordbot.threads.StatusTracker;
+import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLCredentials;
@@ -79,36 +76,19 @@ public class DiscordBot{
      */
     protected final StatusTracker status;
     /**
-     * This function creates the underlying network adapter for all the Reddit API calls.
-     */
-    protected static Function<XMLCredentials,NetworkAdapter> ADAPTER = (c) -> new OkHttpNetworkAdapter(new UserAgent(
-                c.getPlatform(),
-                c.getAppid(),
-                c.getVersion(),
-                c.getUser()
-        ));
-    /**
      * Creates a new instance of the bot with a custom listener.
      * @param runtime the main instance of this runtime.
      * @param jda the JDA for this specific bot.
      * @param config the configuration file.
+     * @param reddit the instance that communicates with the Reddit API.
+     * @param wrapper the instance of the crawler that contains all previously stored comments.
      */
-    public DiscordBot(DiscordRuntime runtime, JDA jda, XMLConfig config){
-        this(runtime, jda, config, ADAPTER);
-    }
-    /**
-     * Creates a new instance of the bot with a custom listener.
-     * @param runtime the main instance of this runtime.
-     * @param jda the JDA for this specific bot.
-     * @param config the configuration file.
-     * @param adapter the function that generates the underlying communicator to the Reddit api.
-     */
-    public DiscordBot(DiscordRuntime runtime, JDA jda, XMLConfig config, Function<XMLCredentials,NetworkAdapter> adapter){
+    public DiscordBot(DiscordRuntime runtime, JDA jda, XMLConfig config, RedditBot reddit, PushshiftWrapper wrapper){
         this.runtime = runtime;
         this.jda = jda;
         this.config = config;
         XMLCredentials credentials = XMLCredentials.create(new File(String.format("%s/credentials.xml",config.getDataFolder())));
-        this.listener = new DiscordMessageListener(DiscordBot.this, config, new RedditBot(credentials, adapter.apply(credentials)));
+        this.listener = new DiscordMessageListener(DiscordBot.this, config, reddit, wrapper);
         this.status = new StatusTracker(jda, new File(String.format("%s/status.xml",config.getDataFolder())),config.getStatusInterval());
         
         jda.addEventListener(listener);

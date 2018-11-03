@@ -43,6 +43,7 @@ import vartas.discordbot.threads.MessageTracker;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar.Token;
 import vartas.parser.cfg.ContextFreeGrammar.Type;
+import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLPermission;
@@ -96,6 +97,10 @@ public abstract class Command implements Runnable{
      * The instance that is responsible for communicating with the Reddit API.
      */
     protected RedditBot reddit;
+    /**
+     * The instance that contains all the data of the crawler.
+     */
+    protected PushshiftWrapper pushshift;
     /**
      * Sets the parameter of the command.
      * @param parameter the new parameter.
@@ -160,6 +165,13 @@ public abstract class Command implements Runnable{
      */
     public final void setRedditBot(RedditBot reddit){
         this.reddit = reddit;
+    }
+    /**
+     * Sets the communicator with the crawler.
+     * @param pushshift the new communicator.
+     */
+    public final void setPushshiftWrapper(PushshiftWrapper pushshift){
+        this.pushshift = pushshift;
     }
     
     /**

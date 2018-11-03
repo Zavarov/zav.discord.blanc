@@ -38,7 +38,6 @@ import vartas.OfflineInstance;
 import vartas.TestCommand;
 import vartas.discordbot.messages.InteractiveMessage;
 import vartas.discordbot.threads.ActivityTracker;
-import vartas.offlinejraw.OfflineNetworkAdapter;
 
 /**
  *
@@ -56,7 +55,7 @@ public class DiscordMessageListenerTest {
         instance.bot.getServer(instance.guild).setPrefix("prefix");
         instance.bot.getServer(instance.guild).addFilter("word");
         instance.guild_message.setContent("prefixab");
-        listener = new DiscordMessageListener(instance.bot, instance.config, null);
+        listener = new DiscordMessageListener(instance.bot, instance.config, null, null);
         message = new InteractiveMessage.Builder(instance.channel1, instance.self)
                 .addLines(Arrays.asList("aaaaa","bbbbb"), 1)
                 .build();
@@ -113,13 +112,13 @@ public class DiscordMessageListenerTest {
     public void onGuildLeaveTest(){
         List<String> temp = new ArrayList<>();
         assertTrue(temp.isEmpty());
-        instance.bot = new DiscordBot(null,instance.jda,instance.config, (c) -> new OfflineNetworkAdapter()){
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null){
             @Override
             public void deleteServer(Guild guild){
                 temp.add("deleted");
             }
         };
-        listener = new DiscordMessageListener(instance.bot, instance.config, null);
+        listener = new DiscordMessageListener(instance.bot, instance.config, null, null);
         listener.onGuildLeave(new GuildLeaveEvent(instance.jda,0, instance.guild));
         assertEquals(temp, Arrays.asList("deleted"));
     }

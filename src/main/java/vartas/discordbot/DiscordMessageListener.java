@@ -35,6 +35,7 @@ import vartas.discordbot.command.Command;
 import vartas.discordbot.threads.ActivityTracker;
 import vartas.discordbot.threads.MessageTracker;
 import vartas.parser.cfg.ContextFreeGrammar;
+import vartas.reddit.PushshiftWrapper;
 import vartas.xml.XMLCommand;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLPermission;
@@ -83,6 +84,10 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     protected RedditBot reddit;
     /**
+     * The communicator with the Reddit crawler.
+     */
+    protected PushshiftWrapper pushshift;
+    /**
      * The log for this nested class.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
@@ -90,8 +95,9 @@ public class DiscordMessageListener extends ListenerAdapter{
      * @param bot the bot and the JDA with the current shard.
      * @param config the configuration file for every command
      * @param reddit the instance that communicates with the Reddit API.
+     * @param pushshift the communicator with the crawler.
      */
-    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit){
+    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit, PushshiftWrapper pushshift){
         this.parser = new DiscordParser.Builder(
                 new ContextFreeGrammar.Builder(new File(String.format("%s/grammar.xml",config.getDataFolder()))).build(), 
                 XMLCommand.create(new File(String.format("%s/command.xml",config.getDataFolder()))), 
@@ -100,6 +106,7 @@ public class DiscordMessageListener extends ListenerAdapter{
         this.reddit = reddit;
         this.bot = bot;
         this.config = config;
+        this.pushshift = pushshift;
         this.activity = new ActivityTracker(bot.getJda(), config.getActivityInterval());
         this.messages = new MessageTracker(config.getInteractiveMessageAge());
         this.parser_executor = Executors.newSingleThreadExecutor();
@@ -209,6 +216,7 @@ public class DiscordMessageListener extends ListenerAdapter{
                 command.setActivityTracker(activity);
                 command.setPermission(permission);
                 command.setRedditBot(reddit);
+                command.setPushshiftWrapper(pushshift);
                 command_executor.submit(command);
             });
         }

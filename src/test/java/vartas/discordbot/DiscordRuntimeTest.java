@@ -36,6 +36,7 @@ import vartas.OfflineInstance;
 import vartas.OfflineJDA;
 import vartas.OfflineJDABuilder;
 import vartas.offlinejraw.OfflineNetworkAdapter;
+import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLCredentials;
 
@@ -50,21 +51,22 @@ public class DiscordRuntimeTest {
     
     OfflineInstance instance;
     DiscordRuntime runtime;
+    RedditBot reddit;
     
     @BeforeClass
     public static void setBuilder(){
         time = DiscordRuntime.SLEEP;
         builder = DiscordRuntime.BUILDER;
-        adapter = DiscordBot.ADAPTER;
+        adapter = DiscordRuntime.ADAPTER;
         DiscordRuntime.SLEEP = 1;
         DiscordRuntime.BUILDER = (c) -> new OfflineJDABuilder(AccountType.BOT);
-        DiscordBot.ADAPTER = (c) -> new OfflineNetworkAdapter();
+        DiscordRuntime.ADAPTER = (c) -> new OfflineNetworkAdapter();
     }
     @AfterClass
     public static void tearDownBuilder(){
         DiscordRuntime.SLEEP = time;
         DiscordRuntime.BUILDER = builder;
-        DiscordBot.ADAPTER = adapter;
+        DiscordRuntime.ADAPTER = adapter;
     }
     @Before
     public void setUp() throws LoginException, InterruptedException{
@@ -91,6 +93,12 @@ public class DiscordRuntimeTest {
         }
     }
     @Test
+    public void createAdapterTest(){
+        XMLCredentials credentials = XMLCredentials.create(new File("src/test/resources/credentials.xml"));
+        NetworkAdapter a = adapter.apply(credentials);
+        assertEquals(a.getUserAgent().getValue(),"platform:appid:version (by /u/user)");
+    }
+    @Test
     public void removeOldFilesTest() throws LoginException, IOException, InterruptedException{
         File file = new File("src/test/resources/guilds/1000.server");
         file.getParentFile().mkdirs();
@@ -104,7 +112,7 @@ public class DiscordRuntimeTest {
             private static final long serialVersionUID = 1L;
             @Override
             protected DiscordBot createDiscordBot(int shard, JDABuilder builder, XMLConfig config){
-                return new DiscordBot(null,instance.jda,config, (c) -> new OfflineNetworkAdapter());
+                return new DiscordBot(null,instance.jda,config, runtime.reddit, null);
             }
         };
         
@@ -117,14 +125,14 @@ public class DiscordRuntimeTest {
     @Test
     public void getBotTest(){
         for(int i = 0 ; i < instance.config.getDiscordShards() ; ++i){
-            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, (c) -> new OfflineNetworkAdapter()));
+            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null));
         }
         DiscordBot bot = runtime.getBot(1 << 22);
         assertEquals(runtime.indexOf(bot),1);
     }
     @Test
     public void shutdownTest(){
-        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, (c) -> new OfflineNetworkAdapter()));
+        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null));
         assertFalse(runtime.isEmpty());
         
         runtime.shutdown();

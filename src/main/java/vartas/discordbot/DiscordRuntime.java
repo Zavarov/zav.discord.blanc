@@ -22,6 +22,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
 import java.util.function.Function;
 import javax.security.auth.login.LoginException;
+import net.dean.jraw.http.NetworkAdapter;
+import net.dean.jraw.http.OkHttpNetworkAdapter;
+import net.dean.jraw.http.UserAgent;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDA.Status;
@@ -30,6 +33,8 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.reddit.PushshiftWrapper;
+import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLCredentials;
 
@@ -52,6 +57,23 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
+     * The instance that communicates with the Reddit API.
+     */
+    protected final RedditBot reddit;
+    /**
+     * The instance of the crawler that contains all data.
+     */
+    protected final PushshiftWrapper pushshift;
+    /**
+     * This function creates the underlying network adapter for all the Reddit API calls.
+     */
+    protected static Function<XMLCredentials,NetworkAdapter> ADAPTER = (c) -> new OkHttpNetworkAdapter(new UserAgent(
+                c.getPlatform(),
+                c.getAppid(),
+                c.getVersion(),
+                c.getUser()
+        ));
+    /**
      * The function that creates a new JDABuilder every time it is called.
      */
     protected static Function<XMLCredentials,JDABuilder> BUILDER = (c) -> new JDABuilder(AccountType.BOT)
@@ -68,6 +90,9 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
         config = XMLConfig.create(new File("config.xml"));
         XMLCredentials credentials = XMLCredentials.create(new File(String.format("%s/credentials.xml",config.getDataFolder())));
         int shards = config.getDiscordShards();
+        
+        reddit = new RedditBot(credentials, ADAPTER.apply(credentials));
+        pushshift = new PushshiftWrapper(reddit);
         
         JDABuilder jda = BUILDER.apply(credentials);
         
@@ -103,7 +128,7 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
                 .build().awaitStatus(Status.AWAITING_LOGIN_CONFIRMATION);
         //5 seconds for the limiter
         Thread.sleep(SLEEP);
-        return new DiscordBot(DiscordRuntime.this,jda,config);
+        return new DiscordBot(DiscordRuntime.this,jda,config, reddit, pushshift);
     }
     /**
      * Removes all configuration files of the guilds the bot doesn't have access to anymore.
