@@ -69,7 +69,7 @@ public class DiscordRuntimeTest {
         DiscordRuntime.ADAPTER = adapter;
     }
     @Before
-    public void setUp() throws LoginException, InterruptedException{
+    public void setUp() throws LoginException, InterruptedException, IOException, ClassNotFoundException{
         runtime = new DiscordRuntime();
         instance = new OfflineInstance();
         //Delete the guilds folder
@@ -99,7 +99,7 @@ public class DiscordRuntimeTest {
         assertEquals(a.getUserAgent().getValue(),"platform:appid:version (by /u/user)");
     }
     @Test
-    public void removeOldFilesTest() throws LoginException, IOException, InterruptedException{
+    public void removeOldFilesTest() throws LoginException, IOException, InterruptedException, ClassNotFoundException{
         File file = new File("src/test/resources/guilds/1000.server");
         file.getParentFile().mkdirs();
         file.createNewFile();

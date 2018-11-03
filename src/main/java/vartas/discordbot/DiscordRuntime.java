@@ -20,6 +20,7 @@ package vartas.discordbot;
 import com.google.common.io.Files;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
+import java.io.IOException;
 import java.util.function.Function;
 import javax.security.auth.login.LoginException;
 import net.dean.jraw.http.NetworkAdapter;
@@ -85,14 +86,17 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
      * Discord and therefore also doesn't contain any instances for the shards.
      * @throws LoginException if the provided token was invalid.
      * @throws InterruptedException if the login process to Discord has been interrupted.
+     * @throws IOException if the serial file couldn't be accessed.
+     * @throws ClassNotFoundException if the serial object belongs to an unknown class.
      */
-    public DiscordRuntime() throws LoginException, InterruptedException{
+    public DiscordRuntime() throws LoginException, InterruptedException, IOException, ClassNotFoundException{
         config = XMLConfig.create(new File("config.xml"));
         XMLCredentials credentials = XMLCredentials.create(new File(String.format("%s/credentials.xml",config.getDataFolder())));
         int shards = config.getDiscordShards();
         
         reddit = new RedditBot(credentials, ADAPTER.apply(credentials));
         pushshift = new PushshiftWrapper(reddit);
+        pushshift.read();
         
         JDABuilder jda = BUILDER.apply(credentials);
         
