@@ -36,4 +36,36 @@ public class XMLCredentialsTest {
     public void getDiscordShardsTest(){
         assertEquals(credentials.getDiscordToken(),"token");
     }
+    @Test
+    public void getIdTest() {
+        assertEquals(credentials.getId(),"id");
+    }
+    @Test
+    public void getSecretTest() {
+        assertEquals(credentials.getSecret(),"secret");
+    }
+    @Test
+    public void getAppidTest() {
+        assertEquals(credentials.getAppid(),"appid");
+    }
+    @Test
+    public void getUserTest() {
+        assertEquals(credentials.getUser(),"user");
+    }
+    @Test
+    public void getRedirectTest() {
+        assertEquals(credentials.getRedirect(),"redirect");
+    }
+    @Test
+    public void getScopeTest() {
+        assertEquals(credentials.getScope(),"scope");
+    }
+    @Test
+    public void getPlatformTest() {
+        assertEquals(credentials.getPlatform(),"platform");
+    }
+    @Test
+    public void getVersionTest() {
+        assertEquals(credentials.getVersion(),"version");
+    }
 }

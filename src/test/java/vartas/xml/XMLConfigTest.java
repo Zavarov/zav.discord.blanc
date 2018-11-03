@@ -86,4 +86,16 @@ public class XMLConfigTest {
     public void getInteractiveMessageAgeTest(){
         assertEquals(config.getInteractiveMessageAge(),15);
     }
+    @Test
+    public void getHelpTest(){
+        assertEquals(config.getHelp(),"help");
+    }
+    @Test
+    public void getImageHeightTest(){
+        assertEquals(config.getImageHeight(),5);
+    }
+    @Test
+    public void getImageWidthTest(){
+        assertEquals(config.getImageWidth(),10);
+    }
 }

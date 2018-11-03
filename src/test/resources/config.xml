@@ -13,5 +13,8 @@
     <entry key="data_identifier">Identifier2</entry>
     <entry key="data_folder">src/test/resources</entry>
     <entry key="command_prefix">\</entry>
+    <entry key="command_help">help</entry>
+    <entry key="image_height">5</entry>
+    <entry key="image_width">10</entry>
 </config>
 

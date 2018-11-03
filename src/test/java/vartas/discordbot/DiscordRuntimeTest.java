@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
 import javax.security.auth.login.LoginException;
+import net.dean.jraw.http.NetworkAdapter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import org.junit.After;
@@ -34,6 +35,7 @@ import org.junit.Test;
 import vartas.OfflineInstance;
 import vartas.OfflineJDA;
 import vartas.OfflineJDABuilder;
+import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLCredentials;
 
@@ -44,6 +46,7 @@ import vartas.xml.XMLCredentials;
 public class DiscordRuntimeTest {
     static long time;
     static Function<XMLCredentials,JDABuilder> builder;
+    static Function<XMLCredentials,NetworkAdapter> adapter;
     
     OfflineInstance instance;
     DiscordRuntime runtime;
@@ -52,13 +55,16 @@ public class DiscordRuntimeTest {
     public static void setBuilder(){
         time = DiscordRuntime.SLEEP;
         builder = DiscordRuntime.BUILDER;
+        adapter = DiscordBot.ADAPTER;
         DiscordRuntime.SLEEP = 1;
         DiscordRuntime.BUILDER = (c) -> new OfflineJDABuilder(AccountType.BOT);
+        DiscordBot.ADAPTER = (c) -> new OfflineNetworkAdapter();
     }
     @AfterClass
     public static void tearDownBuilder(){
         DiscordRuntime.SLEEP = time;
         DiscordRuntime.BUILDER = builder;
+        DiscordBot.ADAPTER = adapter;
     }
     @Before
     public void setUp() throws LoginException, InterruptedException{
@@ -98,7 +104,7 @@ public class DiscordRuntimeTest {
             private static final long serialVersionUID = 1L;
             @Override
             protected DiscordBot createDiscordBot(int shard, JDABuilder builder, XMLConfig config){
-                return new DiscordBot(null,instance.jda,config);
+                return new DiscordBot(null,instance.jda,config, (c) -> new OfflineNetworkAdapter());
             }
         };
         
@@ -111,14 +117,14 @@ public class DiscordRuntimeTest {
     @Test
     public void getBotTest(){
         for(int i = 0 ; i < instance.config.getDiscordShards() ; ++i){
-            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config));
+            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, (c) -> new OfflineNetworkAdapter()));
         }
         DiscordBot bot = runtime.getBot(1 << 22);
         assertEquals(runtime.indexOf(bot),1);
     }
     @Test
     public void shutdownTest(){
-        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config));
+        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, (c) -> new OfflineNetworkAdapter()));
         assertFalse(runtime.isEmpty());
         
         runtime.shutdown();

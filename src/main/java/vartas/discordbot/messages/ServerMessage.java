@@ -1,0 +1,192 @@
+/*
+ * Copyright (C) 2018 u/Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package vartas.discordbot.messages;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import org.apache.commons.collections4.CollectionUtils;
+import org.atteo.evo.inflector.English;
+
+/**
+ * This class creates a Discord message displaying the information of a Discord
+ * guild.
+ * @author u/Zavarov
+ */
+public final class ServerMessage {
+    /**
+     * Never create instances of this class.
+     */
+    private ServerMessage(){}
+    /**
+     * A moderator is every user that has as least one of the permissions listed here.
+     */
+    protected static final List<Permission> MODERATOR = Arrays.asList(
+        Permission.BAN_MEMBERS,
+        Permission.KICK_MEMBERS,
+        Permission.MANAGE_CHANNEL,
+        Permission.MANAGE_PERMISSIONS,
+        Permission.MANAGE_ROLES,
+        Permission.MANAGE_SERVER
+    );
+    /**
+     * The formatter for the dates.
+     */
+    protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
+    /**
+     * Adds the title of the guild to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addDescription(EmbedBuilder builder, Guild guild){
+        builder.setDescription(guild.getName());
+    }
+    /**
+     * Adds the icon of the guild as a thumbnail, if it has one.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addThumbnail(EmbedBuilder builder, Guild guild){
+        if(guild.getIconUrl() != null)
+            builder.setThumbnail(guild.getIconUrl());
+    }
+    /**
+     * Adds the owner of the guild to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addOwner(EmbedBuilder builder, Guild guild){
+        builder.addField("Owner",guild.getOwner().getUser().getAsMention(),true);
+    }
+    /**
+     * Adds the region the guild is in to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addRegion(EmbedBuilder builder, Guild guild){
+        builder.addField("Region",guild.getRegion().getName(),true);
+    }
+    /**
+     * Adds the number of text channels to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addTextChannels(EmbedBuilder builder, Guild guild){
+        int size = guild.getTextChannels().size();
+        builder.addField(English.plural("#TextChannel",size),Integer.toString(size),true);
+    }
+    /**
+     * Adds the number of voice channels to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addVoiceChannels(EmbedBuilder builder, Guild guild){
+        int size = guild.getVoiceChannels().size();
+        builder.addField(English.plural("#VoiceChannel",size),Integer.toString(size),true);
+    }
+    /**
+     * Adds the number of admins to the message.
+     * Note that the owner is always an admin, thus this will never be empty.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addAdmins(EmbedBuilder builder, Guild guild){
+        //The owner always has admin rights -> not null
+        List<Member> admins = guild.getMembers()
+                .stream()
+                .filter(m -> m.getPermissions().contains(Permission.ADMINISTRATOR))
+                .sorted( (u,v) -> Long.compare(u.getUser().getIdLong(), v.getUser().getIdLong()))
+                .collect(Collectors.toList());
+        String text = admins.stream().map(Member::getAsMention).reduce((u,v) -> u + "\n" + v).get();
+        
+        builder.addField(English.plural("Admin",admins.size()), text, false);
+    }
+    /**
+     * Adds the moderators to the list that aren't admins. Otherwise it won't
+     * be added.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addModerators(EmbedBuilder builder, Guild guild){
+        List<Member> moderators = guild.getMembers().stream()
+                .filter(m -> !m.getPermissions().contains(Permission.ADMINISTRATOR) &&
+                             CollectionUtils.containsAny(m.getPermissions(),MODERATOR))
+                .collect(Collectors.toList());
+        //The owner is always an admin
+        if(!moderators.isEmpty()){
+            String text = moderators.stream().map(Member::getAsMention).reduce((u,v) -> u + "\n" + v).get();
+            builder.addField(English.plural("Moderator", moderators.size()),text,false);
+        }
+    }
+    /**
+     * Adds the number of members and the number of the ones that are currently
+     * online to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addMembers(EmbedBuilder builder, Guild guild){
+        int online = (int)guild.getMembers().stream().filter(e -> !e.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count();
+        int total = guild.getMembers().size();
+        builder.addField(English.plural("#Member",total),String.format("%d / %d",online,total),true);
+        
+    }
+    /**
+     * Adds the number of roles to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addRoles(EmbedBuilder builder, Guild guild){
+        int size = guild.getRoles().size();
+        builder.addField(English.plural("#Role",size),Integer.toString(size),true);
+    }
+    /**
+     * Adds the date when the guild was created to the message.
+     * @param builder the message builder.
+     * @param guild the guild in question.
+     */
+    private static void addCreated(EmbedBuilder builder, Guild guild){
+        builder.addField("Created",DATE.format(guild.getCreationTime()),true);
+    }
+    /**
+     * Shows the information about the specified guild.
+     * @param guild the guild in question.
+     * @return an interactive message displaying the guilds information
+     */
+    public static MessageEmbed create(Guild guild){
+        EmbedBuilder builder = new EmbedBuilder();
+        
+        addDescription(builder, guild);
+        addThumbnail(builder, guild);
+        addOwner(builder, guild);
+        addRegion(builder, guild);
+        addTextChannels(builder, guild);
+        addVoiceChannels(builder, guild);
+        addAdmins(builder, guild);
+        addModerators(builder, guild);
+        addMembers(builder, guild);
+        addRoles(builder, guild);
+        addCreated(builder, guild);
+        return builder.build();
+    }
+}

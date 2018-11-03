@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
+import net.dean.jraw.http.NetworkAdapter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA.Status;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -33,9 +34,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import vartas.OfflineInstance;
 import vartas.discordbot.messages.InteractiveMessage;
+import vartas.offlinejraw.OfflineNetworkAdapter;
+import vartas.xml.XMLCredentials;
 import vartas.xml.XMLDocumentException;
 import vartas.xml.XMLServer;
 
@@ -54,11 +58,17 @@ public class DiscordBotTest {
 "    </entry>\n" +
 "</server>";
     OfflineInstance instance;
-    DiscordBot bot;
     InteractiveMessage message;
+    
+    @BeforeClass
+    public static void startUp() throws IOException{
+        try (FileWriter writer = new FileWriter(new File("src/test/resources/guilds/0.server"))) {
+            writer.write(SERVER_CONTENT);
+        }
+    }
 
     @Before
-    public void setUp() throws IOException{
+    public void setUp(){
         instance = new OfflineInstance();
         
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(instance.channel1, instance.user);
@@ -69,9 +79,8 @@ public class DiscordBotTest {
         File file = new File("src/test/resources/guilds");
         if(file.exists()){
             for(File guild : file.listFiles()){
-                if(!guild.getName().equals("0.server")){
-                    guild.delete();
-                }
+                if(!guild.getName().equals("0.server"))
+                guild.delete();
             }
         }
     }
@@ -87,9 +96,15 @@ public class DiscordBotTest {
         }
     }
     @Test
+    public void createAdapterTest(){
+        XMLCredentials credentials = XMLCredentials.create(new File("src/test/resources/credentials.xml"));
+        NetworkAdapter adapter = DiscordBot.ADAPTER.apply(credentials);
+        assertEquals(adapter.getUserAgent().getValue(),"platform:appid:version (by /u/user)");
+    }
+    @Test
     public void getServerTest(){
         XMLServer server = instance.bot.getServer(instance.guild);
-        assertEquals(server.getFilter(),Sets.newHashSet("word","text","expression"));
+        assertEquals(server.getFilter(),Sets.newHashSet("word"));
     }
     @Test(expected=XMLDocumentException.class)
     public void getServerFailureTestTest() throws IOException{
@@ -122,7 +137,7 @@ public class DiscordBotTest {
             writer.write(SERVER_CONTENT);
         }
         
-        instance.bot = new DiscordBot(null,instance.jda,instance.config);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, (c) -> new OfflineNetworkAdapter());
         
         XMLServer server = instance.bot.getServer(new GuildImpl(instance.jda,1000));
         assertEquals(server.getFilter(),Sets.newHashSet("word"));
@@ -136,7 +151,7 @@ public class DiscordBotTest {
     }
     @Test
     public void updateServerFailureTest() throws IOException{
-        instance.bot = new DiscordBot(null,instance.jda,instance.config);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, (c) -> new OfflineNetworkAdapter());
         instance.bot.getServer(new GuildImpl(instance.jda,100));
         File file = new File("src/test/resources/guilds/100.server");
         file.createNewFile();
@@ -146,7 +161,7 @@ public class DiscordBotTest {
     }
     @Test
     public void updateServerUnknownGuildTest() throws IOException{
-        instance.bot = new DiscordBot(null,instance.jda,instance.config);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, (c) -> new OfflineNetworkAdapter());
         File file = new File("src/test/resources/guilds/10000.server");
         instance.bot.updateServer(new GuildImpl(instance.jda,10000));
         assertFalse(file.exists());

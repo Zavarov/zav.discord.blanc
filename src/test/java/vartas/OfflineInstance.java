@@ -37,6 +37,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.core.requests.restaction.MessageAction;
 import vartas.discordbot.DiscordBot;
+import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.xml.XMLConfig;
 
 /**
@@ -71,7 +72,7 @@ public class OfflineInstance {
     public OfflineInstance(){
         config = XMLConfig.create(new File("src/test/resources/config.xml"));
         jda = new OfflineJDA();
-        bot = new DiscordBot(null,jda,config);
+        bot = new DiscordBot(null,jda,config, (c) -> new OfflineNetworkAdapter());
         
         messages = new ArrayList<>();
         actions = new ArrayList<>();

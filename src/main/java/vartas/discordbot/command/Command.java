@@ -43,6 +43,7 @@ import vartas.discordbot.threads.MessageTracker;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar.Token;
 import vartas.parser.cfg.ContextFreeGrammar.Type;
+import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLPermission;
 
@@ -91,6 +92,10 @@ public abstract class Command implements Runnable{
      * The permission file
      */
     protected XMLPermission permission;
+    /**
+     * The instance that is responsible for communicating with the Reddit API.
+     */
+    protected RedditBot reddit;
     /**
      * Sets the parameter of the command.
      * @param parameter the new parameter.
@@ -143,11 +148,18 @@ public abstract class Command implements Runnable{
         this.activity = activity;
     }
     /**
-     * Sets the message tracker..
+     * Sets the message tracker.
      * @param interactives the message tracker.
      */
     public final void setMessageTracker(MessageTracker interactives){
         this.interactives = interactives;
+    }
+    /**
+     * Sets the communicator with the Reddit API.
+     * @param reddit the reddit client.
+     */
+    public final void setRedditBot(RedditBot reddit){
+        this.reddit = reddit;
     }
     
     /**

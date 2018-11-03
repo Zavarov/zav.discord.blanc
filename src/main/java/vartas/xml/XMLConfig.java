@@ -101,6 +101,24 @@ public class XMLConfig extends XMLStringMultimap<String>{
         return get("command_prefix").iterator().next();
     }
     /**
+     * @return a link to a website containing all commands.
+     */
+    public String getHelp(){
+        return get("command_help").iterator().next();
+    }
+    /**
+     * @return the default height of every picture the bot creates.
+     */
+    public int getImageHeight(){
+        return Integer.parseInt(get("image_height").iterator().next());
+    }
+    /**
+     * @return the default width of every picture the bot creates.
+     */
+    public int getImageWidth(){
+        return Integer.parseInt(get("image_width").iterator().next());
+    }
+    /**
      * Creates a new server file from an XML file.
      * @param reference the XML file.
      * @return the server file containing all elements in the XML document.

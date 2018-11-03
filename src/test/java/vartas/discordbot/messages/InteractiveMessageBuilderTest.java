@@ -86,4 +86,18 @@ public class InteractiveMessageBuilderTest {
         assertEquals(message.pages.size(),1);
         assertTrue(message.pages.get(0).getTitle().contains("Page 0/0"));
     }
+    @Test
+    public void setThumbnailTest(){
+        assertNull(builder.thumbnail);
+        builder.setThumbnail("url");
+        assertEquals(builder.thumbnail,"url");
+    }
+    @Test
+    public void buildThumbnailTest(){
+        builder.current_page.append("junk");
+        builder.setThumbnail("https://www.test.com");
+        InteractiveMessage message = builder.build();
+        assertEquals(message.pages.size(),1);
+        assertEquals(message.pages.get(0).getThumbnail().getUrl(),"https://www.test.com");
+    }
 }

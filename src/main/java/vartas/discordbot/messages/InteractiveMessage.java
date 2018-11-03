@@ -182,6 +182,10 @@ public class InteractiveMessage implements Consumer<Message>{
          */
         protected String description;
         /**
+         * The thumbnail for all pages.
+         */
+        protected String thumbnail;
+        /**
          * Initializes an empty builder.
          * @param channel the channel the message is sent in.
          * @param author the user who can interact with the message.
@@ -247,7 +251,17 @@ public class InteractiveMessage implements Consumer<Message>{
             return this;
         }
         /**
+         * Sets the thumbnail for every page.
+         * @param thumbnail the URL of the thumnbnail.
+         * @return this.
+         */
+        public Builder setThumbnail(String thumbnail){
+            this.thumbnail = thumbnail;
+            return this;
+        }
+        /**
          * Sets the title for all pages after the size is known.
+         * @param embeds the pages.
          * @return this.
          */
         private Builder updateTitle(List<EmbedBuilder> embeds){
@@ -255,6 +269,17 @@ public class InteractiveMessage implements Consumer<Message>{
             for(int i = 0 ; i < embeds.size() ; ++i){
                 title = String.format("Page %d/%d",i,embeds.size()-1);
                 embeds.set(i, embeds.get(i).setTitle(title));
+            }
+            return this;
+        }
+        /**
+         * Updates the thumbnail for every page.
+         * @param embeds the pages.
+         * @return this.
+         */
+        private Builder updateThumbnail(List<EmbedBuilder> embeds){
+            if(thumbnail != null){
+                embeds.forEach(builder -> builder.setThumbnail(thumbnail));
             }
             return this;
         }
@@ -280,6 +305,7 @@ public class InteractiveMessage implements Consumer<Message>{
                 output.add(createPage());
             }
             updateTitle(output);
+            updateThumbnail(output);
             List<MessageEmbed> pages = output.stream()
                     .map(EmbedBuilder::build)
                     .collect(Collectors.toList());

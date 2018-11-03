@@ -39,6 +39,7 @@ import vartas.xml.XMLCommand;
 import vartas.xml.XMLConfig;
 import vartas.xml.XMLPermission;
 import vartas.xml.XMLServer;
+import vartas.reddit.RedditBot;
 
 /**
  * This class acts as an interface between the the messages received from Discord and this program.
@@ -70,9 +71,17 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     protected DiscordParser parser;
     /**
-     * The configuration file;
+     * The configuration file.
      */
     protected XMLConfig config;
+    /**
+     * The permission file.
+     */
+    protected XMLPermission permission;
+    /**
+     * The instance that is responsible for all the Reddit API calls.
+     */
+    protected RedditBot reddit;
     /**
      * The log for this nested class.
      */
@@ -80,20 +89,22 @@ public class DiscordMessageListener extends ListenerAdapter{
     /**
      * @param bot the bot and the JDA with the current shard.
      * @param config the configuration file for every command
+     * @param reddit the instance that communicates with the Reddit API.
      */
-    public DiscordMessageListener(DiscordBot bot, XMLConfig config){
+    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit){
         this.parser = new DiscordParser.Builder(
                 new ContextFreeGrammar.Builder(new File(String.format("%s/grammar.xml",config.getDataFolder()))).build(), 
                 XMLCommand.create(new File(String.format("%s/command.xml",config.getDataFolder()))), 
                 config
         ).build();
-        
+        this.reddit = reddit;
         this.bot = bot;
         this.config = config;
         this.activity = new ActivityTracker(bot.getJda(), config.getActivityInterval());
         this.messages = new MessageTracker(config.getInteractiveMessageAge());
         this.parser_executor = Executors.newSingleThreadExecutor();
         this.command_executor = Executors.newWorkStealingPool();
+        this.permission = XMLPermission.create(new File(String.format("%s/permission.xml",config.getDataFolder())));
     }
     /**
      * An reaction was added to a message.
@@ -196,7 +207,8 @@ public class DiscordMessageListener extends ListenerAdapter{
                 Command command = parser.parseCommand(message, bot, getContent(message));
                 command.setMessageTracker(messages);
                 command.setActivityTracker(activity);
-                command.setPermission(XMLPermission.create(new File(String.format("%s/permission.xml",config.getDataFolder()))));
+                command.setPermission(permission);
+                command.setRedditBot(reddit);
                 command_executor.submit(command);
             });
         }

@@ -18,17 +18,74 @@ package vartas.xml;
 
 import java.io.File;
 import vartas.xml.strings.XMLStringMultimap;
+import vartas.reddit.RedditCredentials;
 
 /**
  * This class contains all data required to log into the Discord API.
  * @author u/Zavarov
  */
-public class XMLCredentials extends XMLStringMultimap<String>{
+public class XMLCredentials extends XMLStringMultimap<String> implements RedditCredentials{
     /**
      * @return the token on the bot.
      */
     public String getDiscordToken(){
         return get("discord_token").iterator().next();
+    }
+    /**
+     * @return the Reddit id of this bot. 
+     */
+    @Override
+    public String getId() {
+        return get("reddit_id").iterator().next();
+    }
+    /**
+     * @return the Reddit secret of this bot. 
+     */
+    @Override
+    public String getSecret() {
+        return get("reddit_secret").iterator().next();
+    }
+    /**
+     * @return the identifier for this bot.
+     */
+    @Override
+    public String getAppid() {
+        return get("reddit_appid").iterator().next();
+    }
+    /**
+     * @return the owner of the token. 
+     */
+    @Override
+    public String getUser() {
+        return get("reddit_user").iterator().next();
+    }
+    /**
+     * @return a redirect link when the access was denied. 
+     */
+    @Override
+    public String getRedirect() {
+        return get("reddit_redirect").iterator().next();
+    }
+    /**
+     * @return the permission this bot has.
+     */
+    @Override
+    public String getScope() {
+        return get("reddit_scope").iterator().next();
+    }
+    /**
+     * @return the hardware type that the bot is using.
+     */
+    @Override
+    public String getPlatform() {
+        return get("reddit_platform").iterator().next();
+    }   
+    /**
+     * @return the version of the Reddit interface 
+     */
+    @Override
+    public String getVersion() {
+        return get("reddit_version").iterator().next();
     }
     /**
      * Creates a new server file from an XML file.
