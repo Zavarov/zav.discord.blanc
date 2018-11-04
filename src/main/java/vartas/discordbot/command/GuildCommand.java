@@ -34,7 +34,7 @@ public abstract class GuildCommand extends Command{
      * @throws CommandRequiresGuildException if the message is not from inside a guild.
      */
     @Override
-    public void run() throws CommandRequiresGuildException{
+    public void checkRequirements() throws CommandRequiresGuildException{
         super.requiresGuild();
         server = bot.getServer(message.getGuild());
         super.run();

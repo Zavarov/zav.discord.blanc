@@ -231,8 +231,9 @@ public abstract class Command implements Runnable{
     @Override
     public void run(){
         try{
-            parameter = filter();
+            checkRequirements();
             checkRank();
+            parameter = filter();
             execute();
         //Expected errors
         }catch(CommandRequiresAttachmentException | CommandRequiresGuildException | UnknownEntityException | MissingRankException | MissingPermissionException e){
@@ -259,6 +260,10 @@ public abstract class Command implements Runnable{
                 message.getGuild() == null ? "." : " in "+ message.getGuild().getName()+"."
         ));
     }
+    /**
+     * Checks if all requirements like guilds and attachments are fulfilled.
+     */
+    protected void checkRequirements(){}
     /**
      * The method every command has to implement.
      * @throws IOException if it failed modifying configuration files.

@@ -49,19 +49,11 @@ public abstract class ModCommand extends GuildCommand{
         this.required = required;
     }
     /**
-     * Check if the user has the necessary permissions to execute this command
-     * before running it.
-     */
-    @Override
-    public void run(){
-        checkPermission();
-        super.run();
-    }
-    /**
      * Checks if the author has the required permissions.
      * @throws MissingPermissionException if the author doesn't have at least one of the required permissions.
      */
-    public void checkPermission() throws MissingPermissionException{
+    @Override
+    public void checkRequirements() throws MissingPermissionException{
         List<Permission> permissions = Permission.getPermissions(PermissionUtil.getEffectivePermission(message.getTextChannel(),message.getMember()));
         
         boolean isRoot = permission.getRanks(message.getAuthor()).contains(Rank.ROOT);
