@@ -64,28 +64,29 @@ public class ModCommandTest {
         
         assertFalse(instance.messages.isEmpty());
     }
-    @Test(expected=MissingPermissionException.class)
+    @Test
     public void runFailureTest(){
         instance.guild_message.setAuthor(instance.user);
         command.run();
+        assertTrue(instance.messages.get(0).getContentRaw().contains(Permission.ADMINISTRATOR.getName()));
     }
     
     @Test
     public void checkPermissionRootTest(){
         permission.add(Rank.ROOT, instance.root);
         instance.guild_message.setAuthor(instance.root);
-        command.checkPermission();
+        command.checkRequirements();
     }
     @Test
     public void checkPermissionModTest(){
         instance.guild_message.setAuthor(instance.user);
         instance.public_role.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
-        command.checkPermission();
+        command.checkRequirements();
     }
     @Test(expected=MissingPermissionException.class)
     public void checkPermissionFailureTest(){
         instance.guild_message.setAuthor(instance.user);
-        command.checkPermission();
+        command.checkRequirements();
     }
     @Test
     public void canInteractRootTest(){

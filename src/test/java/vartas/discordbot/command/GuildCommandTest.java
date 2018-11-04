@@ -48,10 +48,11 @@ public class GuildCommandTest {
         command.setPermission(XMLPermission.create(new File("src/test/resources/permission.xml")));
         
     }
-    @Test(expected=CommandRequiresGuildException.class)
+    @Test
     public void outsideGuildTest(){
         command.setMessage(instance.private_message);
         command.run();
+        assertEquals(instance.messages.get(0).getContentRaw(),"This command can only be executed inside of a guild.");
     }
     @Test
     public void insideGuildTest(){
