@@ -39,7 +39,7 @@ public abstract class SubmissionMessage {
      * @param submission a submission.
      * @return true if the submission is marked as NSFW.
      */
-    private static boolean isNsfw(Submission submission){
+    public static boolean isNsfw(Submission submission){
         return submission.isNsfw() 
                 || submission.getTitle().toLowerCase(Locale.ENGLISH).contains("[nsfw]") 
                 || (submission.getLinkFlairText() != null && submission.getLinkFlairText().toLowerCase(Locale.ENGLISH).contains("nsfw"));
@@ -48,7 +48,7 @@ public abstract class SubmissionMessage {
      * @param submission a submission.
      * @return true if the submission is marked as a spoiler.
      */
-    private static boolean isSpoiler(Submission submission){
+    public static boolean isSpoiler(Submission submission){
         return submission.isSpoiler() 
                 || submission.getTitle().toLowerCase(Locale.ENGLISH).contains("[spoiler]")
                 || (submission.getLinkFlairText() != null && submission.getLinkFlairText().toLowerCase(Locale.ENGLISH).contains("spoiler"));

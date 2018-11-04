@@ -35,6 +35,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discordbot.threads.RedditFeed;
 import vartas.discordbot.threads.StatusTracker;
 import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.RedditBot;
@@ -82,13 +83,14 @@ public class DiscordBot{
      * @param config the configuration file.
      * @param reddit the instance that communicates with the Reddit API.
      * @param wrapper the instance of the crawler that contains all previously stored comments.
+     * @param feed the runnable that checks for new submissions.
      */
-    public DiscordBot(DiscordRuntime runtime, JDA jda, XMLConfig config, RedditBot reddit, PushshiftWrapper wrapper){
+    public DiscordBot(DiscordRuntime runtime, JDA jda, XMLConfig config, RedditBot reddit, PushshiftWrapper wrapper, RedditFeed feed){
         this.runtime = runtime;
         this.jda = jda;
         this.config = config;
         XMLCredentials credentials = XMLCredentials.create(new File(String.format("%s/credentials.xml",config.getDataFolder())));
-        this.listener = new DiscordMessageListener(DiscordBot.this, config, reddit, wrapper);
+        this.listener = new DiscordMessageListener(DiscordBot.this, config, reddit, wrapper, feed);
         this.status = new StatusTracker(jda, new File(String.format("%s/status.xml",config.getDataFolder())),config.getStatusInterval());
         
         jda.addEventListener(listener);

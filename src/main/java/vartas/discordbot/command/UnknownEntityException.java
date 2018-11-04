@@ -28,6 +28,6 @@ public class UnknownEntityException extends RuntimeException{
      * @param entity the entity that caused an exception.
      */
     public <Q> UnknownEntityException(Q entity){
-        super(String.format("The entity %s yielded no result.",entity.toString()));
+        super(String.format("An entity with the name %s wasn't found.",entity.toString()));
     }
 }

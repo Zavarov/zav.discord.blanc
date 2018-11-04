@@ -72,7 +72,7 @@ public class RoleMessageTest {
     
     @Test
     public void createWithoutColorTest(){
-        instance.role1.setColor(0);
+        instance.role1.setColor(Role.DEFAULT_COLOR_RAW);
         InteractiveMessage message = RoleMessage.create(instance.user, instance.role1, instance.channel1);
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Color"));
     }

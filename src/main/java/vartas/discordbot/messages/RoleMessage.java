@@ -109,7 +109,7 @@ public final class RoleMessage {
     private static void addColor(Builder builder, Role role){
         Color c = role.getColor();
         //0 represents a transparent color
-        if(role.getColorRaw() != 0){
+        if(role.getColorRaw() != Role.DEFAULT_COLOR_RAW){
             builder.addLine(String.format("`%-10s :` 0x%02X%02X%02X",
                 "Color",
                 c.getRed(),

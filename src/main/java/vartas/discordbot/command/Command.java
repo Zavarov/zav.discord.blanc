@@ -40,6 +40,7 @@ import vartas.discordbot.DiscordBot;
 import vartas.discordbot.messages.InteractiveMessage;
 import vartas.discordbot.threads.ActivityTracker;
 import vartas.discordbot.threads.MessageTracker;
+import vartas.discordbot.threads.RedditFeed;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar.Token;
 import vartas.parser.cfg.ContextFreeGrammar.Type;
@@ -101,6 +102,10 @@ public abstract class Command implements Runnable{
      * The instance that contains all the data of the crawler.
      */
     protected PushshiftWrapper pushshift;
+    /**
+     * The feed that checks for new 
+     */
+    protected RedditFeed feed;
     /**
      * Sets the parameter of the command.
      * @param parameter the new parameter.
@@ -172,6 +177,13 @@ public abstract class Command implements Runnable{
      */
     public final void setPushshiftWrapper(PushshiftWrapper pushshift){
         this.pushshift = pushshift;
+    }
+    /**
+     * Sets the runnable for the Reddit feeds.
+     * @param feed the new runnable.
+     */
+    public final void setRedditFeed(RedditFeed feed){
+        this.feed = feed;
     }
     
     /**

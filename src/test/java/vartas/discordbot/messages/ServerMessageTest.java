@@ -68,7 +68,7 @@ public class ServerMessageTest {
     
     @Test
     public void createBotTest(){
-        instance.self.setBot(true);
+        instance.user.setBot(true);
         instance.guild.getMembersMap().put(instance.user.getIdLong(),new MemberImpl(instance.guild,instance.user){
             @Override
             public List<Role> getRoles(){

@@ -34,6 +34,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discordbot.threads.RedditFeed;
 import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.RedditBot;
 import vartas.xml.XMLConfig;
@@ -66,6 +67,10 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
      */
     protected final PushshiftWrapper pushshift;
     /**
+     * The instance that keeps all Reddit feeds up to date.
+     */
+    protected final RedditFeed feed;
+    /**
      * This function creates the underlying network adapter for all the Reddit API calls.
      */
     protected static Function<XMLCredentials,NetworkAdapter> ADAPTER = (c) -> new OkHttpNetworkAdapter(new UserAgent(
@@ -95,6 +100,7 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
         int shards = config.getDiscordShards();
         
         reddit = new RedditBot(credentials, ADAPTER.apply(credentials));
+        feed = new RedditFeed(reddit, (g) -> getBot(g.getIdLong()));
         pushshift = new PushshiftWrapper(reddit);
         pushshift.read();
         
@@ -102,7 +108,10 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
         
         DiscordRuntime.this.createGuildsFolder(config);
         for(int i = 0 ; i < config.getDiscordShards() ; ++i){
-            add(DiscordRuntime.this.createDiscordBot(i,jda,config));
+            DiscordBot bot = DiscordRuntime.this.createDiscordBot(i,jda,config);
+            add(bot);
+            //Add the feeds in the config file
+            bot.getJda().getGuilds().forEach(g -> feed.addSubreddits(bot.getServer(g), g));
         }
         removeOldFiles(config);
         log.info("Initialization finished.");
@@ -132,7 +141,7 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
                 .build().awaitStatus(Status.AWAITING_LOGIN_CONFIRMATION);
         //5 seconds for the limiter
         Thread.sleep(SLEEP);
-        return new DiscordBot(DiscordRuntime.this,jda,config, reddit, pushshift);
+        return new DiscordBot(DiscordRuntime.this,jda,config, reddit, pushshift, feed);
     }
     /**
      * Removes all configuration files of the guilds the bot doesn't have access to anymore.
@@ -163,6 +172,7 @@ public class DiscordRuntime extends ObjectArrayList<DiscordBot>{
      * Terminates all threads that are a part of this entity.
      */
     public void shutdown(){
+        feed.shutdown();
         this.removeIf(e -> { e.shutdown() ; return true;});
         log.info("Runtime terminated.");
     }

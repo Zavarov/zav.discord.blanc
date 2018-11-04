@@ -17,6 +17,7 @@
 package vartas.discordbot;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.function.Function;
 import javax.security.auth.login.LoginException;
@@ -45,6 +46,15 @@ import vartas.xml.XMLCredentials;
  * @author u/Zavarov
  */
 public class DiscordRuntimeTest {
+    static String xml = 
+"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+"<server>\n" +
+"    <entry row=\"reddit\" column=\"subreddit\">\n" +
+"        <document>\n" +
+"            <entry>1</entry>\n" +
+"        </document>\n" +
+"    </entry>\n" +
+"</server>";
     static long time;
     static Function<XMLCredentials,JDABuilder> builder;
     static Function<XMLCredentials,NetworkAdapter> adapter;
@@ -102,17 +112,23 @@ public class DiscordRuntimeTest {
     public void removeOldFilesTest() throws LoginException, IOException, InterruptedException, ClassNotFoundException{
         File file = new File("src/test/resources/guilds/1000.server");
         file.getParentFile().mkdirs();
-        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write(xml);
+        writer.close();
         assertTrue(file.exists());
         file = new File("src/test/resources/guilds/0.server");
-        file.createNewFile();
+        writer = new FileWriter(file);
+        writer.write(xml);
+        writer.close();
         assertTrue(file.exists());
+        
+        
         
         runtime = new DiscordRuntime(){
             private static final long serialVersionUID = 1L;
             @Override
             protected DiscordBot createDiscordBot(int shard, JDABuilder builder, XMLConfig config){
-                return new DiscordBot(null,instance.jda,config, runtime.reddit, null);
+                return new DiscordBot(null,instance.jda,config, runtime.reddit, null, null);
             }
         };
         
@@ -125,14 +141,14 @@ public class DiscordRuntimeTest {
     @Test
     public void getBotTest(){
         for(int i = 0 ; i < instance.config.getDiscordShards() ; ++i){
-            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null));
+            runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null, null));
         }
         DiscordBot bot = runtime.getBot(1 << 22);
         assertEquals(runtime.indexOf(bot),1);
     }
     @Test
     public void shutdownTest(){
-        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null));
+        runtime.add(new DiscordBot(runtime, new OfflineJDA(), instance.config, runtime.reddit, null, null));
         assertFalse(runtime.isEmpty());
         
         runtime.shutdown();
@@ -142,5 +158,18 @@ public class DiscordRuntimeTest {
     public void builderTest(){
         XMLCredentials credentials = XMLCredentials.create(new File("src/test/resources/credentials.xml"));
         assertNotNull(builder.apply(credentials).toString());
+    }
+    @Test
+    public void requestBotFromFeedTest() throws IOException{
+        File file = new File("src/test/resources/guilds/0.server");
+        file.getParentFile().mkdirs();
+        FileWriter writer = new FileWriter(file);
+        writer.write(xml);
+        writer.close();
+        assertTrue(file.exists());
+        
+        runtime.feed.removeFeed("subreddit", instance.channel1);
+        
+        assertTrue(runtime.get(0).getServer(instance.guild).isEmpty());
     }
 }

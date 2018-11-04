@@ -115,6 +115,7 @@ public final class ServerMessage {
         //The owner always has admin rights -> not null
         List<Member> admins = guild.getMembers()
                 .stream()
+                .filter(m -> !m.getUser().isBot())
                 .filter(m -> m.getPermissions().contains(Permission.ADMINISTRATOR))
                 .sorted( (u,v) -> Long.compare(u.getUser().getIdLong(), v.getUser().getIdLong()))
                 .collect(Collectors.toList());
@@ -130,6 +131,7 @@ public final class ServerMessage {
      */
     private static void addModerators(EmbedBuilder builder, Guild guild){
         List<Member> moderators = guild.getMembers().stream()
+                .filter(m -> !m.getUser().isBot())
                 .filter(m -> !m.getPermissions().contains(Permission.ADMINISTRATOR) &&
                              CollectionUtils.containsAny(m.getPermissions(),MODERATOR))
                 .collect(Collectors.toList());
@@ -146,7 +148,10 @@ public final class ServerMessage {
      * @param guild the guild in question.
      */
     private static void addMembers(EmbedBuilder builder, Guild guild){
-        int online = (int)guild.getMembers().stream().filter(e -> !e.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count();
+        int online = (int)guild.getMembers().stream()
+                .filter(e -> !e.getUser().isBot())
+                .filter(e -> !e.getOnlineStatus().equals(OnlineStatus.OFFLINE))
+                .count();
         int total = guild.getMembers().size();
         builder.addField(English.plural("#Member",total),String.format("%d / %d",online,total),true);
         

@@ -130,7 +130,7 @@ public class DiscordBotTest {
             writer.write(SERVER_CONTENT);
         }
         
-        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null, null);
         
         XMLServer server = instance.bot.getServer(new GuildImpl(instance.jda,1000));
         assertEquals(server.getFilter(),Sets.newHashSet("word"));
@@ -144,7 +144,7 @@ public class DiscordBotTest {
     }
     @Test
     public void updateServerFailureTest() throws IOException{
-        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null, null);
         instance.bot.getServer(new GuildImpl(instance.jda,100));
         File file = new File("src/test/resources/guilds/100.server");
         file.createNewFile();
@@ -154,7 +154,7 @@ public class DiscordBotTest {
     }
     @Test
     public void updateServerUnknownGuildTest() throws IOException{
-        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null);
+        instance.bot = new DiscordBot(null,instance.jda,instance.config, null, null, null);
         File file = new File("src/test/resources/guilds/10000.server");
         instance.bot.updateServer(new GuildImpl(instance.jda,10000));
         assertFalse(file.exists());

@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import vartas.discordbot.command.Command;
 import vartas.discordbot.threads.ActivityTracker;
 import vartas.discordbot.threads.MessageTracker;
+import vartas.discordbot.threads.RedditFeed;
 import vartas.parser.cfg.ContextFreeGrammar;
 import vartas.reddit.PushshiftWrapper;
 import vartas.xml.XMLCommand;
@@ -88,6 +89,10 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     protected PushshiftWrapper pushshift;
     /**
+     * The the feed that checks for new submissions.
+     */
+    protected RedditFeed feed;
+    /**
      * The log for this nested class.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
@@ -96,13 +101,15 @@ public class DiscordMessageListener extends ListenerAdapter{
      * @param config the configuration file for every command
      * @param reddit the instance that communicates with the Reddit API.
      * @param pushshift the communicator with the crawler.
+     * @param feed the runnable that checks for new submissions.
      */
-    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit, PushshiftWrapper pushshift){
+    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit, PushshiftWrapper pushshift, RedditFeed feed){
         this.parser = new DiscordParser.Builder(
                 new ContextFreeGrammar.Builder(new File(String.format("%s/grammar.xml",config.getDataFolder()))).build(), 
                 XMLCommand.create(new File(String.format("%s/command.xml",config.getDataFolder()))), 
                 config
         ).build();
+        this.feed = feed;
         this.reddit = reddit;
         this.bot = bot;
         this.config = config;
@@ -217,6 +224,7 @@ public class DiscordMessageListener extends ListenerAdapter{
                 command.setPermission(permission);
                 command.setRedditBot(reddit);
                 command.setPushshiftWrapper(pushshift);
+                command.setRedditFeed(feed);
                 command_executor.submit(command);
             });
         }

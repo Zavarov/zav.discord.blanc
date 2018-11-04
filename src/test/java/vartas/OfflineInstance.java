@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -71,7 +72,12 @@ public class OfflineInstance {
     public OfflineInstance(){
         config = XMLConfig.create(new File("src/test/resources/config.xml"));
         jda = new OfflineJDA();
-        bot = new DiscordBot(null,jda,config, null, null);
+        bot = new DiscordBot(null,jda,config, null, null, null){
+            @Override
+            public void updateServer(Guild guild){
+                actions.add("Guild "+guild.getId()+" updated");
+            }
+        };
         
         messages = new ArrayList<>();
         actions = new ArrayList<>();
