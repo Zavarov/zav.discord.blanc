@@ -138,6 +138,12 @@ public class DiscordParser extends DeterministicTopDownParser{
             Preprocessor.Builder builder = super.createLexer();
             builder.addExpression(createRandom(), RANDOM);
             builder.addExpression(createDate(), DATE);
+            builder.addNumberSeparator(new Token("+","\\+"));
+            builder.addNumberSeparator(new Token("-","-"));
+            builder.addNumberSeparator(new Token("*","\\*"));
+            builder.addNumberSeparator(new Token("/","/"));
+            builder.addNumberSeparator(new Token("^","^"));
+            builder.addNumberSeparator(new Token("%","%"));
             return builder;
         }
         /**
