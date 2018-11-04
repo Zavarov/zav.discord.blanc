@@ -155,9 +155,11 @@ public class DiscordParser extends DeterministicTopDownParser{
          */
         private RegularExpression createDate(){
             RegularExpression.Parser parser = new RegularExpression.Parser();
-            RegularExpression number = parser.parse("(1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)*");
+            RegularExpression day = parser.parse("(0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)");
+            RegularExpression month = parser.parse("(0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)");
+            RegularExpression year = parser.parse("(0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)");
             RegularExpression separator = RegularExpression.singleton('-');
-            return RegularExpression.concatenation(number,separator,number,separator,number);
+            return RegularExpression.concatenation(day,separator,month,separator,year);
         }
         /**
          * @return a new instance of the parser. 
