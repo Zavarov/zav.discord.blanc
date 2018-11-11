@@ -17,96 +17,162 @@
 package vartas.discordbot.command;
 
 import java.io.File;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageType;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
+import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
-import vartas.discordbot.threads.MessageTracker;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
 import vartas.xml.XMLPermission;
+import vartas.xml.XMLServer;
 
 /**
  *
  * @author u/Zavarov
  */
 public class ModCommandTest {
-    XMLPermission permission;
-    OfflineInstance instance;
+    static OfflineCommunicator comm;
+    static JDAImpl jda;
+    XMLServer server;
+    GuildImpl guild;
+    TextChannelImpl channel1;
+    SelfUserImpl self;
+    UserImpl user;
+    RoleImpl role0;
+    MemberImpl memberself;
+    MemberImpl member;
+    Message message1;
+    Message message2;
+    @BeforeClass
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        jda = (JDAImpl)comm.jda();
+    }
     ModCommand command;
     
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        self = new SelfUserImpl(0L,jda);
+        user = new UserImpl(100L,jda);
+        memberself = new MemberImpl(guild, self);
+        member = new MemberImpl(guild,user);
+        role0 = new RoleImpl(0L,guild);
+        server = comm.server(guild);
         
-        permission = XMLPermission.create(new File("src/test/resources/permission.xml"));
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        jda.getUserMap().put(user.getIdLong(),user);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.getMembersMap().put(user.getIdLong(),member);
+        guild.getRolesMap().put(role0.getIdLong(),role0);
+        guild.setOwner(memberself);
+        guild.setPublicRole(role0);
+        role0.setRawPermissions(Permission.ALL_TEXT_PERMISSIONS);
+        
+        message1 = new ReceivedMessage(
+                1L, channel1, MessageType.DEFAULT,
+                false, false, null,null, false, false, 
+                "content", "", self, OffsetDateTime.now()
+                ,Arrays.asList(), Arrays.asList(), Arrays.asList());
+        
+        message2 = new ReceivedMessage(
+                2L, channel1, MessageType.DEFAULT,
+                false, false, null,null, false, false, 
+                "content", "", user, OffsetDateTime.now()
+                ,Arrays.asList(), Arrays.asList(), Arrays.asList());
+        
         command = new ModCommand(Permission.ADMINISTRATOR){
             @Override
             public void execute(){
-                throw new RuntimeException();
+                comm.send(channel1, "success");
             }
         };
-        command.setMessage(instance.guild_message);
-        command.setBot(instance.bot);
-        command.setConfig(instance.config);
-        command.setParameter(Arrays.asList());
-        command.setPermission(permission);
-        command.setMessageTracker(new MessageTracker(100));
+        command.setMessage(message1);
+        command.setParameter(Collections.emptyList());
+        command.setCommunicator(comm);
+        
+        comm.actions.clear();
+        comm.discord.clear();
     }
     
     @Test
     public void runTest(){
-        assertTrue(instance.messages.isEmpty());
+        assertTrue(comm.discord.entries().isEmpty());
         
-        instance.public_role.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
+        role0.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
         command.run();
         
-        assertFalse(instance.messages.isEmpty());
+        assertEquals(comm.discord.get(channel1).get(0).getContentRaw(),"success");
     }
     @Test
     public void runFailureTest(){
-        instance.guild_message.setAuthor(instance.user);
+        command.setMessage(message2);
         command.run();
-        assertTrue(instance.messages.get(0).getContentRaw().contains(Permission.ADMINISTRATOR.getName()));
+        assertTrue(comm.discord.get(channel1).get(0).getContentRaw().contains("Administrator"));
     }
     
     @Test
     public void checkPermissionRootTest(){
-        permission.add(Rank.ROOT, instance.root);
-        instance.guild_message.setAuthor(instance.root);
+        comm.environment().permission().add(Rank.ROOT, self);
         command.checkRequirements();
+        
+        startUp();
     }
     @Test
     public void checkPermissionModTest(){
-        instance.guild_message.setAuthor(instance.user);
-        instance.public_role.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
+        command.setMessage(message2);
+        role0.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
         command.checkRequirements();
     }
     @Test(expected=MissingPermissionException.class)
     public void checkPermissionFailureTest(){
-        instance.guild_message.setAuthor(instance.user);
+        command.setMessage(message2);
         command.checkRequirements();
     }
     @Test
     public void canInteractRootTest(){
-        permission.add(Rank.ROOT, instance.root);
-        instance.guild_message.setAuthor(instance.root);
-        assertTrue(command.canInteract(() -> instance.root_member.canInteract(instance.role1)));
+        command.setMessage(message2);
+        comm.environment().permission().add(Rank.ROOT, user);
+        
+        assertTrue(command.canInteract(() -> member.canInteract(role0)));
+        
+        startUp();
     }
     @Test
     public void canInteractRootOwnerTest(){
-        permission.add(Rank.ROOT, instance.self);
-        instance.public_role.setRawPermissions(Permission.ALL_GUILD_PERMISSIONS);
-        assertTrue(command.canInteract(() -> instance.self_member.canInteract(instance.role1)));
+        comm.environment().permission().add(Rank.ROOT, self);
+        assertTrue(command.canInteract(() -> memberself.canInteract(role0)));
+        
+        startUp();
     }
     @Test
     public void canInteractOwnerTest(){
-        assertTrue(command.canInteract(() -> instance.self_member.canInteract(instance.role1)));
+        assertTrue(command.canInteract(() -> memberself.canInteract(role0)));
         
     }
     @Test
     public void canInteractFailureTest() {
-        assertFalse(command.canInteract(() -> instance.member.canInteract(instance.role1)));
+        command.setMessage(message2);
+        assertFalse(command.canInteract(() -> member.canInteract(role0)));
     }
 }

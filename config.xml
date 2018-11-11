@@ -11,6 +11,6 @@
     <entry key="command_identifier">Command</entry>
     <entry key="data_identifier">Identifier1</entry>
     <entry key="data_identifier">Identifier2</entry>
-    <entry key="data_folder">src/test/resources</entry>
+    <entry key="data_folder">data</entry>
     <entry key="command_prefix">b.</entry>
 </config>

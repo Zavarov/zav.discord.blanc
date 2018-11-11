@@ -16,27 +16,31 @@
  */
 package vartas.discordbot.threads;
 
-import java.io.File;
-import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.Game;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineJDA;
+import vartas.discordbot.comm.Environment;
+import vartas.discordbot.comm.OfflineEnvironment;
 
 /**
  *
  * @author u/Zavarov
  */
 public class StatusTrackerTest{
-    JDAImpl jda;
+    static Environment environment;
+    @BeforeClass
+    public static void create(){
+        environment = new OfflineEnvironment();
+    }
     StatusTracker tracker;
     @Before
     public void setUp() {
-        jda = new OfflineJDA();
-        tracker = new StatusTracker(jda, new File("src/test/resources/status.xml"),10);
+        tracker = new StatusTracker(environment);
     }
     @Test
     public void shutdownTest(){
@@ -49,9 +53,8 @@ public class StatusTrackerTest{
         tracker.executor.shutdownNow();
         while(!tracker.executor.isTerminated()){}
         
-        jda.getPresence().setGame(null);
-        assertNull(jda.getPresence().getGame());
+        assertNull(environment.comm(0).presence().getGame());
         tracker.run();
-        assertEquals(jda.getPresence().getGame().getName(),"statusmessage");
+        assertEquals(environment.comm(0).presence().getGame(),Game.playing("statusmessage"));
     }
 }

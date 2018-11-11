@@ -20,6 +20,12 @@ import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.Locale;
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
@@ -28,8 +34,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
+import vartas.discordbot.comm.Communicator;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
 import vartas.discordbot.threads.ActivityTracker.Data;
 import vartas.discordbot.threads.ActivityTracker.Dataset;
 import static vartas.discordbot.threads.ActivityTracker.UTC;
@@ -39,12 +48,66 @@ import static vartas.discordbot.threads.ActivityTracker.UTC;
  * @author u/Zavarov
  */
 public class ActivityTrackerTest {
-    OfflineInstance instance;
+    static Communicator comm;
+    static GuildImpl guild0;
+    static TextChannelImpl channel1;
+    static TextChannelImpl channel2;
+    static SelfUserImpl self;
+    static UserImpl user0;
+    static UserImpl user1;
+    static UserImpl user2;
+    static MemberImpl member0;
+    static MemberImpl member1;
+    static MemberImpl member2;
+    static MemberImpl memberself;
+    @BeforeClass
+    public static void create(){
+        comm = new OfflineCommunicator(new OfflineEnvironment(), OfflineEnvironment.create());
+        
+        guild0 = new GuildImpl((JDAImpl)comm.jda(),0L);
+        guild0.setName("guild0");
+        ((JDAImpl)comm.jda()).getGuildMap().put(guild0.getIdLong(),guild0);
+        
+        channel1 = new TextChannelImpl(1L,guild0);
+        channel2 = new TextChannelImpl(2L,guild0);
+        channel1.setName("channel0");
+        channel2.setName("channel1");
+        guild0.getTextChannelsMap().put(channel1.getIdLong(),channel1);
+        guild0.getTextChannelsMap().put(channel2.getIdLong(),channel2);
+        
+        user0 = new UserImpl(0L,(JDAImpl)comm.jda());
+        user1 = new UserImpl(1L,(JDAImpl)comm.jda());
+        user2 = new UserImpl(2L,(JDAImpl)comm.jda());
+        self = new SelfUserImpl(3L,(JDAImpl)comm.jda());
+        
+        ((JDAImpl)comm.jda()).getUserMap().put(self.getIdLong(),self);
+        ((JDAImpl)comm.jda()).getUserMap().put(user0.getIdLong(),user0);
+        ((JDAImpl)comm.jda()).getUserMap().put(user1.getIdLong(),user1);
+        ((JDAImpl)comm.jda()).getUserMap().put(user2.getIdLong(),user2);
+        
+        memberself = new MemberImpl(guild0,self);
+        member0 = new MemberImpl(guild0,user0);
+        member1 = new MemberImpl(guild0,user1);
+        member2 = new MemberImpl(guild0,user2);
+        
+        guild0.getMembersMap().put(user0.getIdLong(),member0);
+        guild0.getMembersMap().put(user1.getIdLong(),member1);
+        guild0.getMembersMap().put(user2.getIdLong(),member2);
+        guild0.getMembersMap().put(self.getIdLong(),memberself);
+    }
     ActivityTracker tracker;
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
-        tracker = new ActivityTracker(instance.jda,1);
+        user0.setBot(false);
+        user1.setBot(false);
+        user2.setBot(false);
+        self.setBot(false);
+        
+        member0.setOnlineStatus(OnlineStatus.ONLINE);
+        member1.setOnlineStatus(OnlineStatus.ONLINE);
+        member2.setOnlineStatus(OnlineStatus.ONLINE);
+        memberself.setOnlineStatus(OnlineStatus.ONLINE);
+        tracker = new ActivityTracker(comm);
     }
     @Test
     public void shutdownTest(){
@@ -56,33 +119,33 @@ public class ActivityTrackerTest {
     public void measureTest(){
         Dataset dataset = tracker.measure();
         assertEquals(dataset.size(),1);
-        assertTrue(dataset.containsKey(instance.guild));
+        assertTrue(dataset.containsKey(guild0));
         
-        Data data = dataset.get(instance.guild);
+        Data data = dataset.get(guild0);
         assertEquals(data.all_member,4);
         assertEquals(data.member_online,4);
     }
     @Test
     public void measureBotTest(){
-        instance.user.setBot(true);
+        user0.setBot(true);
         
         Dataset dataset = tracker.measure();
         assertEquals(dataset.size(),1);
-        assertTrue(dataset.containsKey(instance.guild));
+        assertTrue(dataset.containsKey(guild0));
         
-        Data data = dataset.get(instance.guild);
+        Data data = dataset.get(guild0);
         assertEquals(data.all_member,3);
         assertEquals(data.member_online,3);
     }
     @Test
     public void measureOfflineTest(){
-        instance.member.setOnlineStatus(OnlineStatus.OFFLINE);
+        member0.setOnlineStatus(OnlineStatus.OFFLINE);
         
         Dataset dataset = tracker.measure();
         assertEquals(dataset.size(),1);
-        assertTrue(dataset.containsKey(instance.guild));
+        assertTrue(dataset.containsKey(guild0));
         
-        Data data = dataset.get(instance.guild);
+        Data data = dataset.get(guild0);
         assertEquals(data.all_member,4);
         assertEquals(data.member_online,3);
     }
@@ -103,12 +166,12 @@ public class ActivityTrackerTest {
         tracker.executor.shutdownNow();
         while(!tracker.executor.isTerminated()){}
         
-        assertFalse(tracker.queue.tail().get(instance.guild).posts.containsKey(instance.channel1));
-        tracker.increase(instance.guild, instance.channel1);
-        assertTrue(tracker.queue.tail().get(instance.guild).posts.containsKey(instance.channel1));
-        assertEquals(tracker.queue.tail().get(instance.guild).posts.get(instance.channel1).longValue(),1L);
-        tracker.increase(instance.guild, instance.channel1);
-        assertEquals(tracker.queue.tail().get(instance.guild).posts.get(instance.channel1).longValue(),2L);
+        assertFalse(tracker.queue.tail().get(guild0).posts.containsKey(channel1));
+        tracker.increase(channel1);
+        assertTrue(tracker.queue.tail().get(guild0).posts.containsKey(channel1));
+        assertEquals(tracker.queue.tail().get(guild0).posts.get(channel1).longValue(),1L);
+        tracker.increase(channel1);
+        assertEquals(tracker.queue.tail().get(guild0).posts.get(channel1).longValue(),2L);
     }
     @Test
     public void runTest(){
@@ -125,26 +188,26 @@ public class ActivityTrackerTest {
         tracker.executor.shutdownNow();
         while(!tracker.executor.isTerminated()){}
         
-        tracker.queue.tail().get(instance.guild).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
+        tracker.queue.tail().get(guild0).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
         
-        tracker.increase(instance.guild, instance.channel1);
+        tracker.increase(channel1);
         tracker.run();
-        tracker.increase(instance.guild, instance.channel1);
-        tracker.increase(instance.guild, instance.channel2);
-        tracker.increase(instance.guild, instance.channel2);
+        tracker.increase(channel1);
+        tracker.increase(channel2);
+        tracker.increase(channel2);
         tracker.run();
         //Finish things up
-        TimeSeriesCollection series = tracker.createChannelSeries(instance.guild, Lists.newArrayList(instance.channel2));
+        TimeSeriesCollection series = tracker.createChannelSeries(guild0, Lists.newArrayList(channel2));
         assertEquals(series.getSeriesCount(),2);
         TimeSeries entry = series.getSeries(0);
         assertEquals(entry.getItemCount(),2);
-        assertEquals(entry.getValue(0),1.0);
-        assertEquals(entry.getValue(1),3.0);
+        assertEquals(entry.getValue(0),1.0/comm.environment().config().getActivityInterval());
+        assertEquals(entry.getValue(1),3.0/comm.environment().config().getActivityInterval());
         
         entry = series.getSeries(1);
         assertEquals(entry.getItemCount(),2);
-        assertEquals(entry.getValue(0),0.0);
-        assertEquals(entry.getValue(1),2.0);
+        assertEquals(entry.getValue(0),0.0/comm.environment().config().getActivityInterval());
+        assertEquals(entry.getValue(1),2.0/comm.environment().config().getActivityInterval());
     }
     
     @Test
@@ -152,14 +215,15 @@ public class ActivityTrackerTest {
         tracker.executor.shutdownNow();
         while(!tracker.executor.isTerminated()){}
         
-        tracker.queue.tail().get(instance.guild).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
+        tracker.queue.tail().get(guild0).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
         
-        instance.user.setBot(true);
-        instance.self_member.setOnlineStatus(OnlineStatus.OFFLINE);
+        user0.setBot(true);
+        member1.setOnlineStatus(OnlineStatus.OFFLINE);
+        
         tracker.run();
         tracker.run();
         //Finish things up
-        TimeSeriesCollection series = tracker.createMemberSeries(instance.guild);
+        TimeSeriesCollection series = tracker.createMemberSeries(guild0);
         //Members online
         assertEquals(series.getSeriesCount(),2);
         TimeSeries entry = series.getSeries(0);
@@ -179,10 +243,10 @@ public class ActivityTrackerTest {
         tracker.executor.shutdownNow();
         while(!tracker.executor.isTerminated()){}
         
-        tracker.queue.tail().get(instance.guild).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
+        tracker.queue.tail().get(guild0).time = new Minute(new Date(0), UTC, Locale.ENGLISH);
         tracker.run();
         
-        JFreeChart chart = tracker.createChart(instance.guild, Lists.newArrayList());
+        JFreeChart chart = tracker.createChart(guild0, Lists.newArrayList());
         
         assertEquals(chart.getXYPlot().getDatasetCount(),2);
         assertEquals(chart.getXYPlot().getDataset(0).getSeriesCount(),2);

@@ -35,7 +35,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import vartas.OfflineInstance;
 import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.offlinejraw.OfflineRateLimiter;
 import vartas.offlinejraw.OfflineSubmissionListingResponse;
@@ -49,13 +48,10 @@ import vartas.xml.XMLCredentials;
  */
 public class SubmissionMessageTest {
     List<Submission> submissions;
-    OfflineInstance instance;
     Date start;
     Date end;
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
-        
         XMLCredentials credentials = XMLCredentials.create(new File("src/test/resources/credentials.xml"));
         OfflineNetworkAdapter adapter = new OfflineNetworkAdapter();
         RedditBot bot = new RedditBot(credentials, adapter);

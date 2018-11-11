@@ -23,6 +23,6 @@ package vartas.discordbot.command;
 public class MissingRankException extends RuntimeException{
     private static final long serialVersionUID = 1L;
     public MissingRankException(Rank rank){
-        super(String.format("You need to have %s or any higher rank to execute this command.",rank.toString()));
+        super(String.format("You need to have the %s or any higher rank to execute this command.",rank.toString()));
     }
 }

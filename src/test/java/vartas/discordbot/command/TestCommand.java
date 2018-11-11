@@ -14,23 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas;
+package vartas.discordbot.command;
 
-import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.managers.impl.PresenceImpl;
-import org.json.JSONObject;
+import java.io.IOException;
 
 /**
  *
  * @author u/Zavarov
  */
-public class OfflinePresence extends PresenceImpl{
-    
-    public OfflinePresence(JDAImpl jda) {
-        super(jda);
-    }
-    
+public class TestCommand extends Command{
     @Override
-    public void update(JSONObject data){}
-    
+    protected void execute() throws IOException, InterruptedException {}
 }

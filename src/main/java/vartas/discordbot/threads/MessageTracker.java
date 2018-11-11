@@ -17,8 +17,9 @@
 
 package vartas.discordbot.threads;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
+import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.messages.InteractiveMessage;
 
 /**
@@ -34,8 +36,11 @@ import vartas.discordbot.messages.InteractiveMessage;
  * after a certain amount of time.
  * @author u/Zavarov
  */
-public class MessageTracker extends HashMap<Long,InteractiveMessage> implements Runnable, Killable{
-    private static final long serialVersionUID = 1L;
+public class MessageTracker implements Runnable, Killable{
+    /**
+     * The map that contains all stored messages.
+     */
+    protected final Map<Long,InteractiveMessage> messages;
     /**
      * The scheduler that removes the ability to interact
      * with messages that are too old.
@@ -46,23 +51,28 @@ public class MessageTracker extends HashMap<Long,InteractiveMessage> implements 
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The time that can pass before the message becomes inactive.
+     * The communicator of the program.
      */
-    protected final long interval;
+    protected final Communicator comm;
     /**
-     * @param interval the time in minutes that can pass before the message becomes inactive.
+     * @param comm the communicator of the program.
      */
-    public MessageTracker(long interval){
-        this.interval = interval;
+    public MessageTracker(Communicator comm){
+        this.comm = comm;
         this.executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(MessageTracker.this, interval, interval, TimeUnit.MINUTES);
+        this.messages = new Object2ObjectOpenHashMap<>();
+        executor.scheduleAtFixedRate(
+                MessageTracker.this, 
+                comm.environment().config().getInteractiveMessageAge(), 
+                comm.environment().config().getInteractiveMessageAge(), 
+                TimeUnit.MINUTES);
     }
     /**
      * Adds the message to the underlying map.
      * @param message the message.
      */
     public synchronized void add(InteractiveMessage message){
-        put(message.getCurrentMessage().getIdLong(),message);
+        messages.put(message.getCurrentMessage().getIdLong(),message);
     }
     /**
      * Forwards the reaction to the message, if such a message exists.
@@ -71,22 +81,26 @@ public class MessageTracker extends HashMap<Long,InteractiveMessage> implements 
      * @param reaction the reaction.
      */
     public synchronized void update(long id, User user, MessageReaction reaction){
-        computeIfPresent(id, (k,v) -> {v.add(user, reaction); return v;});
+        messages.computeIfPresent(id, (k,v) -> {v.add(user, reaction); return v;});
     }
     /**
      * Resubmits the interface when the command has been used since the last update or disable it otherwise.
      */
     @Override
     public synchronized void run(){
-        int size = size();
+        int count = messages.size();
         
         OffsetDateTime now = OffsetDateTime.now();
-        entrySet().removeIf(e -> e.getValue().getLastReaction().plusMinutes(interval).isBefore(now));
+        messages.entrySet().
+                removeIf(e -> e.getValue()
+                        .getLastReaction()
+                        .plusMinutes(comm.environment().config().getInteractiveMessageAge())
+                        .isBefore(now));
         
         //Number of removed elements
-        size -= size();
-        if(size > 0){
-            log.info(String.format("Removed %d interactive %s",size, English.plural("message", size)));
+        count -= messages.size();
+        if(count > 0){
+            log.info(String.format("Removed %d interactive %s",count, English.plural("message", count)));
         }
     }
     /**

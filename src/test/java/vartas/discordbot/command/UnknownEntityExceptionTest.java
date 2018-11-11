@@ -32,6 +32,6 @@ public class UnknownEntityExceptionTest {
     }
     @Test
     public void checkMessageTest(){
-        assertEquals(exception.getMessage(),"An entity with the name [token] wasn't found.");
+        assertEquals(exception.getMessage(),"An entity for the token [token] wasn't found.");
     }
 }

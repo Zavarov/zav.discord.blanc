@@ -25,14 +25,16 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.MessageAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import vartas.discordbot.DiscordBot;
+import vartas.discordbot.comm.Communicator;
 
 /**
  * This class creates an interactive message where the user has the option to
@@ -78,13 +80,19 @@ public class InteractiveMessage implements Consumer<Message>{
      */
     protected Consumer<InteractiveMessage> consumer;
     /**
+     * The communicator for the current shard.
+     */
+    protected Communicator comm;
+    /**
      * creates an message with the specified pages.
      * @param channel the channel the message is in.
      * @param author the author who can interact with the message.
      * @param pages the content of the message.
+     * @param comm the communicator for the shard the message is in.
      */
-    protected InteractiveMessage(MessageChannel channel, User author, List<MessageEmbed> pages){
+    protected InteractiveMessage(MessageChannel channel, User author, List<MessageEmbed> pages, Communicator comm){
         this.channel = channel;
+        this.comm = comm;
         this.author = author;
         this.pages = pages;
         this.last_reaction = OffsetDateTime.now();
@@ -92,10 +100,11 @@ public class InteractiveMessage implements Consumer<Message>{
     /**
      * Submits this message to the Discord API.
      * @param consumer the consumer that will add this message to the thread that manages interactive messages.
+     * @return the rest action that will send this message.
      */
-    public void send(Consumer<InteractiveMessage> consumer){
+    public RestAction<Message> toRestAction(Consumer<InteractiveMessage> consumer){
         this.consumer = consumer;
-        DiscordBot.sendAction(channel.sendMessage(pages.get(current_page)),InteractiveMessage.this);
+        return channel.sendMessage(pages.get(current_page));
     }
     
     /**
@@ -107,21 +116,19 @@ public class InteractiveMessage implements Consumer<Message>{
         if(author.equals(user)){
             last_reaction = OffsetDateTime.now();
             
-            if(reaction.getReactionEmote().getName().equals(ARROW_LEFT)){
-                    current_page = (current_page-1+pages.size()) % pages.size();
-            }else if(reaction.getReactionEmote().getName().equals(ARROW_RIGHT)){
-                    current_page = (current_page+1) % pages.size();
-            }
+            if(reaction.getReactionEmote().getName().equals(ARROW_LEFT))
+                current_page = (current_page-1+pages.size()) % pages.size();
+            else if(reaction.getReactionEmote().getName().equals(ARROW_RIGHT))
+                current_page = (current_page+1) % pages.size();
             
             MessageEmbed next_message = pages.get(current_page);
             MessageAction update = current_message.editMessage(next_message);
             Consumer<Message> update_message = m -> current_message = m;
             
-            DiscordBot.sendAction(update,update_message);
-            
+            comm.send(update,update_message);
             //Remove the reaction so that the user doesn't have to do it
             if(isTextChannel() && canRemoveReactions()){
-                DiscordBot.sendAction(reaction.removeReaction(user));
+                comm.send(reaction.removeReaction(user));
             }
         }
     }
@@ -141,7 +148,7 @@ public class InteractiveMessage implements Consumer<Message>{
      * @return true when the message is in a text channel. 
      */
     private boolean isTextChannel(){
-        return current_message.getTextChannel() != null;
+        return current_message.getChannelType() == ChannelType.TEXT;
     }
     /**
      * @return true when the bot has the "Manage Messages" permission. 
@@ -160,8 +167,8 @@ public class InteractiveMessage implements Consumer<Message>{
     @Override
     public void accept(Message message){
         current_message = message;
-        DiscordBot.sendAction(message.addReaction(ARROW_LEFT));
-        DiscordBot.sendAction(message.addReaction(ARROW_RIGHT));
+        comm.send(message.addReaction(ARROW_LEFT));
+        comm.send(message.addReaction(ARROW_RIGHT));
         consumer.accept(this);
     }
     /**
@@ -193,13 +200,19 @@ public class InteractiveMessage implements Consumer<Message>{
          */
         protected String thumbnail;
         /**
+         * The communicator of the shard the message is in.
+         */
+        protected Communicator comm;
+        /**
          * Initializes an empty builder.
          * @param channel the channel the message is sent in.
          * @param author the user who can interact with the message.
+         * @param comm the communicator of the shard the message is in.
          */
-        public Builder(MessageChannel channel, User author){
+        public Builder(MessageChannel channel, User author, Communicator comm){
             this.channel = channel;
             this.author = author;
+            this.comm = comm;
         }
         /**
          * Adds a description for this and all following pages.
@@ -226,11 +239,11 @@ public class InteractiveMessage implements Consumer<Message>{
          * @param elements_per_page the elements each page should have.
          * @return this.
          */
-        public Builder addLines(Collection<String> lines, int elements_per_page){
-            Iterator<String> iterator = lines.iterator();
+        public Builder addLines(Collection<?> lines, int elements_per_page){
+            Iterator<?> iterator = lines.iterator();
             for(int j = 0 ; j < lines.size() ; j+=elements_per_page){
                 for(int i = j ; i < Math.min(j+elements_per_page,lines.size()) ; ++i){
-                    addLine(iterator.next());
+                    addLine(iterator.next().toString());
                 }
                 //Don't do it for the last page
                 if( (j+elements_per_page) < lines.size()){
@@ -316,7 +329,7 @@ public class InteractiveMessage implements Consumer<Message>{
             List<MessageEmbed> pages = output.stream()
                     .map(EmbedBuilder::build)
                     .collect(Collectors.toList());
-            return new InteractiveMessage(channel,author,pages);
+            return new InteractiveMessage(channel,author,pages,comm);
         }
     }
 }

@@ -16,222 +16,282 @@
  */
 package vartas.discordbot.messages;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
-import net.dv8tion.jda.core.requests.restaction.MessageAction;
+import net.dv8tion.jda.core.entities.MessageType;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
+import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
+import net.dv8tion.jda.core.requests.RestAction;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
-import vartas.OfflineMessage;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.xml.XMLServer;
 
 /**
  *
  * @author u/Zavarov
  */
 public class InteractiveMessageTest {
-    OfflineInstance instance;
-    InteractiveMessage message;
+    static OfflineCommunicator comm;
+    static XMLServer server;
+    static GuildImpl guild;
+    static TextChannelImpl channel1;
+    static PrivateChannelImpl channel2;
+    static JDAImpl jda;
+    static SelfUserImpl self;
+    static UserImpl user;
+    static RoleImpl role0;
+    static MemberImpl memberself;
+    static MemberImpl member;
+    static Message message1;
+    static Message message2;
+    @BeforeClass
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        
+        jda = (JDAImpl)comm.jda();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        self = new SelfUserImpl(0L,jda);
+        user = new UserImpl(1L,jda);
+        memberself = new MemberImpl(guild, self);
+        member = new MemberImpl(guild,user);
+        role0 = new RoleImpl(0L,guild);
+        channel2 = new PrivateChannelImpl(2L,user);
+        
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        jda.getUserMap().put(user.getIdLong(),user);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.getMembersMap().put(user.getIdLong(),member);
+        guild.getRolesMap().put(role0.getIdLong(),role0);
+        guild.setOwner(memberself);
+        guild.setPublicRole(role0);
+        role0.setRawPermissions(Permission.getRaw(Permission.MESSAGE_READ,Permission.MESSAGE_WRITE,Permission.MESSAGE_EMBED_LINKS));
+        user.setPrivateChannel(channel2);
+        
+        message1 = new ReceivedMessage(
+                1L, channel1, MessageType.DEFAULT,
+                false, false, null,null, false, false, 
+                "content", "", self, OffsetDateTime.now()
+                ,Arrays.asList(), Arrays.asList(), Arrays.asList());
+        
+        message2 = new ReceivedMessage(
+                1L, channel2, MessageType.DEFAULT,
+                false, false, null,null, false, false, 
+                "content", "", self, OffsetDateTime.now()
+                ,Arrays.asList(), Arrays.asList(), Arrays.asList());
+        
+        server = comm.server(guild);
+    }
+    
+    InteractiveMessage interactive;
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
-        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(instance.channel1, instance.self);
+        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel1, self, comm);
         builder.addLines(Arrays.asList("a","b","c","d","e"), 2);
-        message = builder.build();
-        message.current_message = instance.guild_message;
+        interactive = builder.build();
+        interactive.current_message = message1;
+        
+        comm.actions.clear();
+        comm.discord.clear();
+    }
+    
+    @Test
+    public void addAndUpdateTest(){
+        comm = new OfflineCommunicator(comm.environment(),comm.jda()){
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure){
+                success.accept((T)message2);
+            }
+        };
+        interactive.comm = comm;
+        interactive.current_message = message1;
+        interactive.add(self, 
+                new MessageReaction(
+                        channel2,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message2.getIdLong(),
+                        true,
+                        1
+                )
+        );
+        assertEquals(interactive.current_message, message2);
+        startUp();
     }
     @Test
     public void addRightSinglePageTest(){
-        message.pages.retainAll(Arrays.asList(message.pages.get(0)));
+        interactive.pages.retainAll(Arrays.asList(interactive.pages.get(0)));
         
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,0);
+        assertEquals(interactive.current_page,0);
+    }
+    @Test
+    public void addRightMissingPermissionTest(){
+        interactive.current_message = message2;
+        interactive.add(self, 
+                new MessageReaction(
+                        channel2,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message2.getIdLong(),
+                        true,
+                        1
+                )
+        );
+        assertEquals(interactive.current_page,1);
     }
     @Test
     public void addRightTest(){
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,1);
+        assertEquals(interactive.current_page,1);
     }
     @Test
     public void addRightBacktrackTest(){
-        message.current_page = message.pages.size()-1;
-        message.add(instance.self, 
+        interactive.current_page = interactive.pages.size()-1;
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,0);
+        assertEquals(interactive.current_page,0);
     }
     @Test
     public void addLeftSinglePageTest(){
-        message.pages.retainAll(Arrays.asList(message.pages.get(0)));
+        interactive.pages.retainAll(Arrays.asList(interactive.pages.get(0)));
         
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,0);
+        assertEquals(interactive.current_page,0);
     }
     @Test
     public void addLeftTest(){
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,message.pages.size()-1);
+        assertEquals(interactive.current_page,interactive.pages.size()-1);
     }
     @Test
     public void addLeftBacktrackTest(){
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_LEFT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,message.pages.size()-1);
+        assertEquals(interactive.current_page,interactive.pages.size()-1);
     }
     @Test
     public void addJunkTest(){
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(":D",0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(":D",0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,0);
+        assertEquals(interactive.current_page,0);
     }
     @Test
     public void addDifferentUserTest(){
-        message.add(instance.user, 
+        interactive.add(user, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,0);
-    }
-    @Test
-    public void addPrivateChannel(){
-        message.current_message = instance.private_message;
-        
-        message.add(instance.self, 
-                new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
-                        true,
-                        1
-                )
-        );
-        assertEquals(message.current_page,1);
+        assertEquals(interactive.current_page,0);
     }
     @Test
     public void addMissingPermissionChannel(){
-        instance.guild.setOwner(instance.member);
+        guild.setOwner(member);
         
-        message.add(instance.self, 
+        interactive.add(self, 
                 new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
+                        channel1,
+                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,jda),
+                        message1.getIdLong(),
                         true,
                         1
                 )
         );
-        assertEquals(message.current_page,1);
-    }
-    @Test
-    public void addUpdateChannelTest(){
-        message.current_message = new OfflineMessage(instance.jda,0,null,null,null){
-            @Override
-            public MessageAction editMessage(MessageEmbed message){
-                return new MessageAction(jda,null,channel){
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure){
-                        success.accept(instance.private_message);
-                    }
-                };
-            }
-        };
-        
-        assertNotEquals(message.current_message,instance.private_message);
-        message.add(instance.self, 
-                new MessageReaction(
-                        instance.channel1,
-                        new ReactionEmote(InteractiveMessage.ARROW_RIGHT,0L,instance.jda),
-                        instance.guild_message.getIdLong(),
-                        true,
-                        1
-                )
-        );
-        assertEquals(message.current_message,instance.private_message);
+        assertEquals(interactive.current_page,1);
     }
     @Test
     public void getCurrentMessageTest(){
-        assertEquals(message.current_message,message.getCurrentMessage());
+        assertEquals(interactive.current_message,interactive.getCurrentMessage());
     }
     @Test
     public void getLastReactionTest(){
-        assertEquals(message.last_reaction,message.getLastReaction());
+        assertEquals(interactive.last_reaction,interactive.getLastReaction());
     }
     @Test
-    public void sendTest(){
-        assertTrue(instance.messages.isEmpty());
-        message.send((c) -> {});
-        assertEquals(instance.messages.size(),1);
+    public void toRestActionTest(){
+        assertTrue(interactive.toRestAction(c -> {}) instanceof RestAction);
     }
     @Test
     public void acceptTest(){
-        message.consumer = (c) -> {};
-        assertNotEquals(message.current_message,instance.private_message);
-        assertTrue(instance.actions.isEmpty());
-        message.accept(instance.private_message);
-        assertEquals(message.current_message,instance.private_message);
-        assertEquals(instance.actions.size(),2);
+        interactive.consumer = (c) -> comm.actions.add("success");
+        
+        interactive.accept(message1);
+        assertEquals(comm.actions,Arrays.asList("action queued","action queued","success"));
     }
 }

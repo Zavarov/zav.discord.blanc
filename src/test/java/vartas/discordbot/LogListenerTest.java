@@ -27,20 +27,20 @@ import org.junit.Test;
 /**
  * @author u/Zavarov
  */
-public class DiscordLogListenerTest {
-    DiscordLogListener<String> listener;
+public class LogListenerTest {
+    LogListener<String> listener;
     @Before
     public void setUp(){
-        listener = new DiscordLogListener<>();
-        DiscordLogListener.MEMORY.clear();
+        listener = new LogListener<>();
+        LogListener.MEMORY.clear();
     }
     @Test
     public void appendTest(){
-        assertTrue(DiscordLogListener.MEMORY.isEmpty());
+        assertTrue(LogListener.MEMORY.isEmpty());
         listener.append("text1");
         listener.append("text2");
         listener.append("text3");
-        Iterator<Object> iterator = DiscordLogListener.MEMORY.iterator();
+        Iterator<Object> iterator = LogListener.MEMORY.iterator();
         assertEquals(iterator.next(),"text1");
         assertEquals(iterator.next(),"text2");
         assertEquals(iterator.next(),"text3");

@@ -20,8 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Set;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -34,75 +32,36 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineJDA;
+import vartas.discordbot.comm.OfflineEnvironment;
 
 /**
  *
  * @author u/Zavarov
  */
 public class XMLServerTest {
-    static String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-"<server>\n" +
-"    <entry row=\"reddit\" column=\"subreddit\">\n" +
-"        <document>\n" +
-"            <entry>1</entry>\n" +
-"            <entry>2</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"reddit\" column=\"stuff\">\n" +
-"        <document>\n" +
-"            <entry>2</entry>\n" +
-"            <entry>3</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"filter\" column=\"word\">\n" +
-"        <document>\n" +
-"            <entry>word</entry>\n" +
-"            <entry>text</entry>\n" +
-"            <entry>expression</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"role\" column=\"tag\">\n" +
-"        <document>\n" +
-"            <entry>1</entry>\n" +
-"            <entry>2</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"role\" column=\"stuff\">\n" +
-"        <document>\n" +
-"            <entry>3</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"server\" column=\"prefix\">\n" +
-"        <document>\n" +
-"            <entry>prefix</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"</server>";
-
-    @BeforeClass
-    public static void create() throws IOException{
-        try (FileWriter writer = new FileWriter(new File("src/test/resources/guilds/0.server"))) {
-            writer.write(xml);
-        }
-    }
     XMLServer server;
     GuildImpl guild;
-    TextChannelImpl channel;
-    RoleImpl role0,role1,role3;
+    TextChannelImpl channel1;
+    TextChannelImpl channel2;
+    TextChannelImpl channel3;
+    RoleImpl role0,role1,role2,role3,role4;
     JDAImpl jda;
     @Before
     public void setUp(){
         server = XMLServer.create(new File("src/test/resources/guilds/0.server"));
-        jda = new OfflineJDA();
+        
+        jda = OfflineEnvironment.create();
         guild = new GuildImpl(jda , 1);
-        channel = new TextChannelImpl(2, guild);
-        guild.getTextChannelsMap().put(channel.getIdLong(), channel);
+        channel1 = new TextChannelImpl(1, guild);
+        channel2 = new TextChannelImpl(2, guild);
+        channel3 = new TextChannelImpl(3, guild);
+        guild.getTextChannelsMap().put(channel2.getIdLong(), channel2);
         role0 = new RoleImpl(0, guild);
         role1 = new RoleImpl(1, guild);
+        role2 = new RoleImpl(2, guild);
         role3 = new RoleImpl(3, guild);
+        role4 = new RoleImpl(4, guild);
         guild.getRolesMap().put(role0.getIdLong(), role0);
         guild.getRolesMap().put(role1.getIdLong(), role1);
         guild.getRolesMap().put(role3.getIdLong(), role3);
@@ -110,53 +69,53 @@ public class XMLServerTest {
     
     @Test
     public void containsRedditFeedTest(){
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(1,guild)));
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(2,guild)));
-        assertFalse(server.containsRedditFeed("subreddit", new TextChannelImpl(3,guild)));
-        assertFalse(server.containsRedditFeed("stuff", new TextChannelImpl(1,guild)));
-        assertTrue(server.containsRedditFeed("stuff", new TextChannelImpl(2,guild)));
-        assertTrue(server.containsRedditFeed("stuff", new TextChannelImpl(3,guild)));
+        assertTrue(server.containsRedditFeed("subreddit", channel1));
+        assertTrue(server.containsRedditFeed("subreddit", channel2));
+        assertFalse(server.containsRedditFeed("subreddit", channel3));
+        assertFalse(server.containsRedditFeed("stuff", channel1));
+        assertTrue(server.containsRedditFeed("stuff", channel2));
+        assertTrue(server.containsRedditFeed("stuff", channel3));
     }
     
     @Test
     public void addRedditFeedTest(){
-        assertFalse(server.containsRedditFeed("subreddit", new TextChannelImpl(3,guild)));
-        server.addRedditFeed("subreddit", new TextChannelImpl(3,guild));
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(3,guild)));
-        assertFalse(server.containsRedditFeed("junk", new TextChannelImpl(3,guild)));
+        assertFalse(server.containsRedditFeed("subreddit", channel3));
+        server.addRedditFeed("subreddit", channel3);
+        assertTrue(server.containsRedditFeed("subreddit", channel3));
+        
+        assertFalse(server.containsRedditFeed("junk", channel3));
         assertFalse(server.getRedditFeeds(guild).containsKey("junk"));
-        server.addRedditFeed("junk", new TextChannelImpl(3,guild));
-        assertTrue(server.containsRedditFeed("junk", new TextChannelImpl(3,guild)));
+        server.addRedditFeed("junk", channel3);
+        assertTrue(server.containsRedditFeed("junk", channel3));
     }
     
     @Test
     public void removeRedditFeedTest(){
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(1,guild)));
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(2,guild)));
+        assertTrue(server.containsRedditFeed("subreddit", channel1));
+        assertTrue(server.containsRedditFeed("subreddit", channel2));
         assertTrue(server.containsColumn("subreddit"));
-        server.removeRedditFeed("subreddit", new TextChannelImpl(1,guild));
-        assertFalse(server.containsRedditFeed("subreddit", new TextChannelImpl(1,guild)));
-        server.removeRedditFeed("subreddit", new TextChannelImpl(2,guild));
-        assertFalse(server.containsRedditFeed("subreddit", new TextChannelImpl(2,guild)));
+        server.removeRedditFeed("subreddit", channel1);
+        assertFalse(server.containsRedditFeed("subreddit", channel1));
+        server.removeRedditFeed("subreddit", channel2);
+        assertFalse(server.containsRedditFeed("subreddit", channel2));
         assertFalse(server.containsColumn("subreddit"));
     }
     
     @Test
     public void getRedditFeedsTest(){
         Multimap<String,TextChannel> multimap = server.getRedditFeeds(guild);
-        assertEquals(multimap.size(),2);
-        assertTrue(multimap.containsEntry("subreddit", channel));
-        assertTrue(multimap.containsEntry("stuff", channel));
-        assertFalse(server.containsRedditFeed("subreddit", new TextChannelImpl(1,guild)));
-        assertTrue(server.containsRedditFeed("subreddit", new TextChannelImpl(2,guild)));
-        assertTrue(server.containsRedditFeed("stuff", new TextChannelImpl(2,guild)));
-        assertFalse(server.containsRedditFeed("stuff", new TextChannelImpl(3,guild)));
+        assertEquals(multimap.entries().size(),2);
+        assertTrue(multimap.containsEntry("subreddit", channel2));
+        assertTrue(multimap.containsEntry("stuff", channel2));
+        assertFalse(server.containsRedditFeed("subreddit", channel1));
+        assertTrue(server.containsRedditFeed("subreddit", channel2));
+        assertTrue(server.containsRedditFeed("stuff", channel2));
+        assertFalse(server.containsRedditFeed("stuff", channel3));
     }
     @Test
     public void getRedditFeedTest(){
-        TextChannelImpl channel3 = new TextChannelImpl(3, guild);
         guild.getTextChannelsMap().put(channel3.getIdLong(), channel3);
-        assertEquals(server.getRedditFeed(guild, "stuff"),Sets.newHashSet(channel,channel3));
+        assertEquals(server.getRedditFeed(guild, "stuff"),Sets.newHashSet(channel2,channel3));
     }
     @Test
     public void isFilteredTest(){
@@ -195,55 +154,54 @@ public class XMLServerTest {
     }
     @Test
     public void isTaggedTest(){
-        assertFalse(server.isTagged(new RoleImpl(0,guild)));
-        assertTrue(server.isTagged(new RoleImpl(1,guild)));
-        assertTrue(server.isTagged(new RoleImpl(2,guild)));
-        assertTrue(server.isTagged(new RoleImpl(3,guild)));
-        assertFalse(server.isTagged(new RoleImpl(4,guild)));
+        assertFalse(server.isTagged(role0));
+        assertTrue(server.isTagged(role1));
+        assertTrue(server.isTagged(role2));
+        assertTrue(server.isTagged(role3));
+        assertFalse(server.isTagged(role4));
     }
     @Test
     public void tag(){
-        assertFalse(server.isTagged(new RoleImpl(4,guild)));
-        server.tag("stuff",new RoleImpl(4,guild));
-        assertTrue(server.isTagged(new RoleImpl(4,guild)));
+        assertFalse(server.isTagged(role4));
+        server.tag("stuff",role4);
+        assertTrue(server.isTagged(role4));
     }
     @Test
     public void tagTaggedTest(){
-        assertTrue(server.isTagged(new RoleImpl(1,guild)));
-        assertEquals(server.getTag(new RoleImpl(1,guild)),"tag");
-        server.tag("stuff",new RoleImpl(1,guild));
-        assertTrue(server.isTagged(new RoleImpl(1,guild)));
-        assertEquals(server.getTag(new RoleImpl(1,guild)),"tag");
+        assertTrue(server.isTagged(role1));
+        assertEquals(server.getTag(role1),"tag");
+        server.tag("stuff",role1);
+        assertTrue(server.isTagged(role1));
+        assertEquals(server.getTag(role1),"tag");
     }
     @Test
     public void untagTest(){
-        assertTrue(server.isTagged(new RoleImpl(1,guild)));
-        server.untag(new RoleImpl(1,guild));
-        assertFalse(server.isTagged(new RoleImpl(1,guild)));
+        assertTrue(server.isTagged(role1));
+        server.untag(role1);
+        assertFalse(server.isTagged(role1));
     }
     @Test
     public void untagUntaggedTest(){
-        RoleImpl role = new RoleImpl(1000,guild);
-        assertFalse(server.isTagged(role));
-        server.untag(role);
-        assertFalse(server.isTagged(role));
+        assertFalse(server.isTagged(role4));
+        server.untag(role4);
+        assertFalse(server.isTagged(role4));
     }
     @Test
     public void getTags(){
         Multimap<String,Role> multimap = server.getTags(guild);
-        assertEquals(multimap.size(),2);
-        assertTrue(multimap.get("tag").contains(new RoleImpl(1,guild)));
-        assertTrue(multimap.get("stuff").contains(new RoleImpl(3,guild)));
+        assertEquals(multimap.entries().size(),2);
+        assertTrue(multimap.get("tag").contains(role1));
+        assertTrue(multimap.get("stuff").contains(role3));
     }
     @Test
     public void removeNonexistentTest(){
-        assertFalse(server.containsRedditFeed("invalid", channel));
-        server.removeRedditFeed("invalid", channel);
-        assertFalse(server.containsRedditFeed("invalid", channel));
+        assertFalse(server.containsRedditFeed("invalid", channel2));
+        server.removeRedditFeed("invalid", channel2);
+        assertFalse(server.containsRedditFeed("invalid", channel2));
     }
     @Test
     public void containsNonexistentTest(){
-        assertFalse(server.containsRedditFeed("invalid", channel));
+        assertFalse(server.containsRedditFeed("invalid", channel2));
     }
     @Test
     public void getSetNonexistentTest(){

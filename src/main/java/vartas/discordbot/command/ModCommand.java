@@ -54,11 +54,11 @@ public abstract class ModCommand extends GuildCommand{
      */
     @Override
     public void checkRequirements() throws MissingPermissionException{
+        super.checkRequirements();
         List<Permission> permissions = Permission.getPermissions(PermissionUtil.getEffectivePermission(message.getTextChannel(),message.getMember()));
         
-        boolean isRoot = permission.getRanks(message.getAuthor()).contains(Rank.ROOT);
+        boolean isRoot = comm.environment().permission().getRanks(message.getAuthor()).contains(Rank.ROOT);
         boolean hasPermission = permissions.containsAll(required);
-        
         if(!isRoot && !hasPermission){
             throw new MissingPermissionException(CollectionUtils.subtract(required,permissions));
         }
@@ -68,7 +68,7 @@ public abstract class ModCommand extends GuildCommand{
      * @return true if the author is root or if the supplier returns true.
      */
     public boolean canInteract(Supplier<Boolean> supplier){
-        boolean isRoot = permission.getRanks(message.getAuthor()).contains(Rank.ROOT);
+        boolean isRoot = comm.environment().permission().getRanks(message.getAuthor()).contains(Rank.ROOT);
         return isRoot || supplier.get();
     }
 }

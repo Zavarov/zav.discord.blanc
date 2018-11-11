@@ -36,6 +36,6 @@ public abstract class GuildCommand extends Command{
     @Override
     public void checkRequirements() throws CommandRequiresGuildException{
         super.requiresGuild();
-        server = bot.getServer(message.getGuild());
+        server = comm.server(message.getGuild());
     }
 }

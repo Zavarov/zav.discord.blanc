@@ -2,7 +2,7 @@
 <config>
     <entry key="status_interval">5</entry>
     <entry key="activity_interval">15</entry>
-    <entry key="discord_shards">10</entry>
+    <entry key="discord_shards">2</entry>
     <entry key="interactive_message_age">15</entry>
     <entry key="support_invite">support_invite</entry>
     <entry key="bot_name">name</entry>

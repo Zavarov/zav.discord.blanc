@@ -33,8 +33,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import java.util.function.Function;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -48,6 +49,7 @@ import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.slf4j.Logger;
+import vartas.discordbot.comm.Communicator;
 
 /**
  * This class keeps track of the activity in all guilds in the respective shard.
@@ -63,18 +65,9 @@ public class ActivityTracker implements Runnable, Killable{
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The bot stores the activity of an entire day and the update interval is stored in minutes.
-     * This is the scalar that transforms the datatype from minutes into hours and vice versa.
+     * The communicator of the program.
      */
-    protected final static int DAY_IN_MINUTES = 24*60;
-    /**
-     * The interval in which the bot updates the data.
-     */
-    protected final int interval_in_minutes;
-    /**
-     * The JDA to retrieve all the existing guilds
-     */
-    protected final JDA jda;
+    protected final Communicator comm;
     /**
      * A queue storing all data points that also removes the ones that are too old.
      */
@@ -88,29 +81,29 @@ public class ActivityTracker implements Runnable, Killable{
      */
     protected final static TimeZone UTC = TimeZone.getTimeZone("UTC");
     /**
-     * @param jda the JDA of the respective shard.
-     * @param interval the interval in which the thread updates the values.
+     * @param comm the communicator of the program.
      */
-    public ActivityTracker(JDA jda, int interval){
-        this.jda = jda;
-        this.interval_in_minutes=interval;
+    public ActivityTracker(Communicator comm){
+        this.comm = comm;
         
-        queue = new EvictingLinkedQueue<>(DAY_IN_MINUTES/interval);
+        queue = new EvictingLinkedQueue<>(comm.environment().config().getActivityInterval());
         queue.add(measure());
-        
         executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(ActivityTracker.this, interval,  interval, TimeUnit.MINUTES);
+        executor.scheduleAtFixedRate(
+                ActivityTracker.this, 
+                comm.environment().config().getActivityInterval(),  
+                comm.environment().config().getActivityInterval(), 
+                TimeUnit.MINUTES);
         
-        log.info(String.format("Tracker #%d started.",jda.getShardInfo().getShardId()));
+        log.info("Activity Tracker started.");
     }
     /**
      * Creates an image based on a set of data of the member and channel in this guild.
      * @param guild the guild to get the name.
      * @param textchannels all channels whose data also has to be plotted.
      * @return the image representing the data.
-     * @throws InterruptedException if the program was interrupted before it could finish.
      */
-    public JFreeChart createChart(Guild guild, Collection<TextChannel> textchannels) throws InterruptedException{
+    public JFreeChart createChart(Guild guild, Collection<TextChannel> textchannels){
         TimeSeriesCollection members = createMemberSeries(guild);
         TimeSeriesCollection channels = createChannelSeries(guild, textchannels);
         
@@ -133,9 +126,8 @@ public class ActivityTracker implements Runnable, Killable{
      * and the total amount of members in the server.
      * @param guild the guild in which the bot is in.
      * @return a series of data points, showing the change in the past day.
-     * @throws InterruptedException if the program was interrupted before it could finish.
      */
-    public TimeSeriesCollection createMemberSeries(Guild guild) throws InterruptedException{
+    public TimeSeriesCollection createMemberSeries(Guild guild){
         TimeSeriesCollection collection = new TimeSeriesCollection();
         collection.addSeries(create("Members online",guild,k -> new Double(k.member_online)));
         collection.addSeries(create("All members",guild,k -> new Double(k.all_member)));
@@ -147,19 +139,18 @@ public class ActivityTracker implements Runnable, Killable{
      * @param guild the guild in which the bot is in.
      * @param channels all channels whose data also has to be plotted.
      * @return a series of data points, showing the change in the past day.
-     * @throws InterruptedException if the program was interrupted before it could finish.
      */
-    public TimeSeriesCollection createChannelSeries(Guild guild, Collection<TextChannel> channels) throws InterruptedException{
+    public TimeSeriesCollection createChannelSeries(Guild guild, Collection<TextChannel> channels){
         TimeSeriesCollection collection = new TimeSeriesCollection();
         collection.addSeries(create("All channels", 
                 guild, 
-                k -> k.posts.values().stream().mapToLong(Long::longValue).sum()*1.0/interval_in_minutes));
+                k -> k.posts.values().stream().mapToLong(Long::longValue).sum()*1.0/comm.environment().config().getActivityInterval()));
         
-        for(TextChannel channel : channels){
-            collection.addSeries(create("#"+channel.getName(),
-                guild, 
-                k -> k.posts.computeIfAbsent(channel, j -> (long)0)*1.0/interval_in_minutes));
-        }
+        channels.forEach(c -> collection.addSeries(create(
+                "#"+c.getName(),
+                guild,
+                k -> k.posts.computeIfAbsent(c, j -> (long)0)*1.0/comm.environment().config().getActivityInterval()))
+        );
         return collection;
     }
     /**
@@ -170,9 +161,9 @@ public class ActivityTracker implements Runnable, Killable{
      * @return the created dataset.
      * @throws InterruptedException if the program was interrupted before it could finish.
      */
-    private TimeSeries create(String title, Guild guild, Entry entry) throws InterruptedException{
+    private TimeSeries create(String title, Guild guild, Entry entry){
         TimeSeries series = new TimeSeries(title);
-        access.acquire();
+        access.acquireUninterruptibly();
         List<Dataset> list = new ObjectArrayList<>(queue);
         access.release();
         //The counter for the newest entries is still being increased
@@ -183,11 +174,13 @@ public class ActivityTracker implements Runnable, Killable{
     }
     /**
      * Increases the counter for the messages in the specified channel.
-     * @param guild the guild the message was sent in.
      * @param channel the channel the message was sent int.
      */
-    public synchronized void increase(Guild guild, TextChannel channel){
-        queue.tail().get(guild).posts.compute(channel, (k,v) -> v == null ? 1L : ++v);
+    public synchronized void increase(TextChannel channel){
+        //The bot joined a new guild since the last update.
+        queue.tail().computeIfAbsent(channel.getGuild(), (g) -> measure(g))
+                .posts
+                .compute(channel, (k,v) -> v == null ? 1L : ++v);
     }
     /**
      * Measures the current time, the total number of people and the number of
@@ -196,25 +189,26 @@ public class ActivityTracker implements Runnable, Killable{
      */
     protected final Dataset measure(){
         Dataset dataset = new Dataset();
-        Data data;
-        Minute now = new Minute(new Date(),UTC,Locale.ENGLISH);
-        long total;
-        long online;
-        
-        for(Guild guild : jda.getGuilds()){
-            total = guild.getMembers()
-                    .stream().
-                    filter(m -> !m.getUser().isBot())
-                    .count();
-            online = guild.getMembers()
-                    .stream()
-                    .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
-                    .filter(m -> !m.getUser().isBot())
-                    .count();
-            data = new Data(now,total,online);
-            dataset.put(guild,data);
-        }
+        comm.guild().forEach(guild -> dataset.put(guild,measure(guild)));
         return dataset;
+    }
+    /**
+     * Measures the data for the specified guild.
+     * @param guild the guild that is measured.
+     * @return the data sample of the guild.
+     */
+    protected final Data measure(Guild guild){
+        Minute now = new Minute(new Date(),UTC,Locale.ENGLISH);
+        long total = guild.getMembers()
+                .stream().
+                filter(m -> !m.getUser().isBot())
+                .count();
+        long online = guild.getMembers()
+                .stream()
+                .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
+                .filter(m -> !m.getUser().isBot())
+                .count();
+        return new Data(now,total,online);
     }
     /**
      * Adds a new dataset to the queue and dismissed the oldest one if the queue
@@ -296,12 +290,12 @@ public class ActivityTracker implements Runnable, Killable{
         /**
          * The size of the ring buffer.
          */
-        protected final int size;
+        protected final long size;
         /**
-         * @param size the size of the ring buffer.
+         * @param interval the amount of elements per day.
          */
-        public EvictingLinkedQueue(int size){
-            this.size = size;
+        public EvictingLinkedQueue(int interval){
+            this.size = MINUTES.convert(1, DAYS) / interval;
         }
         /**
          * @return an iterator of the ringbuffer, starting from the start of the internal list.

@@ -17,16 +17,14 @@
 
 package vartas.discordbot.threads;
 
-import java.io.File;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.xml.strings.XMLStringList;
+import vartas.discordbot.comm.Environment;
 
 /**
  * This runner is responsible for updating the game of the bot, which is used as a status message.
@@ -42,36 +40,35 @@ public class StatusTracker implements Runnable, Killable{
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The client.
+     * The environment of the program.
      */
-    protected final JDA jda;
+    protected final Environment environment;
     /**
      * A random number generator to pick a status message.
      */
     protected final Random random = new Random();
     /**
-     * The file containing all available messages.
+     * Initializes the status.
+     * @param environment the environment of the program.
      */
-    protected final XMLStringList status;
-    /**
-     * @param jda the api.
-     * @param file the file containing the status messages.
-     * @param interval the interval between each change.
-     */
-    public StatusTracker(JDA jda, File file, int interval){
-        this.jda = jda;
-        this.status = XMLStringList.create(file);
+    public StatusTracker(Environment environment){
+        this.environment = environment;
+        
         executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(StatusTracker.this,0, interval, TimeUnit.MINUTES);
-        log.info(String.format("Tracker #%d started.",jda.getShardInfo().getShardId()));
+        executor.scheduleAtFixedRate(
+                StatusTracker.this,
+                0,
+                environment.config().getStatusInterval(), 
+                TimeUnit.MINUTES);
+        log.info("Status Tracker started");
     }
     /**
      * Changes the message to a new one.
      */
     @Override
     public void run() {
-        String message = status.get(random.nextInt(status.size()));
-        jda.getPresence().setGame(Game.playing(message));
+        String message = environment.status().get(random.nextInt(environment.status().size()));
+        environment.game(Game.playing(message));
         log.info(String.format("Game changed to '%s'",message));
     }
     /**

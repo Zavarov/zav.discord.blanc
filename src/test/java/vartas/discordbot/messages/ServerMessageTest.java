@@ -21,40 +21,108 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.xml.XMLServer;
 
 /**
  *
  * @author u/Zavarov
  */
 public class ServerMessageTest {
-    OfflineInstance instance;
-    
+    static OfflineCommunicator comm;
+    static JDAImpl jda;
+    XMLServer server;
+    GuildImpl guild;
+    TextChannelImpl channel1;
+    TextChannelImpl channel2;
+    TextChannelImpl channel3;
+    UserImpl user1;
+    UserImpl user2;
+    UserImpl user3;
+    SelfUserImpl self;
+    RoleImpl role0;
+    RoleImpl role1;
+    RoleImpl role2;
+    MemberImpl memberself;
+    MemberImpl member1;
+    MemberImpl member2;
+    MemberImpl member3;
+    @BeforeClass
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        jda = (JDAImpl)comm.jda();
+    }
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        channel2 = new TextChannelImpl(2, guild);
+        channel3 = new TextChannelImpl(3, guild);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        guild.getTextChannelsMap().put(channel2.getIdLong(), channel2);
+        guild.getTextChannelsMap().put(channel3.getIdLong(), channel3);
+        self = new SelfUserImpl(0L,jda);
+        user1 = new UserImpl(1L,jda);
+        user2 = new UserImpl(2L,jda);
+        user3 = new UserImpl(3L,jda);
+        memberself = new MemberImpl(guild, self);
+        member1 = new MemberImpl(guild, user1);
+        member2 = new MemberImpl(guild, user2);
+        member3 = new MemberImpl(guild, user3);
+        role0 = new RoleImpl(0L,guild);
+        role1 = new RoleImpl(1L,guild);
+        role2 = new RoleImpl(2L,guild);
+        
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        jda.getUserMap().put(user1.getIdLong(),user1);
+        jda.getUserMap().put(user2.getIdLong(),user2);
+        jda.getUserMap().put(user3.getIdLong(),user3);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.getMembersMap().put(user1.getIdLong(),member1);
+        guild.getMembersMap().put(user2.getIdLong(),member2);
+        guild.getMembersMap().put(user3.getIdLong(),member3);
+        guild.getRolesMap().put(role0.getIdLong(),role0);
+        guild.getRolesMap().put(role1.getIdLong(),role1);
+        guild.getRolesMap().put(role2.getIdLong(),role2);
+        guild.setOwner(memberself);
+        guild.setPublicRole(role0);
+        role0.setRawPermissions(Permission.ALL_TEXT_PERMISSIONS);
+        
+        member2.setOnlineStatus(OnlineStatus.ONLINE);
+        member3.setOnlineStatus(OnlineStatus.ONLINE);
+        
+        server = comm.server(guild);
     }
     
     @Test
     public void createTest(){
-        instance.guild.getMembersMap().put(instance.user.getIdLong(),new MemberImpl(instance.guild,instance.user){
+        guild.getMembersMap().put(user1.getIdLong(),new MemberImpl(guild,user1){
             @Override
             public List<Role> getRoles(){
-                return Arrays.asList(instance.role3);
+                return Arrays.asList(role2);
             }
         });
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -68,14 +136,14 @@ public class ServerMessageTest {
     
     @Test
     public void createBotTest(){
-        instance.user.setBot(true);
-        instance.guild.getMembersMap().put(instance.user.getIdLong(),new MemberImpl(instance.guild,instance.user){
+        user1.setBot(true);
+        guild.getMembersMap().put(user1.getIdLong(),new MemberImpl(guild,user1){
             @Override
             public List<Role> getRoles(){
-                return Arrays.asList(instance.role3);
+                return Arrays.asList(role2);
             }
         });
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -88,14 +156,14 @@ public class ServerMessageTest {
     }
     @Test
     public void createModeratorTest(){
-        instance.guild.getMembersMap().put(instance.user.getIdLong(), new MemberImpl(instance.guild,instance.user){
+        guild.getMembersMap().put(user1.getIdLong(), new MemberImpl(guild,user1){
             @Override
             public List<Role> getRoles(){
-                return Arrays.asList(instance.role1);
+                return Arrays.asList(role1);
             }
         });
-        instance.role1.setRawPermissions(Permission.BAN_MEMBERS.getRawValue());
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        role1.setRawPermissions(Permission.BAN_MEMBERS.getRawValue());
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -109,19 +177,19 @@ public class ServerMessageTest {
     }
     @Test
     public void createThumbnailTest(){
-        instance.guild = new GuildImpl(instance.jda, instance.guild.getIdLong()){
+        guild = new GuildImpl(jda, guild.getIdLong()){
             @Override
             public String getIconUrl(){
                 return "http://image.jpg";
             }
         };
-        instance.member = new MemberImpl(instance.guild, instance.user);
-        instance.guild.setName("guild");
-        instance.guild.setAvailable(true);
-        instance.guild.setOwner(instance.member);
-        instance.guild.getMembersMap().put(instance.user.getIdLong(), instance.member);
-        instance.jda.getGuildMap().put(instance.guild.getIdLong(), instance.guild);
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        member1 = new MemberImpl(guild, user1);
+        guild.setName("guild");
+        guild.setAvailable(true);
+        guild.setOwner(member1);
+        guild.getMembersMap().put(user1.getIdLong(), member1);
+        jda.getGuildMap().put(guild.getIdLong(), guild);
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -136,8 +204,8 @@ public class ServerMessageTest {
     }
     @Test
     public void createMultipleModeratorsTest(){
-        instance.public_role.setRawPermissions(Permission.BAN_MEMBERS.getRawValue());
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        role0.setRawPermissions(Permission.BAN_MEMBERS.getRawValue());
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -149,13 +217,13 @@ public class ServerMessageTest {
         assertEquals(fields.get(7).getName(),"#Roles");
         assertEquals(fields.get(8).getName(),"Created");
         
-        assertTrue(fields.get(5).getValue().contains(instance.member.getAsMention()));
-        assertFalse(fields.get(5).getValue().contains(instance.self_member.getAsMention()));
+        assertTrue(fields.get(5).getValue().contains(member1.getAsMention()));
+        assertFalse(fields.get(5).getValue().contains(memberself.getAsMention()));
     }
     @Test
     public void createMultipleAdminsTest(){
-        instance.public_role.setRawPermissions(Permission.ADMINISTRATOR.getRawValue());
-        MessageEmbed message = ServerMessage.create(instance.guild);
+        role0.setRawPermissions(Permission.ADMINISTRATOR.getRawValue());
+        MessageEmbed message = ServerMessage.create(guild);
         List<Field> fields = message.getFields();
         assertEquals(fields.get(0).getName(),"Owner");
         assertEquals(fields.get(1).getName(),"Region");
@@ -166,8 +234,8 @@ public class ServerMessageTest {
         assertEquals(fields.get(6).getName(),"#Roles");
         assertEquals(fields.get(7).getName(),"Created");
         
-        assertTrue(fields.get(4).getValue().contains(instance.member.getAsMention()));
-        assertTrue(fields.get(4).getValue().contains(instance.self_member.getAsMention()));
+        assertTrue(fields.get(4).getValue().contains(member1.getAsMention()));
+        assertTrue(fields.get(4).getValue().contains(memberself.getAsMention()));
     }
     @Test
     public void constructorIsPrivateTest() throws NoSuchMethodException, IllegalAccessException, InstantiationException, IllegalArgumentException, InvocationTargetException{

@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
+import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.messages.InteractiveMessage.Builder;
 
 /**
@@ -159,10 +160,11 @@ public final class RoleMessage {
      * @param author the user who triggered this command.
      * @param role the role in question.
      * @param channel the channel the member is in.
+     * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the roles information
      */
-    public static InteractiveMessage create(User author, Role role, TextChannel channel){
-        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author);
+    public static InteractiveMessage create(User author, Role role, TextChannel channel, Communicator comm){
+        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         
         addDescription(builder, String.format("The basic information about %s", role.getAsMention()));
         addId(builder,role);

@@ -14,25 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas;
+package vartas.discordbot.comm;
 
-import java.util.ArrayList;
-import java.util.List;
-import vartas.discordbot.command.Command;
+import static org.junit.Assert.assertNotNull;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
  * @author u/Zavarov
  */
-public class TestCommand extends Command{
-    public final static List<String> LOG = new ArrayList<>();
-    @Override
-    protected void execute(){
-        LOG.add("executed");
+public class OfflineEnvironmentTest {
+    static OfflineEnvironment environment;
+    @BeforeClass
+    public static void setUp(){
+        environment = new OfflineEnvironment();
     }
-    @Override
-    public void run(){
-        execute();
+    @Test
+    public void createTest(){
+        assertNotNull(OfflineEnvironment.create());
     }
-    
 }

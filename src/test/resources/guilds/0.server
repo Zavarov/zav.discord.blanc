@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document>
+  <entry row="reddit" column="subreddit">
+    <document>
+      <entry>1</entry>
+      <entry>2</entry>
+    </document>
+  </entry>
+  <entry row="reddit" column="stuff">
+    <document>
+      <entry>2</entry>
+      <entry>3</entry>
+    </document>
+  </entry>
+  <entry row="filter" column="word">
+    <document>
+      <entry>word</entry>
+      <entry>text</entry>
+      <entry>expression</entry>
+    </document>
+  </entry>
+  <entry row="server" column="prefix">
+    <document>
+      <entry>prefix</entry>
+    </document>
+  </entry>
+  <entry row="role" column="tag">
+    <document>
+      <entry>1</entry>
+      <entry>2</entry>
+    </document>
+  </entry>
+  <entry row="role" column="stuff">
+    <document>
+      <entry>3</entry>
+    </document>
+  </entry>
+</document>

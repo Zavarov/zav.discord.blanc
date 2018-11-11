@@ -22,78 +22,115 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.entities.impl.MemberImpl;
-import net.dv8tion.jda.core.entities.impl.UserImpl;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.xml.XMLServer;
 
 /**
  *
  * @author u/Zavarov
  */
 public class MemberMessageTest {
-    OfflineInstance instance;
-    
+    static OfflineCommunicator comm;
+    static JDAImpl jda;
+    XMLServer server;
+    GuildImpl guild;
+    TextChannelImpl channel1;
+    SelfUserImpl self;
+    RoleImpl role0;
+    MemberImpl memberself;
+    @BeforeClass
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        jda = (JDAImpl)comm.jda();
+    }
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        self = new SelfUserImpl(0L,jda);
+        memberself = new MemberImpl(guild, self);
+        role0 = new RoleImpl(0L,guild);
+        
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.getRolesMap().put(role0.getIdLong(),role0);
+        guild.setOwner(memberself);
+        guild.setPublicRole(role0);
+        guild.setName("guild0");
+        role0.setRawPermissions(Permission.ALL_TEXT_PERMISSIONS);
+        role0.setName("role0");
+        memberself.setNickname("memberself");
+        
+        server = comm.server(guild);
     }
     
     @Test
     public void createWithoutNicknameTest(){
-        instance.member.setNickname(null);
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        memberself.setNickname(null);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Nickname"));
     }
     @Test
     public void createWithNicknameTest(){
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Nickname"));
     }
     @Test
     public void createWithColorTest(){
-        instance.member = new MemberImpl(instance.guild,instance.self){
+        memberself = new MemberImpl(guild,self){
             @Override
             public Color getColor(){
                 return Color.RED;
             }
         };
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Color"));
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("0xFF0000"));
     }
     @Test
     public void createWithoutColorTest(){
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Color"));
     }
     @Test
     public void createWithRoleTest(){
-        instance.member = new MemberImpl(instance.guild,instance.self){
+        memberself = new MemberImpl(guild,self){
             @Override
             public List<Role> getRoles(){
-                return Arrays.asList(instance.role1);
+                return Arrays.asList(role0);
             }
         };
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Roles"));
     }
     @Test
     public void createWithoutRoleTest(){
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("`#Roles     :` 0"));
     }
     @Test
     public void createNoGameTest(){
-        instance.member.setGame(null);
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        memberself.setGame(null);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Playing"));
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Streaming"));
         assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Watching"));
@@ -101,31 +138,31 @@ public class MemberMessageTest {
     }
     @Test
     public void createCustomGameTest(){
-        instance.member.setGame(Game.streaming("game", "https://www.twitch.tv/user"));
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        memberself.setGame(Game.streaming("game", "https://www.twitch.tv/user"));
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Streaming"));
     }
     @Test
     public void createDefaultGameTest(){
-        instance.member.setGame(Game.playing("game"));
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        memberself.setGame(Game.playing("game"));
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Playing"));
     }
     @Test
     public void createThumbnailTest(){
-        instance.user = new UserImpl(instance.user.getIdLong(), instance.jda){
+        self = new SelfUserImpl(self.getIdLong(), jda){
             @Override
             public String getAvatarUrl(){
                 return "http://image.png";
             }
         };
-        instance.member = new MemberImpl(instance.guild, instance.user);
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        memberself = new MemberImpl(guild, self);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertEquals(message.pages.get(0).getThumbnail().getUrl(),"http://image.png");
     }
     @Test
     public void createNoThumbnailTest(){
-        InteractiveMessage message = MemberMessage.create(instance.user, instance.member, instance.channel1);
+        InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
         assertNull(message.pages.get(0).getThumbnail());
     }
     @Test

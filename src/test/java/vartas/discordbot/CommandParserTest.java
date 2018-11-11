@@ -17,52 +17,51 @@
 
 package vartas.discordbot;
 
-import java.io.File;
 import java.io.IOException;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
-import vartas.TestCommand;
+import vartas.discordbot.comm.Communicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.discordbot.command.TestCommand;
 import vartas.parser.cfg.ContextFreeGrammar;
-import vartas.xml.XMLCommand;
-import vartas.xml.XMLConfig;
 
 /**
  * @author u/Zavarov
  */
-public class DiscordParserTest {
-    DiscordParser parser;
-    ContextFreeGrammar grammar;
-    XMLCommand command;
-    XMLConfig config;
-    DiscordMessageListener listener;
-    OfflineInstance instance;
+public class CommandParserTest {
+    static Communicator comm;
+    CommandParser parser;
+    
+    @BeforeClass
+    public static void startUp(){
+        comm = new OfflineEnvironment().comm(0);
+    }
     
     @Before
     public void setUp() throws IOException{
-        grammar = new ContextFreeGrammar.Builder()
+        ContextFreeGrammar grammar = new ContextFreeGrammar.Builder()
                 .addTerminal("a")
                 .addTerminal("b")
                 .addNonterminal("Command")
                 .setStartSymbol("Command")
                 .addProduction("Command", "a","b").build();
-        command = new XMLCommand();
+        comm.environment().grammar().putAll(grammar);
         
-        command.addCommand("ab", "vartas.TestCommand");
+        comm.environment().command().put("ab", "vartas.discordbot.command.TestCommand");
         
-        config = XMLConfig.create(new File("src/test/resources/config.xml"));
-        parser = new DiscordParser.Builder(grammar, command, config).build();
+        parser = new CommandParser.Builder(comm).build();
     }
     
     @Test
     public void parseCommandTest(){
-        assertTrue(parser.parseCommand(null, null, "ab") instanceof TestCommand);
+        assertTrue(parser.parseCommand(null, "ab") instanceof TestCommand);
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void parseCommandInvalidTest(){
-        command.addCommand("ab", "junk");
-        parser.parseCommand(null, null, "ab");
+        comm.environment().command().addCommand("ab", "junk");
+        parser.parseCommand(null, "ab");
     }
 }

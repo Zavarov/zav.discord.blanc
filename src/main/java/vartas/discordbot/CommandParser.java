@@ -25,45 +25,32 @@ import net.dv8tion.jda.core.entities.Message;
 import vartas.automaton.Preprocessor;
 import vartas.automaton.RegularExpression;
 import vartas.automaton.Tokenizer.Token;
+import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.command.Command;
 import vartas.parser.DeterministicTopDownParser;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar;
 import vartas.parser.cfg.ContextFreeGrammar.Production;
 import vartas.parser.cfg.ContextFreeGrammar.Type;
-import vartas.xml.XMLCommand;
-import vartas.xml.XMLConfig;
 
 
 /**
  * A modified version of a parser that can also associate a command with an input.
  * @author u/Zavarov
  */
-public class DiscordParser extends DeterministicTopDownParser{
+public class CommandParser extends DeterministicTopDownParser{
     /**
-     * A set of all commands.
+     * The communicator of the program.
      */
-    protected final XMLCommand commands;
+    protected final Communicator comm;
     /**
-     * The configuration file.
-     */
-    protected final XMLConfig config;
-    /**
-     * The prefix of the commands.
-     */
-    protected String prefix;
-    /**
-     * @param grammar the CFG of the valid commands.
-     * @param commands a list of all commands.
      * @param preprocessor the preprocessor of the input tokens.
      * @param table the table of the parser.
-     * @param config the configuration file.
+     * @param comm the communicator of the program.
      */
-    protected DiscordParser(ContextFreeGrammar grammar, XMLCommand commands, Preprocessor preprocessor, Table<String, ContextFreeGrammar.Token, Production> table, XMLConfig config){
-        super(grammar, preprocessor, table);
-        this.commands = commands;
-        this.config = config;
-        this.prefix = config.getPrefix();
+    protected CommandParser(Preprocessor preprocessor, Table<String, ContextFreeGrammar.Token, Production> table, Communicator comm){
+        super(comm.environment().grammar(), preprocessor, table);
+        this.comm = comm;
     }
     /**
      * @param tree a subtree of the parsed input message.
@@ -76,27 +63,27 @@ public class DiscordParser extends DeterministicTopDownParser{
                 command_nodes.add(node);
             }
         });
-        return commands.getCommand(command_nodes.stream().map(Token::getRight).reduce((i,j)->i+j).get());
+        
+        return comm.environment().command().getCommand(command_nodes.stream().map(Token::getRight).reduce((i,j)->i+j).get());
     }
     /**
      * Extracts the command that was specified in the message.
      * @param message the message that triggered a command.
-     * @param bot the bot that received the message.
-     * @param content the message without the prefix
+     * @param prefixfree the message without the prefix
      * @return the command that was called.
      */
-    public Command parseCommand(Message message, DiscordBot bot, String content){
+    public Command parseCommand(Message message, String prefixfree){
         try{
             //Parse the content
-            AbstractSyntaxTree tree = parse(content);
+            AbstractSyntaxTree tree = parse(prefixfree);
             //Split the command into its segments
-            AbstractSyntaxTree data_tree = tree.firstChildSplit(config.getDataIdentifier());
-            AbstractSyntaxTree command_tree = tree.firstSplit(config.getCommandIdentifier());
+            AbstractSyntaxTree data_tree = tree.firstChildSplit(comm.environment().config().getDataIdentifier());
+            AbstractSyntaxTree command_tree = tree.firstSplit(comm.environment().config().getCommandIdentifier());
         
             String command = getCommand(command_tree);
-            return Command.createCommand(command, message, data_tree, bot ,config);
+            return Command.createCommand(command, message, data_tree, comm);
         }catch(ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
-            throw new IllegalArgumentException(String.format("No corresponding class found for %s",content));
+            throw new IllegalArgumentException(String.format("No corresponding command found for %s",prefixfree));
         }
     }
     /**
@@ -112,22 +99,23 @@ public class DiscordParser extends DeterministicTopDownParser{
          */
         public static final String DATE = "date";
         /**
-         * The list of all valid commands.
+         * The identifier for the online statuses.
          */
-        protected final XMLCommand commands;
+        public static final String ONLINESTATUS = "onlinestatus";
         /**
-         * The configuration file.
+         * The identifier for the interval in the Reddit plots.
          */
-        protected final XMLConfig config;
+        public static final String INTERVAL = "interval";
         /**
-         * @param grammar the CFG for all commands.
-         * @param commands the list of all commands.
-         * @param config the configuration file.
+         * The communicator of the program.
          */
-        public Builder(ContextFreeGrammar grammar, XMLCommand commands, XMLConfig config) {
-            super(grammar);
-            this.commands = commands;
-            this.config = config;
+        protected final Communicator comm;
+        /**
+         * @param comm the communicator of the program.
+         */
+        public Builder(Communicator comm) {
+            super(comm.environment().grammar());
+            this.comm = comm;
         }
         /**
          * Creates a lexer that ignores any form of spaces.
@@ -138,6 +126,8 @@ public class DiscordParser extends DeterministicTopDownParser{
             Preprocessor.Builder builder = super.createLexer();
             builder.addExpression(createRandom(), RANDOM);
             builder.addExpression(createDate(), DATE);
+            builder.addExpression(createOnlinestatus(), ONLINESTATUS);
+            builder.addExpression(createInterval(), INTERVAL);
             builder.addNumberSeparator(new Token("+","\\+"));
             builder.addNumberSeparator(new Token("-","-"));
             builder.addNumberSeparator(new Token("*","\\*"));
@@ -145,6 +135,20 @@ public class DiscordParser extends DeterministicTopDownParser{
             builder.addNumberSeparator(new Token("^","^"));
             builder.addNumberSeparator(new Token("%","%"));
             return builder;
+        }
+        /**
+         * @return a regular expression for the different intervals of the Reddit plots
+         */
+        private RegularExpression createInterval(){
+            RegularExpression.Parser parser = new RegularExpression.Parser();
+            return parser.parse("day+week+month+year");
+        }
+        /**
+         * @return a regular expression for a random number of the form xdy
+         */
+        private RegularExpression createOnlinestatus(){
+            RegularExpression.Parser parser = new RegularExpression.Parser();
+            return parser.parse("dnd+idle+online+invisible");
         }
         /**
          * @return a regular expression for a random number of the form xdy
@@ -171,9 +175,9 @@ public class DiscordParser extends DeterministicTopDownParser{
          * @return a new instance of the parser. 
          */
         @Override
-        public DiscordParser build(){
+        public CommandParser build(){
             super.findConflicts();
-            return new DiscordParser(grammar, commands, createLexer().build(), createTable(), config);
+            return new CommandParser(createLexer().build(), createTable(), comm);
         }
     }
 }

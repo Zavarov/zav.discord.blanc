@@ -18,7 +18,6 @@
 package vartas.discordbot;
 
 import com.google.common.collect.Lists;
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,27 +30,16 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.command.Command;
-import vartas.discordbot.threads.ActivityTracker;
 import vartas.discordbot.threads.MessageTracker;
-import vartas.discordbot.threads.RedditFeed;
-import vartas.parser.cfg.ContextFreeGrammar;
-import vartas.reddit.PushshiftWrapper;
-import vartas.xml.XMLCommand;
-import vartas.xml.XMLConfig;
-import vartas.xml.XMLPermission;
 import vartas.xml.XMLServer;
-import vartas.reddit.RedditBot;
 
 /**
  * This class acts as an interface between the the messages received from Discord and this program.
  * @author u/Zavarov
  */
-public class DiscordMessageListener extends ListenerAdapter{
-    /**
-     * The tracker for the activity in the guilds.
-     */
-    protected ActivityTracker activity;
+public class MessageListener extends ListenerAdapter{
     /**
      * The tracker for all interactive messages.
      */
@@ -59,66 +47,27 @@ public class DiscordMessageListener extends ListenerAdapter{
     /**
      * An executor for the parser.
      */
-    protected ExecutorService command_executor;
-    /**
-     * An executor for the parser.
-     */
     protected ExecutorService parser_executor;
     /**
-     * The bot and the respective shard this listener is in.
+     * The communicator of the program.
      */
-    protected DiscordBot bot;
+    protected Communicator comm;
     /**
-     * The parser who deals with the input.
+     * The parser that processes all commands.
      */
-    protected DiscordParser parser;
-    /**
-     * The configuration file.
-     */
-    protected XMLConfig config;
-    /**
-     * The permission file.
-     */
-    protected XMLPermission permission;
-    /**
-     * The instance that is responsible for all the Reddit API calls.
-     */
-    protected RedditBot reddit;
-    /**
-     * The communicator with the Reddit crawler.
-     */
-    protected PushshiftWrapper pushshift;
-    /**
-     * The the feed that checks for new submissions.
-     */
-    protected RedditFeed feed;
+    protected CommandParser parser;
     /**
      * The log for this nested class.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * @param bot the bot and the JDA with the current shard.
-     * @param config the configuration file for every command
-     * @param reddit the instance that communicates with the Reddit API.
-     * @param pushshift the communicator with the crawler.
-     * @param feed the runnable that checks for new submissions.
+     * @param comm the communicator of the program.
      */
-    public DiscordMessageListener(DiscordBot bot, XMLConfig config, RedditBot reddit, PushshiftWrapper pushshift, RedditFeed feed){
-        this.parser = new DiscordParser.Builder(
-                new ContextFreeGrammar.Builder(new File(String.format("%s/grammar.xml",config.getDataFolder()))).build(), 
-                XMLCommand.create(new File(String.format("%s/command.xml",config.getDataFolder()))), 
-                config
-        ).build();
-        this.feed = feed;
-        this.reddit = reddit;
-        this.bot = bot;
-        this.config = config;
-        this.pushshift = pushshift;
-        this.activity = new ActivityTracker(bot.getJda(), config.getActivityInterval());
-        this.messages = new MessageTracker(config.getInteractiveMessageAge());
+    public MessageListener(Communicator comm){
+        this.comm = comm;
+        this.parser = new CommandParser.Builder(comm).build();
+        this.messages = new MessageTracker(comm);
         this.parser_executor = Executors.newSingleThreadExecutor();
-        this.command_executor = Executors.newWorkStealingPool();
-        this.permission = XMLPermission.create(new File(String.format("%s/permission.xml",config.getDataFolder())));
     }
     /**
      * An reaction was added to a message.
@@ -137,18 +86,16 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event){
-        XMLServer server = bot.getServer(event.getGuild());
         //This bot is an exception to the rule.
-        if(!bot.getJda().getSelfUser().equals(event.getMessage().getAuthor()) && 
-                server.getFilter().stream().anyMatch(event.getMessage().getContentRaw()::contains)){
-            
-            DiscordBot.sendAction(event.getMessage().delete());
+        if(!comm.self().equals(event.getMessage().getAuthor()) && 
+                comm.server(event.getGuild()).getFilter().stream().anyMatch(event.getMessage().getContentRaw()::contains)){
+            comm.delete(event.getChannel(), event.getMessageIdLong());
             log.info(String.format("Deleted message %s",event.getMessage().getId()));
             return;
         }
         //Ignore bots
         if(!event.getAuthor().isBot()){
-            activity.increase(event.getGuild(),event.getChannel());
+            comm.activity(event.getChannel());
         }
     }
 
@@ -177,19 +124,18 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     @Override
     public void onGuildLeave(GuildLeaveEvent event){
-        bot.deleteServer(event.getGuild());
+        comm.delete(event.getGuild());
     }
     /**
      * @param message the input message
      * @return all valid prefixes for the message.
      */
     private List<String> getPrefixes(Message message){
-        List<String> prefixes = Lists.newArrayList(config.getPrefix());
+        List<String> prefixes = Lists.newArrayList(comm.environment().config().getPrefix());
         if(message.getGuild() != null){
-            XMLServer server = bot.getServer(message.getGuild());
-            if(server.getPrefix() != null){
+            XMLServer server = comm.server(message.getGuild());
+            if(server.hasPrefix())
                 prefixes.add(server.getPrefix());
-            }
         }
         return prefixes;
     }
@@ -218,14 +164,9 @@ public class DiscordMessageListener extends ListenerAdapter{
     private void messageReceived(Message message){
         if(!message.getAuthor().isBot() && hasPrefix(message)){
             parser_executor.submit(() -> {
-                Command command = parser.parseCommand(message, bot, getContent(message));
-                command.setMessageTracker(messages);
-                command.setActivityTracker(activity);
-                command.setPermission(permission);
-                command.setRedditBot(reddit);
-                command.setPushshiftWrapper(pushshift);
-                command.setRedditFeed(feed);
-                command_executor.submit(command);
+                Command command = parser.parseCommand(message, getContent(message));
+                command.setCommunicator(comm);
+                comm.submit(command);
             });
         }
     }
@@ -234,9 +175,7 @@ public class DiscordMessageListener extends ListenerAdapter{
      */
     public void shutdown(){
         messages.shutdown();
-        activity.shutdown();
         parser_executor.shutdownNow();
-        command_executor.shutdownNow();
-        log.info(String.format("MessageListener %s terminated.",bot.getJda().getShardInfo().getShardString()));
+        log.info("MessageListener terminated.");
     }
 }

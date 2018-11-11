@@ -38,7 +38,7 @@ public class XMLConfigTest {
     }
     @Test
     public void getDiscordShardsTest(){
-        assertEquals(config.getDiscordShards(),10);
+        assertEquals(config.getDiscordShards(),2);
     }
     @Test
     public void getStatusIntervalTest(){

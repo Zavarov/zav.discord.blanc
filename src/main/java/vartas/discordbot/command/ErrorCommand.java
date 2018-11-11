@@ -16,33 +16,37 @@
  */
 package vartas.discordbot.command;
 
-import java.io.IOException;
+import java.util.Arrays;
 import vartas.discordbot.messages.InteractiveMessage;
 
 /**
- *
+ * This class is used to print the error message that was caused by an exception.
  * @author u/Zavarov
  */
 public class ErrorCommand extends Command{
+    /**
+     * The exception that caused an error.
+     */
     protected Exception exception;
+    /**
+     * @param exception the exception that caused the error.
+     */
     public ErrorCommand(Exception exception){
         this.exception = exception;
     }
+    /**
+     * Fills an interactive message with the stack trace and sends it.
+     */
     @Override
-    protected void execute() throws IOException, InterruptedException {
+    protected void execute(){
         InteractiveMessage.Builder error = new InteractiveMessage.Builder(
                 message.getChannel(),
-                message.getAuthor()
+                message.getAuthor(),
+                comm
         );
         error.addLine(exception.toString());
-        StackTraceElement[] stack_trace = exception.getStackTrace();
-        for(int i = 0 ; i < stack_trace.length ; i+=10){
-          for(int j = i ; j < Math.min(i+10,stack_trace.length) ; ++j){
-              error.addLine(stack_trace[j].toString());
-          }
-          error.nextPage();
-        }
+        error.addLines(Arrays.asList(exception.getStackTrace()), 10);
         log.error(String.format("%s",exception.toString()));
-        error.build().send(interactives::add);
+        comm.send(error.build());
     }
 }

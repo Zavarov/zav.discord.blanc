@@ -16,36 +16,93 @@
  */
 package vartas.discordbot.command;
 
-import java.io.File;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
-import static org.junit.Assert.assertTrue;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageType;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
+import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
-import vartas.discordbot.threads.MessageTracker;
-import vartas.xml.XMLPermission;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.xml.XMLServer;
 
 /**
  *
  * @author u/Zavarov
  */
 public class ErrorCommandTest {
+    static OfflineCommunicator comm;
+    static XMLServer server;
+    static GuildImpl guild;
+    static TextChannelImpl channel1;
+    static PrivateChannelImpl channel2;
+    static JDAImpl jda;
+    static SelfUserImpl self;
+    static UserImpl user;
+    static RoleImpl role0;
+    static MemberImpl memberself;
+    static MemberImpl member;
+    static Message message1;
+    @BeforeClass
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        
+        jda = (JDAImpl)comm.jda();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        self = new SelfUserImpl(0L,jda);
+        user = new UserImpl(1L,jda);
+        memberself = new MemberImpl(guild, self);
+        member = new MemberImpl(guild,user);
+        role0 = new RoleImpl(0L,guild);
+        channel2 = new PrivateChannelImpl(1, user);
+        
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        jda.getUserMap().put(user.getIdLong(),user);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.getMembersMap().put(user.getIdLong(),member);
+        guild.getRolesMap().put(role0.getIdLong(),role0);
+        guild.setOwner(memberself);
+        guild.setPublicRole(role0);
+        user.setPrivateChannel(channel2);
+        role0.setRawPermissions(Permission.ALL_TEXT_PERMISSIONS);
+        
+        message1 = new ReceivedMessage(
+                1L, channel1, MessageType.DEFAULT,
+                false, false, null,null, false, false, 
+                "content", "", self, OffsetDateTime.now()
+                ,Arrays.asList(), Arrays.asList(), Arrays.asList());
+        
+        server = comm.server(guild);
+    }
     ErrorCommand command;
-    OfflineInstance instance;
     @Before
     public void setUp(){
-        instance = new OfflineInstance();
         command = new ErrorCommand(new RuntimeException());
-        command.setMessage(instance.guild_message);
+        command.setMessage(message1);
         command.setParameter(Collections.emptyList());
-        command.setBot(instance.bot);
-        command.setConfig(instance.config);
-        command.setMessageTracker(new MessageTracker(100));
-        command.setPermission(XMLPermission.create(new File("src/test/resources/permission.xml")));
+        command.setCommunicator(comm);
+        
+        comm.actions.clear();
     }
     @Test
     public void runTest(){
         command.run();
-        assertTrue(instance.messages.get(0).getEmbeds().get(0).getFields().get(0).getValue().contains("RuntimeException"));
+        assertEquals(comm.actions,Arrays.asList("action queued"));
     }
 }

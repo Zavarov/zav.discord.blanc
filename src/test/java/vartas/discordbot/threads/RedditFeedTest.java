@@ -18,25 +18,35 @@ package vartas.discordbot.threads;
 
 import com.google.common.collect.Sets;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.dean.jraw.http.HttpResponse;
+import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.pagination.Paginator;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
 import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
 import net.dv8tion.jda.core.requests.Response;
-import net.dv8tion.jda.core.requests.restaction.MessageAction;
+import okhttp3.Protocol;
 import org.apache.http.HttpStatus;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -44,14 +54,15 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.OfflineInstance;
+import vartas.discordbot.comm.Communicator;
+import vartas.discordbot.comm.Environment;
+import vartas.discordbot.comm.OfflineCommunicator;
+import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.discordbot.threads.RedditFeed.ErrorHandling;
 import vartas.offlinejraw.OfflineNetworkAdapter;
-import vartas.offlinejraw.OfflineRateLimiter;
 import vartas.offlinejraw.OfflineSubmissionListingResponse;
 import vartas.offlinejraw.OfflineSubmissionListingResponse.OfflineSubmission;
 import vartas.offlinejraw.OfflineSubredditResponse;
-import vartas.reddit.RedditBot;
-import vartas.xml.XMLCredentials;
 import vartas.xml.XMLServer;
 
 /**
@@ -59,46 +70,25 @@ import vartas.xml.XMLServer;
  * @author u/Zavarov
  */
 public class RedditFeedTest {
-    static String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-"<server>\n" +
-"    <entry row=\"reddit\" column=\"subreddit\">\n" +
-"        <document>\n" +
-"            <entry>1</entry>\n" +
-"            <entry>2</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"    <entry row=\"reddit\" column=\"stuff\">\n" +
-"        <document>\n" +
-"            <entry>2</entry>\n" +
-"            <entry>3</entry>\n" +
-"        </document>\n" +
-"    </entry>\n" +
-"</server>";
-    OfflineInstance instance;
-    OfflineNetworkAdapter adapter;
-    RedditBot bot;
+    static OfflineCommunicator comm;
+    static OfflineNetworkAdapter adapter;
+    static JDAImpl jda;
+    GuildImpl guild;
+    TextChannelImpl channel1;
+    TextChannelImpl channel2;
+    TextChannelImpl channel3;
+    TextChannelImpl  channel4;
     RedditFeed feed;
+    SelfUserImpl self;
+    MemberImpl memberself;
     XMLServer server;
     long now;
-    
     @BeforeClass
-    public static void startUp() throws IOException{
-        try (FileWriter writer = new FileWriter(new File("src/test/resources/guilds/0.server"))) {
-            writer.write(xml);
-        }
-    }
-    
-    @Before
-    public void setUp(){
-        now = System.currentTimeMillis();
-        XMLCredentials credentials = XMLCredentials.create(new File("src/test/resources/credentials.xml"));
-        adapter = new OfflineNetworkAdapter();
-        bot = new RedditBot(credentials, adapter);
-        bot.getClient().setRateLimiter(new OfflineRateLimiter());
-        instance = new OfflineInstance();
-        server = XMLServer.create(new File("src/test/resources/guilds/0.server"));
+    public static void startUp(){
+        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        jda = (JDAImpl)comm.jda();
+        adapter = (OfflineNetworkAdapter)comm.environment().adapter();
         
-        feed = new RedditFeed(bot, (g) -> instance.bot);
         adapter.addResponse(new OfflineSubredditResponse()
                 .addUrl("https://www.reddit.com/r/stuff")
                 .addName("stuff")
@@ -199,19 +189,53 @@ public class RedditFeedTest {
                 .addLimit(Paginator.RECOMMENDED_MAX_LIMIT)
                 .addSort("new")
                 .build());
+    }
+    
+    @Before
+    public void setUp(){
+        now = System.currentTimeMillis();
+        feed = new RedditFeed(comm.environment());
+        server = XMLServer.create(new File("src/test/resources/guilds/0.server"));
         
-        instance.actions.clear();
-        instance.messages.clear();
+        guild = new GuildImpl(jda , 0);
+        channel1 = new TextChannelImpl(1, guild);
+        channel2 = new TextChannelImpl(2, guild);
+        channel3 = new TextChannelImpl(3, guild);
+        channel4 = new TextChannelImpl(4, guild);
+        guild.getTextChannelsMap().put(channel1.getIdLong(), channel1);
+        guild.getTextChannelsMap().put(channel2.getIdLong(), channel2);
+        guild.getTextChannelsMap().put(channel3.getIdLong(), channel3);
+        guild.getTextChannelsMap().put(channel4.getIdLong(), channel4);
+        self = new SelfUserImpl(0L,jda);
+        memberself = new MemberImpl(guild, self);
+        
+        jda.setSelfUser(self);
+        jda.getUserMap().put(self.getIdLong(),self);
+        guild.getMembersMap().put(self.getIdLong(),memberself);
+        guild.setOwner(memberself);
+        channel1.setNSFW(true);
+        channel2.setNSFW(true);
+        channel3.setNSFW(true);
+        channel4.setNSFW(true);
+        
+        channel1.setName("channel1");
+        channel2.setName("channel2");
+        channel3.setName("channel3");
+        channel4.setName("channel4");
+        guild.setName("guild");
+        
+        comm.actions.clear();
+        comm.discord.clear();
     }
     @Test
     public void addSubredditsTest(){
         assertTrue(feed.posts.isEmpty());
-        feed.addSubreddits(server,instance.guild);
+        feed.addSubreddits(server,guild);
         assertEquals(feed.posts.size(),4);
-        assertTrue(feed.posts.containsEntry("subreddit", instance.channel1));
-        assertTrue(feed.posts.containsEntry("subreddit", instance.channel2));
-        assertTrue(feed.posts.containsEntry("stuff", instance.channel2));
-        assertTrue(feed.posts.containsEntry("stuff", instance.channel3));
+        assertTrue(feed.posts.containsEntry("subreddit", channel1));
+        assertTrue(feed.posts.containsEntry("subreddit", channel2));
+        assertTrue(feed.posts.containsEntry("stuff", channel2));
+        assertTrue(feed.posts.containsEntry("stuff", channel3));
         assertEquals(feed.history.size(),2);
         assertTrue(feed.history.containsKey("subreddit"));
         assertTrue(feed.history.containsKey("stuff"));
@@ -220,72 +244,28 @@ public class RedditFeedTest {
     public void addFeedTest(){
         assertTrue(feed.posts.isEmpty());
         assertTrue(feed.history.isEmpty());
-        feed.addFeed("subreddit", instance.channel1);
-        assertTrue(feed.posts.containsEntry("subreddit", instance.channel1));
+        feed.addFeed("subreddit", channel1);
+        assertTrue(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
     }
     @Test
-    public void removeFeedTest(){
-        feed.addFeed("subreddit", instance.channel1);
-        assertTrue(feed.posts.containsEntry("subreddit", instance.channel1));
+    public void removeFeedTest() throws IOException, InterruptedException{
+        feed.addFeed("subreddit", channel1);
+        assertTrue(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-        feed.removeFeed("subreddit", instance.channel1);
+        feed.removeFeed("subreddit", channel1);
         assertTrue(feed.posts.isEmpty());
         assertTrue(feed.history.isEmpty());
     }
     @Test
-    public void removeFeedButNotHistoryTest(){
-        feed.addFeed("subreddit", instance.channel1);
-        feed.addFeed("subreddit", new TextChannelImpl(100,instance.guild));
-        assertTrue(feed.posts.containsEntry("subreddit", instance.channel1));
+    public void removeFeedButNotHistoryTest() throws IOException, InterruptedException{
+        feed.addFeed("subreddit", channel1);
+        feed.addFeed("subreddit", channel4);
+        assertTrue(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-        feed.removeFeed("subreddit", instance.channel1);
-        assertFalse(feed.posts.containsEntry("subreddit", instance.channel1));
+        feed.removeFeed("subreddit", channel1);
+        assertFalse(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-    }
-    @Test
-    public void requestSubmissionFirstTimeTest(){
-        feed.history.clear();
-        List<Submission> list = feed.requestSubmissions("subreddit");
-        assertTrue(list.isEmpty());
-    }
-    @Test
-    public void requestSubmissionTest(){
-        feed.history.put("subreddit", 0L);
-        List<Submission> list = feed.requestSubmissions("subreddit");
-        assertEquals(list.size(),3);
-        assertEquals(list.get(0).getTitle(),"title1");
-        assertEquals(list.get(1).getTitle(),"title2");
-        assertEquals(list.get(2).getTitle(),"title3");
-    }
-    @Test
-    public void requestSubmissionNotFoundTest() throws InterruptedException{
-        feed.addFeed("unknown", instance.channel1);
-        assertTrue(feed.posts.containsEntry("unknown", instance.channel1));
-        assertTrue(feed.requestSubmissions("unknown").isEmpty());
-        feed.error_handler.shutdown();
-        feed.error_handler.awaitTermination(20, TimeUnit.SECONDS);
-        assertFalse(feed.posts.containsEntry("unknown", instance.channel1));
-    }
-    @Test
-    public void requestSubmissionForbiddenTest() throws InterruptedException{
-        feed.addFeed("forbidden", instance.channel1);
-        adapter.addError(new OfflineSubmissionListingResponse().addSubreddit("forbidden").addLimit(Paginator.RECOMMENDED_MAX_LIMIT).addSort("new").build().getRequest(), HttpStatus.SC_FORBIDDEN);
-        assertTrue(feed.posts.containsEntry("forbidden", instance.channel1));
-        assertTrue(feed.requestSubmissions("forbidden").isEmpty());
-        feed.error_handler.shutdown();
-        feed.error_handler.awaitTermination(20, TimeUnit.SECONDS);
-        assertFalse(feed.posts.containsEntry("forbidden", instance.channel1));
-    }
-    @Test
-    public void requestSubmissionOtherErrorTest() throws InterruptedException{
-        feed.addFeed("other", instance.channel1);
-        adapter.addError(new OfflineSubmissionListingResponse().addSubreddit("other").addLimit(Paginator.RECOMMENDED_MAX_LIMIT).addSort("new").build().getRequest(), 418);
-        assertTrue(feed.posts.containsEntry("other", instance.channel1));
-        assertTrue(feed.requestSubmissions("other").isEmpty());
-        feed.error_handler.shutdown();
-        feed.error_handler.awaitTermination(20, TimeUnit.SECONDS);
-        assertTrue(feed.posts.containsEntry("other", instance.channel1));
     }
     @Test
     public void generateMessagesEmptyTest(){
@@ -343,199 +323,286 @@ public class RedditFeedTest {
                 .build());
         feed.history.put("duplicate", 0L);
         feed.generateMessages("duplicate");
-    }
-    
-    @Test
-    public void runTest() throws IOException, InterruptedException{
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        assertTrue(instance.messages.isEmpty());
-        feed.run();
-        assertTrue(instance.messages.get(0).getContentRaw().contains("New submission from"));
-        assertFalse(instance.messages.get(0).getEmbeds().isEmpty());
-    }
-    @Test
-    public void runInvalidTextchannelTest() throws IOException, InterruptedException{
-        assertFalse(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-        List<Runnable> list = new ArrayList<>();
-        instance.guild.getTextChannelsMap().put(instance.channel1.getIdLong(), new TextChannelImpl(instance.channel1.getIdLong(),instance.guild){
-            @Override
-            public MessageAction sendMessage(Message message){
-                return new MessageAction(instance.jda,null,instance.channel1){
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure){
-                        list.add(() -> failure.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_CHANNEL, new FakeResponse())));
-                    }
-                };
-            }
-            @Override
-            public boolean isNSFW(){
-                return true;
-            }
-        });
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        feed.run();
-        assertEquals(list.size(),3);
-        list.get(0).run();
-        assertEquals(feed.history.size(),2);
-        assertEquals(feed.posts.size(),3);
-        assertFalse(feed.posts.containsKey(instance.channel1));
-        assertFalse(server.getRedditFeeds(instance.guild).containsKey(instance.channel1));
-        assertTrue(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-    }
-    @Test
-    public void runInvalidGuildTest() throws IOException, InterruptedException{
-        assertFalse(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-        List<Runnable> list = new ArrayList<>();
-        instance.guild.getTextChannelsMap().put(instance.channel1.getIdLong(), new TextChannelImpl(instance.channel1.getIdLong(),instance.guild){
-            @Override
-            public MessageAction sendMessage(Message message){
-                return new MessageAction(instance.jda,null,instance.channel1){
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure){
-                        list.add(() -> failure.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_GUILD, new FakeResponse())));
-                    }
-                };
-            }
-            @Override
-            public boolean isNSFW(){
-                return true;
-            }
-        });
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        instance.guild.getMembersMap().remove(instance.self.getIdLong());
-        feed.run();
-        assertEquals(list.size(),3);
-        list.get(0).run();
-        assertEquals(feed.history.size(),2);
-        assertEquals(feed.posts.size(),3);
-        assertFalse(feed.posts.containsKey(instance.channel1));
-        assertFalse(server.getRedditFeeds(instance.guild).containsKey(instance.channel1));
-        assertTrue(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-    }
-    @Test
-    public void runUnknownDiscordErrorTest() throws IOException, InterruptedException{
-        List<Runnable> list = new ArrayList<>();
-        instance.guild.getTextChannelsMap().put(instance.channel1.getIdLong(), new TextChannelImpl(instance.channel1.getIdLong(),instance.guild){
-            @Override
-            public MessageAction sendMessage(Message message){
-                return new MessageAction(instance.jda,null,instance.channel1){
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure){
-                        list.add(() -> failure.accept(ErrorResponseException.create(ErrorResponse.BOTS_NOT_ALLOWED, new FakeResponse())));
-                    }
-                };
-            }
-            @Override
-            public boolean isNSFW(){
-                return true;
-            }
-        });
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        instance.guild.getMembersMap().remove(instance.self.getIdLong());
-        feed.run();
-        assertEquals(list.size(),3);
-        list.get(0).run();
-        assertEquals(feed.history.size(),2);
-        assertEquals(feed.posts.size(),4);
-    }
-    @Test
-    public void runUnknownErrorTest() throws IOException, InterruptedException{
-        List<Runnable> list = new ArrayList<>();
-        instance.guild.getTextChannelsMap().put(instance.channel1.getIdLong(), new TextChannelImpl(instance.channel1.getIdLong(),instance.guild){
-            @Override
-            public MessageAction sendMessage(Message message){
-                return new MessageAction(instance.jda,null,instance.channel1){
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure){
-                        list.add(() -> failure.accept(new Exception()));
-                    }
-                };
-            }
-            @Override
-            public boolean isNSFW(){
-                return true;
-            }
-        });
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        instance.guild.getMembersMap().remove(instance.self.getIdLong());
-        feed.run();
-        assertEquals(list.size(),3);
-        list.get(0).run();
-        assertEquals(feed.history.size(),2);
-        assertEquals(feed.posts.size(),4);
-    }
-    @Test
-    public void runInsufficientPermissionTest() throws InterruptedException{
-        assertFalse(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-        instance.guild.setOwner(instance.member);
-        instance.guild.getTextChannelsMap().put(instance.channel1.getIdLong(), new TextChannelImpl(instance.channel1.getIdLong(),instance.guild){
-            @Override
-            public boolean isNSFW(){
-                return true;
-            }
-        });
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        instance.public_role.setRawPermissions(0);
-        feed.run();
-        feed.error_handler.shutdown();
-        feed.error_handler.awaitTermination(20, TimeUnit.SECONDS);
-        assertEquals(feed.history.size(),2);
-        assertEquals(feed.posts.size(),3);
-        assertFalse(feed.posts.containsKey(instance.channel1));
-        assertFalse(server.getRedditFeeds(instance.guild).containsKey(instance.channel1));
-        assertTrue(instance.actions.contains("Guild "+instance.guild.getId()+" updated"));
-    }
-    @Test
-    public void runChannelIsNotNsfwTest() throws IOException, InterruptedException{
-        instance.channel1.setNSFW(false);
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        assertTrue(instance.messages.isEmpty());
-        feed.run();
-        assertTrue(instance.messages.size()>0);
-    }
-    
-    @Test
-    public void runSubmissionIsNsfwTest() throws IOException, InterruptedException{
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", 0L);
-        assertTrue(instance.messages.isEmpty());
-        feed.run();
-        assertEquals(instance.messages.size(),6);
-        instance.messages.clear();
         
-        instance.channel1.setNSFW(false);
-        feed.addSubreddits(server,instance.guild);
+        startUp();
+    }
+    @Test
+    public void generateMessagesUnknownSubredditTest(){
+        Map<Submission,MessageBuilder> messages = feed.generateMessages("unknown");
+        assertTrue(messages.isEmpty());
+    }
+    @Test
+    public void generateMessagesNetworkExceptionTest(){
+        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
+        okhttp3.Response response = new okhttp3.Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_2)
+                .code(HttpStatus.SC_FORBIDDEN)
+                .message("message").build();
+        HttpResponse http = new HttpResponse(response);
+        NetworkException exception = new NetworkException(http);
+        
+        List<Runnable> list = new ArrayList<>();
+        
+        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
+            @Override
+            public void submit(Runnable runnable){
+                list.add(runnable);
+            }
+        };
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+            @Override
+            public List<Submission> submission(String subreddit, Instant start, Instant end){
+                throw exception;
+            }
+        };
+        
+        feed = new RedditFeed(environment);
+        feed.addSubreddits(server, guild);
+        
+        feed.generateMessages("subreddit");
+        list.forEach(Runnable::run);
+            
+        assertFalse(feed.posts.containsEntry("subreddit",channel1));
+        assertFalse(feed.posts.containsEntry("subreddit",channel2));
+        assertFalse(feed.history.containsKey("subreddit"));
+        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated"));
+    }
+    @Test
+    public void generateMessagesHarmlessNetworkExceptionTest(){
+        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
+        okhttp3.Response response = new okhttp3.Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_2)
+                .code(HttpStatus.SC_OK)
+                .message("message").build();
+        HttpResponse http = new HttpResponse(response);
+        NetworkException exception = new NetworkException(http);
+        
+        List<Runnable> list = new ArrayList<>();
+        
+        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
+            @Override
+            public void submit(Runnable runnable){
+                list.add(runnable);
+            }
+        };
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+            @Override
+            public List<Submission> submission(String subreddit, Instant start, Instant end){
+                throw exception;
+            }
+        };
+        
+        feed = new RedditFeed(environment);
+        feed.addSubreddits(server, guild);
+        
+        feed.generateMessages("subreddit");
+        list.forEach(Runnable::run);
+            
+        assertTrue(feed.posts.containsEntry("subreddit",channel1));
+        assertTrue(feed.posts.containsEntry("subreddit",channel2));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(fake.actions,Arrays.asList());
+    }
+    @Test
+    public void runTest(){
+        feed.addSubreddits(server,guild);
         feed.history.put("subreddit", 0L);
-        assertTrue(instance.messages.isEmpty());
+        assertTrue(comm.discord.entries().isEmpty());
         feed.run();
-        assertEquals(instance.messages.size(),5);
+        assertTrue(comm.discord.get(channel1).get(0).getContentRaw().contains("New submission from"));
+        assertFalse(comm.discord.get(channel1).get(0).getEmbeds().isEmpty());
+    }
+    @Test
+    public void runChannelIsNotNsfwTest(){
+        channel1.setNSFW(false);
+        feed.addSubreddits(server,guild);
+        feed.history.put("subreddit", 0L);
+        assertTrue(comm.discord.entries().isEmpty());
+        feed.run();
+        assertFalse(comm.discord.entries().isEmpty());
     }
     
     @Test
-    public void runNoSubmissionTest() throws InterruptedException{
-        feed.addSubreddits(server,instance.guild);
-        feed.history.put("subreddit", System.currentTimeMillis()+1000);
-        assertTrue(instance.messages.isEmpty());
+    public void runSubmissionIsNsfwTest(){
+        feed.addSubreddits(server,guild);
+        feed.history.put("subreddit", 0L);
+        assertTrue(comm.discord.isEmpty());
         feed.run();
-        assertTrue(instance.messages.isEmpty());
+        assertEquals(comm.discord.entries().size(),6);
+        comm.discord.clear();
+        
+        channel1.setNSFW(false);
+        feed.addSubreddits(server,guild);
+        feed.history.put("subreddit", 0L);
+        assertTrue(comm.discord.isEmpty());
+        feed.run();
+        assertEquals(comm.discord.size(),5);
+    }
+    
+    @Test
+    public void runNoSubmissionTest(){
+        feed.addSubreddits(server,guild);
+        feed.history.put("subreddit", System.currentTimeMillis()+1000);
+        assertTrue(comm.discord.isEmpty());
+        feed.run();
+        assertTrue(comm.discord.isEmpty());
     }
     @Test
     public void runUnexpectedErrorTest(){
-        feed = new RedditFeed(bot, (g) -> instance.bot){
+        feed = new RedditFeed(comm.environment()){
             @Override
-            public synchronized List<Submission> requestSubmissions(String subreddit){
+            public synchronized Map<Submission,MessageBuilder> generateMessages(String subreddit){
                 throw new RuntimeException();
             }
         };
-        feed.addSubreddits(server,instance.guild);
+        feed.addSubreddits(server, guild);
         feed.run();
+    }
+    @Test
+    public void runInsufficientPermissionTest(){
+        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
+            @Override
+            public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure){
+                throw new InsufficientPermissionException(Permission.ADMINISTRATOR);
+            }
+            @Override
+            public void submit(Runnable runnable){
+                runnable.run();
+            }
+        };
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+            @Override
+            public List<Submission> submission(String subreddit, Instant start, Instant end){
+                return comm.environment().submission(subreddit, start, end);
+            }
+        };
+        
+        feed = new RedditFeed(environment);
+        feed.addSubreddits(server, guild);
+        feed.history.put("subreddit", 0L);
+        feed.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated",guild.getName()+" updated"));
+    }
+    @Test
+    public void invalidTextchannelTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_CHANNEL, new FakeResponse()));
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void invalidGuildTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_GUILD, new FakeResponse()));
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void unknownDiscordErrorTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(ErrorResponseException.create(ErrorResponse.BOTS_NOT_ALLOWED, new FakeResponse()));
+        
+        assertTrue(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertTrue(comm.actions.isEmpty());
+    }
+    @Test
+    public void insufficientPermissionTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(new InsufficientPermissionException(Permission.ADMINISTRATOR));
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void networkExceptionTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(new NetworkException(new OfflineSubredditResponse().build()));
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void ioexceptionTest(){
+        feed = new RedditFeed(comm.environment()){
+            @Override
+            public void removeFeed(String subreddit, TextChannel channel) throws IOException{
+                throw new IOException();
+            }
+        };
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(new NetworkException(new OfflineSubredditResponse().build()));
+        
+        assertTrue(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertTrue(comm.actions.isEmpty());
+    }
+    @Test
+    public void unknownExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(new Exception());
+        
+        assertTrue(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertTrue(comm.actions.isEmpty());
+    }
+    @Test
+    public void handlerRunTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,new NetworkException(new OfflineSubredditResponse().build()));
+        error.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
     }
     
     private class FakeResponse extends Response{

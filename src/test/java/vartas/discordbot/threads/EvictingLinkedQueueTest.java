@@ -17,6 +17,7 @@
 package vartas.discordbot.threads;
 
 import java.util.Iterator;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -33,7 +34,7 @@ public class EvictingLinkedQueueTest {
     EvictingLinkedQueue<String> queue;
     @Before
     public void setUp(){
-        queue = new EvictingLinkedQueue<>(2);
+        queue = new EvictingLinkedQueue<>((int)DAYS.toMinutes(1)/2);
         queue.list.add("a");
         queue.list.add("b");
     }

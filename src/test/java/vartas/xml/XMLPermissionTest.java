@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import vartas.OfflineJDA;
+import vartas.discordbot.comm.OfflineEnvironment;
 import vartas.discordbot.command.Rank;
 import static vartas.discordbot.command.Rank.DEVELOPER;
 import static vartas.discordbot.command.Rank.REDDIT;
@@ -44,7 +44,7 @@ public class XMLPermissionTest {
     @Before
     public void setUp(){
         permission = XMLPermission.create(new File("src/test/resources/permission.xml"));
-        jda = new OfflineJDA();
+        jda = OfflineEnvironment.create();
         user1 = new UserImpl(1,jda);
         user2 = new UserImpl(2,jda);
         user3 = new UserImpl(3,jda);

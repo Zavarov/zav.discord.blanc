@@ -32,7 +32,7 @@ public class InteractiveMessageBuilderTest {
     InteractiveMessage.Builder builder;
     @Before
     public void setUp(){
-        builder = new InteractiveMessage.Builder(null,null);
+        builder = new InteractiveMessage.Builder(null,null,null);
     }
     @Test
     public void addDescriptionTest(){

@@ -26,7 +26,7 @@ import com.google.common.collect.EvictingQueue;
  * @author u/Zavarov
  * @param <T> the type of objects that are stored.
  */
-public class DiscordLogListener<T> extends AppenderBase<T>{
+public class LogListener<T> extends AppenderBase<T>{
     /**
      * The size of the list.
      */

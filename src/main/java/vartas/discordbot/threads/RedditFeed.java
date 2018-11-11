@@ -21,18 +21,16 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import java.io.IOException;
+import java.time.Instant;
 import vartas.xml.XMLServer;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
@@ -46,10 +44,8 @@ import net.dv8tion.jda.core.utils.JDALogger;
 import org.apache.http.HttpStatus;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
-import vartas.discordbot.DiscordBot;
+import vartas.discordbot.comm.Environment;
 import vartas.discordbot.messages.SubmissionMessage;
-import vartas.reddit.RedditBot;
-import vartas.reddit.SubmissionWrapper;
 
 /**
  * This class deals with receiving new submissions from subreddits and posting
@@ -58,21 +54,9 @@ import vartas.reddit.SubmissionWrapper;
  */
 public class RedditFeed implements Runnable, Killable{
     /**
-     * A submission needs to be at least 1 minute old before it gets posted.
-     */
-    protected static final long MINIMUM_SUBMISSION_AGE = 60000;
-    /**
      * The executor that calls this object every minute.
      */
     protected final ScheduledExecutorService executor;
-    /**
-     * The executor that deals with all the errors that occur during the execution.
-     */
-    protected final ExecutorService error_handler = Executors.newSingleThreadExecutor();
-    /**
-     * The entitiy that is connected to Reddit.
-     */
-    protected final RedditBot reddit;
     /**
      * The log for this class.
      */
@@ -86,21 +70,14 @@ public class RedditFeed implements Runnable, Killable{
      */
     protected final Map<String,Long> history = new Object2LongOpenHashMap<>();
     /**
-     * The requester for the submissions.
+     * The runtime of the program.
      */
-    protected SubmissionWrapper wrapper;
+    protected final Environment environment;
     /**
-     * The function that returns the bot instance for every guild.
+     * @param environment the runtime of the program.
      */
-    protected Function<Guild, DiscordBot> server;
-    /**
-     * @param reddit the entity connected to Reddit.
-     * @param server the function that provides the bot instance for every guild.
-     */
-    public RedditFeed(RedditBot reddit, Function<Guild, DiscordBot> server){
-        this.reddit = reddit;
-        this.server = server;
-        wrapper = new SubmissionWrapper(reddit);
+    public RedditFeed(Environment environment){
+        this.environment = environment;
         log.info("Reddit feeds created.");
         
         executor = Executors.newSingleThreadScheduledExecutor();
@@ -116,8 +93,8 @@ public class RedditFeed implements Runnable, Killable{
             posts.put(s,t);
             //The history starts from this point onwards
             history.put(s,System.currentTimeMillis());
+            log.info(String.format("Added the subreddit %s for the guild %s.",s,guild.getName()));
         });
-        log.info(String.format("Added the subreddits of the guild %s.",guild.getName()));
     }
     /**
      * Adds a new textchannel to the list of feeds. New submission will be posted there.
@@ -133,18 +110,17 @@ public class RedditFeed implements Runnable, Killable{
      * Removes a textchannel from the list of feeds. New submissions won't be posted there anymore.
      * @param subreddit the subreddit.
      * @param channel the textchannel.
+     * @throws IOException if the data couldn't be written into a file.
+     * @throws InterruptedException if the program was interrupted before the writing process was finished.
      */
-    public synchronized void removeFeed(String subreddit, TextChannel channel){
+    public synchronized void removeFeed(String subreddit, TextChannel channel) throws IOException, InterruptedException{
         posts.remove(subreddit,channel);
         //Also remove the timestamp, if this was the last channel linked to the subreddit
         if(!posts.containsKey(subreddit)){
             history.remove(subreddit);
         }
-        //Update the XML file
-        DiscordBot bot = server.apply(channel.getGuild());
-        XMLServer server = bot.getServer(channel.getGuild());
-        server.removeRedditFeed(subreddit, channel);
-        bot.updateServer(channel.getGuild());
+        environment.comm(channel.getGuild()).server(channel.getGuild()).removeRedditFeed(subreddit, channel);
+        environment.comm(channel.getGuild()).update(channel.getGuild());
     }
     /**
      * Generates all the messages for the latest submissions.
@@ -152,45 +128,38 @@ public class RedditFeed implements Runnable, Killable{
      * @return all submissions that have been submitted since the last time.
      */
     public synchronized Map<Submission,MessageBuilder> generateMessages(String subreddit){
-        List<Submission> submissions = requestSubmissions(subreddit);
+        Instant start = Instant.ofEpochMilli(history.computeIfAbsent(subreddit, (k) -> System.currentTimeMillis()));
+        Instant end = Instant.now().minusSeconds(60);
+        List<Submission> submissions;
+        //
+        try{
+            submissions = environment.submission(subreddit, start, end);
+        }catch(NetworkException e){
+            int error = e.getRes().getCode();
+            //The subreddit either doesn't exist anymore or can't be accessed
+            if(error == HttpStatus.SC_FORBIDDEN || error == HttpStatus.SC_NOT_FOUND){
+                posts.get(subreddit).forEach(channel -> {
+                    environment.comm(channel).submit(new ErrorHandling(subreddit,channel,e));
+                });
+            }else{
+                log.warn(e.getMessage());
+            }
+            submissions = Lists.newArrayList();
+        }
+        
         //Update the timestamp of the newest submission
         if(!submissions.isEmpty()){
             history.put(subreddit, submissions.get(0).getCreated().getTime());
         }
         
         //Create a message for each submission
-        Function<Submission,Submission> key = Function.identity();
-        Function<Submission,MessageBuilder> value = s -> SubmissionMessage.create(s);
-        BinaryOperator<MessageBuilder> error = (u,v) -> {throw new IllegalStateException();};
         return Lists.reverse(submissions)
                 .stream()
-                .collect(Collectors.toMap(key,value,error, LinkedHashMap::new));
-    }
-    /**
-     * Retrieves the most recent submissions in the specified subreddit and
-     * deals with all errors that might happen in the process.
-     * @param subreddit the subreddit the new submissions are retrieved from.
-     * @return all submissions that have been submitted since the last time.
-     */
-    public synchronized List<Submission> requestSubmissions(String subreddit){
-        //Start at the oldest submission we know of.
-        long start = history.computeIfAbsent(subreddit, (k) -> System.currentTimeMillis());
-        //Only accept posts that are older than the minimal age
-        long end = System.currentTimeMillis() - MINIMUM_SUBMISSION_AGE;
-        wrapper.parameter(subreddit, new Date(start), new Date(end));
-        
-        try{
-            return wrapper.request();
-        }catch(NetworkException e){
-            int error = e.getRes().getCode();
-            //The subreddit either doesn't exist anymore or can't be accessed
-            if(error == HttpStatus.SC_FORBIDDEN || error == HttpStatus.SC_NOT_FOUND){
-                posts.get(subreddit).forEach(channel -> {
-                    error_handler.submit(new Error(subreddit,channel,e));
-                });
-            }
-            return Lists.newArrayList();
-        }
+                .collect(Collectors.toMap(
+                        k->k,
+                        SubmissionMessage::create,
+                        (u,v) -> {throw new IllegalStateException("Two identical submissions encountered.");}, 
+                        LinkedHashMap::new));
     }
     /**
      * Posts all new submissions that have been posted since the last iteration.
@@ -198,21 +167,25 @@ public class RedditFeed implements Runnable, Killable{
     @Override
     public synchronized void run(){
         try{
-        posts.asMap().forEach( (subreddit,textchannels) -> {
-            Map<Submission,MessageBuilder> messages = generateMessages(subreddit);
-            textchannels.forEach(channel -> {
-                messages.entrySet().stream()
+            //All subreddits and the channels submissions are posted in.
+            posts.asMap().forEach((subreddit,textchannels) -> {
+                //Submissions from a single subreddit
+                Map<Submission,MessageBuilder> messages = generateMessages(subreddit);
+                //Post in every channel
+                textchannels.forEach(channel -> {
+                    //Post every message each
+                    messages.entrySet().stream()
                         .filter(e -> channel.isNSFW() || !SubmissionMessage.isNsfw(e.getKey()))
                         .map(e -> e.getValue())
                         .forEach(message -> {
                             try{
-                                DiscordBot.sendMessage(channel,message,null, new Error(subreddit, channel));
+                                environment.comm(channel).send(channel, message, null, new ErrorHandling(subreddit, channel));
                             }catch(InsufficientPermissionException permission){
                                 log.info(String.format("Removed the channel %s due to a lack of permission.", channel.getName()));
-                                error_handler.submit(new Error(subreddit,channel,permission));
+                                environment.comm(channel).submit(new ErrorHandling(subreddit,channel,permission));
                             }
                         });
-            });
+                });
             log.info(String.format("Posted %d new %s from r/%s",messages.size(),English.plural("submission", messages.size()),subreddit));
         });
         //Just in case we forgot to check something
@@ -226,12 +199,11 @@ public class RedditFeed implements Runnable, Killable{
     @Override
     public void shutdown() {
         executor.shutdownNow();
-        error_handler.shutdown();
     }
     /**
      * A internal class for when a message wasn't sent successfully.
      */
-    private class Error implements Consumer<Throwable>, Runnable{
+    public class ErrorHandling implements Consumer<Throwable>, Runnable{
         /**
          * The channel we tried to send a message in.
          */
@@ -248,7 +220,7 @@ public class RedditFeed implements Runnable, Killable{
          * @param subreddit the subreddit we received the posts from.
          * @param channel the channel we tried to send a message in.
          */
-        public Error(String subreddit, TextChannel channel){
+        public ErrorHandling(String subreddit, TextChannel channel){
             this(subreddit,channel,null);
         }
         /**
@@ -256,7 +228,7 @@ public class RedditFeed implements Runnable, Killable{
          * @param channel the channel we tried to send a message in.
          * @param throwable the error that caused this.
          */
-        public Error(String subreddit, TextChannel channel, Throwable throwable){
+        public ErrorHandling(String subreddit, TextChannel channel, Throwable throwable){
             this.channel = channel;
             this.subreddit = subreddit;
             this.throwable = throwable;
@@ -268,17 +240,22 @@ public class RedditFeed implements Runnable, Killable{
          */
         @Override
         public void accept(Throwable t){
-            if(t instanceof ErrorResponseException){
-                ErrorResponse error = ((ErrorResponseException)t).getErrorResponse();
-                if(error == ErrorResponse.UNKNOWN_CHANNEL || error == ErrorResponse.UNKNOWN_GUILD){
+            try{
+                if(t instanceof ErrorResponseException){
+                    ErrorResponse error = ((ErrorResponseException)t).getErrorResponse();
+                    if(error == ErrorResponse.UNKNOWN_CHANNEL || error == ErrorResponse.UNKNOWN_GUILD){
+                        removeFeed(subreddit,channel);
+                    }
+                }else if(t instanceof InsufficientPermissionException){
+                    removeFeed(subreddit,channel);
+                }else if(t instanceof NetworkException){
                     removeFeed(subreddit,channel);
                 }
-            }else if(t instanceof InsufficientPermissionException){
-                removeFeed(subreddit,channel);
-            }else if(t instanceof NetworkException){
-                removeFeed(subreddit,channel);
+                log.warn(t.getMessage());
+            //Couldn't remove feeds
+            }catch(IOException | InterruptedException e){
+                log.error(e.getMessage());
             }
-            log.warn(t.getMessage());
         }
         /**
          * Executes the consumer with the specified throwable

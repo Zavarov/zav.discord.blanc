@@ -32,6 +32,6 @@ public class MissingRankExceptionTest {
     }
     @Test
     public void checkMessageTest(){
-        assertEquals(exception.getMessage(),"You need to have Root or any higher rank to execute this command.");
+        assertEquals(exception.getMessage(),"You need to have the Root or any higher rank to execute this command.");
     }
 }
