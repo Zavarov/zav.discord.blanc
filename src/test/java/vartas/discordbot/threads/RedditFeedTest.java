@@ -46,6 +46,7 @@ import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
 import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.Protocol;
 import org.apache.http.HttpStatus;
 import static org.junit.Assert.assertEquals;
@@ -54,6 +55,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import vartas.discordbot.comm.AbstractCommunicator;
 import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.comm.Environment;
 import vartas.discordbot.comm.OfflineCommunicator;
@@ -63,6 +65,7 @@ import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.offlinejraw.OfflineSubmissionListingResponse;
 import vartas.offlinejraw.OfflineSubmissionListingResponse.OfflineSubmission;
 import vartas.offlinejraw.OfflineSubredditResponse;
+import vartas.xml.XMLPermission;
 import vartas.xml.XMLServer;
 
 /**
@@ -569,20 +572,51 @@ public class RedditFeedTest {
     }
     @Test
     public void ioexceptionTest(){
-        feed = new RedditFeed(comm.environment()){
+        AbstractCommunicator fake = new AbstractCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void removeFeed(String subreddit, TextChannel channel) throws IOException{
+            public void update(Guild guild) throws IOException{
+                comm.actions.add("error");
                 throw new IOException();
             }
+            @Override
+            public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure) {
+            }
+            @Override
+            public <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure) {
+            }
+            @Override
+            public void delete(MessageChannel channel, long id) {
+            }
+            @Override
+            public void delete(Guild guild) {
+            }
+            @Override
+            public void update(XMLPermission permission) throws IOException, InterruptedException {
+            }
         };
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+            @Override
+            public List<Submission> submission(String subreddit, Instant start, Instant end){
+                return comm.environment().submission(subreddit, start, end);
+            }
+        };
+        feed = new RedditFeed(environment);
         feed.addSubreddits(server, guild);
         
         ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
         error.accept(new NetworkException(new OfflineSubredditResponse().build()));
         
-        assertTrue(feed.posts.containsValue(channel1));
+        assertFalse(feed.posts.containsValue(channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-        assertTrue(comm.actions.isEmpty());
+        assertEquals(comm.actions,Arrays.asList("error"));
     }
     @Test
     public void unknownExceptionTest(){

@@ -19,6 +19,7 @@ package vartas.discordbot.comm;
 import com.google.common.collect.ListMultimap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -30,6 +31,7 @@ import net.dean.jraw.models.Subreddit;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.discordbot.threads.RedditFeed;
 import vartas.discordbot.threads.StatusTracker;
 import vartas.parser.cfg.ContextFreeGrammar;
@@ -55,43 +57,43 @@ public abstract class AbstractEnvironment implements Environment{
     /**
      * All bots indexed by their shard.
      */
-    protected final List<Communicator> shards;
+    protected List<Communicator> shards;
     /**
      * The instance that is used to crawl through the Reddit submissions.
      */
-    protected final PushshiftWrapper pushshift;
+    protected PushshiftWrapper pushshift;
     /**
      * The instance that communicates with the Reddit API.
      */
-    protected final RedditBot reddit;
+    protected RedditBot reddit;
     /**
      * The feed that checks for new submissions.
      */
-    protected final RedditFeed feed;
+    protected RedditFeed feed;
     /**
      * The file containing all the login data.
      */
-    protected final XMLCredentials credentials;
+    protected XMLCredentials credentials;
     /**
      * The list of users with special ranks.
      */
-    protected final XMLPermission permission;
+    protected XMLPermission permission;
     /**
      * All status messages.
      */
-    protected final XMLStringList status;
+    protected XMLStringList status;
     /**
      * The list of all commands and their respective classes.
      */
-    protected final XMLCommand command;
+    protected XMLCommand command;
     /**
      * The configuration file.
      */
-    protected final XMLConfig config;
+    protected XMLConfig config;
     /**
      * The CFG used by the parser.
      */
-    protected final ContextFreeGrammar grammar;
+    protected ContextFreeGrammar grammar;
     /**
      * The tracker that updates the game.
      */
@@ -286,7 +288,48 @@ public abstract class AbstractEnvironment implements Environment{
     /**
      * @return the network adapter that is used for the Reddit requests.
      */
+    @Override
     public NetworkAdapter adapter(){
         return adapter;
+    }
+    /**
+     * Makes the program post submissions from the subreddit in the specified channel.
+     * @param subreddit the name of the subreddit.
+     * @param channel the textchannel where new submissions are posted.
+     */
+    @Override
+    public void add(String subreddit, TextChannel channel){
+        feed.addFeed(subreddit, channel);
+    }
+    /**
+     * Removes a channel from the set of all channels where new submissions from
+     * this subreddit are posted.
+     * @param subreddit the name of the subreddit.
+     * @param channel the channel that is removed from the set.
+     */
+    @Override
+    public void remove(String subreddit, TextChannel channel){
+        feed.removeFeed(subreddit, channel);
+    }
+    /**
+     * Requests the submissions and comments in the subreddit within the
+     * given interval via the pushshift crawler.
+     * @param subreddit the name of the 
+     * @param start the inclusive time stamp of the oldest submission.
+     * @param end the inclusive time stamp of the newest submission.
+     * @throws IOException when the HTTP request failed
+     */
+    @Override
+    public synchronized void request(String subreddit, Instant start, Instant end) throws IOException{
+        pushshift.parameter(subreddit, end, start);
+        pushshift.request();
+    }
+    /**
+     * Writes the current content of the crawler to the hard disk.
+     * @throws IOException if an error occured while writing the data.
+     * @throws InterruptedException if the program was interrupted before the writing process was finished.
+     */
+    public void store() throws IOException, InterruptedException{
+        pushshift.store();
     }
 }

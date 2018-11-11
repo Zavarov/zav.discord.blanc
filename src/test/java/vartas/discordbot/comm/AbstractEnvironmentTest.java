@@ -17,6 +17,7 @@
 package vartas.discordbot.comm;
 
 import com.google.common.collect.ListMultimap;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,17 +28,22 @@ import net.dean.jraw.pagination.Paginator;
 import net.dv8tion.jda.core.JDA.Status;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import vartas.discordbot.threads.RedditFeed;
 import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.offlinejraw.OfflineSubmissionListingResponse;
 import vartas.offlinejraw.OfflineSubmissionListingResponse.OfflineSubmission;
 import vartas.offlinejraw.OfflineSubredditResponse;
+import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.PushshiftWrapper.CompactComment;
 import vartas.reddit.PushshiftWrapper.CompactSubmission;
 
@@ -47,9 +53,14 @@ import vartas.reddit.PushshiftWrapper.CompactSubmission;
  */
 public class AbstractEnvironmentTest {
     static AbstractEnvironment environment;
+    static List<String> actions = new ArrayList<>();
     @BeforeClass
-    public static void setUp(){
+    public static void startUp(){
         environment = new OfflineEnvironment();
+    }
+    @Before
+    public void setUp(){
+        actions.clear();
     }
     @Test
     public void configTest(){
@@ -180,7 +191,7 @@ public class AbstractEnvironmentTest {
         assertEquals(environment.shards.get(1).jda().getStatus(),Status.SHUTDOWN);
         
         //Restart everything
-        setUp();
+        startUp();
     }
     @Test
     public void submissionTest(){
@@ -252,5 +263,54 @@ public class AbstractEnvironmentTest {
     @Test
     public void adapterTest(){
         assertEquals(environment.adapter, environment.adapter());
+    }
+    @Test
+    public void storeTest() throws IOException, InterruptedException{
+        environment.pushshift = new PushshiftWrapper(environment.reddit){
+            @Override
+            public void store(){
+                actions.add("stored");
+            }
+        };
+        environment.store();
+        assertEquals(actions,Arrays.asList("stored"));
+        startUp();
+    }
+    @Test
+    public void requestTest() throws IOException{
+        environment.pushshift = new PushshiftWrapper(environment.reddit){
+            @Override
+            public Void request(){
+                actions.add("stored");
+                return null;
+            }
+        };
+        environment.request("subreddit",Instant.now(),Instant.now());
+        assertEquals(actions,Arrays.asList("stored"));
+        startUp();
+    }
+    @Test
+    public void addFeedTest(){
+        environment.feed = new RedditFeed(environment){
+            @Override
+            public void addFeed(String subreddit, TextChannel channel){
+                actions.add("added");
+            }
+        };
+        environment.add("subreddit", new TextChannelImpl(0,null));
+        assertEquals(actions,Arrays.asList("added"));
+        startUp();
+    }
+    @Test
+    public void removeFeedTest(){
+        environment.feed = new RedditFeed(environment){
+            @Override
+            public void removeFeed(String subreddit, TextChannel channel){
+                actions.add("removed");
+            }
+        };
+        environment.remove("subreddit", new TextChannelImpl(0,null));
+        assertEquals(actions,Arrays.asList("removed"));
+        startUp();
     }
 }

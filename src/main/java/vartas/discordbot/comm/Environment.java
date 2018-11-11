@@ -17,6 +17,7 @@
 package vartas.discordbot.comm;
 
 import com.google.common.collect.ListMultimap;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -207,4 +208,32 @@ public interface Environment extends Killable{
      * @param status 
      */
     public abstract void onlinestatus(OnlineStatus status);
+    /**
+     * Makes the program post submissions from the subreddit in the specified channel.
+     * @param subreddit the name of the subreddit.
+     * @param channel the textchannel where new submissions are posted.
+     */
+    public void add(String subreddit, TextChannel channel);
+    /**
+     * Removes a channel from the set of all channels where new submissions from
+     * this subreddit are posted.
+     * @param subreddit the name of the subreddit.
+     * @param channel the channel that is removed from the set.
+     */
+    public abstract void remove(String subreddit, TextChannel channel);
+    /**
+     * Requests the submissions and comments in the subreddit within the
+     * given interval via the pushshift crawler.
+     * @param subreddit the name of the 
+     * @param start the inclusive time stamp of the oldest submission.
+     * @param end the inclusive time stamp of the newest submission.
+     * @throws IOException when the HTTP request failed
+     */
+    public abstract void request(String subreddit, Instant start, Instant end) throws IOException;
+    /**
+     * Writes the current content of the crawler to the hard disk.
+     * @throws IOException if an error occured while writing the data.
+     * @throws InterruptedException if the program was interrupted before the writing process was finished.
+     */
+    public abstract void store() throws IOException, InterruptedException;
 }

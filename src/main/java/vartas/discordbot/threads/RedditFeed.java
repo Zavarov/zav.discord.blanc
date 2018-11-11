@@ -110,17 +110,13 @@ public class RedditFeed implements Runnable, Killable{
      * Removes a textchannel from the list of feeds. New submissions won't be posted there anymore.
      * @param subreddit the subreddit.
      * @param channel the textchannel.
-     * @throws IOException if the data couldn't be written into a file.
-     * @throws InterruptedException if the program was interrupted before the writing process was finished.
      */
-    public synchronized void removeFeed(String subreddit, TextChannel channel) throws IOException, InterruptedException{
+    public synchronized void removeFeed(String subreddit, TextChannel channel){
         posts.remove(subreddit,channel);
         //Also remove the timestamp, if this was the last channel linked to the subreddit
         if(!posts.containsKey(subreddit)){
             history.remove(subreddit);
         }
-        environment.comm(channel.getGuild()).server(channel.getGuild()).removeRedditFeed(subreddit, channel);
-        environment.comm(channel.getGuild()).update(channel.getGuild());
     }
     /**
      * Generates all the messages for the latest submissions.
@@ -240,16 +236,25 @@ public class RedditFeed implements Runnable, Killable{
          */
         @Override
         public void accept(Throwable t){
+            boolean update = false;
             try{
                 if(t instanceof ErrorResponseException){
                     ErrorResponse error = ((ErrorResponseException)t).getErrorResponse();
                     if(error == ErrorResponse.UNKNOWN_CHANNEL || error == ErrorResponse.UNKNOWN_GUILD){
                         removeFeed(subreddit,channel);
+                        update = true;
                     }
                 }else if(t instanceof InsufficientPermissionException){
                     removeFeed(subreddit,channel);
+                    update = true;
                 }else if(t instanceof NetworkException){
                     removeFeed(subreddit,channel);
+                    update = true;
+                }
+                //only update when something changed
+                if(update){
+                    environment.comm(channel.getGuild()).server(channel.getGuild()).removeRedditFeed(subreddit, channel);
+                    environment.comm(channel.getGuild()).update(channel.getGuild());
                 }
                 log.warn(t.getMessage());
             //Couldn't remove feeds
