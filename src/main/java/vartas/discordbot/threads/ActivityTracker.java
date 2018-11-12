@@ -17,6 +17,7 @@
 
 package vartas.discordbot.threads;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -88,7 +89,8 @@ public class ActivityTracker implements Runnable, Killable{
         
         queue = new EvictingLinkedQueue<>(comm.environment().config().getActivityInterval());
         queue.add(measure());
-        executor = Executors.newSingleThreadScheduledExecutor();
+        executor = Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder().setNameFormat("Activity Executor").build());
         executor.scheduleAtFixedRate(
                 ActivityTracker.this, 
                 comm.environment().config().getActivityInterval(),  
@@ -233,7 +235,8 @@ public class ActivityTracker implements Runnable, Killable{
      */
     @Override
     public void shutdown(){
-       executor.shutdownNow();
+        executor.shutdownNow();
+        log.info("Activity Tracker shut down.");
     }
     /**
      * A wrapper class that contains a data point for each guild.

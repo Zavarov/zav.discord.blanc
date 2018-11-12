@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.RateLimiter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Set;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.security.auth.login.LoginException;
@@ -30,7 +29,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
-import vartas.discordbot.MessageListener;
 import vartas.xml.XMLConfig;
 
 /**
@@ -40,9 +38,9 @@ import vartas.xml.XMLConfig;
 public class DefaultEnvironment extends AbstractEnvironment{
     protected Supplier<JDABuilder> builder;
     /**
-     * We are only allowed to create a new JDA instance every 5 minutes.
+     * We are only allowed to create a new JDA instance every 5 seconds.
      */
-    protected RateLimiter limiter = RateLimiter.create(MINUTES.toSeconds(5));
+    protected static RateLimiter limiter = RateLimiter.create(1/5.0);
     /**
      * Creates an instance with the configuration file in the main directory.
      * @param builder the supplier for the builder that creates the JDA instances.
@@ -52,12 +50,13 @@ public class DefaultEnvironment extends AbstractEnvironment{
      */
     public DefaultEnvironment(Supplier<JDABuilder> builder, NetworkAdapter adapter) throws LoginException, InterruptedException{
         super(XMLConfig.create(new File("config.xml")), adapter);
-        
         this.builder = builder;
-        
         addShards();
         removeOldGuilds();
-        addListeners();
+        addRedditFeeds();
+        
+        //Update the game AFTER all shards have been loaded.
+        super.tracker.run();
     }
     /**
      * Creates a communicator for every shard.
@@ -66,6 +65,7 @@ public class DefaultEnvironment extends AbstractEnvironment{
      */
     public final void addShards() throws LoginException, InterruptedException{
         for(int i = 0 ; i < config.getDiscordShards() ; ++i){
+            limiter.acquire();
             shards.add(new DefaultCommunicator(this, create(i)));
         }
     }
@@ -88,10 +88,12 @@ public class DefaultEnvironment extends AbstractEnvironment{
                 .forEach(f -> f.delete());
     }
     /**
-     * Adds a message listener to each shard.
+     * Adds the feeds from the guild files to the Reddit instance.
      */
-    private void addListeners(){
-        shards.forEach(c -> c.jda().addEventListener(new MessageListener(c)));
+    public final void addRedditFeeds(){
+        guild().forEach(guild -> {
+            feed.addSubreddits(comm(guild).server(guild), guild);
+        });
     }
     /**
      * Creates a new instance of the JDA that manages the specified shard.
@@ -108,7 +110,7 @@ public class DefaultEnvironment extends AbstractEnvironment{
                 .setAutoReconnect(true)
                 .useSharding(shard, config().getDiscordShards())
                 .build()
-                .awaitStatus(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+                .awaitStatus(JDA.Status.CONNECTED);
                 
     }
 }

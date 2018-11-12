@@ -18,9 +18,9 @@ package vartas.discordbot.comm;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.io.File;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -97,8 +97,9 @@ public abstract class AbstractCommunicator implements Communicator{
         this.jda = jda;
         this.activity = new ActivityTracker(this);
         this.messages = new MessageTracker(this);
-        this.listener = new MessageListener(this);
-        this.executor = Executors.newWorkStealingPool();
+        this.listener = new MessageListener(this, messages);
+        this.executor = Executors.newCachedThreadPool(
+                new ThreadFactoryBuilder().setNameFormat("Communicator Executor").build());
         
         jda.addEventListener(listener);
     }
@@ -282,8 +283,9 @@ public abstract class AbstractCommunicator implements Communicator{
     public void shutdown(){
         messages.shutdown();
         activity.shutdown();
+        listener.shutdown();
         executor.shutdownNow();
-        jda.shutdown();
+        jda.shutdownNow();
     }
     /**
      * Submits a runnable to be executed and some unspecific point in time.

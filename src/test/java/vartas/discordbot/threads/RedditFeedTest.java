@@ -481,14 +481,16 @@ public class RedditFeedTest {
     }
     @Test
     public void runInsufficientPermissionTest(){
+        List<Runnable> list = new ArrayList<>();
         OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
             public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure){
-                throw new InsufficientPermissionException(Permission.ADMINISTRATOR);
+                if(channel.equals(channel1))
+                    throw new InsufficientPermissionException(Permission.ADMINISTRATOR);
             }
             @Override
             public void submit(Runnable runnable){
-                runnable.run();
+                list.add(runnable);
             }
         };
         Environment environment = new OfflineEnvironment(){
@@ -509,7 +511,9 @@ public class RedditFeedTest {
         feed = new RedditFeed(environment);
         feed.addSubreddits(server, guild);
         feed.history.put("subreddit", 0L);
+        
         feed.run();
+        list.forEach(Runnable::run);
         
         assertFalse(feed.posts.containsValue(channel1));
         assertTrue(feed.history.containsKey("subreddit"));
@@ -637,6 +641,12 @@ public class RedditFeedTest {
         assertFalse(feed.posts.containsValue(channel1));
         assertTrue(feed.history.containsKey("subreddit"));
         assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void containsFeedTest(){
+        assertFalse(feed.containsFeed("subreddit",channel1));
+        feed.addSubreddits(server, guild);
+        assertTrue(feed.containsFeed("subreddit",channel1));
     }
     
     private class FakeResponse extends Response{

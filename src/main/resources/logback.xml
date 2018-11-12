@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <appender name="MEMORY_LOG" class="vartas.discordbot.DiscordLogListener">
+    <appender name="MEMORY_LOG" class="vartas.discordbot.LogListener">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>

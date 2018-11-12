@@ -57,7 +57,7 @@ public class OfflineEnvironment extends AbstractEnvironment{
         Executors.newSingleThreadScheduledExecutor(), Executors.newSingleThreadScheduledExecutor(), Executors.newSingleThreadExecutor(),
         false, false, false,
         false, false, false,
-        false, false, false,
+        true, true, true,
         0,0,
         new ConcurrentHashMap<>(), EnumSet.of(CacheFlag.GAME)){
             @Override

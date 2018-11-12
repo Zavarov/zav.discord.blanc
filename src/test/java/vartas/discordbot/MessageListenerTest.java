@@ -49,6 +49,7 @@ import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.comm.OfflineCommunicator;
 import vartas.discordbot.comm.OfflineEnvironment;
 import vartas.discordbot.messages.InteractiveMessage;
+import vartas.discordbot.threads.MessageTracker;
 import vartas.parser.cfg.ContextFreeGrammar;
 import vartas.xml.XMLServer;
 
@@ -73,6 +74,7 @@ public class MessageListenerTest {
     static Message message3;
     static Message message4;
     static Message message5;
+    static MessageTracker messages;
     @BeforeClass
     public static void startUp(){
         comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
@@ -140,13 +142,15 @@ public class MessageListenerTest {
                 .addProduction("Command", "a","b").build();
         comm.environment().grammar().putAll(grammar);
         comm.environment().command().put("ab", "vartas.discordbot.command.TestCommand");
+        
+        messages = new MessageTracker(comm);
     }
     
     MessageListener listener;
     InteractiveMessage message;
     @Before
     public void setUp(){
-        listener = new MessageListener(comm);
+        listener = new MessageListener(comm, messages);
         message = new InteractiveMessage.Builder(channel1, self, comm)
                 .addLines(Arrays.asList("aaaaa","bbbbb"), 1)
                 .build();
@@ -161,9 +165,9 @@ public class MessageListenerTest {
     }
     @Test
     public void shutdownTest(){
-        assertFalse(listener.parser_executor.isShutdown());
+        assertFalse(listener.executor.isShutdown());
         listener.shutdown();
-        assertTrue(listener.parser_executor.isShutdown());
+        assertTrue(listener.executor.isShutdown());
     }
     @Test
     public void onMessageReactionAddTest(){
@@ -201,7 +205,7 @@ public class MessageListenerTest {
                 comm.actions.add("deleted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         listener.onGuildMessageReceived(new GuildMessageReceivedEvent(jda,0,message4));
         assertEquals(comm.actions,Arrays.asList("deleted"));
     }
@@ -218,7 +222,7 @@ public class MessageListenerTest {
                 comm.actions.add("updated");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         listener.onGuildMessageReceived(new GuildMessageReceivedEvent(jda,0,message1));
         assertEquals(comm.actions,Arrays.asList("updated"));
     }
@@ -231,7 +235,7 @@ public class MessageListenerTest {
             }
         };
         self.setBot(true);
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         listener.onGuildMessageReceived(new GuildMessageReceivedEvent(jda,0,message1));
         assertTrue(comm.actions.isEmpty());
     }
@@ -248,12 +252,12 @@ public class MessageListenerTest {
                 comm.actions.add("submitted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageUpdate(new MessageUpdateEvent(jda,0,message1));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertEquals(comm.actions, Arrays.asList("submitted"));
     }
@@ -265,12 +269,12 @@ public class MessageListenerTest {
                 comm.actions.add("submitted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageUpdate(new MessageUpdateEvent(jda,0,message5));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertTrue(comm.actions.isEmpty());
     }
@@ -282,12 +286,12 @@ public class MessageListenerTest {
                 comm.actions.add("submitted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageReceived(new MessageReceivedEvent(jda,0,message1));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertEquals(comm.actions, Arrays.asList("submitted"));
     }
@@ -300,12 +304,12 @@ public class MessageListenerTest {
             }
         };
         self.setBot(true);
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageReceived(new MessageReceivedEvent(jda,0,message1));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertTrue(comm.actions.isEmpty());
     }
@@ -318,12 +322,12 @@ public class MessageListenerTest {
             }
         };
         fake.server(guild).setPrefix(null);
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageReceived(new MessageReceivedEvent(jda,0,message5));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertEquals(comm.actions, Arrays.asList("submitted"));
     }
@@ -335,12 +339,12 @@ public class MessageListenerTest {
                 comm.actions.add("submitted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageReceived(new MessageReceivedEvent(jda,0,message2));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertEquals(comm.actions, Arrays.asList("submitted"));
     }
@@ -352,12 +356,12 @@ public class MessageListenerTest {
                 comm.actions.add("submitted");
             }
         };
-        listener = new MessageListener(fake);
+        listener = new MessageListener(fake, messages);
         
         listener.onMessageReceived(new MessageReceivedEvent(jda,0,message4));
         
-        listener.parser_executor.shutdown();
-        while(!listener.parser_executor.isTerminated()){}
+        listener.executor.shutdown();
+        while(!listener.executor.isTerminated()){}
 
         assertTrue(comm.actions.isEmpty());
     }

@@ -18,6 +18,7 @@
 package vartas.discordbot;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +33,7 @@ import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
 import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.command.Command;
+import vartas.discordbot.threads.Killable;
 import vartas.discordbot.threads.MessageTracker;
 import vartas.xml.XMLServer;
 
@@ -39,7 +41,7 @@ import vartas.xml.XMLServer;
  * This class acts as an interface between the the messages received from Discord and this program.
  * @author u/Zavarov
  */
-public class MessageListener extends ListenerAdapter{
+public class MessageListener extends ListenerAdapter implements Killable{
     /**
      * The tracker for all interactive messages.
      */
@@ -47,7 +49,7 @@ public class MessageListener extends ListenerAdapter{
     /**
      * An executor for the parser.
      */
-    protected ExecutorService parser_executor;
+    protected ExecutorService executor;
     /**
      * The communicator of the program.
      */
@@ -62,12 +64,14 @@ public class MessageListener extends ListenerAdapter{
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
      * @param comm the communicator of the program.
+     * @param messages a tracker for all interactive messages
      */
-    public MessageListener(Communicator comm){
+    public MessageListener(Communicator comm, MessageTracker messages){
         this.comm = comm;
+        this.messages = messages;
         this.parser = new CommandParser.Builder(comm).build();
-        this.messages = new MessageTracker(comm);
-        this.parser_executor = Executors.newSingleThreadExecutor();
+        this.executor = Executors.newSingleThreadExecutor(
+                new ThreadFactoryBuilder().setNameFormat("Message Parsing Executor").build());
     }
     /**
      * An reaction was added to a message.
@@ -163,7 +167,7 @@ public class MessageListener extends ListenerAdapter{
      */
     private void messageReceived(Message message){
         if(!message.getAuthor().isBot() && hasPrefix(message)){
-            parser_executor.submit(() -> {
+            executor.submit(() -> {
                 Command command = parser.parseCommand(message, getContent(message));
                 command.setCommunicator(comm);
                 comm.submit(command);
@@ -173,9 +177,9 @@ public class MessageListener extends ListenerAdapter{
     /**
      * Terminates the executor for the parser.
      */
+    @Override
     public void shutdown(){
-        messages.shutdown();
-        parser_executor.shutdownNow();
-        log.info("MessageListener terminated.");
+        executor.shutdownNow();
+        log.info("Message Listener shut down.");
     }
 }

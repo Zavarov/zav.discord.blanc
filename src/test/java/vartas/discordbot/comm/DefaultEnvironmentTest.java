@@ -26,10 +26,13 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import vartas.offlinejraw.OfflineNetworkAdapter;
 
@@ -46,6 +49,16 @@ public class DefaultEnvironmentTest {
     };
     NetworkAdapter adapter = new OfflineNetworkAdapter();
     DefaultEnvironment environment;
+    static double rate;
+    @BeforeClass
+    public static void startUp(){
+        rate = DefaultEnvironment.limiter.getRate();
+        DefaultEnvironment.limiter.setRate(1000);
+    }
+    @AfterClass
+    public static void tearDown(){
+        DefaultEnvironment.limiter.setRate(rate);
+    }
     @Before
     public void setUp() throws LoginException, InterruptedException{
         environment = new DefaultEnvironment(builder,adapter);
@@ -78,5 +91,20 @@ public class DefaultEnvironmentTest {
         assertTrue(file.exists());
         environment.removeOldGuilds();
         assertTrue(file.exists());
+    }
+    @Test
+    public void addGuildsTest(){
+        JDAImpl jda = (JDAImpl)environment.comm(0).jda();
+        GuildImpl guild = new GuildImpl(jda,0);
+        TextChannelImpl channel = new TextChannelImpl(1,guild);
+        jda.getGuildMap().put(guild.getIdLong(), guild);
+        guild.getTextChannelsMap().put(channel.getIdLong(), channel);
+        
+        environment.comm(guild).server(guild).addRedditFeed("subreddit", channel);
+        
+        assertFalse(environment.feed.containsFeed("subreddit", channel));
+        environment.addRedditFeeds();
+        assertTrue(environment.feed.containsFeed("subreddit", channel));
+        
     }
 }

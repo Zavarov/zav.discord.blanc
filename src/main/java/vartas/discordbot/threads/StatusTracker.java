@@ -17,6 +17,7 @@
 
 package vartas.discordbot.threads;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,10 +55,11 @@ public class StatusTracker implements Runnable, Killable{
     public StatusTracker(Environment environment){
         this.environment = environment;
         
-        executor = Executors.newSingleThreadScheduledExecutor();
+        executor = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder().setNameFormat("Status Executor").build());
         executor.scheduleAtFixedRate(
                 StatusTracker.this,
-                0,
+                environment.config().getStatusInterval(),
                 environment.config().getStatusInterval(), 
                 TimeUnit.MINUTES);
         log.info("Status Tracker started");
@@ -77,5 +79,6 @@ public class StatusTracker implements Runnable, Killable{
     @Override
     public void shutdown(){
         executor.shutdownNow();
+        log.info("Status Tracker shut down.");
     }
 }

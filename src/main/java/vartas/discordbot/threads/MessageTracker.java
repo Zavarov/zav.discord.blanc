@@ -17,6 +17,7 @@
 
 package vartas.discordbot.threads;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -59,7 +60,8 @@ public class MessageTracker implements Runnable, Killable{
      */
     public MessageTracker(Communicator comm){
         this.comm = comm;
-        this.executor = Executors.newSingleThreadScheduledExecutor();
+        this.executor = Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder().setNameFormat("Message Executor").build());
         this.messages = new Object2ObjectOpenHashMap<>();
         executor.scheduleAtFixedRate(
                 MessageTracker.this, 
@@ -109,5 +111,6 @@ public class MessageTracker implements Runnable, Killable{
     @Override
     public void shutdown() {
         executor.shutdownNow();
+        log.info("Message Tracker shut down.");
     }
 }

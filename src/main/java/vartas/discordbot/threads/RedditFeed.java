@@ -20,6 +20,7 @@ package vartas.discordbot.threads;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.IOException;
 import java.time.Instant;
@@ -77,11 +78,12 @@ public class RedditFeed implements Runnable, Killable{
      * @param environment the runtime of the program.
      */
     public RedditFeed(Environment environment){
-        this.environment = environment;
-        log.info("Reddit feeds created.");
         
-        executor = Executors.newSingleThreadScheduledExecutor();
+        this.environment = environment;
+        executor = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder().setNameFormat("Reddit Feed Executor").build());
         executor.scheduleAtFixedRate(RedditFeed.this, 1, 1, TimeUnit.MINUTES);
+        log.info("Reddit feeds created.");
     }
     /**
      * Adds all textchannel in the specified guild that are marked in the configuration file.
@@ -92,7 +94,7 @@ public class RedditFeed implements Runnable, Killable{
         server.getRedditFeeds(guild).forEach( (s,t) -> {
             posts.put(s,t);
             //The history starts from this point onwards
-            history.put(s,System.currentTimeMillis());
+            history.computeIfAbsent(s,k -> System.currentTimeMillis());
             log.info(String.format("Added the subreddit %s for the guild %s.",s,guild.getName()));
         });
     }
@@ -119,17 +121,34 @@ public class RedditFeed implements Runnable, Killable{
         }
     }
     /**
+     * @param subreddit a subreddit.
+     * @param channel a textchannel.
+     * @return true if the (subreddit, channel) pair can receive new submissions.
+     */
+    public boolean containsFeed(String subreddit, TextChannel channel){
+        return posts.containsEntry(subreddit, channel);
+    }
+    /**
      * Generates all the messages for the latest submissions.
      * @param subreddit the subreddit the new submissions are retrieved from.
      * @return all submissions that have been submitted since the last time.
      */
     public synchronized Map<Submission,MessageBuilder> generateMessages(String subreddit){
-        Instant start = Instant.ofEpochMilli(history.computeIfAbsent(subreddit, (k) -> System.currentTimeMillis()));
         Instant end = Instant.now().minusSeconds(60);
+        Instant start = Instant.ofEpochMilli(history.computeIfAbsent(subreddit, (k) -> System.currentTimeMillis()));
         List<Submission> submissions;
         //
         try{
             submissions = environment.submission(subreddit, start, end);
+            /*
+            RedditBot bot = new RedditBot(environment.credentials(),environment.adapter());
+            submissions = bot.getClient().subreddit(subreddit)
+                .posts()
+                .sorting(SubredditSort.NEW)
+                .limit(Paginator.RECOMMENDED_MAX_LIMIT)
+                .timePeriod(TimePeriod.HOUR)
+                .build();
+            */
         }catch(NetworkException e){
             int error = e.getRes().getCode();
             //The subreddit either doesn't exist anymore or can't be accessed
@@ -182,10 +201,10 @@ public class RedditFeed implements Runnable, Killable{
                             }
                         });
                 });
-            log.info(String.format("Posted %d new %s from r/%s",messages.size(),English.plural("submission", messages.size()),subreddit));
-        });
+                log.info(String.format("Posted %d new %s from r/%s",messages.size(),English.plural("submission", messages.size()),subreddit));
+            });
         //Just in case we forgot to check something
-        }catch(RuntimeException e){
+        }catch(Exception e){
             log.error("Unexpected error encountered.", e);
         }
     }
@@ -195,6 +214,7 @@ public class RedditFeed implements Runnable, Killable{
     @Override
     public void shutdown() {
         executor.shutdownNow();
+        log.info("Reddit feed shut down.");
     }
     /**
      * A internal class for when a message wasn't sent successfully.
