@@ -19,11 +19,13 @@ package vartas.discordbot.comm;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.imageio.ImageIO;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -102,8 +104,16 @@ public interface Communicator extends Killable{
      * @param image the image that is sent.
      */
     public default void send(MessageChannel channel, BufferedImage image){
-        byte[] data = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
-        send(channel.sendFile(new ByteArrayInputStream(data), "image.png"));
+        try{
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", output);
+            
+            ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+            send(channel.sendFile(input, "image.png"));
+        //Fuck ImageIO and just catch anything.
+        }catch(Exception e){
+            throw new IllegalArgumentException(e);
+        }
     }
     /**
      * Sends a file in the specified channel.

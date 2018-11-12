@@ -120,6 +120,11 @@ public class CommunicatorTest {
         comm.send(channel0, image);
         assertEquals(comm.actions,Arrays.asList("action queued"));
     }
+    @Test(expected=IllegalArgumentException.class)
+    public void sendInvalidImageTest(){
+        BufferedImage image = null;
+        comm.send(channel0, image);
+    }
     @Test
     public void sendFileTest() throws IOException{
         comm.send(channel0, new File("src/test/resources/image.png"));
