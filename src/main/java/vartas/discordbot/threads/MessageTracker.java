@@ -68,6 +68,7 @@ public class MessageTracker implements Runnable, Killable{
                 comm.environment().config().getInteractiveMessageAge(), 
                 comm.environment().config().getInteractiveMessageAge(), 
                 TimeUnit.MINUTES);
+        log.info("Message Tracker started.");
     }
     /**
      * Adds the message to the underlying map.

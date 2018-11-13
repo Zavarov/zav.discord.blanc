@@ -109,7 +109,7 @@ public abstract class AbstractCommunicator implements Communicator{
      */
     @Override
     public void send(InteractiveMessage message){
-        send(message.toRestAction(messages::add));
+        send(message.toRestAction(messages::add), message);
     }
     /**
      * @param objects a set of tokens that identify text channels.
