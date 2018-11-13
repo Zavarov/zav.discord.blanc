@@ -20,6 +20,7 @@ package vartas.discordbot;
 import com.google.common.collect.Table;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 import net.dv8tion.jda.core.entities.Message;
 import vartas.automaton.Preprocessor;
@@ -27,7 +28,9 @@ import vartas.automaton.RegularExpression;
 import vartas.automaton.Tokenizer.Token;
 import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.command.Command;
+import vartas.discordbot.command.ErrorCommand;
 import vartas.parser.DeterministicTopDownParser;
+import vartas.parser.UnexpectedTokenException;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar;
 import vartas.parser.cfg.ContextFreeGrammar.Production;
@@ -84,6 +87,12 @@ public class CommandParser extends DeterministicTopDownParser{
             return Command.createCommand(command, message, data_tree, comm);
         }catch(ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
             throw new IllegalArgumentException(String.format("No corresponding command found for %s",prefixfree));
+        }catch(UnexpectedTokenException token){
+            Command command = new ErrorCommand(token);
+            command.setCommunicator(comm);
+            command.setMessage(message);
+            command.setParameter(Arrays.asList());
+            return command;
         }
     }
     /**

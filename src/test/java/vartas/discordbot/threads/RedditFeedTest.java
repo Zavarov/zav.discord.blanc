@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.dean.jraw.ApiException;
 import net.dean.jraw.http.HttpResponse;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
@@ -335,6 +336,51 @@ public class RedditFeedTest {
         assertTrue(messages.isEmpty());
     }
     @Test
+    public void generateMessagesApiExceptionTest(){
+        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
+        okhttp3.Response response = new okhttp3.Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_2)
+                .code(HttpStatus.SC_FORBIDDEN)
+                .message("message").build();
+        HttpResponse http = new HttpResponse(response);
+        ApiException exception = new ApiException("404","",Arrays.asList(),new NetworkException(http));
+        
+        List<Runnable> list = new ArrayList<>();
+        
+        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
+            @Override
+            public void submit(Runnable runnable){
+                list.add(runnable);
+            }
+        };
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+            @Override
+            public List<Submission> submission(String subreddit, Instant start, Instant end){
+                throw exception;
+            }
+        };
+        
+        feed = new RedditFeed(environment);
+        feed.addSubreddits(server, guild);
+        
+        feed.generateMessages("subreddit");
+        list.forEach(Runnable::run);
+            
+        assertFalse(feed.posts.containsEntry("subreddit",channel1));
+        assertFalse(feed.posts.containsEntry("subreddit",channel2));
+        assertFalse(feed.history.containsKey("subreddit"));
+        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated"));
+    }
+    @Test
     public void generateMessagesNetworkExceptionTest(){
         okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
         okhttp3.Response response = new okhttp3.Response.Builder()
@@ -569,6 +615,17 @@ public class RedditFeedTest {
         
         ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
         error.accept(new NetworkException(new OfflineSubredditResponse().build()));
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    @Test
+    public void apiExceptionTest(){
+        feed.addSubreddits(server, guild);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
+        error.accept(new ApiException("404","",Arrays.asList(),new NetworkException(new OfflineSubredditResponse().build())));
         
         assertFalse(feed.posts.containsValue(channel1));
         assertTrue(feed.history.containsKey("subreddit"));

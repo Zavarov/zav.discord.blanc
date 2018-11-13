@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import vartas.automaton.Preprocessor;
 import vartas.discordbot.CommandParser;
 import vartas.discordbot.comm.Communicator;
+import vartas.parser.Parser;
 import vartas.parser.ast.AbstractSyntaxTree;
 import vartas.parser.cfg.ContextFreeGrammar.Token;
 import vartas.parser.cfg.ContextFreeGrammar.Type;
@@ -43,8 +44,8 @@ public abstract class Command implements Runnable{
     protected static final Set<String> ALLOWED_VALUES = Sets.newHashSet(CommandParser.Builder.DATE,
             CommandParser.Builder.ONLINESTATUS,
             CommandParser.Builder.INTERVAL,
-            Preprocessor.QUOTATION,
-            "integer");
+            Preprocessor.STRING,
+            Parser.Builder.INTEGER);
     /**
      * A set if all ranks that can always execute this command.
      */

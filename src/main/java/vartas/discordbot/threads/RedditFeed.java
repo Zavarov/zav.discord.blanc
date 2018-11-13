@@ -33,6 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.dean.jraw.ApiException;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -149,15 +150,20 @@ public class RedditFeed implements Runnable, Killable{
                 .timePeriod(TimePeriod.HOUR)
                 .build();
             */
-        }catch(NetworkException e){
-            int error = e.getRes().getCode();
+        }catch(NetworkException | ApiException e){
+            log.warn(e.getMessage());
+            int error;
+            //extract the error message
+            if(e instanceof NetworkException){
+                error = ((NetworkException)e).getRes().getCode();
+            }else{
+                error = Integer.parseInt(((ApiException)e).getCode());
+            }
             //The subreddit either doesn't exist anymore or can't be accessed
             if(error == HttpStatus.SC_FORBIDDEN || error == HttpStatus.SC_NOT_FOUND){
                 posts.get(subreddit).forEach(channel -> {
                     environment.comm(channel).submit(new ErrorHandling(subreddit,channel,e));
                 });
-            }else{
-                log.warn(e.getMessage());
             }
             submissions = Lists.newArrayList();
         }
@@ -201,8 +207,10 @@ public class RedditFeed implements Runnable, Killable{
                             }
                         });
                 });
-                log.info(String.format("Posted %d new %s from r/%s",messages.size(),English.plural("submission", messages.size()),subreddit));
+                if(messages.size() > 0)
+                    log.info(String.format("Posted %d new %s from r/%s",messages.size(),English.plural("submission", messages.size()),subreddit));
             });
+            log.info("Cycle successfully completed.");
         //Just in case we forgot to check something
         }catch(Exception e){
             log.error("Unexpected error encountered.", e);
@@ -267,7 +275,7 @@ public class RedditFeed implements Runnable, Killable{
                 }else if(t instanceof InsufficientPermissionException){
                     removeFeed(subreddit,channel);
                     update = true;
-                }else if(t instanceof NetworkException){
+                }else if(t instanceof NetworkException || t instanceof ApiException){
                     removeFeed(subreddit,channel);
                     update = true;
                 }

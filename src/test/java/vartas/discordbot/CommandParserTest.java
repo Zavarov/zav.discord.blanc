@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import vartas.discordbot.comm.Communicator;
 import vartas.discordbot.comm.OfflineEnvironment;
+import vartas.discordbot.command.ErrorCommand;
 import vartas.discordbot.command.TestCommand;
 import vartas.parser.cfg.ContextFreeGrammar;
 
@@ -63,5 +64,9 @@ public class CommandParserTest {
     public void parseCommandInvalidTest(){
         comm.environment().command().addCommand("ab", "junk");
         parser.parseCommand(null, "ab");
+    }
+    @Test
+    public void parseUnexpectedTokenTest(){
+        assertTrue(parser.parseCommand(null, "aba") instanceof ErrorCommand);
     }
 }
