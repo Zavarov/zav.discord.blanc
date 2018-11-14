@@ -60,7 +60,7 @@ public final class RoleMessage {
      * @param role the role in question.
      */
     private static void addId(Builder builder, Role role){
-        builder.addLine(String.format("`%-10s :` %s",
+        builder.addLine(String.format("%-10s : %s",
                 "ID",
                 role.getId())
         );
@@ -73,7 +73,7 @@ public final class RoleMessage {
     private static void addCreated(Builder builder, Role role){
         DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
         int days = (int)DAYS.between(role.getCreationTime().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("`%-10s :` %s (%d %s ago)",
+        builder.addLine(String.format("%-10s : %s (%d %s ago)",
                 "Created",
                 formatter.format(role.getCreationTime()),
                 days,
@@ -86,7 +86,7 @@ public final class RoleMessage {
      * @param role the role in question.
      */
     private static void addPosition(Builder builder, Role role){
-        builder.addLine(String.format("`%-10s :` %d",
+        builder.addLine(String.format("%-10s : %d",
                 "Position",
                 role.getPosition())
         );
@@ -97,7 +97,7 @@ public final class RoleMessage {
      * @param role the role in question.
      */
     private static void addMembersCount(Builder builder, Role role){
-        builder.addLine(String.format("`%-10s :` %d",
+        builder.addLine(String.format("%-10s : %d",
                 "#Members",
                 role.getGuild().getMembersWithRoles(role).size())
         );
@@ -111,7 +111,7 @@ public final class RoleMessage {
         Color c = role.getColor();
         //0 represents a transparent color
         if(role.getColorRaw() != Role.DEFAULT_COLOR_RAW){
-            builder.addLine(String.format("`%-10s :` 0x%02X%02X%02X",
+            builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
                 "Color",
                 c.getRed(),
                 c.getGreen(),
@@ -167,11 +167,13 @@ public final class RoleMessage {
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         
         addDescription(builder, String.format("The basic information about %s", role.getAsMention()));
+        builder.addLine("```");
         addId(builder,role);
         addCreated(builder,role);
         addPosition(builder,role);
         addMembersCount(builder,role);
         addColor(builder, role);
+        builder.addLine("```");
         builder.nextPage();
         
         addDescription(builder, String.format("All permissions in %s", channel.getAsMention()));

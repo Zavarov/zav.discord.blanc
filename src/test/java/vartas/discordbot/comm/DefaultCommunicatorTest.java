@@ -17,6 +17,7 @@
 package vartas.discordbot.comm;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,14 +142,14 @@ public class DefaultCommunicatorTest {
         assertTrue(file.exists());
     }
     @Test
-    public void deleteGuildTest() throws IOException{
-        File file = new File("data/guilds");
-        file.mkdirs();
-        file = new File("data/guilds/1.server");
-        file.createNewFile();
+    public void deleteGuildTest() throws IOException, InterruptedException{
+        File file = new File("data/guilds/1.server");
+        comm.server(guild1).update().write(new FileOutputStream(file), null);
+        assertTrue(comm.servers.containsKey(guild1));
         assertTrue(file.exists());
         comm.delete(guild1);
         assertFalse(file.exists());
+        assertFalse(comm.servers.containsKey(guild1));
     }
     @Test
     public void deleteGuildNoFileTest(){

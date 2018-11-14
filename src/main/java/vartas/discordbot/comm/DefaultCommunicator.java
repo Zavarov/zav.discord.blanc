@@ -111,6 +111,7 @@ public class DefaultCommunicator extends AbstractCommunicator{
      */
     @Override
     public void delete(Guild guild){
+        servers.remove(guild);
         File file = new File(String.format("%s/guilds/%s.server",environment().config().getDataFolder(),guild.getId()));
         if(file.exists()){
             file.delete();

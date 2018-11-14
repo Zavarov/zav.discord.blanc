@@ -104,13 +104,13 @@ public class RoleMessageTest {
         guild.getRolesMap().put(role0.getIdLong(), role0);
         
         InteractiveMessage message = RoleMessage.create(user, role0, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("`#Members   :` 2"));
+        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Members   : 2"));
     }
     @Test
     public void createWithoutRolesTest(){
         role0.setRawPosition(0);
         InteractiveMessage message = RoleMessage.create(user, role0, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("`#Members   :` 0"));
+        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Members   : 0"));
     }
     
     @Test

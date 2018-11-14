@@ -61,7 +61,7 @@ public final class MemberMessage {
      * @param member the member in question.
      */
     private static void addName(Builder builder, Member member){
-        builder.addLine(String.format("`%-10s :` %s#%s",
+        builder.addLine(String.format("%-10s : %s#%s",
                 "Full Name",
                 member.getUser().getName(),
                 member.getUser().getDiscriminator())
@@ -73,7 +73,7 @@ public final class MemberMessage {
      * @param member the member in question.
      */
     private static void addId(Builder builder, Member member){
-        builder.addLine(String.format("`%-10s :` %s",
+        builder.addLine(String.format("%-10s : %s",
                 "ID",
                 member.getUser().getId())
         );
@@ -85,7 +85,7 @@ public final class MemberMessage {
      */
     private static void addNickname(Builder builder, Member member){
         if(member.getNickname() != null){
-            builder.addLine(String.format("`%-10s :` %s",
+            builder.addLine(String.format("%-10s : %s",
                     "Nickname",
                     member.getNickname())
             );
@@ -99,7 +99,7 @@ public final class MemberMessage {
      */
     private static void addCreated(Builder builder, Member member){
         int days = (int)DAYS.between(member.getUser().getCreationTime().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("`%-10s :` %s (%d %s ago)",
+        builder.addLine(String.format("%-10s : %s (%d %s ago)",
                 "Created",
                 DATE.format(member.getUser().getCreationTime()),
                 days,
@@ -114,7 +114,7 @@ public final class MemberMessage {
      */
     private static void addJoined(Builder builder, Member member){
         int days = (int)DAYS.between(member.getJoinDate().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("`%-10s :` %s (%d %s ago)",
+        builder.addLine(String.format("%-10s : %s (%d %s ago)",
                 "Joined",
                 DATE.format(member.getJoinDate()),
                 days,
@@ -129,7 +129,7 @@ public final class MemberMessage {
     private static void addColor(Builder builder, Member member){
         Color c = member.getColor();
         if(c != null){
-            builder.addLine(String.format("`%-10s :` 0x%02X%02X%02X",
+            builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
                 "Color",
                 c.getRed(),
                 c.getGreen(),
@@ -151,7 +151,7 @@ public final class MemberMessage {
             }else{
                 type = type.substring(0,1).toUpperCase() + type.substring(1);
             }
-            builder.addLine(String.format("`%-10s :` %s",
+            builder.addLine(String.format("%-10s : %s",
                     type,
                     member.getGame().getName())
             );
@@ -163,7 +163,7 @@ public final class MemberMessage {
      * @param member the member in question.
      */
     private static void addRoleCount(Builder builder, Member member){
-        builder.addLine(String.format("`%-10s :` %d",
+        builder.addLine(String.format("%-10s : %d",
                 "#Roles",member.getRoles().size())
         );
     }
@@ -193,8 +193,6 @@ public final class MemberMessage {
         Collections.sort(permissions,(o1,o2)->o1.name().compareTo(o2.name()));
         permissions.stream()
                 .map(p -> p.getName())
-                .map(p -> p.replace("_", " "))
-                .map(p -> p.toLowerCase(Locale.ENGLISH))
                 .forEach(builder::addLine);
         
     }
@@ -222,6 +220,7 @@ public final class MemberMessage {
         addThumbnail(builder,member);
         
         addDescription(builder,String.format("The basic information about %s", member.getAsMention()));
+        builder.addLine("```");
         addName(builder,member);
         addId(builder,member);
         addNickname(builder,member);
@@ -230,6 +229,7 @@ public final class MemberMessage {
         addColor(builder,member);
         addGame(builder,member);
         addRoleCount(builder,member);
+        builder.addLine("```");
         builder.nextPage();
         
         addDescription(builder, "All assigned roles");

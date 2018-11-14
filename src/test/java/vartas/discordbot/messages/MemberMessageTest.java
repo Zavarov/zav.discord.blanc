@@ -125,7 +125,7 @@ public class MemberMessageTest {
     @Test
     public void createWithoutRoleTest(){
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("`#Roles     :` 0"));
+        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Roles     : 0"));
     }
     @Test
     public void createNoGameTest(){

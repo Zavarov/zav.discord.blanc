@@ -152,7 +152,9 @@ public final class ServerMessage {
                 .filter(e -> !e.getUser().isBot())
                 .filter(e -> !e.getOnlineStatus().equals(OnlineStatus.OFFLINE))
                 .count();
-        int total = guild.getMembers().size();
+        int total = (int)guild.getMembers().stream()
+                .filter(e -> !e.getUser().isBot())
+                .count();
         builder.addField(English.plural("#Member",total),String.format("%d / %d",online,total),true);
         
     }
