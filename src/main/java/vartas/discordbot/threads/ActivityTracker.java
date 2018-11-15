@@ -44,8 +44,11 @@ import net.dv8tion.jda.core.utils.JDALogger;
 import org.atteo.evo.inflector.English;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -109,19 +112,26 @@ public class ActivityTracker implements Runnable, Killable{
         TimeSeriesCollection members = createMemberSeries(guild);
         TimeSeriesCollection channels = createChannelSeries(guild, textchannels);
         
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(guild.getName(), "Time in UTC", null, null, true, false, false);
-        XYPlot plot = chart.getXYPlot();
+        //JFreeChart chart = ChartFactory.createTimeSeriesChart(guild.getName(), "Time in UTC", null, null, true, false, false);
+        XYPlot plot = new XYPlot();
+        
         plot.setRangeAxis(0, new NumberAxis("Members"));
         plot.setRangeAxis(1, new NumberAxis("#posts / min"));
-        //Normalize the values
-        plot.getRangeAxis().setLowerBound(0);
+        plot.setDomainAxis(new DateAxis("Time in UTC", TimeZone.getTimeZone("UTC"),Locale.ENGLISH));
         
         plot.setDataset(0, members);
         plot.setDataset(1, channels);
         plot.mapDatasetToRangeAxis(0, 0);
         plot.mapDatasetToRangeAxis(1, 1);
         
-        return chart;
+        //Each set gets their own renderer, to have unique colours
+        plot.setRenderer(0,new XYLineAndShapeRenderer(true, false));
+        plot.setRenderer(1,new XYLineAndShapeRenderer(true, false));
+        
+        //Normalize the values
+        plot.getRangeAxis().setLowerBound(0);
+        
+        return new JFreeChart(guild.getName(),null,plot,true);
     }
     /**
      * Creates also generates the series for the amount of active members
@@ -221,7 +231,7 @@ public class ActivityTracker implements Runnable, Killable{
         access.acquireUninterruptibly();
         queue.add(dataset);
         access.release();
-        log.info(String.format("The tracker has been updated with %d new %s.",dataset.size(), English.plural("value", dataset.size())));
+        log.info(String.format("The tracker has been updated with new elements from %d %s.",dataset.size(), English.plural("guild", dataset.size())));
     }
     /**
      * The executable that finalizes the most recent data entry in each iteration. 
