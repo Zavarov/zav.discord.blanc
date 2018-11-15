@@ -16,7 +16,6 @@
  */
 package vartas.discordbot.comm;
 
-import com.google.common.collect.ListMultimap;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,8 +43,6 @@ import vartas.offlinejraw.OfflineSubmissionListingResponse;
 import vartas.offlinejraw.OfflineSubmissionListingResponse.OfflineSubmission;
 import vartas.offlinejraw.OfflineSubredditResponse;
 import vartas.reddit.PushshiftWrapper;
-import vartas.reddit.PushshiftWrapper.CompactComment;
-import vartas.reddit.PushshiftWrapper.CompactSubmission;
 
 /**
  *
@@ -133,58 +130,6 @@ public class AbstractEnvironmentTest {
         assertTrue(environment.guild().containsAll(Arrays.asList(g1,g2)));
     }
     @Test
-    public void compactCommentDateTest(){
-        ListMultimap<String, CompactComment> comments;
-        comments = environment.compactComment(Instant.ofEpochMilli(1483228800000L));
-        
-        assertEquals(comments.keySet().size(),1);
-        assertTrue(comments.containsKey("subreddit"));
-        assertEquals(comments.get("subreddit").size(),1);
-        assertEquals(comments.get("subreddit").get(0).getId(),"id2");
-    }
-    @Test
-    public void compactCommentSubredditTest(){
-        ListMultimap<Instant, CompactComment> comments;
-        comments = environment.compactComment("subreddit");
-        
-        assertEquals(comments.keySet().size(),3);
-        assertTrue(comments.containsKey(Instant.ofEpochMilli(0L)));
-        assertTrue(comments.containsKey(Instant.ofEpochMilli(1483228800000L)));
-        assertTrue(comments.containsKey(Instant.ofEpochMilli(1546300800000L)));
-        assertEquals(comments.get(Instant.ofEpochMilli(0L)).size(),1);
-        assertEquals(comments.get(Instant.ofEpochMilli(1483228800000L)).size(),1);
-        assertEquals(comments.get(Instant.ofEpochMilli(1546300800000L)).size(),1);
-        assertEquals(comments.get(Instant.ofEpochMilli(0L)).get(0).getId(),"id1");
-        assertEquals(comments.get(Instant.ofEpochMilli(1483228800000L)).get(0).getId(),"id2");
-        assertEquals(comments.get(Instant.ofEpochMilli(1546300800000L)).get(0).getId(),"id3");
-    }
-    @Test
-    public void compactSubmissionDateTest(){
-        ListMultimap<String, CompactSubmission> submission;
-        submission = environment.compactSubmission(Instant.ofEpochMilli(1483228800000L));
-        
-        assertEquals(submission.keySet().size(),1);
-        assertTrue(submission.containsKey("subreddit"));
-        assertEquals(submission.get("subreddit").size(),1);
-        assertEquals(submission.get("subreddit").get(0).getId(),"id2");
-    }
-    @Test
-    public void compactSubmissionSubredditTest(){
-        ListMultimap<Instant, CompactSubmission> submission;
-        submission = environment.compactSubmission("subreddit");
-        
-        assertEquals(submission.keySet().size(),3);
-        assertTrue(submission.containsKey(Instant.ofEpochMilli(0L)));
-        assertTrue(submission.containsKey(Instant.ofEpochMilli(1483228800000L)));
-        assertTrue(submission.containsKey(Instant.ofEpochMilli(1546300800000L)));
-        assertEquals(submission.get(Instant.ofEpochMilli(0L)).size(),1);
-        assertEquals(submission.get(Instant.ofEpochMilli(1483228800000L)).size(),1);
-        assertEquals(submission.get(Instant.ofEpochMilli(1546300800000L)).size(),1);
-        assertEquals(submission.get(Instant.ofEpochMilli(0L)).get(0).getId(),"id1");
-        assertEquals(submission.get(Instant.ofEpochMilli(1483228800000L)).get(0).getId(),"id2");
-        assertEquals(submission.get(Instant.ofEpochMilli(1546300800000L)).get(0).getId(),"id3");
-    }
-    @Test
     public void shutdownTest(){
         environment.shutdown();
         assertEquals(environment.shards.get(0).jda().getStatus(),Status.SHUTDOWN);
@@ -265,19 +210,7 @@ public class AbstractEnvironmentTest {
         assertEquals(environment.adapter, environment.adapter());
     }
     @Test
-    public void storeTest() throws IOException, InterruptedException{
-        environment.pushshift = new PushshiftWrapper(environment.reddit){
-            @Override
-            public void store(){
-                actions.add("stored");
-            }
-        };
-        environment.store();
-        assertEquals(actions,Arrays.asList("stored"));
-        startUp();
-    }
-    @Test
-    public void requestTest() throws IOException{
+    public void requestTest() throws IOException, InterruptedException{
         environment.pushshift = new PushshiftWrapper(environment.reddit){
             @Override
             public Void request(){

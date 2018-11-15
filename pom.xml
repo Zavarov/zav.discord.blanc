@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>vartas</groupId>
     <artifactId>DiscordBot</artifactId>
-    <version>1.23</version>
+    <version>1.24</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>vartas</groupId>
             <artifactId>RedditCrawler</artifactId>
-            <version>1.6</version>
+            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>vartas</groupId>

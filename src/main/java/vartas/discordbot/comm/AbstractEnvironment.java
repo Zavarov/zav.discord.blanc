@@ -16,7 +16,6 @@
  */
 package vartas.discordbot.comm;
 
-import com.google.common.collect.ListMultimap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.File;
 import java.io.IOException;
@@ -120,7 +119,6 @@ public abstract class AbstractEnvironment implements Environment{
         this.reddit = new RedditBot(credentials, adapter);
         this.feed = new RedditFeed(this);
         this.pushshift = new PushshiftWrapper(reddit);
-        this.pushshift.read();
         
         this.tracker = new StatusTracker(this);
     }
@@ -189,36 +187,22 @@ public abstract class AbstractEnvironment implements Environment{
         return wrapper.request();
     }
     /**
-     * @param subreddit the subreddit the submissions are from
-     * @return a map containing all requested submissions keyed by their submission date.
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from.
+     * @return a list of all submissions from that subreddit on that specific date.
      */
     @Override
-    public ListMultimap<Instant, CompactSubmission> compactSubmission(String subreddit){
-        return pushshift.getSubmissions(subreddit);
+    public List<CompactSubmission> compactSubmission(Instant date, String subreddit){
+        return pushshift.getSubmissions(date, subreddit);
     }
     /**
      * @param date the date the submissions were submitted.
-     * @return a map containing all requested submissions keyed by their subreddit.
-     */
-    @Override
-    public ListMultimap<String, CompactSubmission> compactSubmission(Instant date){
-        return pushshift.getSubmissions(date);
-    }
-    /**
      * @param subreddit the subreddit the submissions are from
-     * @return a map containing all requested comments keyed by their comment date.
+     * @return a list of all comments in that subreddit during the specified date.
      */
     @Override
-    public ListMultimap<Instant, CompactComment> compactComment(String subreddit){
-        return pushshift.getComments(subreddit);
-    }
-    /**
-     * @param date the date the submissions were submitted.
-     * @return a map containing all requested comments keyed by their subreddit.
-     */
-    @Override
-    public ListMultimap<String, CompactComment> compactComment(Instant date){
-        return pushshift.getComments(date);
+    public List<CompactComment> compactComment(Instant date, String subreddit){
+        return pushshift.getComments(date, subreddit);
     }
     /**
      * @return all guilds distributed over all shards.
@@ -320,17 +304,8 @@ public abstract class AbstractEnvironment implements Environment{
      * @throws IOException when the HTTP request failed
      */
     @Override
-    public synchronized void request(String subreddit, Instant start, Instant end) throws IOException{
+    public synchronized void request(String subreddit, Instant start, Instant end) throws IOException, InterruptedException{
         pushshift.parameter(subreddit, end, start);
         pushshift.request();
-    }
-    /**
-     * Writes the current content of the crawler to the hard disk.
-     * @throws IOException if an error occured while writing the data.
-     * @throws InterruptedException if the program was interrupted before the writing process was finished.
-     */
-    @Override
-    public void store() throws IOException, InterruptedException{
-        pushshift.store();
     }
 }

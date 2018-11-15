@@ -16,13 +16,10 @@
  */
 package vartas.discordbot.comm;
 
-import com.google.common.collect.ListMultimap;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import net.dean.jraw.http.NetworkAdapter;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
@@ -84,67 +81,17 @@ public interface Environment extends Killable{
      */
     public abstract Subreddit subreddit(String subreddit);
     /**
-     * @param subreddit the subreddit the submissions are from
-     * @return a map containing all requested submissions keyed by their submission date.
-     */
-    public abstract ListMultimap<Instant, CompactSubmission> compactSubmission(String subreddit);
-    /**
      * @param date the date the submissions were submitted.
-     * @return a map containing all requested submissions keyed by their subreddit.
-     */
-    public abstract ListMultimap<String, CompactSubmission> compactSubmission(Instant date);
-    /**
      * @param subreddit the subreddit the submissions are from.
-     * @param date the date the submissions were submitted.
      * @return a list of all submissions from that subreddit on that specific date.
      */
-    public default List<CompactSubmission> compactSubmission(String subreddit, Instant date){
-        return compactSubmission(subreddit).get(date);
-    }
-    /**
-     * @param subreddit the subreddit the submissions are from.
-     * @param start the inclusively oldest submission in the interval.
-     * @param end the inclusively newest submission in the interval.
-     * @return a list of all submissions from that subreddit within that specified interval.
-     */
-    public default List<CompactSubmission> compactSubmission(String subreddit, Instant start, Instant end){
-        return compactSubmission(subreddit)
-                .entries().stream()
-                .filter(e -> !e.getKey().isBefore(start) && !e.getKey().isAfter(end))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-    }
-    /**
-     * @param subreddit the subreddit the submissions are from
-     * @return a map containing all requested comments keyed by their comment date.
-     */
-    public abstract ListMultimap<Instant, CompactComment> compactComment(String subreddit);
+    public abstract List<CompactSubmission> compactSubmission(Instant date, String subreddit);
     /**
      * @param date the date the submissions were submitted.
-     * @return a map containing all requested comments keyed by their subreddit.
+     * @param subreddit the subreddit the submissions are from
+     * @return a list of all comments in that subreddit during the specified date.
      */
-    public abstract ListMultimap<String, CompactComment> compactComment(Instant date);
-    /**
-     * @param subreddit the subreddit the comments are from.
-     * @param date the date the comments were submitted.
-     * @return a list of all comments from that subreddit on that specific date.
-     */
-    public default List<CompactComment> compactComment(String subreddit, Instant date){
-        return compactComment(subreddit).get(date);
-    }
-    /**
-     * @param subreddit the subreddit the comments are from.
-     * @param start the inclusively oldest comment in the interval.
-     * @param end the inclusively newest comment in the interval.
-     * @return a list of all comments from that subreddit within that specified interval.
-     */
-    public default List<CompactComment> compactComment(String subreddit, Instant start, Instant end){
-        return compactComment(subreddit)
-                .entries().stream()
-                .filter(e -> !e.getKey().isBefore(start) && !e.getKey().isAfter(end))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-    }
+    public abstract List<CompactComment> compactComment(Instant date, String subreddit);
     /**
      * @return the network adapter that is used for the Reddit requests.
      */
@@ -228,12 +175,7 @@ public interface Environment extends Killable{
      * @param start the inclusive time stamp of the oldest submission.
      * @param end the inclusive time stamp of the newest submission.
      * @throws IOException when the HTTP request failed
+     * @throws java.lang.InterruptedException When the program was interrupted while writing the requested data to the memory.
      */
-    public abstract void request(String subreddit, Instant start, Instant end) throws IOException;
-    /**
-     * Writes the current content of the crawler to the hard disk.
-     * @throws IOException if an error occured while writing the data.
-     * @throws InterruptedException if the program was interrupted before the writing process was finished.
-     */
-    public abstract void store() throws IOException, InterruptedException;
+    public abstract void request(String subreddit, Instant start, Instant end) throws IOException, InterruptedException;
 }

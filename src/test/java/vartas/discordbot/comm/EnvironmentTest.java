@@ -16,8 +16,11 @@
  */
 package vartas.discordbot.comm;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
+import java.util.TimeZone;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.RoleImpl;
 import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
@@ -26,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import vartas.reddit.PushshiftWrapper.CompactComment;
 import vartas.reddit.PushshiftWrapper.CompactSubmission;
+import static vartas.reddit.PushshiftWrapper.DATE;
 
 /**
  *
@@ -38,48 +42,18 @@ public class EnvironmentTest {
         environment = new OfflineEnvironment();
     }
     @Test
-    public void compactSubmissionDateTest(){
+    public void compactSubmissionTest() throws ParseException{
         List<CompactSubmission> submission;
-        submission = environment.compactSubmission("subreddit",Instant.ofEpochMilli(0L));
-        assertEquals(submission.size(),1);
-        assertEquals(submission.get(0).getId(),"id1");
-    }
-    @Test
-    public void compactCommentDateTest(){
-        List<CompactComment> comment;
-        comment = environment.compactComment("subreddit",Instant.ofEpochMilli(0L));
-        assertEquals(comment.size(),1);
-        assertEquals(comment.get(0).getId(),"id1");
-    }
-    @Test
-    public void compactSubmissionIntervalTest(){
-        List<CompactSubmission> submission;
-        submission = environment.compactSubmission("subreddit",Instant.ofEpochMilli(0L),Instant.ofEpochMilli(1546300800000L));
-        assertEquals(submission.size(),3);
-        assertEquals(submission.get(1).getId(),"id2");
-    }
-    @Test
-    public void compactSubmissionIntervalTruncateTest(){
-        List<CompactSubmission> submission;
-        submission = environment.compactSubmission("subreddit",Instant.ofEpochMilli(1L),Instant.ofEpochMilli(1546300799999L));
+        submission = environment.compactSubmission(DATE.parse("01-01-2000").toInstant(),"subreddit");
         assertEquals(submission.size(),1);
         assertEquals(submission.get(0).getId(),"id2");
     }
     @Test
-    public void compactCommentIntervalTest(){
+    public void compactCommentTest() throws ParseException{
         List<CompactComment> comment;
-        comment = environment.compactComment("subreddit",Instant.ofEpochMilli(0L),Instant.ofEpochMilli(1546300800000L));
-        assertEquals(comment.size(),3);
-        assertEquals(comment.get(0).getId(),"id1");
-        assertEquals(comment.get(1).getId(),"id2");
-        assertEquals(comment.get(2).getId(),"id3");
-    }
-    @Test
-    public void compactCommentIntervalTruncateTest(){
-        List<CompactComment> comment;
-        comment = environment.compactComment("subreddit",Instant.ofEpochMilli(1L),Instant.ofEpochMilli(1546300799999L));
+        comment = environment.compactComment(DATE.parse("01-01-2000").toInstant(),"subreddit");
         assertEquals(comment.size(),1);
-        assertEquals(comment.get(0).getId(),"id2");
+        assertEquals(comment.get(0).getId(),"id");
     }
     @Test
     public void commGuildTest(){
