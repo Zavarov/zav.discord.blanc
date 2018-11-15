@@ -167,9 +167,11 @@ public class InteractiveMessage implements Consumer<Message>{
     @Override
     public void accept(Message message){
         current_message = message;
-        comm.send(message.addReaction(ARROW_LEFT));
-        comm.send(message.addReaction(ARROW_RIGHT));
-        consumer.accept(this);
+        comm.send(message.addReaction(ARROW_LEFT), (v) -> {
+            comm.send(message.addReaction(ARROW_RIGHT), (w) -> {
+                consumer.accept(this);
+            });
+        });
     }
     /**
      * The builder for creating this kind of messages.

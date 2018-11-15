@@ -48,6 +48,7 @@ import vartas.xml.XMLServer;
  * @author u/Zavarov
  */
 public class InteractiveMessageTest {
+    static OfflineEnvironment environment;
     static OfflineCommunicator comm;
     static XMLServer server;
     static GuildImpl guild;
@@ -61,9 +62,17 @@ public class InteractiveMessageTest {
     static MemberImpl member;
     static Message message1;
     static Message message2;
+    static Consumer<Consumer<?>> handler = (v) -> {};
     @BeforeClass
     public static void startUp(){
-        comm = (OfflineCommunicator)new OfflineEnvironment().comm(0);
+        environment = new OfflineEnvironment();
+        comm = new OfflineCommunicator(environment, OfflineEnvironment.create()){
+            @Override
+            public <T> void send(RestAction<T> action, Consumer<T> success){
+                super.send(action, success);
+                handler.accept(success);
+            }
+        };
         
         jda = (JDAImpl)comm.jda();
         guild = new GuildImpl(jda , 0);
@@ -105,6 +114,7 @@ public class InteractiveMessageTest {
     InteractiveMessage interactive;
     @Before
     public void setUp(){
+        handler = (v) -> {};
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel1, self, comm);
         builder.addLines(Arrays.asList("a","b","c","d","e"), 2);
         interactive = builder.build();
@@ -289,6 +299,7 @@ public class InteractiveMessageTest {
     }
     @Test
     public void acceptTest(){
+        handler = (v) -> v.accept(null);
         interactive.consumer = (c) -> comm.actions.add("success");
         
         interactive.accept(message1);
