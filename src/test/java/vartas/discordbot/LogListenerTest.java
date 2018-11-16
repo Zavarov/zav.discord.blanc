@@ -18,6 +18,7 @@
 package vartas.discordbot;
 
 import java.util.Iterator;
+import org.apache.commons.lang3.StringUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -44,6 +45,17 @@ public class LogListenerTest {
         assertEquals(iterator.next(),"text1");
         assertEquals(iterator.next(),"text2");
         assertEquals(iterator.next(),"text3");
+        assertFalse(iterator.hasNext());
+    }
+    @Test
+    public void appendTooLongTest(){
+        String s1 = StringUtils.repeat('a', 101);
+        String s2 = StringUtils.repeat('a', 97) + "...";
+        
+        assertTrue(LogListener.MEMORY.isEmpty());
+        listener.append(s1);
+        Iterator<Object> iterator = LogListener.MEMORY.iterator();
+        assertEquals(iterator.next(),s2);
         assertFalse(iterator.hasNext());
     }
 }

@@ -19,6 +19,7 @@ package vartas.discordbot;
 
 import ch.qos.logback.core.AppenderBase;
 import com.google.common.collect.EvictingQueue;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * An implementation of a logger that adds every event to a public list.
@@ -32,16 +33,29 @@ public class LogListener<T> extends AppenderBase<T>{
      */
     private static final int SIZE = 200;
     /**
+     * The maximum size of a log event.
+     */
+    private static final int MAX_LENGTH = 100;
+    /**
      * The internal storage for the most recent events.
      */
     public static final EvictingQueue<Object> MEMORY = EvictingQueue.create(SIZE);
     /**
-     * Adds a new event to the internal queue.
+     * Adds a new event to the internal queue. If the message is too long,
+     * it'll be truncated.
      * @param eventObject the new event.
      */
     @Override
     protected void append(T eventObject) {
-        MEMORY.add(eventObject);
+        if(eventObject.toString().length() <= MAX_LENGTH){
+            MEMORY.add(eventObject);
+        }else{
+            StringBuilder builder = new StringBuilder();
+            //Reserve some space for the dots.
+            builder.append(StringUtils.truncate(eventObject.toString(), MAX_LENGTH-3));
+            builder.append("...");
+            MEMORY.add(builder.toString());
+        }
     }
 
 }
