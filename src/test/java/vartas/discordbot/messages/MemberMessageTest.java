@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
@@ -87,12 +88,12 @@ public class MemberMessageTest {
     public void createWithoutNicknameTest(){
         memberself.setNickname(null);
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Nickname"));
+        assertFalse(message.pages.get(0).getFields().get(3).getName().contains("Nickname"));
     }
     @Test
     public void createWithNicknameTest(){
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Nickname"));
+        assertTrue(message.pages.get(0).getFields().get(3).getName().contains("Nickname"));
     }
     @Test
     public void createWithColorTest(){
@@ -103,13 +104,13 @@ public class MemberMessageTest {
             }
         };
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Color"));
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("0xFF0000"));
+        assertTrue(message.pages.get(0).getFields().get(5).getName().contains("Color"));
+        assertTrue(message.pages.get(0).getFields().get(5).getValue().contains("0xFF0000"));
     }
     @Test
     public void createWithoutColorTest(){
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Color"));
+        assertFalse(message.pages.get(0).getFields().get(6).getName().contains("Color"));
     }
     @Test
     public void createWithRoleTest(){
@@ -120,33 +121,34 @@ public class MemberMessageTest {
             }
         };
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Roles"));
+        assertTrue(message.pages.get(0).getFields().get(6).getName().contains("#Roles"));
     }
     @Test
     public void createWithoutRoleTest(){
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("#Roles     : 0"));
+        assertTrue(message.pages.get(0).getFields().get(6).getName().contains("#Roles"));
+        assertTrue(message.pages.get(0).getFields().get(6).getValue().contains("0"));
     }
     @Test
     public void createNoGameTest(){
         memberself.setGame(null);
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Playing"));
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Streaming"));
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Watching"));
-        assertFalse(message.pages.get(0).getFields().get(1).getValue().contains("Listening"));
+        assertFalse(message.pages.get(0).getFields().stream().map(Field::getName).anyMatch(e -> e.equals("Playing")));
+        assertFalse(message.pages.get(0).getFields().stream().map(Field::getName).anyMatch(e -> e.equals("Streaming")));
+        assertFalse(message.pages.get(0).getFields().stream().map(Field::getName).anyMatch(e -> e.equals("Watching")));
+        assertFalse(message.pages.get(0).getFields().stream().map(Field::getName).anyMatch(e -> e.equals("Listening")));
     }
     @Test
     public void createCustomGameTest(){
         memberself.setGame(Game.streaming("game", "https://www.twitch.tv/user"));
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Streaming"));
+        assertTrue(message.pages.get(0).getFields().get(6).getName().contains("Streaming"));
     }
     @Test
     public void createDefaultGameTest(){
         memberself.setGame(Game.playing("game"));
         InteractiveMessage message = MemberMessage.create(self, memberself, channel1, comm);
-        assertTrue(message.pages.get(0).getFields().get(1).getValue().contains("Playing"));
+        assertTrue(message.pages.get(0).getFields().get(6).getName().contains("Playing"));
     }
     @Test
     public void createThumbnailTest(){

@@ -23,6 +23,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Member;
@@ -60,11 +61,10 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addName(Builder builder, Member member){
-        builder.addLine(String.format("%-10s : %s#%s",
-                "Full Name",
+    private static void addName(EmbedBuilder builder, Member member){
+        builder.addField("Full Name",String.format("%s#%s",
                 member.getUser().getName(),
-                member.getUser().getDiscriminator())
+                member.getUser().getDiscriminator()),false
         );
     }
     /**
@@ -72,23 +72,17 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addId(Builder builder, Member member){
-        builder.addLine(String.format("%-10s : %s",
-                "ID",
-                member.getUser().getId())
-        );
+    private static void addId(EmbedBuilder builder, Member member){
+        builder.addField("ID",member.getUser().getId(),false);
     }
     /**
      * Adds the nickname of the member to the message, if he has one.
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addNickname(Builder builder, Member member){
+    private static void addNickname(EmbedBuilder builder, Member member){
         if(member.getNickname() != null){
-            builder.addLine(String.format("%-10s : %s",
-                    "Nickname",
-                    member.getNickname())
-            );
+            builder.addField("Nickname",member.getNickname(),false);
         }
         
     }
@@ -97,13 +91,12 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addCreated(Builder builder, Member member){
+    private static void addCreated(EmbedBuilder builder, Member member){
         int days = (int)DAYS.between(member.getUser().getCreationTime().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("%-10s : %s (%d %s ago)",
-                "Created",
+        builder.addField("Created",String.format("%s (%d %s ago)",
                 DATE.format(member.getUser().getCreationTime()),
                 days,
-                English.plural("day", days))
+                English.plural("day", days)),false
         );
         
     }
@@ -112,13 +105,12 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addJoined(Builder builder, Member member){
+    private static void addJoined(EmbedBuilder builder, Member member){
         int days = (int)DAYS.between(member.getJoinDate().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("%-10s : %s (%d %s ago)",
-                "Joined",
+        builder.addField("Joined",String.format("%s (%d %s ago)",
                 DATE.format(member.getJoinDate()),
                 days,
-                English.plural("day", days))
+                English.plural("day", days)),false
         );
     }
     /**
@@ -126,14 +118,13 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addColor(Builder builder, Member member){
+    private static void addColor(EmbedBuilder builder, Member member){
         Color c = member.getColor();
         if(c != null){
-            builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
-                "Color",
+            builder.addField("Color",String.format("0x%02X%02X%02X",
                 c.getRed(),
                 c.getGreen(),
-                c.getBlue())
+                c.getBlue()),false
             );
         }
     }
@@ -142,7 +133,7 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addGame(Builder builder, Member member){
+    private static void addGame(EmbedBuilder builder, Member member){
         if(member.getGame() != null){
             String type = member.getGame().getType().toString().toLowerCase(Locale.ENGLISH);
             //Transform the game type into an user friendly string
@@ -151,10 +142,7 @@ public final class MemberMessage {
             }else{
                 type = type.substring(0,1).toUpperCase() + type.substring(1);
             }
-            builder.addLine(String.format("%-10s : %s",
-                    type,
-                    member.getGame().getName())
-            );
+            builder.addField(type,member.getGame().getName(),false);
         }
     }
     /**
@@ -162,10 +150,8 @@ public final class MemberMessage {
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addRoleCount(Builder builder, Member member){
-        builder.addLine(String.format("%-10s : %d",
-                "#Roles",member.getRoles().size())
-        );
+    private static void addRoleCount(EmbedBuilder builder, Member member){
+        builder.addField("#Roles",Integer.toString(member.getRoles().size()),false);
     }
     /**
      * Adds all roles of the member to the message.
@@ -219,18 +205,17 @@ public final class MemberMessage {
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         addThumbnail(builder,member);
         
-        addDescription(builder,String.format("The basic information about %s", member.getAsMention()));
-        builder.addLine("```");
-        addName(builder,member);
-        addId(builder,member);
-        addNickname(builder,member);
-        addCreated(builder,member);
-        addJoined(builder,member);
-        addColor(builder,member);
-        addGame(builder,member);
-        addRoleCount(builder,member);
-        builder.addLine("```");
-        builder.nextPage();
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.addField("Description", String.format("The basic information about %s", member.getAsMention()), false);
+        addName(embed,member);
+        addId(embed,member);
+        addNickname(embed,member);
+        addCreated(embed,member);
+        addJoined(embed,member);
+        addColor(embed,member);
+        addGame(embed,member);
+        addRoleCount(embed,member);
+        builder.addPage(embed);
         
         addDescription(builder, "All assigned roles");
         addRoles(builder,member);
