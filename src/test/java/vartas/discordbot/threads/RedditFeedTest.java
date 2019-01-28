@@ -25,39 +25,30 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import net.dean.jraw.ApiException;
-import net.dean.jraw.http.HttpResponse;
-import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.pagination.Paginator;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.RoleImpl;
 import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
 import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
 import net.dv8tion.jda.core.requests.Response;
-import net.dv8tion.jda.core.requests.RestAction;
-import okhttp3.Protocol;
-import org.apache.http.HttpStatus;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import vartas.discordbot.comm.AbstractCommunicator;
 import vartas.discordbot.comm.Communicator;
+import vartas.discordbot.comm.DefaultCommunicator;
 import vartas.discordbot.comm.Environment;
 import vartas.discordbot.comm.OfflineCommunicator;
 import vartas.discordbot.comm.OfflineEnvironment;
@@ -66,7 +57,7 @@ import vartas.offlinejraw.OfflineNetworkAdapter;
 import vartas.offlinejraw.OfflineSubmissionListingResponse;
 import vartas.offlinejraw.OfflineSubmissionListingResponse.OfflineSubmission;
 import vartas.offlinejraw.OfflineSubredditResponse;
-import vartas.xml.XMLPermission;
+import vartas.reddit.InvalidSubredditException;
 import vartas.xml.XMLServer;
 
 /**
@@ -257,7 +248,7 @@ public class RedditFeedTest {
         feed.addFeed("subreddit", channel1);
         assertTrue(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-        feed.removeFeed("subreddit", channel1);
+        assertTrue(feed.removeFeed("subreddit", channel1));
         assertTrue(feed.posts.isEmpty());
         assertTrue(feed.history.isEmpty());
     }
@@ -267,7 +258,7 @@ public class RedditFeedTest {
         feed.addFeed("subreddit", channel4);
         assertTrue(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
-        feed.removeFeed("subreddit", channel1);
+        assertTrue(feed.removeFeed("subreddit", channel1));
         assertFalse(feed.posts.containsEntry("subreddit", channel1));
         assertTrue(feed.history.containsKey("subreddit"));
     }
@@ -336,21 +327,12 @@ public class RedditFeedTest {
         assertTrue(messages.isEmpty());
     }
     @Test
-    public void generateMessagesApiExceptionTest(){
-        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
-        okhttp3.Response response = new okhttp3.Response.Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_2)
-                .code(HttpStatus.SC_FORBIDDEN)
-                .message("message").build();
-        HttpResponse http = new HttpResponse(response);
-        ApiException exception = new ApiException("404","",Arrays.asList(),new NetworkException(http));
-        
+    public void generateMessagesInvalidSubredditTest(){
         List<Runnable> list = new ArrayList<>();
         
         OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 list.add(runnable);
             }
         };
@@ -365,110 +347,25 @@ public class RedditFeedTest {
             }
             @Override
             public List<Submission> submission(String subreddit, Instant start, Instant end){
-                throw exception;
+                throw new InvalidSubredditException(subreddit);
             }
         };
         
         feed = new RedditFeed(environment);
         feed.addSubreddits(server, guild);
-        
-        feed.generateMessages("subreddit");
-        list.forEach(Runnable::run);
-            
-        assertFalse(feed.posts.containsEntry("subreddit",channel1));
-        assertFalse(feed.posts.containsEntry("subreddit",channel2));
-        assertFalse(feed.history.containsKey("subreddit"));
-        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated"));
-    }
-    @Test
-    public void generateMessagesNetworkExceptionTest(){
-        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
-        okhttp3.Response response = new okhttp3.Response.Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_2)
-                .code(HttpStatus.SC_FORBIDDEN)
-                .message("message").build();
-        HttpResponse http = new HttpResponse(response);
-        NetworkException exception = new NetworkException(http);
-        
-        List<Runnable> list = new ArrayList<>();
-        
-        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
-            @Override
-            public void submit(Runnable runnable){
-                list.add(runnable);
-            }
-        };
-        Environment environment = new OfflineEnvironment(){
-            @Override
-            public Communicator comm(Guild guild){
-                return fake;
-            }
-            @Override
-            public Communicator comm(TextChannel channel){
-                return fake;
-            }
-            @Override
-            public List<Submission> submission(String subreddit, Instant start, Instant end){
-                throw exception;
-            }
-        };
-        
-        feed = new RedditFeed(environment);
-        feed.addSubreddits(server, guild);
-        
-        feed.generateMessages("subreddit");
-        list.forEach(Runnable::run);
-            
-        assertFalse(feed.posts.containsEntry("subreddit",channel1));
-        assertFalse(feed.posts.containsEntry("subreddit",channel2));
-        assertFalse(feed.history.containsKey("subreddit"));
-        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated"));
-    }
-    @Test
-    public void generateMessagesHarmlessNetworkExceptionTest(){
-        okhttp3.Request request = new okhttp3.Request.Builder().url("http://www.test.con").build();
-        okhttp3.Response response = new okhttp3.Response.Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_2)
-                .code(HttpStatus.SC_OK)
-                .message("message").build();
-        HttpResponse http = new HttpResponse(response);
-        NetworkException exception = new NetworkException(http);
-        
-        List<Runnable> list = new ArrayList<>();
-        
-        OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
-            @Override
-            public void submit(Runnable runnable){
-                list.add(runnable);
-            }
-        };
-        Environment environment = new OfflineEnvironment(){
-            @Override
-            public Communicator comm(Guild guild){
-                return fake;
-            }
-            @Override
-            public Communicator comm(TextChannel channel){
-                return fake;
-            }
-            @Override
-            public List<Submission> submission(String subreddit, Instant start, Instant end){
-                throw exception;
-            }
-        };
-        
-        feed = new RedditFeed(environment);
-        feed.addSubreddits(server, guild);
-        
-        feed.generateMessages("subreddit");
-        list.forEach(Runnable::run);
             
         assertTrue(feed.posts.containsEntry("subreddit",channel1));
         assertTrue(feed.posts.containsEntry("subreddit",channel2));
         assertTrue(feed.history.containsKey("subreddit"));
         assertEquals(fake.actions,Arrays.asList());
+        
+        feed.generateMessages("subreddit");
+        list.forEach(Runnable::run);
+            
+        assertFalse(feed.posts.containsEntry("subreddit",channel1));
+        assertFalse(feed.posts.containsEntry("subreddit",channel2));
+        assertFalse(feed.history.containsKey("subreddit"));
+        assertEquals(fake.actions,Arrays.asList("guild updated","guild updated"));
     }
     @Test
     public void runTest(){
@@ -527,15 +424,16 @@ public class RedditFeedTest {
     }
     @Test
     public void runInsufficientPermissionTest(){
+        UserImpl user = new UserImpl(1000, jda);
+        MemberImpl member = new MemberImpl(guild,user);
+        RoleImpl role = new RoleImpl(1000,guild);
+        role.setRawPermissions(0);
+        guild.setOwner(member);
+        guild.setPublicRole(role);
         List<Runnable> list = new ArrayList<>();
         OfflineCommunicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure){
-                if(channel.equals(channel1))
-                    throw new InsufficientPermissionException(Permission.ADMINISTRATOR);
-            }
-            @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 list.add(runnable);
             }
         };
@@ -555,149 +453,16 @@ public class RedditFeedTest {
         };
         
         feed = new RedditFeed(environment);
-        feed.addSubreddits(server, guild);
+        feed.posts.put("subreddit", channel1);
         feed.history.put("subreddit", 0L);
         
         feed.run();
         list.forEach(Runnable::run);
         
         assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated",guild.getName()+" updated",guild.getName()+" updated"));
-    }
-    @Test
-    public void invalidTextchannelTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_CHANNEL, new FakeResponse()));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
-    }
-    @Test
-    public void invalidGuildTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(ErrorResponseException.create(ErrorResponse.UNKNOWN_GUILD, new FakeResponse()));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
-    }
-    @Test
-    public void unknownDiscordErrorTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(ErrorResponseException.create(ErrorResponse.BOTS_NOT_ALLOWED, new FakeResponse()));
-        
-        assertTrue(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertTrue(comm.actions.isEmpty());
-    }
-    @Test
-    public void insufficientPermissionTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(new InsufficientPermissionException(Permission.ADMINISTRATOR));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
-    }
-    @Test
-    public void networkExceptionTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(new NetworkException(new OfflineSubredditResponse().build()));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
-    }
-    @Test
-    public void apiExceptionTest(){
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(new ApiException("404","",Arrays.asList(),new NetworkException(new OfflineSubredditResponse().build())));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
-    }
-    @Test
-    public void ioexceptionTest(){
-        AbstractCommunicator fake = new AbstractCommunicator(comm.environment(),comm.jda()){
-            @Override
-            public void update(Guild guild) throws IOException{
-                comm.actions.add("error");
-                throw new IOException();
-            }
-            @Override
-            public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure) {
-            }
-            @Override
-            public <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure) {
-            }
-            @Override
-            public void delete(MessageChannel channel, long id) {
-            }
-            @Override
-            public void delete(Guild guild) {
-            }
-            @Override
-            public void update(XMLPermission permission) throws IOException, InterruptedException {
-            }
-        };
-        Environment environment = new OfflineEnvironment(){
-            @Override
-            public Communicator comm(Guild guild){
-                return fake;
-            }
-            @Override
-            public Communicator comm(TextChannel channel){
-                return fake;
-            }
-            @Override
-            public List<Submission> submission(String subreddit, Instant start, Instant end){
-                return comm.environment().submission(subreddit, start, end);
-            }
-        };
-        feed = new RedditFeed(environment);
-        feed.addSubreddits(server, guild);
-        
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(new NetworkException(new OfflineSubredditResponse().build()));
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList("error"));
-    }
-    @Test
-    public void unknownExceptionTest(){
-        feed.addSubreddits(server, guild);
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1);
-        error.accept(new Exception());
-        
-        assertTrue(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertTrue(comm.actions.isEmpty());
-    }
-    @Test
-    public void handlerRunTest(){
-        feed.addSubreddits(server, guild);
-        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,new NetworkException(new OfflineSubredditResponse().build()));
-        error.run();
-        
-        assertFalse(feed.posts.containsValue(channel1));
-        assertTrue(feed.history.containsKey("subreddit"));
-        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+        assertFalse(feed.history.containsKey("subreddit"));
+        //one message for each submission
+        assertEquals(fake.actions,Arrays.asList(guild.getName()+" updated"));
     }
     @Test
     public void containsFeedTest(){
@@ -710,5 +475,104 @@ public class RedditFeedTest {
         public FakeResponse(){
             super(null, new Exception(), new HashSet<>());
         }
+    }
+    
+    @Test
+    public void errorHandlerIoExceptionTest(){
+        Communicator fake = new DefaultCommunicator(comm.environment(),comm.jda()){
+            @Override
+            public void update(Guild guild) throws IOException{
+                comm.actions.add("error");
+                throw new IOException();
+            }
+        };
+        
+        Environment environment = new OfflineEnvironment(){
+            @Override
+            public Communicator comm(Guild guild){
+                return fake;
+            }
+            @Override
+            public Communicator comm(TextChannel channel){
+                return fake;
+            }
+        };
+        feed = new RedditFeed(environment);
+        feed.addSubreddits(server, guild);
+        feed.history.put("subreddit", 0L);
+        
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1, new InvalidSubredditException("subreddit"));
+        error.run();
+        
+        //The entry was deleted, but the file wasn't updated
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList("error"));
+    }
+    
+    @Test
+    public void errorHandlerSafeErrorResponseExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,ErrorResponseException.create(ErrorResponse.BOTS_NOT_ALLOWED, new FakeResponse()));
+        error.run();
+        
+        assertTrue(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList());
+    }
+    
+    @Test
+    public void errorHandlerGuildErrorResponseExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,ErrorResponseException.create(ErrorResponse.UNKNOWN_GUILD, new FakeResponse()));
+        error.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    
+    @Test
+    public void errorHandlerChannelErrorResponseExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,ErrorResponseException.create(ErrorResponse.UNKNOWN_CHANNEL, new FakeResponse()));
+        error.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    
+    @Test
+    public void errorHandlerSafeExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,new Exception());
+        error.run();
+        
+        assertTrue(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList());
+    }
+    
+    @Test
+    public void errorHandlerUnsafeExceptionTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,new InvalidSubredditException("subreddit"));
+        error.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
+    }
+    
+    @Test
+    public void errorHandlerRunTest(){
+        feed.addSubreddits(server, guild);
+        ErrorHandling error = feed.new ErrorHandling("subreddit",channel1,new InvalidSubredditException("subreddit"));
+        error.run();
+        
+        assertFalse(feed.posts.containsValue(channel1));
+        assertTrue(feed.history.containsKey("subreddit"));
+        assertEquals(comm.actions,Arrays.asList(guild.getName()+" updated"));
     }
 }

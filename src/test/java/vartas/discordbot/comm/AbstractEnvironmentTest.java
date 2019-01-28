@@ -238,8 +238,9 @@ public class AbstractEnvironmentTest {
     public void removeFeedTest(){
         environment.feed = new RedditFeed(environment){
             @Override
-            public void removeFeed(String subreddit, TextChannel channel){
+            public boolean removeFeed(String subreddit, TextChannel channel){
                 actions.add("removed");
+                return true;
             }
         };
         environment.remove("subreddit", new TextChannelImpl(0,null));

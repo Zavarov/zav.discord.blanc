@@ -56,7 +56,7 @@ public class StatusTracker implements Runnable, Killable{
         this.environment = environment;
         
         executor = Executors.newSingleThreadScheduledExecutor(
-            new ThreadFactoryBuilder().setNameFormat("Status Executor").build());
+            new ThreadFactoryBuilder().setNameFormat("Status Executor %d").build());
         executor.scheduleAtFixedRate(
                 StatusTracker.this,
                 environment.config().getStatusInterval(),

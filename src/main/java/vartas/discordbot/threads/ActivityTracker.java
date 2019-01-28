@@ -42,13 +42,11 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.atteo.evo.inflector.English;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -93,7 +91,7 @@ public class ActivityTracker implements Runnable, Killable{
         queue = new EvictingLinkedQueue<>(comm.environment().config().getActivityInterval());
         queue.add(measure());
         executor = Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder().setNameFormat("Activity Executor").build());
+        new ThreadFactoryBuilder().setNameFormat("Activity Executor %d").build());
         executor.scheduleAtFixedRate(
                 ActivityTracker.this, 
                 comm.environment().config().getActivityInterval(),  
@@ -212,8 +210,8 @@ public class ActivityTracker implements Runnable, Killable{
     protected final Data measure(Guild guild){
         Minute now = new Minute(new Date(),UTC,Locale.ENGLISH);
         long total = guild.getMembers()
-                .stream().
-                filter(m -> !m.getUser().isBot())
+                .stream()
+                .filter(m -> !m.getUser().isBot())
                 .count();
         long online = guild.getMembers()
                 .stream()

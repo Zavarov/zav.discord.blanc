@@ -176,7 +176,7 @@ public class AbstractCommunicatorTest {
     }
     @Test
     public void submitTest(){
-        comm.submit(() -> comm.actions.add("submitted"));
+        comm.execute(() -> comm.actions.add("submitted"));
         comm.executor.shutdown();
         while(!comm.executor.isTerminated()){}
         assertEquals(comm.actions,Arrays.asList("submitted"));

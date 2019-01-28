@@ -19,6 +19,8 @@ package vartas.discordbot;
 
 import ch.qos.logback.core.AppenderBase;
 import com.google.common.collect.EvictingQueue;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -33,9 +35,13 @@ public class LogListener<T> extends AppenderBase<T>{
      */
     private static final int SIZE = 200;
     /**
-     * The maximum size of a log event.
+     * The length of the date
      */
-    private static final int MAX_LENGTH = 100;
+    private static final int DATE_LENGTH = 32;
+    /**
+     * The maximum size of a log event, excluding the date.
+     */
+    public static final int MAX_LENGTH = 100 - DATE_LENGTH;
     /**
      * The internal storage for the most recent events.
      */
@@ -47,15 +53,20 @@ public class LogListener<T> extends AppenderBase<T>{
      */
     @Override
     protected void append(T eventObject) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[")
+               .append(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()))
+               .append("]")
+               .append(" ");
+        
         if(eventObject.toString().length() <= MAX_LENGTH){
-            MEMORY.add(eventObject);
+            builder.append(eventObject.toString());
         }else{
-            StringBuilder builder = new StringBuilder();
             //Reserve some space for the dots.
             builder.append(StringUtils.truncate(eventObject.toString(), MAX_LENGTH-3));
             builder.append("...");
-            MEMORY.add(builder.toString());
         }
+        MEMORY.add(builder.toString());
     }
 
 }

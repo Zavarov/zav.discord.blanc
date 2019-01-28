@@ -42,20 +42,20 @@ public class LogListenerTest {
         listener.append("text2");
         listener.append("text3");
         Iterator<Object> iterator = LogListener.MEMORY.iterator();
-        assertEquals(iterator.next(),"text1");
-        assertEquals(iterator.next(),"text2");
-        assertEquals(iterator.next(),"text3");
+        assertTrue(iterator.next().toString().endsWith("text1"));
+        assertTrue(iterator.next().toString().endsWith("text2"));
+        assertTrue(iterator.next().toString().endsWith("text3"));
         assertFalse(iterator.hasNext());
     }
     @Test
     public void appendTooLongTest(){
-        String s1 = StringUtils.repeat('a', 101);
-        String s2 = StringUtils.repeat('a', 97) + "...";
+        String s1 = StringUtils.repeat('a', LogListener.MAX_LENGTH+1);
+        String s2 = StringUtils.repeat('a', LogListener.MAX_LENGTH-3) + "...";
         
         assertTrue(LogListener.MEMORY.isEmpty());
         listener.append(s1);
         Iterator<Object> iterator = LogListener.MEMORY.iterator();
-        assertEquals(iterator.next(),s2);
+        assertTrue(iterator.next().toString().endsWith(s2));
         assertFalse(iterator.hasNext());
     }
 }

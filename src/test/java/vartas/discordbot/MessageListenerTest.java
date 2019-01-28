@@ -248,7 +248,7 @@ public class MessageListenerTest {
     public void onMessageUpdateTest(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -265,7 +265,7 @@ public class MessageListenerTest {
     public void onMessageUpdateTooOldTest(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -282,7 +282,7 @@ public class MessageListenerTest {
     public void onMessageReceivedTest(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -299,7 +299,7 @@ public class MessageListenerTest {
     public void onMessageReceivedBotTest(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -317,7 +317,7 @@ public class MessageListenerTest {
     public void onMessageReceivedNoPrefixTest(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -335,7 +335,7 @@ public class MessageListenerTest {
     public void onMessageReceivedNoGuild(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };
@@ -352,7 +352,7 @@ public class MessageListenerTest {
     public void onMessageReceivedNoCommand(){
         Communicator fake = new OfflineCommunicator(comm.environment(),comm.jda()){
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 comm.actions.add("submitted");
             }
         };

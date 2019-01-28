@@ -50,7 +50,7 @@ public class DefaultCommunicator extends AbstractCommunicator{
      */
     @Override
     public <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure){
-        submit(() -> action.queue(success, failure));
+        execute(() -> action.queue(success, failure));
     }
     /**
      * Sends a message in the specified channel and calls the consumer upon success or failure.

@@ -31,6 +31,7 @@ import net.dv8tion.jda.core.entities.impl.RoleImpl;
 import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
 import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
 import net.dv8tion.jda.core.entities.impl.UserImpl;
+import net.dv8tion.jda.core.requests.RestAction;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -119,6 +120,19 @@ public class CommunicatorTest {
         BufferedImage image = ImageIO.read(new File("src/test/resources/image.png"));
         comm.send(channel0, image);
         assertEquals(comm.actions,Arrays.asList("action queued"));
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void sendImageIoExceptionTest() throws IOException{
+        BufferedImage image = ImageIO.read(new File("src/test/resources/image.png"));
+        Communicator _comm = new OfflineCommunicator(environment,comm.jda()){
+            @Override
+            public <T> void send(RestAction<T> action){
+                throw new RuntimeException();
+            }
+        };
+        
+        _comm.send(channel0, image);
+        
     }
     @Test(expected=IllegalArgumentException.class)
     public void sendInvalidImageTest(){

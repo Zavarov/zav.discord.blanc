@@ -67,7 +67,7 @@ public class DefaultCommunicatorTest {
                 actions.add("deleted");
             }
             @Override
-            public void submit(Runnable runnable){
+            public void execute(Runnable runnable){
                 runnable.run();
             }
         };

@@ -34,6 +34,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.discordbot.threads.RedditFeed;
 import vartas.discordbot.threads.StatusTracker;
 import vartas.parser.cfg.ContextFreeGrammar;
+import vartas.reddit.InvalidSubredditException;
 import vartas.reddit.PushshiftWrapper;
 import vartas.reddit.PushshiftWrapper.CompactComment;
 import vartas.reddit.PushshiftWrapper.CompactSubmission;
@@ -169,9 +170,10 @@ public abstract class AbstractEnvironment implements Environment{
      * @param start the inclusively oldest submission in the interval.
      * @param end the inclusively newest submission in the interval.
      * @return the submissions in the subreddit within the given interval.
+     * @throws InvalidSubredditException if the subreddit can't be accessed.
      */
     @Override
-    public List<Submission> submission(String subreddit, Instant start, Instant end){
+    public List<Submission> submission(String subreddit, Instant start, Instant end) throws InvalidSubredditException{        
         SubmissionWrapper wrapper = new SubmissionWrapper(reddit);
         wrapper.parameter(subreddit, Date.from(start), Date.from(end));
         return wrapper.request();

@@ -17,7 +17,6 @@
 package vartas.discordbot.comm;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -110,8 +109,8 @@ public interface Communicator extends Killable{
             
             ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
             send(channel.sendFile(input, "image.png"));
-        //Fuck ImageIO and just catch anything.
-        }catch(Exception e){
+        //Fuck ImageIO and just catch anything (And use "Throwable" to allow testing)
+        }catch(Throwable e){
             throw new IllegalArgumentException(e);
         }
     }
@@ -262,10 +261,10 @@ public interface Communicator extends Killable{
      */
     public abstract void delete(Guild guild);
     /**
-     * Submits a runnable to be executed and some unspecific point in time.
+     * Schedules a runnable to be executed and some unspecific point in time.
      * @param runnable the runnable that is going to be executed.
      */
-    public abstract void submit(Runnable runnable);
+    public abstract void execute(Runnable runnable);
     /**
      * @return the instance of the bot itself in the current guild.
      */

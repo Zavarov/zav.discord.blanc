@@ -61,7 +61,7 @@ public class MessageTracker implements Runnable, Killable{
     public MessageTracker(Communicator comm){
         this.comm = comm;
         this.executor = Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder().setNameFormat("Message Executor").build());
+        new ThreadFactoryBuilder().setNameFormat("Message Executor %d").build());
         this.messages = new Object2ObjectOpenHashMap<>();
         executor.scheduleAtFixedRate(
                 MessageTracker.this, 

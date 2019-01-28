@@ -99,7 +99,7 @@ public abstract class AbstractCommunicator implements Communicator{
         this.messages = new MessageTracker(this);
         this.listener = new MessageListener(this, messages);
         this.executor = Executors.newCachedThreadPool(
-                new ThreadFactoryBuilder().setNameFormat("Communicator Executor").build());
+                new ThreadFactoryBuilder().setNameFormat("Communicator Executor %d").build());
         
         jda.addEventListener(listener);
     }
@@ -288,11 +288,11 @@ public abstract class AbstractCommunicator implements Communicator{
         jda.shutdownNow();
     }
     /**
-     * Submits a runnable to be executed and some unspecific point in time.
+     * Schedules a runnable to be executed and some unspecific point in time.
      * @param runnable the runnable that is going to be executed.
      */
     @Override
-    public void submit(Runnable runnable){
+    public void execute(Runnable runnable){
         executor.execute(runnable);
     }
     /**

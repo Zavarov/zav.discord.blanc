@@ -71,7 +71,7 @@ public class MessageListener extends ListenerAdapter implements Killable{
         this.messages = messages;
         this.parser = new CommandParser.Builder(comm).build();
         this.executor = Executors.newSingleThreadExecutor(
-                new ThreadFactoryBuilder().setNameFormat("Message Parsing Executor").build());
+                new ThreadFactoryBuilder().setNameFormat("Message Parsing Executor %d").build());
     }
     /**
      * An reaction was added to a message.
@@ -167,10 +167,10 @@ public class MessageListener extends ListenerAdapter implements Killable{
      */
     private void messageReceived(Message message){
         if(!message.getAuthor().isBot() && hasPrefix(message)){
-            executor.submit(() -> {
+            executor.execute(() -> {
                 Command command = parser.parseCommand(message, getContent(message));
                 command.setCommunicator(comm);
-                comm.submit(command);
+                comm.execute(command);
             });
         }
     }
