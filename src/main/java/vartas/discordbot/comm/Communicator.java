@@ -205,7 +205,14 @@ public interface Communicator extends Killable{
      * @param message the message that acts as a reference point.
      * @return the users specified by the data.
      */
-    public abstract Set<User> user(Iterable<Token> objects, Message message);
+    public abstract Set<User> retrieveUser(Iterable<Token> objects, Message message);
+    /**
+     * Does a request for each user.
+     * @param objects a set of tokens that identify users.
+     * @param message the message that acts as a reference point.
+     * @return the users specified by the data.
+     */
+    public abstract Set<User>  user(Iterable<Token> objects, Message message);
     /**
      * @param objects a set of tokens that identify roles.
      * @param message the message that acts as a reference point.

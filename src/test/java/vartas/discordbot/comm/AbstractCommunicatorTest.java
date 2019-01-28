@@ -253,6 +253,11 @@ public class AbstractCommunicatorTest {
         assertEquals(user,Sets.newHashSet(user1));
     }
     @Test
+    public void retrieveUserTest(){
+        Set<User> user = comm.retrieveUser(Arrays.asList(new Terminal(user0.getId(),"integer")),message1);
+        assertEquals(user,Sets.newHashSet(user0));
+    }
+    @Test
     public void userTest(){
         Set<User> user = comm.user(Arrays.asList(new Terminal(user0.getId(),"integer")),message1);
         assertEquals(user,Sets.newHashSet(user0));

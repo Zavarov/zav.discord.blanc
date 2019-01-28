@@ -23,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.WebSocketClient;
 import net.dv8tion.jda.core.utils.cache.CacheFlag;
 import net.dv8tion.jda.core.utils.cache.UpstreamReference;
@@ -68,6 +70,14 @@ public class OfflineEnvironment extends AbstractEnvironment{
             @Override
             public JDA awaitStatus(Status status){
                 return this;
+            }
+            @Override
+            public RestAction<User> retrieveUserById(String token){
+                return retrieveUserById(Long.parseLong(token));
+            }
+            @Override
+            public RestAction<User> retrieveUserById(long token){
+                return new RestAction.EmptyRestAction<>(this, this.getUserById(token));
             }
         };
     }

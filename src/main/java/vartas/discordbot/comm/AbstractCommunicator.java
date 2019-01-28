@@ -225,6 +225,19 @@ public abstract class AbstractCommunicator implements Communicator{
         );
     }
     /**
+     * Does a request for each user.
+     * @param objects a set of tokens that identify users.
+     * @return the users specified by the data.
+     */
+    @Override
+    public Set<User> retrieveUser(Iterable<Token> objects, Message message){
+        return getEntity(
+            id -> message.getJDA().retrieveUserById(id).complete(),
+            null,
+            objects
+        );
+    }
+    /**
      * @param objects a set of tokens that identify roles.
      * @param message the message that acts as a reference point.
      * @return the roles specified by the data.
