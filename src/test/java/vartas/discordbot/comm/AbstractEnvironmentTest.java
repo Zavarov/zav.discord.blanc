@@ -17,10 +17,14 @@
 package vartas.discordbot.comm;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.pagination.Paginator;
@@ -32,6 +36,7 @@ import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.entities.impl.TextChannelImpl;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -246,5 +251,21 @@ public class AbstractEnvironmentTest {
         environment.remove("subreddit", new TextChannelImpl(0,null));
         assertEquals(actions,Arrays.asList("removed"));
         startUp();
+    }
+    @Test
+    public void submissionFileTest() throws ParseException{
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Instant date = format.parse("01-01-1000").toInstant();
+        assertTrue(environment.submissionFile(date, "subreddit").exists());
+        assertFalse(environment.submissionFile(date, "junk").exists());
+    }
+    @Test
+    public void commentFileTest() throws ParseException{
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Instant date = format.parse("01-01-2000").toInstant();
+        assertTrue(environment.commentFile(date, "subreddit").exists());
+        assertFalse(environment.commentFile(date, "junk").exists());
     }
 }

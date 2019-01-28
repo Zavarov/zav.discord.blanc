@@ -16,6 +16,7 @@
  */
 package vartas.discordbot.comm;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Collection;
@@ -80,6 +81,18 @@ public interface Environment extends Killable{
      * @return the subreddit instance with that name.
      */
     public abstract Subreddit subreddit(String subreddit);
+    /**
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from.
+     * @return the file that contains all submission on the specified day in the specified subreddit.
+     */
+    public abstract File submissionFile(Instant date, String subreddit);
+    /**
+     * @param date the date the comments were submitted.
+     * @param subreddit the subreddit the comments are from.
+     * @return the file that contains all comments on the specified day in the specified subreddit.
+     */
+    public abstract File commentFile(Instant date, String subreddit);
     /**
      * @param date the date the submissions were submitted.
      * @param subreddit the subreddit the submissions are from.

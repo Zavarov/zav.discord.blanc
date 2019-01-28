@@ -191,6 +191,24 @@ public abstract class AbstractEnvironment implements Environment{
     /**
      * @param date the date the submissions were submitted.
      * @param subreddit the subreddit the submissions are from.
+     * @return the file that contains all submission on the specified day in the specified subreddit.
+     */
+    @Override
+    public File submissionFile(Instant date, String subreddit){
+        return pushshift.submissionFile(subreddit, date);
+    }
+    /**
+     * @param date the date the comments were submitted.
+     * @param subreddit the subreddit the comments are from.
+     * @return the file that contains all comments on the specified day in the specified subreddit.
+     */
+    @Override
+    public File commentFile(Instant date, String subreddit){
+        return pushshift.commentFile(subreddit, date);
+    }
+    /**
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from.
      * @return a list of all submissions from that subreddit on that specific date.
      */
     @Override
