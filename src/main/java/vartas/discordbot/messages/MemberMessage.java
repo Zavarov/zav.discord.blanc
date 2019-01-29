@@ -18,7 +18,6 @@ package vartas.discordbot.messages;
 
 import java.awt.Color;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import static java.time.temporal.ChronoUnit.DAYS;
 import java.util.Collections;
 import java.util.List;
@@ -36,18 +35,14 @@ import vartas.discordbot.messages.InteractiveMessage.Builder;
 
 /**
  * This class creates a Discord message displaying the information of a Discord
- * user.
+ * user which is also part of a guild.
  * @author u/Zavarov
  */
-public final class MemberMessage {
+public final class MemberMessage extends UserMessage{
     /**
      * Never create instances of this class.
      */
     private MemberMessage(){}
-    /**
-     * The formatter for the dates.
-     */
-    protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
     /**
      * Sets the description of the current page of the message.
      * @param builder the message builder.
@@ -55,25 +50,6 @@ public final class MemberMessage {
      */
     private static void addDescription(Builder builder, String desc){
         builder.addDescription(desc);
-    }
-    /**
-     * Adds the full name of the member to the message.
-     * @param builder the message builder.
-     * @param member the member in question.
-     */
-    private static void addName(EmbedBuilder builder, Member member){
-        builder.addField("Full Name",String.format("%s#%s",
-                member.getUser().getName(),
-                member.getUser().getDiscriminator()),false
-        );
-    }
-    /**
-     * Adds the id of the user account to the message.
-     * @param builder the message builder.
-     * @param member the member in question.
-     */
-    private static void addId(EmbedBuilder builder, Member member){
-        builder.addField("ID",member.getUser().getId(),false);
     }
     /**
      * Adds the nickname of the member to the message, if he has one.
@@ -84,20 +60,6 @@ public final class MemberMessage {
         if(member.getNickname() != null){
             builder.addField("Nickname",member.getNickname(),false);
         }
-        
-    }
-    /**
-     * Adds the date when the account was created to the message.
-     * @param builder the message builder.
-     * @param member the member in question.
-     */
-    private static void addCreated(EmbedBuilder builder, Member member){
-        int days = (int)DAYS.between(member.getUser().getCreationTime().toLocalDate(),LocalDate.now());
-        builder.addField("Created",String.format("%s (%d %s ago)",
-                DATE.format(member.getUser().getCreationTime()),
-                days,
-                English.plural("day", days)),false
-        );
         
     }
     /**
@@ -183,16 +145,6 @@ public final class MemberMessage {
         
     }
     /**
-     * Adds the avatar of the user to the page, if it isn't the default one.
-     * @param builder the message builder.
-     * @param member the member in question.
-     */
-    private static void addThumbnail(Builder builder, Member member){
-        String avatar = member.getUser().getAvatarUrl();
-        if(avatar != null)
-            builder.setThumbnail(avatar);
-    }
-    /**
      * Shows the information about the specified member. If the parameter are
      * empty, the user who executed the command is used.
      * @param author the user who caused this message.
@@ -203,14 +155,14 @@ public final class MemberMessage {
      */
     public static InteractiveMessage create(User author, Member member, TextChannel channel, Communicator comm){
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
-        addThumbnail(builder,member);
+        addThumbnail(builder,member.getUser());
         
         EmbedBuilder embed = new EmbedBuilder();
         embed.addField("Description", String.format("The basic information about %s", member.getAsMention()), false);
-        addName(embed,member);
-        addId(embed,member);
+        addName(embed,member.getUser());
+        addId(embed,member.getUser());
         addNickname(embed,member);
-        addCreated(embed,member);
+        addCreated(embed,member.getUser());
         addJoined(embed,member);
         addColor(embed,member);
         addGame(embed,member);
