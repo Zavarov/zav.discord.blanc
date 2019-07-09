@@ -14,14 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discordbot.messages;
+package vartas.discord.bot.messages;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.atteo.evo.inflector.English;
-import vartas.discordbot.comm.Communicator;
-import vartas.discordbot.messages.InteractiveMessage.Builder;
+import vartas.discord.bot.comm.Communicator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -79,7 +78,7 @@ public abstract class UserMessage {
      * @param builder the message builder.
      * @param user the member in question.
      */
-    protected static void addThumbnail(Builder builder, User user){
+    protected static void addThumbnail(InteractiveMessage.Builder builder, User user){
         String avatar = user.getAvatarUrl();
         if(avatar != null)
             builder.setThumbnail(avatar);

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discordbot.messages;
+package vartas.discord.bot.messages;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -24,8 +24,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
-import vartas.discordbot.comm.Communicator;
-import vartas.discordbot.messages.InteractiveMessage.Builder;
+import vartas.discord.bot.comm.Communicator;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -49,7 +48,7 @@ public final class MemberMessage extends UserMessage{
      * @param builder the message builder.
      * @param desc the description.
      */
-    private static void addDescription(Builder builder, String desc){
+    private static void addDescription(InteractiveMessage.Builder builder, String desc){
         builder.addDescription(desc);
     }
     /**
@@ -121,7 +120,7 @@ public final class MemberMessage extends UserMessage{
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addRoles(Builder builder, Member member){
+    private static void addRoles(InteractiveMessage.Builder builder, Member member){
         member.getRoles()
                 .stream()
                 .map(role -> String.format("`%s` - %s", role.getId(), role.getName()))
@@ -133,7 +132,7 @@ public final class MemberMessage extends UserMessage{
      * @param member the member in question.
      * @param channel the channel the member is in.
      */
-    private static void addPermissions(Builder builder, Member member, TextChannel channel){
+    private static void addPermissions(InteractiveMessage.Builder builder, Member member, TextChannel channel){
         List<Permission> permissions = Permission.getPermissions(
                 PermissionUtil.getEffectivePermission(
                         channel,

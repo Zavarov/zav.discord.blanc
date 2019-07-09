@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discordbot.messages;
+package vartas.discord.bot.messages;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.MessageAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import vartas.discordbot.comm.Communicator;
+import vartas.discord.bot.comm.Communicator;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
