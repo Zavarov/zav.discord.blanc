@@ -1,0 +1,48 @@
+package vartas.discord.bot.io;
+
+grammar Permission extends de.monticore.MCBasicLiterals{
+    scope PermissionArtifact =
+        "permission" "{"
+            Permission*
+        "}";
+
+    scope Permission =
+        "user" ":" BasicLongLiteral "has" "rank" (PermissionType || ",")+ ;
+
+    abstract PermissionType;
+
+    /*=========================================================*/
+    /*=======================  Symbols  =======================*/
+    /*=========================================================*/
+
+    symbol Root extends PermissionType =
+        name:"root";
+
+    symbol Reddit extends PermissionType =
+        name:"reddit";
+
+    symbol Developer extends PermissionType =
+        name:"dev";
+
+    /*=========================================================*/
+    /*======================= AST RULES =======================*/
+    /*=========================================================*/
+
+    astrule Root =
+        method public vartas.discord.bot.io.permission.PermissionType getPermissionType(){
+            return vartas.discord.bot.io.permission.PermissionType.ROOT;
+        }
+    ;
+
+    astrule Reddit =
+        method public vartas.discord.bot.io.permission.PermissionType getPermissionType(){
+            return vartas.discord.bot.io.permission.PermissionType.REDDIT;
+        }
+    ;
+
+    astrule Developer =
+        method public vartas.discord.bot.io.permission.PermissionType getPermissionType(){
+            return vartas.discord.bot.io.permission.PermissionType.DEVELOPER;
+        }
+    ;
+}
