@@ -1,4 +1,4 @@
-package vartas.discord.bot.io.permission;
+package vartas.discord.bot.io.rank;
 
 /*
  * Copyright (C) 2019 Zavarov
@@ -16,14 +16,14 @@ package vartas.discord.bot.io.permission;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public enum PermissionType {
+public enum RankType {
     ROOT("root"),
     REDDIT("reddit"),
     DEVELOPER("dev");
 
     private String name;
 
-    PermissionType(String name){
+    RankType(String name){
         this.name = name;
     }
 

@@ -1,4 +1,6 @@
-package vartas.discord.bot.io.permission._ast;
+package vartas.discord.bot.io.rank._ast;
+
+import vartas.discord.bot.io.rank.RankType;
 
 /*
  * Copyright (C) 2019 Zavarov
@@ -16,10 +18,10 @@ package vartas.discord.bot.io.permission._ast;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public abstract class ASTPermissionType extends ASTPermissionTypeTOP {
-    protected ASTPermissionType(){
+public abstract class ASTRankType extends ASTRankTypeTOP {
+    protected ASTRankType(){
         super();
     }
 
-    public abstract vartas.discord.bot.io.permission.PermissionType getPermissionType();
+    public abstract RankType getRankType();
 }

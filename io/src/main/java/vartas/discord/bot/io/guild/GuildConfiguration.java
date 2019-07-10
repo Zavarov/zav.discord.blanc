@@ -17,13 +17,6 @@ package vartas.discord.bot.io.guild;/*
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-import java.util.function.Function;
-
 import com.google.common.collect.Multimaps;
 import de.monticore.prettyprint.IndentPrinter;
 import de.se_rwth.commons.Files;
@@ -35,12 +28,19 @@ import org.slf4j.Logger;
 import vartas.discord.bot.io.guild._ast.ASTGuildArtifact;
 import vartas.discord.bot.io.guild.prettyprinter.GuildPrettyPrinter;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.function.Function;
+
 /**
  * This class grants access to the configuration file for Discord guilds.
  */
 public class GuildConfiguration {
     /**
-     * The logger for any error messages.
+     * The logger for any error message.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
@@ -70,7 +70,7 @@ public class GuildConfiguration {
     protected File reference;
 
     /**
-     * Creats a new instance and extracts the data from the AST node.
+     * Creates a new instance and extracts the data from the AST node.
      * The reason why we don't stick to the AST tree is because we are allowed to modify the entries of the
      * configuration file.
      * @param guild the AST instance of the configuration file.
@@ -82,6 +82,15 @@ public class GuildConfiguration {
         filteredExpressions.addAll(guild.getFilter());
         prefix = guild.getPrefix();
 
+        this.reference = reference;
+        this.update();
+    }
+
+    /**
+     * Creates an empty instance of the configuration file.
+     * @param reference the target file where any update will be written into.
+     */
+    public GuildConfiguration(File reference){
         this.reference = reference;
         this.update();
     }

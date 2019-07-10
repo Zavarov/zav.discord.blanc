@@ -1,8 +1,8 @@
-package vartas.discord.bot.io.permission.prettyprint;
+package vartas.discord.bot.io.rank.prettyprint;
 
 import de.monticore.prettyprint.IndentPrinter;
-import vartas.discord.bot.io.permission.PermissionConfiguration;
-import vartas.discord.bot.io.permission.PermissionType;
+import vartas.discord.bot.io.rank.RankConfiguration;
+import vartas.discord.bot.io.rank.RankType;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,17 +24,17 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PermissionPrettyPrinter {
+public class RankPrettyPrinter {
     protected IndentPrinter printer;
 
-    public PermissionPrettyPrinter(IndentPrinter printer){
+    public RankPrettyPrinter(IndentPrinter printer){
         this.printer = printer;
     }
 
-    public String prettyprint(PermissionConfiguration config){
+    public String prettyprint(RankConfiguration config){
         printer.clearBuffer();
 
-        printer.addLine("permission {");
+        printer.addLine("rank {");
 
         printPermission(config);
 
@@ -43,15 +43,15 @@ public class PermissionPrettyPrinter {
         return printer.getContent();
     }
 
-    private void printPermission(PermissionConfiguration config){
-        for(Map.Entry<Long, Collection<PermissionType>> entry : config.getPermissions().asMap().entrySet())
+    private void printPermission(RankConfiguration config){
+        for(Map.Entry<Long, Collection<RankType>> entry : config.getRanks().asMap().entrySet())
             printPermission(entry.getKey(), entry.getValue());
     }
 
-    private void printPermission(long id, Collection<PermissionType> types){
+    private void printPermission(long id, Collection<RankType> types){
         printer.print(String.format("user : %d L has rank ", id));
 
-        Iterator<PermissionType> iterator = types.iterator();
+        Iterator<RankType> iterator = types.iterator();
 
         while(iterator.hasNext()){
             printer.print(iterator.next().getMontiCoreName());

@@ -1,4 +1,4 @@
-package vartas.discord.bot.io.permission;
+package vartas.discord.bot.io.rank;
 
 import com.google.common.collect.Multimap;
 import org.junit.Before;
@@ -24,28 +24,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class PermissionTest {
-    PermissionConfiguration permissions;
+public class RankTest {
+    RankConfiguration ranks;
 
     @Before
     public void setUp(){
-        String source = "src/test/resources/permission.perm";
-        File reference = new File("target/test/resources/permission.perm");
-        permissions = PermissionHelper.parse(source, reference);
+        String source = "src/test/resources/rank.perm";
+        File reference = new File("target/test/resources/rank.perm");
+        ranks = RankHelper.parse(source, reference);
     }
 
     @Test
     public void testPermissions(){
-        Multimap<Long, PermissionType> multimap = permissions.getPermissions();
+        Multimap<Long, RankType> multimap = ranks.getRanks();
         assertThat(multimap.size()).isEqualTo(2);
-        assertThat(multimap.get(1L)).containsExactlyInAnyOrder(PermissionType.ROOT, PermissionType.REDDIT);
+        assertThat(multimap.get(1L)).containsExactlyInAnyOrder(RankType.ROOT, RankType.REDDIT);
     }
 
     @Test
     public void testUpdate(){
-        String source = "target/test/resources/permission.perm";
-        File reference = new File("target/test/resources/permission.perm");
-        permissions = PermissionHelper.parse(source, reference);
+        String source = "target/test/resources/rank.perm";
+        File reference = new File("target/test/resources/rank.perm");
+        ranks = RankHelper.parse(source, reference);
 
         testPermissions();
     }

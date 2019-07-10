@@ -1,8 +1,8 @@
-package vartas.discord.bot.io.permission._ast;
+package vartas.discord.bot.io.rank._ast;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import vartas.discord.bot.io.permission.PermissionType;
+import vartas.discord.bot.io.rank.RankType;
 
 import java.util.List;
 
@@ -22,20 +22,20 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ASTPermissionArtifact extends ASTPermissionArtifactTOP{
-    protected ASTPermissionArtifact(){
+public class ASTRankArtifact extends ASTRankArtifactTOP{
+    protected ASTRankArtifact(){
         super();
     }
-    protected ASTPermissionArtifact(List<ASTPermission> permissionList){
-        super(permissionList);
+    protected ASTRankArtifact(List<ASTRank> rankList){
+        super(rankList);
     }
 
-    public Multimap<Long, PermissionType> getPermissions(){
-        Multimap<Long, PermissionType> permissions = HashMultimap.create();
+    public Multimap<Long, RankType> getRanks(){
+        Multimap<Long, RankType> permissions = HashMultimap.create();
 
-        for(ASTPermission permission : getPermissionList())
-            for(ASTPermissionType type : permission.getPermissionTypeList())
-                permissions.put(permission.getBasicLongLiteral().getValue(), type.getPermissionType());
+        for(ASTRank rank : getRankList())
+            for(ASTRankType type : rank.getRankTypeList())
+                permissions.put(rank.getBasicLongLiteral().getValue(), type.getRankType());
 
         return permissions;
     }

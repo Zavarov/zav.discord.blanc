@@ -1,10 +1,10 @@
-package vartas.discord.bot.io.permission;
+package vartas.discord.bot.io.rank;
 
-import vartas.discord.bot.io.permission._ast.ASTPermissionArtifact;
-import vartas.discord.bot.io.permission._parser.PermissionParser;
+import vartas.discord.bot.io.rank._ast.ASTRankArtifact;
+import vartas.discord.bot.io.rank._parser.RankParser;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 
 /*
@@ -23,24 +23,24 @@ import java.util.Optional;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public abstract class PermissionHelper {
+public abstract class RankHelper {
 
-    public static PermissionConfiguration parse(String filePath, File reference){
-        ASTPermissionArtifact ast = parse(filePath);
+    public static RankConfiguration parse(String filePath, File reference){
+        ASTRankArtifact ast = parse(filePath);
 
-        return new PermissionConfiguration(ast, reference);
+        return new RankConfiguration(ast, reference);
     }
 
-    private static ASTPermissionArtifact parse(String filePath){
+    private static ASTRankArtifact parse(String filePath){
         try{
-            PermissionParser parser = new PermissionParser();
-            Optional<ASTPermissionArtifact> permission = parser.parse(filePath);
+            RankParser parser = new RankParser();
+            Optional<ASTRankArtifact> rank = parser.parse(filePath);
             if(parser.hasErrors())
                 throw new IllegalArgumentException("The parser encountered errors while parsing "+filePath);
-            if(!permission.isPresent())
-                throw new IllegalArgumentException("The permission file couldn't be parsed");
+            if(!rank.isPresent())
+                throw new IllegalArgumentException("The rank file couldn't be parsed");
 
-            return permission.get();
+            return rank.get();
         }catch(IOException e){
             throw new IllegalArgumentException(e);
         }

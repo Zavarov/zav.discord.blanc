@@ -1,4 +1,4 @@
-package vartas.discord.bot.io.permission;
+package vartas.discord.bot.io.rank;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -8,8 +8,8 @@ import de.se_rwth.commons.Files;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.io.permission._ast.ASTPermissionArtifact;
-import vartas.discord.bot.io.permission.prettyprint.PermissionPrettyPrinter;
+import vartas.discord.bot.io.rank._ast.ASTRankArtifact;
+import vartas.discord.bot.io.rank.prettyprint.RankPrettyPrinter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,36 +34,36 @@ import java.util.concurrent.Semaphore;
  */
 
 /**
- * This class grants access to the internal permission file for Discord users.
+ * This class grants access to the internal rank file for Discord users.
  */
-public class PermissionConfiguration {
+public class RankConfiguration {
     /**
-     * The logger for any error messages.
+     * The logger for any error message.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The mutex that ensures that only a single thread is allowed to modify this permission file.
+     * The mutex that ensures that only a single thread is allowed to modify this rank file.
      */
     protected Semaphore mutex = new Semaphore(1);
     /**
-     * The respective file containing the permissions.
+     * The respective file containing the ranks.
      */
     protected File reference;
     /**
-     * The permissions for each user.
+     * The ranks for each user.
      */
-    protected Multimap<Long, PermissionType> permissions;
+    protected Multimap<Long, RankType> ranks;
 
     /**
      * Creats a new instance and extracts the data from the AST node.
      * The reason why we don't stick to the AST tree is because we are allowed to modify the entries of the
-     * permission file.
-     * @param ast the AST instance of the permission file.
+     * rank file.
+     * @param ast the AST instance of the rank file.
      * @param reference the target file where any update will be written into.
      */
-    public PermissionConfiguration(ASTPermissionArtifact ast, File reference){
+    public RankConfiguration(ASTRankArtifact ast, File reference){
         this.reference = reference;
-        this.permissions = HashMultimap.create(ast.getPermissions());
+        this.ranks = HashMultimap.create(ast.getRanks());
 
         update();
     }
@@ -73,7 +73,7 @@ public class PermissionConfiguration {
      * @return true if the user has the Root rank.
      */
     public boolean hasRootRank(User user){
-        return permissions.get(user.getIdLong()).contains(PermissionType.ROOT);
+        return ranks.get(user.getIdLong()).contains(RankType.ROOT);
     }
 
     /**
@@ -81,7 +81,7 @@ public class PermissionConfiguration {
      * @return true if the user has the Developer rank.
      */
     public boolean hasDeveloperRank(User user){
-        return permissions.get(user.getIdLong()).contains(PermissionType.DEVELOPER);
+        return ranks.get(user.getIdLong()).contains(RankType.DEVELOPER);
     }
 
     /**
@@ -89,7 +89,7 @@ public class PermissionConfiguration {
      * @return true if the user has the Reddit rank.
      */
     public boolean hasRedditRank(User user){
-        return permissions.get(user.getIdLong()).contains(PermissionType.REDDIT);
+        return ranks.get(user.getIdLong()).contains(RankType.REDDIT);
     }
 
     /**
@@ -98,7 +98,7 @@ public class PermissionConfiguration {
      */
     public void addRootRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.put(user.getIdLong(), PermissionType.ROOT);
+        ranks.put(user.getIdLong(), RankType.ROOT);
         mutex.release();
 
         update();
@@ -111,7 +111,7 @@ public class PermissionConfiguration {
      */
     public void addDeveloperRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.put(user.getIdLong(), PermissionType.DEVELOPER);
+        ranks.put(user.getIdLong(), RankType.DEVELOPER);
         mutex.release();
 
         update();
@@ -124,7 +124,7 @@ public class PermissionConfiguration {
      */
     public void addRedditRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.put(user.getIdLong(), PermissionType.REDDIT);
+        ranks.put(user.getIdLong(), RankType.REDDIT);
         mutex.release();
 
         update();
@@ -136,7 +136,7 @@ public class PermissionConfiguration {
      */
     public void removeRootRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.remove(user.getIdLong(), PermissionType.ROOT);
+        ranks.remove(user.getIdLong(), RankType.ROOT);
         mutex.release();
 
         update();
@@ -148,7 +148,7 @@ public class PermissionConfiguration {
      */
     public void removeDeveloperRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.remove(user.getIdLong(), PermissionType.DEVELOPER);
+        ranks.remove(user.getIdLong(), RankType.DEVELOPER);
         mutex.release();
 
         update();
@@ -160,23 +160,23 @@ public class PermissionConfiguration {
      */
     public void removeRedditRank(User user){
         mutex.acquireUninterruptibly();
-        permissions.remove(user.getIdLong(), PermissionType.REDDIT);
+        ranks.remove(user.getIdLong(), RankType.REDDIT);
         mutex.release();
 
         update();
     }
-    public Multimap<Long, PermissionType> getPermissions(){
-        return Multimaps.unmodifiableMultimap(permissions);
+    public Multimap<Long, RankType> getRanks(){
+        return Multimaps.unmodifiableMultimap(ranks);
     }
     /**
-     * Stores the current permissions on the disc and overwrites any previous file.
+     * Stores the current ranks on the disc and overwrites any previous file.
      */
     private void update(){
         try {
             mutex.acquireUninterruptibly();
             reference.getParentFile().mkdirs();
             reference.createNewFile();
-            String content = new PermissionPrettyPrinter(new IndentPrinter()).prettyprint(this);
+            String content = new RankPrettyPrinter(new IndentPrinter()).prettyprint(this);
             Files.writeToTextFile(new StringReader(content), reference);
         }catch(IOException e){
             log.error(e.getMessage());
