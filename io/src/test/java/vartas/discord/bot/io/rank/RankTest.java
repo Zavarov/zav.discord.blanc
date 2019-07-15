@@ -37,8 +37,9 @@ public class RankTest {
     @Test
     public void testPermissions(){
         Multimap<Long, RankType> multimap = ranks.getRanks();
-        assertThat(multimap.size()).isEqualTo(2);
+        assertThat(multimap.size()).isEqualTo(4);
         assertThat(multimap.get(1L)).containsExactlyInAnyOrder(RankType.ROOT, RankType.REDDIT);
+        assertThat(multimap.get(2L)).containsExactlyInAnyOrder(RankType.DEVELOPER, RankType.REDDIT);
     }
 
     @Test
@@ -48,5 +49,16 @@ public class RankTest {
         ranks = RankHelper.parse(source, reference);
 
         testPermissions();
+    }
+
+    @Test
+    public void testCheckRank(){
+        assertThat(ranks.checkRank(1, RankType.ROOT)).isTrue();
+        assertThat(ranks.checkRank(1, RankType.DEVELOPER)).isTrue();
+        assertThat(ranks.checkRank(1, RankType.REDDIT)).isTrue();
+
+        assertThat(ranks.checkRank(2, RankType.ROOT)).isFalse();
+        assertThat(ranks.checkRank(2, RankType.DEVELOPER)).isTrue();
+        assertThat(ranks.checkRank(2, RankType.REDDIT)).isTrue();
     }
 }

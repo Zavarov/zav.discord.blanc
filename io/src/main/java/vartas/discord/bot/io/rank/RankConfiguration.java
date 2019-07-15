@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import de.monticore.prettyprint.IndentPrinter;
 import de.se_rwth.commons.Files;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
@@ -165,6 +166,40 @@ public class RankConfiguration {
 
         update();
     }
+
+    /**
+     * Checks if the member has the specified rank and also deals with the root rank overwriting any other rank.
+     * @param member the member in question.
+     * @param rank the rank that is being checked.
+     * @return true, if the member has the given rank.
+     */
+    public boolean checkRank(Member member, RankType rank){
+        return checkRank(member.getUser(), rank);
+    }
+
+    /**
+     * Checks if the user has the specified rank and also deals with the root rank overwriting any other rank.
+     * @param user the user in question.
+     * @param rank the rank that is being checked.
+     * @return true, if the user has the given rank.
+     */
+    public boolean checkRank(User user, RankType rank){
+        return checkRank(user.getIdLong(), rank);
+    }
+
+    /**
+     * Checks if the id of an user has the specified rank and also deals with the root rank overwriting any other rank.
+     * @param id the id in question.
+     * @param rank the rank that is being checked.
+     * @return true, if the id has the given rank.
+     */
+    public boolean checkRank(long id, RankType rank){
+        return ranks.containsEntry(id, RankType.ROOT) || ranks.containsEntry(id, rank);
+    }
+
+    /**
+     * @return the raw  map containing all ranks for each user id.
+     */
     public Multimap<Long, RankType> getRanks(){
         return Multimaps.unmodifiableMultimap(ranks);
     }
