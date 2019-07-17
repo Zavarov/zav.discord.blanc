@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -22,11 +22,11 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import org.apache.commons.collections4.CollectionUtils;
 import org.atteo.evo.inflector.English;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
  * This class creates a Discord message displaying the information of a Discord
  * guild.
  */
-public final class ServerMessage {
+public abstract class ServerMessage {
     /**
      * Never create instances of this class.
      */
-    private ServerMessage(){}
+    protected ServerMessage(){}
     /**
-     * A moderator is every user that has as least one of the permissions listed here.
+     * A moderator is every user that has as least one of the ranks listed here.
      */
     protected static final List<Permission> MODERATOR = Arrays.asList(
         Permission.BAN_MEMBERS,
@@ -113,7 +113,7 @@ public final class ServerMessage {
      * @param guild the guild in question.
      */
     private static void addAdmins(EmbedBuilder builder, Guild guild){
-        //The owner always has admin rights -> not null
+        //The owner always has admin rights -> not empty
         List<Member> admins = guild.getMembers()
                 .stream()
                 .filter(m -> !m.getUser().isBot())
@@ -133,8 +133,8 @@ public final class ServerMessage {
     private static void addModerators(EmbedBuilder builder, Guild guild){
         List<Member> moderators = guild.getMembers().stream()
                 .filter(m -> !m.getUser().isBot())
-                .filter(m -> !m.getPermissions().contains(Permission.ADMINISTRATOR) &&
-                             CollectionUtils.containsAny(m.getPermissions(),MODERATOR))
+                .filter(m -> !m.getPermissions().contains(Permission.ADMINISTRATOR))
+                .filter(m -> !Collections.disjoint(m.getPermissions(), MODERATOR))
                 .collect(Collectors.toList());
         //The owner is always an admin
         if(!moderators.isEmpty()){

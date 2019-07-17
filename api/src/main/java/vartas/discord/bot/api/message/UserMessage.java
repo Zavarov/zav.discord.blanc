@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.atteo.evo.inflector.English;
-import vartas.discord.bot.api.comm.Communicator;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -92,7 +92,7 @@ public abstract class UserMessage {
      * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the members information
      */
-    public static InteractiveMessage create(User author, User user, TextChannel channel, Communicator comm){
+    public static InteractiveMessage create(User author, User user, TextChannel channel, CommunicatorInterface comm){
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         addThumbnail(builder,user);
         

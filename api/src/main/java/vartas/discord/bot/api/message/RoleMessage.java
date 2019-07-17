@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
@@ -23,7 +23,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
-import vartas.discord.bot.api.comm.Communicator;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -37,11 +37,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
  * This class creates a Discord message displaying the information of a Discord
  * role.
  */
-public final class RoleMessage {
+public abstract class RoleMessage {
     /**
      * Never create instances of this class.
      */
-    private RoleMessage(){}
+    protected RoleMessage(){}
     /**
      * The formatter for the dates.
      */
@@ -120,7 +120,7 @@ public final class RoleMessage {
         }
     }
     /**
-     * Adds the effective permissions this role gives to the message.
+     * Adds the effective ranks this role gives to the message.
      * @param builder the message builder.
      * @param role the role in question.
      */
@@ -163,7 +163,7 @@ public final class RoleMessage {
      * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the roles information
      */
-    public static InteractiveMessage create(User author, Role role, TextChannel channel, Communicator comm){
+    public static InteractiveMessage create(User author, Role role, TextChannel channel, CommunicatorInterface comm){
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         
         addDescription(builder, String.format("The basic information about %s", role.getAsMention()));
@@ -176,7 +176,7 @@ public final class RoleMessage {
         builder.addLine("```");
         builder.nextPage();
         
-        addDescription(builder, String.format("All permissions in %s", channel.getAsMention()));
+        addDescription(builder, String.format("All ranks in %s", channel.getAsMention()));
         addPermissions(builder, role, channel);
         builder.nextPage();
         

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -34,7 +34,7 @@ public abstract class SubmissionMessage {
     /**
      * Never create instances of this class.
      */
-    private SubmissionMessage(){}
+    protected SubmissionMessage(){}
     /**
      * @param submission a submission.
      * @return true if the submission is marked as NSFW.

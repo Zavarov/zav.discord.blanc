@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
-import vartas.discord.bot.api.comm.Communicator;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -38,11 +38,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
  * This class creates a Discord message displaying the information of a Discord
  * user which is also part of a guild.
  */
-public final class MemberMessage extends UserMessage{
+public abstract class MemberMessage extends UserMessage{
     /**
      * Never create instances of this class.
      */
-    private MemberMessage(){}
+    protected MemberMessage(){}
     /**
      * Sets the description of the current page of the message.
      * @param builder the message builder.
@@ -127,7 +127,7 @@ public final class MemberMessage extends UserMessage{
                 .forEach(builder::addLine);
     }
     /**
-     * Adds the effective permissions of the member in the specific channel to the message.
+     * Adds the effective ranks of the member in the specific channel to the message.
      * @param builder the message builder.
      * @param member the member in question.
      * @param channel the channel the member is in.
@@ -153,7 +153,7 @@ public final class MemberMessage extends UserMessage{
      * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the members information
      */
-    public static InteractiveMessage create(User author, Member member, TextChannel channel, Communicator comm){
+    public static InteractiveMessage create(User author, Member member, TextChannel channel, CommunicatorInterface comm){
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, comm);
         addThumbnail(builder,member.getUser());
         
@@ -173,7 +173,7 @@ public final class MemberMessage extends UserMessage{
         addRoles(builder,member);
         builder.nextPage();
         
-        addDescription(builder, String.format("All of %s permissions in %s",member.getAsMention(), channel.getAsMention()));
+        addDescription(builder, String.format("All of %s ranks in %s",member.getAsMention(), channel.getAsMention()));
         addPermissions(builder, member, channel);
         return builder.build();
     }
