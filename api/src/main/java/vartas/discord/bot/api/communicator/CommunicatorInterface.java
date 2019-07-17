@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
  * APIs and other libraries from the respective commands.
  * Instead of directly, they have to be accessed via this
  */
-public interface CommunicatorInterface extends SendInterface, ResolveInterface, ActivityInterface, ConfigInterface{
+public interface CommunicatorInterface extends SendInterface, ActivityInterface, ConfigInterface{
     /**
      * The executor that deals with all asynchronous processes.
      */
