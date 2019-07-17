@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package vartas.discord.bot.api.messages;
+package vartas.discord.bot.api.message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.MessageAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import vartas.discord.bot.api.comm.Communicator;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -71,30 +71,30 @@ public class InteractiveMessage implements Consumer<Message>{
      */
     protected Message current_message;
     /**
-     * The consumer that deals with interactive messages.
+     * The consumer that deals with interactive message.
      */
     protected Consumer<InteractiveMessage> consumer;
     /**
      * The communicator for the current shard.
      */
-    protected Communicator comm;
+    protected CommunicatorInterface communicator;
     /**
      * creates an message with the specified pages.
      * @param channel the channel the message is in.
      * @param author the author who can interact with the message.
      * @param pages the content of the message.
-     * @param comm the communicator for the shard the message is in.
+     * @param communicator the communicator for the shard the message is in.
      */
-    protected InteractiveMessage(MessageChannel channel, User author, List<MessageEmbed> pages, Communicator comm){
+    protected InteractiveMessage(MessageChannel channel, User author, List<MessageEmbed> pages, CommunicatorInterface communicator){
         this.channel = channel;
-        this.comm = comm;
+        this.communicator = communicator;
         this.author = author;
         this.pages = pages;
         this.last_reaction = OffsetDateTime.now();
     }
     /**
      * Submits this message to the Discord API.
-     * @param consumer the consumer that will add this message to the thread that manages interactive messages.
+     * @param consumer the consumer that will add this message to the thread that manages interactive message.
      * @return the rest action that will send this message.
      */
     public RestAction<Message> toRestAction(Consumer<InteractiveMessage> consumer){
@@ -119,11 +119,11 @@ public class InteractiveMessage implements Consumer<Message>{
             MessageEmbed next_message = pages.get(current_page);
             MessageAction update = current_message.editMessage(next_message);
             Consumer<Message> update_message = m -> current_message = m;
-            
-            comm.send(update,update_message);
+
+            communicator.send(update,update_message);
             //Remove the reaction so that the user doesn't have to do it
             if(isTextChannel() && canRemoveReactions()){
-                comm.send(reaction.removeReaction(user));
+                communicator.send(reaction.removeReaction(user));
             }
         }
     }
@@ -146,7 +146,7 @@ public class InteractiveMessage implements Consumer<Message>{
         return current_message.getChannelType() == ChannelType.TEXT;
     }
     /**
-     * @return true when the bot has the "Manage Messages" permission. 
+     * @return true when the bot has the "Manage Messages" rank.
      */
     private boolean canRemoveReactions(){
         long raw_permission = PermissionUtil.getEffectivePermission(current_message.getTextChannel(), 
@@ -162,12 +162,12 @@ public class InteractiveMessage implements Consumer<Message>{
     @Override
     public void accept(Message message){
         current_message = message;
-        comm.send(message.addReaction(ARROW_LEFT), (v) -> {
-            comm.send(message.addReaction(ARROW_RIGHT), (w) -> consumer.accept(this));
+        communicator.send(message.addReaction(ARROW_LEFT), (v) -> {
+            communicator.send(message.addReaction(ARROW_RIGHT), (w) -> consumer.accept(this));
         });
     }
     /**
-     * The builder for creating this kind of messages.
+     * The builder for creating this kind of message.
      */
     public static class Builder{
         /**
@@ -197,14 +197,14 @@ public class InteractiveMessage implements Consumer<Message>{
         /**
          * The communicator of the shard the message is in.
          */
-        protected Communicator comm;
+        protected CommunicatorInterface comm;
         /**
          * Initializes an empty builder.
          * @param channel the channel the message is sent in.
          * @param author the user who can interact with the message.
          * @param comm the communicator of the shard the message is in.
          */
-        public Builder(MessageChannel channel, User author, Communicator comm){
+        public Builder(MessageChannel channel, User author, CommunicatorInterface comm){
             this.channel = channel;
             this.author = author;
             this.comm = comm;
