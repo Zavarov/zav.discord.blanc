@@ -9,15 +9,23 @@ grammar Command extends de.monticore.MCBasics,
                         vartas.discord.bot.command.Permission,
                         vartas.discord.bot.command.Parameter{
     CommandArtifact =
-        ("package" package:(Name || ".")+ ";")?
-        "command" ("@" prefix:(Name || ".")+)? "{"
+        ("package" package:(Name& || ".")+ ";")?
+        "command" ("@" prefix:(Name& || ".")+)? "{"
             Command*
         "}";
 
     symbol scope Command =
-        Name ("@" ["guild"])? "{"
+        Name& ("@" Restriction)* "{"
             Attribute*
         "}";
+
+    interface Restriction;
+
+    symbol GuildRestriction implements Restriction =
+        name:"guild";
+
+    symbol AttachmentRestriction implements Restriction =
+        name:"attachment";
 
     interface Attribute;
 

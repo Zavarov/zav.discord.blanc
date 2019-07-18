@@ -22,6 +22,8 @@ public abstract class CommandCoCos {
     public static CommandCoCoChecker getCheckerForAllCoCos(){
         CommandCoCoChecker checker = new CommandCoCoChecker();
 
+        checker.addCoCo(new AtMostOneGuildRequirementCoCo());
+        checker.addCoCo(new AtMostOneAttachmentRequirementCoCo());
         checker.addCoCo(new AtMostOneParameterAttributeCoCo());
         checker.addCoCo(new AtMostOnePermissionAttributeCoCo());
         checker.addCoCo(new AtMostOneRankAttributeCoCo());

@@ -27,7 +27,7 @@ public class RoleParameterRequiresGuildCoCo implements CommandASTCommandCoCo, Co
 
     @Override
     public void check(ASTCommand node) {
-        inGuild = node.isGuild();
+        inGuild = node.getCommandSymbol().requiresGuild();
 
         node.accept(getRealThis());
     }

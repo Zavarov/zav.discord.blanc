@@ -1,9 +1,9 @@
 package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import vartas.discord.bot.command.command._ast.ASTCommand;
+import vartas.discord.bot.command.command._ast.ASTGuildRestriction;
+import vartas.discord.bot.command.command._ast.ASTRestriction;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
-import vartas.discord.bot.command.parameter._ast.ASTMember;
 
 /*
  * Copyright (C) 2019 Zavarov
@@ -21,20 +21,21 @@ import vartas.discord.bot.command.parameter._ast.ASTMember;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class MemberParameterRequiresGuildCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    public static final String ERROR_MESSAGE = "This command must be restricted to a guild if it has a member as a parameter.";
-    protected boolean inGuild;
-
+public class AtMostOneGuildRequirementCoCo implements CommandASTRestrictionCoCo, CommandVisitor {
+    protected int counter;
+    public static final String ERROR_MESSAGE = "The command can have at most one guild restriction.";
     @Override
-    public void check(ASTCommand node) {
-        inGuild = node.getCommandSymbol().requiresGuild();
-
+    public void check(ASTRestriction node) {
+        counter = 0;
         node.accept(getRealThis());
+
+        if(counter > 1)
+            Log.error(ERROR_MESSAGE);
+
     }
 
     @Override
-    public void visit(ASTMember node){
-        if(!inGuild)
-            Log.error(ERROR_MESSAGE);
+    public void visit(ASTGuildRestriction node){
+        counter++;
     }
 }

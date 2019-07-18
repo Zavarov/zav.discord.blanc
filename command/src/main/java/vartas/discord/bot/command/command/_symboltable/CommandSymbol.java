@@ -71,6 +71,10 @@ public class CommandSymbol extends CommandSymbolTOP{
     }
 
     public boolean requiresGuild(){
-        return super.getCommandNode().get().isGuild();
+        return getSpannedScope().resolveLocally("guild", GuildRestrictionSymbol.KIND).isPresent();
+    }
+
+    public boolean requiresAttachment(){
+        return getSpannedScope().resolveLocally("attachment", AttachmentRestrictionSymbol.KIND).isPresent();
     }
 }

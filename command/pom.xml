@@ -40,6 +40,39 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- create grammar  and template jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <!-- grammars -->
+                    <execution>
+                        <id>generate-grammars</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>grammar</classifier>
+                            <classesDirectory>src/main/grammars</classesDirectory>
+                        </configuration>
+                    </execution>
+                    <!-- templates -->
+                    <execution>
+                        <id>generate-templates</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>templates</classifier>
+                            <classesDirectory>src/main/resources/templates</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

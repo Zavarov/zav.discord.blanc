@@ -27,7 +27,7 @@ public class TextChannelParameterRequiresGuildCoCo implements CommandASTCommandC
 
     @Override
     public void check(ASTCommand node) {
-        inGuild = node.isGuild();
+        inGuild = node.getCommandSymbol().requiresGuild();
 
         node.accept(getRealThis());
     }
