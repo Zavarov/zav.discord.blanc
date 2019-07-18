@@ -17,6 +17,7 @@
 package vartas.discord.bot.api.communicator;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.User;
 import vartas.discord.bot.api.environment.EnvironmentInterface;
 
 import java.util.concurrent.ExecutorService;
@@ -49,4 +50,12 @@ public interface CommunicatorInterface extends SendInterface, ActivityInterface,
      * @return the jda in the current shard. 
      */
     JDA jda();
+
+    /**
+     * @param user the user the self user instance is compared with.
+     * @return true if the user is equivalent to the self user instance of this shard.
+     */
+    default boolean isSelfUser(User user){
+        return jda().getSelfUser().equals(user);
+    }
 }
