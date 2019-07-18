@@ -17,8 +17,10 @@ package vartas.discord.bot.command.command._symboltable;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class CommandLanguage extends CommandLanguageTOP{
+    public static final String COMMAND_FILE_ENDING = "cmd";
+
     public CommandLanguage(){
-        super("Command Language", "cmd");
+        super("Command Language", COMMAND_FILE_ENDING);
 
         setModelNameCalculator(new CommandModelNameCalculator());
     }
