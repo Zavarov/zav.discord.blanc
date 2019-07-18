@@ -34,6 +34,8 @@ public abstract class CommandCoCos {
         checker.addCoCo(new TextChannelParameterRequiresGuildCoCo());
         checker.addCoCo(new MemberParameterRequiresGuildCoCo());
         checker.addCoCo(new MessageParameterRequiresGuildCoCo());
+        checker.addCoCo(new CommandNameIsUniqueCoCo());
+        checker.addCoCo(new ClassNameIsUniqueCoCo());
 
         return checker;
     }
