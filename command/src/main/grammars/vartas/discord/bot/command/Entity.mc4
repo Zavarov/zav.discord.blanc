@@ -1,0 +1,73 @@
+package vartas.discord.bot.command;
+
+/**
+ * This grammar defines the syntax of the parameter specified in Parameter.mc4.
+ */
+component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNumbers, de.monticore.expressions.CommonExpressions, de.monticore.expressions.ExpressionsBasis{
+    ExtLiteral = Literal;
+
+    interface EntityType;
+
+    /*=========================================================*/
+    /*========================  Misc  =========================*/
+    /*=========================================================*/
+
+    StringType implements EntityType =
+        StringLiteral
+    ;
+
+    /*=========================================================*/
+    /*========================  Time  =========================*/
+    /*=========================================================*/
+
+    DateType implements EntityType =
+          day:Decimal "-"
+        month:Decimal "-"
+         year:Decimal
+    ;
+
+    /*=========================================================*/
+    /*==================  Discord Entities  ===================*/
+    /*=========================================================*/
+
+    MessageType implements EntityType =
+        id:Decimal
+    ;
+
+    GuildType implements EntityType =
+          id:Decimal         |
+        name:StringLiteral
+    ;
+
+    MemberType implements EntityType =
+          id:Decimal         |
+        name:StringLiteral   |
+        "<" "@" "!"? id:Decimal ">"
+    ;
+
+    UserType implements EntityType =
+          id:Decimal         |
+        name:StringLiteral   |
+        "<" "@" id:Decimal ">"
+    ;
+
+    TextChannelType implements EntityType =
+          id:Decimal         |
+        name:StringLiteral   |
+        "<" "#" id:Decimal ">"
+    ;
+
+    RoleType implements EntityType =
+          id:Decimal         |
+        name:StringLiteral   |
+        "<" "@" "&" id:Decimal ">"
+    ;
+
+    /*=========================================================*/
+    /*================  Arithmetic Expression  ================*/
+    /*=========================================================*/
+
+    ExpressionType implements EntityType =
+        Expression
+    ;
+}

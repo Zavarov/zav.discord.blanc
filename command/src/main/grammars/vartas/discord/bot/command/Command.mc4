@@ -1,0 +1,35 @@
+package vartas.discord.bot.command;
+
+/**
+ * This grammar specifies the properties of the commands.
+ * For example, it is possible to specify the number of arguments or the permissions that are required to execute it.
+ */
+grammar Command extends de.monticore.MCBasics,
+                        vartas.discord.bot.command.Rank,
+                        vartas.discord.bot.command.Permission,
+                        vartas.discord.bot.command.Parameter{
+    CommandArtifact =
+        ("package" package:(Name || ".")+ ";")?
+        "command" ("@" prefix:(Name || ".")+)? "{"
+            Command*
+        "}";
+
+    symbol scope Command =
+        Name ("@" ["guild"])? "{"
+            Attribute*
+        "}";
+
+    interface Attribute;
+
+    symbol ClassName implements Attribute =
+        name:"class" ":" value:Name;
+
+    symbol Permission implements Attribute =
+        name:"permission" ":" (PermissionType || ",")+;
+
+    symbol Parameter implements Attribute =
+         name:"parameter" ":" (ParameterType || ",")+;
+
+    symbol Rank implements Attribute =
+              name:"rank" ":" (RankType || ",")+;
+}
