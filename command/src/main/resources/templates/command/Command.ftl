@@ -19,19 +19,19 @@ public <#if existsHandwrittenClass>abstract </#if>class ${name} extends Abstract
     protected Message source;
     protected CommunicatorInterface communicator;
 
-    ${includeArgs("VariableDeclaration", parameters)}
+    ${includeArgs("command.VariableDeclaration", parameters)}
 
     public ${name}(Message source, CommunicatorInterface communicator, List<ASTEntityType> parameters) throws IllegalArgumentException, IllegalStateException
     {
         this.source = source;
         this.communicator = communicator;
 
-        ${includeArgs("CheckGuild", symbol)}
-        ${includeArgs("CheckPermission", symbol)}
-        ${includeArgs("CheckRank", symbol)}
-        ${includeArgs("CheckParameter", parameters)}
+        ${includeArgs("command.CheckGuild", symbol)}
+        ${includeArgs("command.CheckPermission", symbol)}
+        ${includeArgs("command.CheckRank", symbol)}
+        ${includeArgs("command.CheckParameter", parameters)}
 
-        ${includeArgs("VariableInitialization", parameters)}
+        ${includeArgs("command.VariableInitialization", parameters)}
     }
 
 <#if !existsHandwrittenClass>

@@ -42,6 +42,6 @@ public class CommandGenerator {
 
         Path path = CommandGeneratorHelper.getQualifiedPath(packageName, fileName);
 
-        generator.generate("Command", path, ast, packageName, fileExists, fileName);
+        generator.generate("command.Command", path, ast, packageName, fileExists, fileName);
     }
 }

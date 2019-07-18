@@ -40,7 +40,7 @@ public abstract class CommandGeneratorTest extends AbstractTest {
     private static final String OUTPUT_DIRECTORY = "target/generated-test-sources/monticore/sourcecode/";
 
     private static final String TEMPLATE_EXTENSION = "ftl";
-    private static final String TEMPLATE_PATH = "src/main/resources/command";
+    private static final String TEMPLATE_PATH = "src/main/resources/templates";
 
     private static final String TARGET_EXTENSION = "java";
     private static final String TARGET_PATH = "src/main/java";
@@ -59,8 +59,6 @@ public abstract class CommandGeneratorTest extends AbstractTest {
     public void setUp(){
         File targetFolder = new File(TARGET_PATH).getAbsoluteFile();
         File templateFolder = new File(TEMPLATE_PATH).getAbsoluteFile();
-
-        targetFolder.mkdirs();
 
         scope = createGlobalScope();
         ast = CommandHelper.parse(scope, "src/test/resources/Command.cmd");
