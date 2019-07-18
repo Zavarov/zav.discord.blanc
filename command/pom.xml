@@ -91,6 +91,12 @@
         </dependency>
 
         <dependency>
+            <groupId>vartas.reddit</groupId>
+            <artifactId>chart</artifactId>
+            <version>${reddit.api.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>${icu4j.version}</version>

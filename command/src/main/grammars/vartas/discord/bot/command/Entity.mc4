@@ -20,6 +20,10 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNu
         status:Name
     ;
 
+    IntervalType implements EntityType =
+        interval:Name
+    ;
+
     /*=========================================================*/
     /*========================  Time  =========================*/
     /*=========================================================*/

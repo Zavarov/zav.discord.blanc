@@ -113,4 +113,11 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
         symbol.setValue(node);
         addToScopeAndLinkWithNode(symbol, node);
     }
+
+    @Override
+    public void visit(ASTIntervalType node){
+        IntervalSymbol symbol = new IntervalSymbol(command.getParameters().get(index).getVar());
+        symbol.setValue(node);
+        addToScopeAndLinkWithNode(symbol, node);
+    }
 }

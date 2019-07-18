@@ -11,6 +11,9 @@ component grammar Parameter extends de.monticore.MCBasics{
     /*=======================  Symbols  =======================*/
     /*=========================================================*/
 
+    symbol Interval implements ParameterType =
+        var:Name& ":" name:"interval";
+
     symbol OnlineStatus implements ParameterType =
         var:Name& ":" name:"onlinestatus";
 
