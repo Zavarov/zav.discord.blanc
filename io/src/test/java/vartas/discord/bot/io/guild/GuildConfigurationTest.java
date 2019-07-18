@@ -1,24 +1,14 @@
 package vartas.discord.bot.io.guild;
 
 import com.google.common.collect.Multimap;
-import de.monticore.ModelingLanguage;
-import de.monticore.io.paths.ModelPath;
-import de.monticore.symboltable.GlobalScope;
-import de.monticore.symboltable.ResolvingConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.io.guild._ast.ASTGuildArtifact;
-import vartas.discord.bot.io.guild._parser.GuildParser;
-import vartas.discord.bot.io.guild._symboltable.GuildLanguage;
 import vartas.discord.bot.io.guild._symboltable.GuildSymbolTableCreator;
 
-import java.io.IOException;
 import java.io.File;
-import java.nio.file.Paths;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 /*
  * Copyright (C) 2019 Zavarov
@@ -92,5 +82,12 @@ public class GuildConfigurationTest {
         testGroup();
         testPrefix();
         testSubreddit();
+    }
+
+    @Test
+    public void testAnyMatch(){
+        assertThat(config.anyMatch("expression")).isFalse();
+        assertThat(config.anyMatch("expression0")).isTrue();
+        assertThat(config.anyMatch("_expression0_")).isTrue();
     }
 }

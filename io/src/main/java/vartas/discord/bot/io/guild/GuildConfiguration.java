@@ -34,6 +34,8 @@ import java.io.StringReader;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This class grants access to the configuration file for Discord guilds.
@@ -57,9 +59,13 @@ public class GuildConfiguration {
      */
     protected HashMultimap<String, Long> roleGroups = HashMultimap.create();
     /**
-     * All expressions
+     * All expressions.
      */
     protected Set<String> filteredExpressions = new HashSet<>();
+    /**
+     * The combined pattern for all expressions.
+     */
+    protected Pattern pattern;
     /**
      * The custom prefix in the guild.
      */
@@ -81,6 +87,8 @@ public class GuildConfiguration {
         roleGroups.putAll(guild.getRoleGroups());
         filteredExpressions.addAll(guild.getFilter());
         prefix = guild.getPrefix();
+
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
 
         this.reference = reference;
         this.update();
@@ -229,12 +237,14 @@ public class GuildConfiguration {
     /**
      * Adds an expression to the list of filtered words.
      * @param expression an expression.
+     * @throws PatternSyntaxException if the new expression wasn't valid.
      */
-    public void addToFilter(String expression){
+    public void addToFilter(String expression) throws PatternSyntaxException {
         mutex.acquireUninterruptibly();
         filteredExpressions.add(expression);
         mutex.release();
 
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
         update();
     }
     /**
@@ -246,7 +256,16 @@ public class GuildConfiguration {
         filteredExpressions.remove(expression);
         mutex.release();
 
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
         update();
+    }
+
+    /**
+     * @param text an input text that is checked for filtered words.
+     * @return true if at least one expression is matched in the text.
+     */
+    public boolean anyMatch(String text){
+        return pattern.matcher(text).find();
     }
     /**
      * @return all filtered words.
