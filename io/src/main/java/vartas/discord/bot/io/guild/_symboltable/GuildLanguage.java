@@ -17,8 +17,9 @@ package vartas.discord.bot.io.guild._symboltable;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class GuildLanguage extends GuildLanguageTOP{
+    public static final String GUILD_FILE_ENDING = "gld";
     public GuildLanguage(){
-        super("Guild Language", "gld");
+        super("Guild Language", GUILD_FILE_ENDING);
 
         setModelNameCalculator(new GuildModelNameCalculator());
     }
