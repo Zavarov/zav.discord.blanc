@@ -6,22 +6,16 @@ import vartas.discord.bot.api.communicator.*;
 import vartas.discord.bot.command.*;
 import vartas.discord.bot.command.call._ast.*;
 import vartas.discord.bot.command.command._symboltable.*;
+import vartas.discord.bot.exec.*;
 
 import java.util.*;
 import java.util.function.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class CommandBuilder{
-
-    protected ASTCallArtifact source;
-    protected CommunicatorInterface communicator;
-    protected Message context;
-
-    protected Map<String, Supplier<? extends AbstractCommand>> commands;
-
+public class CommandBuilder extends AbstractCommandBuilder{
     public CommandBuilder(){
-        commands = new HashMap<>();
+        super();
 <#list asts as ast>
     <#assign commandPackage = helper.getPackage(ast)>
     <#list ast.getCommandList() as command>
@@ -31,28 +25,5 @@ public class CommandBuilder{
         commands.put("${name}", () -> new ${commandPackage}.${className}(context, communicator, source.getParameterList()));
     </#list>
 </#list>
-    }
-
-    public CommandBuilder setSource(ASTCallArtifact source){
-        this.source = source;
-        return this;
-    }
-
-    public CommandBuilder setCommunicator(CommunicatorInterface communicator){
-        this.communicator = communicator;
-        return this;
-    }
-
-    public CommandBuilder setContext(Message context){
-        this.context = context;
-        return this;
-    }
-
-    public AbstractCommand build() throws IllegalArgumentException, IllegalStateException{
-        checkNotNull(source);
-        checkNotNull(communicator);
-        checkNotNull(context);
-
-        return commands.get(source.getQualifiedName()).get();
     }
 }
