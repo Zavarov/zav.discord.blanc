@@ -33,4 +33,9 @@ public <#if existsHandwrittenClass>abstract </#if>class ${name} extends Abstract
 
         ${includeArgs("VariableInitialization", parameters)}
     }
+
+<#if !existsHandwrittenClass>
+    @Override
+    public void run(){}
+</#if>
 }
