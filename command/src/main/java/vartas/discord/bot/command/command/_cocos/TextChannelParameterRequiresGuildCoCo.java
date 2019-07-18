@@ -22,12 +22,14 @@ import vartas.discord.bot.command.parameter._ast.ASTTextChannel;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class TextChannelParameterRequiresGuildCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    public static final String ERROR_MESSAGE = "This command must be restricted to a guild if it has a textchannel as a parameter.";
+    public static final String ERROR_MESSAGE = "%s: The command must be restricted to a guild if it has a textchannel as a parameter.";
     protected boolean inGuild;
+    protected String name;
 
     @Override
     public void check(ASTCommand node) {
         inGuild = node.getCommandSymbol().requiresGuild();
+        name = node.getCommandSymbol().getClassName();
 
         node.accept(getRealThis());
     }
@@ -35,6 +37,6 @@ public class TextChannelParameterRequiresGuildCoCo implements CommandASTCommandC
     @Override
     public void visit(ASTTextChannel node){
         if(!inGuild)
-            Log.error(ERROR_MESSAGE);
+            Log.error(String.format(ERROR_MESSAGE, name));
     }
 }

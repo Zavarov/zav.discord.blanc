@@ -1,8 +1,8 @@
 package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import vartas.discord.bot.command.command._ast.ASTAttribute;
 import vartas.discord.bot.command.command._ast.ASTClassName;
+import vartas.discord.bot.command.command._ast.ASTCommand;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
 /*
@@ -21,16 +21,16 @@ import vartas.discord.bot.command.command._visitor.CommandVisitor;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class ExactlyOneClassNameAttributeCoCo implements CommandASTAttributeCoCo, CommandVisitor {
+public class ExactlyOneClassNameAttributeCoCo implements CommandASTCommandCoCo, CommandVisitor {
     protected int counter;
-    public static final String ERROR_MESSAGE = "The command must have exactly one class name attribute.";
+    public static final String ERROR_MESSAGE = "%s: The command must have exactly one class name attribute.";
     @Override
-    public void check(ASTAttribute node) {
+    public void check(ASTCommand node) {
         counter = 0;
         node.accept(getRealThis());
 
         if(counter != 1)
-            Log.error(ERROR_MESSAGE);
+            Log.error(String.format(ERROR_MESSAGE, node.getCommandSymbol().getClassName()));
     }
 
     @Override

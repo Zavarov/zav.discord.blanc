@@ -21,11 +21,11 @@ import vartas.discord.bot.command.command._symboltable.CommandSymbol;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class PermissionOnlyInGuildCoCo implements CommandASTCommandCoCo {
-    public static final String ERROR_MESSAGE = "A command that requires permissions must be restricted to a guild";
+    public static final String ERROR_MESSAGE = "%s: The command that requires permissions must be restricted to a guild";
     @Override
     public void check(ASTCommand node) {
         CommandSymbol symbol = node.getCommandSymbol();
         if(!symbol.requiresGuild() && symbol.getRequiredPermissions().size() > 0)
-            Log.error(ERROR_MESSAGE);
+            Log.error(String.format(ERROR_MESSAGE, node.getCommandSymbol().getClassName()));
     }
 }

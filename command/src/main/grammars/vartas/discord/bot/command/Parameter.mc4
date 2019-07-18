@@ -12,32 +12,32 @@ component grammar Parameter extends de.monticore.MCBasics{
     /*=========================================================*/
 
     symbol OnlineStatus implements ParameterType =
-        var:Name ":" name:"onlinestatus";
+        var:Name& ":" name:"onlinestatus";
 
     symbol String implements ParameterType =
-        var:Name ":" name:"string";
+        var:Name& ":" name:"string";
 
     symbol Date implements ParameterType =
-        var:Name ":" name:"date";
+        var:Name& ":" name:"date";
 
     symbol Message implements ParameterType =
-        var:Name ":" name:"message";
+        var:Name& ":" name:"message";
 
     symbol Guild implements ParameterType =
-        var:Name ":" name:"guild";
+        var:Name& ":" name:"guild";
 
     symbol Member implements ParameterType =
-        var:Name ":" name:"member";
+        var:Name& ":" name:"member";
 
     symbol User implements ParameterType =
-        var:Name ":" name:"user";
+        var:Name& ":" name:"user";
 
     symbol TextChannel implements ParameterType =
-        var:Name ":" name:"textchannel";
+        var:Name& ":" name:"textchannel";
 
     symbol Role implements ParameterType =
-        var:Name ":" name:"role";
+        var:Name& ":" name:"role";
 
     symbol Expression implements ParameterType =
-        var:Name ":" name:"expression";
+        var:Name& ":" name:"expression";
 }
