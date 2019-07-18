@@ -16,12 +16,17 @@
  */
 package vartas.discord.bot.api.environment;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
 import vartas.discord.bot.io.rank.RankConfiguration;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This interface is intended to be used as a tool to deal with the communicators
@@ -70,4 +75,15 @@ public interface EnvironmentInterface extends RedditInterface{
      * @return the bot that this guild belongs to. 
      */
     CommunicatorInterface communicator(long id);
+    /**
+     * Returns all JDAs that are registered in this environment.
+     */
+    List<JDA> jdas();
+    /**
+     * Returns all guilds that are registered in the environment.
+     * Since a guild only exists in a single shard, this means that the result will be an aggregation over all shards.
+     */
+    default List<Guild> guilds(){
+        return jdas().stream().map(JDA::getGuilds).flatMap(Collection::stream).collect(Collectors.toList());
+    }
 }
