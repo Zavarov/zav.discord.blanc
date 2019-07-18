@@ -17,11 +17,16 @@
 package vartas.discord.bot.api.communicator;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.RestAction;
 import vartas.discord.bot.api.environment.EnvironmentInterface;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * This interface is intended to hide the communication with the underlying
@@ -57,5 +62,29 @@ public interface CommunicatorInterface extends SendInterface, ActivityInterface,
      */
     default boolean isSelfUser(User user){
         return jda().getSelfUser().equals(user);
+    }
+
+    /**
+     * Completes the specified action and calls the consumer upon success or failure.
+     * @param <T> the return value of the action.
+     * @param action the action that is executed.
+     * @param success the consumer that is called when the action was executed successfully.
+     * @param failure  the consumer that is called when the action couldn't be executed.
+     */
+    @Override
+    default <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure){
+        execute(() -> action.queue(success, failure));
+    }
+    /**
+     * Sends a message in the specified channel and calls the consumer upon success or failure.
+     * @param channel the channel the message is sent to.
+     * @param message the message.
+     * @param success the consumer that is called when the message was sent successfully.
+     * @param failure  the consumer that is called when the message couldn't be sent.
+     */
+    @Override
+    default void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure) {
+        Message m = message.stripMentions(jda()).build();
+        send(channel.sendMessage(m),success,failure);
     }
 }
