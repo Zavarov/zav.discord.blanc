@@ -15,7 +15,7 @@ grammar Command extends de.monticore.MCBasics,
         "}";
 
     symbol scope Command =
-        Name& ("@" Restriction)* "{"
+        Name& ("@" (Restriction || ",")+ )? "{"
             Attribute*
         "}";
 
