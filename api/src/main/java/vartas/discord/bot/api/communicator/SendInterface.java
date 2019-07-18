@@ -80,8 +80,9 @@ public interface SendInterface {
      * Sends an image in the specified channel.
      * @param channel the channel the message is sent to.
      * @param image the image that is sent.
+     * @throws IllegalArgumentException in case the image couldn't be sent.
      */
-    default void send(MessageChannel channel, BufferedImage image){
+    default void send(MessageChannel channel, BufferedImage image) throws IllegalArgumentException{
         try{
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ImageIO.write(image, "png", output);
