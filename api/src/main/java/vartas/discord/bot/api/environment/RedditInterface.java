@@ -4,9 +4,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.reddit.CommentInterface;
 import vartas.reddit.SubmissionInterface;
 import vartas.reddit.SubredditInterface;
+import vartas.reddit.api.comment.CommentHelper;
+import vartas.reddit.api.submission.SubmissionHelper;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +33,10 @@ import java.util.Optional;
  */
 public interface RedditInterface {
     /**
+     * The formatter for dates.
+     */
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    /**
      * Uses the pushshift API to retrieve more than the past 1000 submissions.
      * @param subreddit the subreddit the submissions are from.
      * @param start the inclusively oldest submission in the interval.
@@ -48,34 +57,6 @@ public interface RedditInterface {
      */
     Optional<SubredditInterface> subreddit(String subreddit);
     /**
-     * @param date the date the submissions were submitted.
-     * @param subreddit the subreddit the submissions are from.
-     * @return a list of all submissions from that subreddit on that specific date.
-     */
-    List<? extends SubmissionInterface> loadSubmission(Instant date, String subreddit);
-    /**
-     * @param date the date the submissions were submitted.
-     * @param subreddit the subreddit the submissions are from
-     * @return a list of all comments in that subreddit during the specified date.
-     */
-    List<? extends CommentInterface> loadComment(Instant date, String subreddit);
-
-    /**
-     * Stores the comments on the disk.
-     * @param date the date the submissions were submitted.
-     * @param subreddit the subreddit the submissions are from
-     * @param comments the comments that are stored.
-     */
-    void storeComment(Instant date, String subreddit, Collection<? extends CommentInterface> comments);
-
-    /**
-     * Stores the comments on the disk.
-     * @param date the date the submissions were submitted.
-     * @param subreddit the subreddit the submissions are from
-     * @param submissions the submissions that are stored.
-     */
-    void storeSubmission(Instant date, String subreddit, Collection<? extends SubmissionInterface> submissions);
-    /**
      * Makes the program post submissions from the subreddit in the specified channel.
      * In addition, it will also update the guild configuration file to memorize the change.
      * @param subreddit the name of the subreddit.
@@ -89,4 +70,46 @@ public interface RedditInterface {
      * @param channel the channel that is removed from the set.
      */
     void remove(String subreddit, TextChannel channel);
+    /**
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from.
+     * @return a list of all submissions from that subreddit on that specific date.
+     */
+    static List<? extends SubmissionInterface> loadSubmission(Instant date, String subreddit){
+        String source = String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date)));
+        return SubmissionHelper.parse(source);
+    }
+    /**
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from
+     * @return a list of all comments in that subreddit during the specified date.
+     */
+    static List<? extends CommentInterface> loadComment(Instant date, String subreddit){
+        String source = String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date)));
+        return CommentHelper.parse(source);
+    }
+
+    /**
+     * Stores the comments on the disk.
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from
+     * @param comments the comments that are stored.
+     * @throws IllegalArgumentException if the comment couldn't be stored in the internal file.
+     */
+    static void storeComment(Instant date, String subreddit, Collection<? extends CommentInterface> comments) throws IllegalArgumentException{
+        File target = new File(String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date))));
+        CommentHelper.store(comments, target);
+    }
+
+    /**
+     * Stores the comments on the disk.
+     * @param date the date the submissions were submitted.
+     * @param subreddit the subreddit the submissions are from
+     * @param submissions the submissions that are stored.
+     * @throws IllegalArgumentException if the comment couldn't be stored in the internal file.
+     */
+    static void storeSubmission(Instant date, String subreddit, Collection<? extends SubmissionInterface> submissions) throws IllegalArgumentException{
+        File target = new File(String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date))));
+        SubmissionHelper.store(submissions, target);
+    }
 }
