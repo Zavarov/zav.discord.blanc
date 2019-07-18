@@ -106,4 +106,11 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
         symbol.setValue(node);
         addToScopeAndLinkWithNode(symbol, node);
     }
+
+    @Override
+    public void visit(ASTOnlineStatusType node){
+        OnlineStatusSymbol symbol = new OnlineStatusSymbol(command.getParameters().get(index).getVar());
+        symbol.setValue(node);
+        addToScopeAndLinkWithNode(symbol, node);
+    }
 }
