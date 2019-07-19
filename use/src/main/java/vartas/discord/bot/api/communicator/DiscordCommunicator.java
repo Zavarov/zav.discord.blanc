@@ -29,6 +29,9 @@ import vartas.discord.bot.api.threads.MessageTracker;
 import vartas.discord.bot.exec.AbstractCommandBuilder;
 
 import java.util.Collection;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The concrete implementation of the communicator.
@@ -108,5 +111,16 @@ public class DiscordCommunicator implements CommunicatorInterface {
     @Override
     public JDA jda(){
         return jda;
+    }
+
+    /**
+     * Attempts to shutdown all ongoing tasks.
+     * @return the result once all tasks have been finished.
+     */
+    @Override
+    public Future<?> shutdown() {
+        jda.shutdown();
+        executor.shutdown();
+        return new FutureTask<>(() -> executor.awaitTermination(1, TimeUnit.MINUTES));
     }
 }

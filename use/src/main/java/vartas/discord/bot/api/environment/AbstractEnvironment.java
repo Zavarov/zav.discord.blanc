@@ -37,6 +37,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -198,5 +201,20 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
     @Override
     public Optional<List<CommentInterface>> comment(SubmissionInterface submission) {
         return reddit.requestComment(submission.getId());
+    }
+    /**
+     * Attempts to shutdown all communicators.
+     * @return the result once all tasks have been finished.
+     */
+    @Override
+    public Future<?> shutdown(){
+        Runnable shutdown = () -> shards.stream().map(CommunicatorInterface::shutdown).forEach(future -> {
+            try{
+                future.get();
+            }catch(ExecutionException | InterruptedException e){
+                log.error(e.getMessage());
+            }
+        });
+        return new FutureTask<>(() -> shutdown);
     }
 }
