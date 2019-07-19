@@ -90,10 +90,7 @@ public class Main {
 
         GlobalScope scope = createGlobalScope();
 
-        List<ASTCommandArtifact> models = FileUtils.listFiles(modelFolder, new String[]{ CommandLanguage.COMMAND_FILE_ENDING}, false)
-                .stream()
-                .map(file -> CommandHelper.parse(scope, file.getPath()))
-                .collect(Collectors.toList());
+        List<ASTCommandArtifact> models = parseModels(modelFolder, scope);
 
         CommandCoCoChecker checker = CommandCoCos.getCheckerForAllCoCos();
 
@@ -116,8 +113,14 @@ public class Main {
         CommandGenerator.generate(ast, GENERATOR, targetPath);
     }
 
+    public static List<ASTCommandArtifact> parseModels(File modelFolder, GlobalScope scope){
+        return FileUtils.listFiles(modelFolder, new String[]{ CommandLanguage.COMMAND_FILE_ENDING}, false)
+            .stream()
+            .map(file -> CommandHelper.parse(scope, file.getPath()))
+            .collect(Collectors.toList());
+    }
 
-    private static GlobalScope createGlobalScope(){
+    public static GlobalScope createGlobalScope(){
         ModelPath path = new ModelPath(Paths.get(""));
         ModelingLanguage language = new CommandLanguage();
         return new GlobalScope(path, language);
