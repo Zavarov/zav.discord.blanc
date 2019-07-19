@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>bot</artifactId>
+        <groupId>vartas.discord</groupId>
+        <version>2.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>blanc</artifactId>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${command.templatePath}</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputDirectory>${command.templatePath}</outputDirectory>
+                            <classifier>templates</classifier>
+                            <includeGroupIds>${project.groupId}</includeGroupIds>
+                            <includeArtifactIds>command</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>vartas.discord.bot.command.Main</mainClass>
+                            <arguments>
+                                <argument>${command.modelPath}</argument>
+                                <argument>${command.templatePath}</argument>
+                                <argument>${command.targetPath}</argument>
+                                <argument>${command.outputPath}</argument>
+                                <argument>${command.packagePath}</argument>
+                            </arguments>
+                            <sourceRoot>${command.outputPath}</sourceRoot>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>vartas.discord.bot</groupId>
+            <artifactId>command</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.discord.bot</groupId>
+            <artifactId>use</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.discord.bot</groupId>
+            <artifactId>command</artifactId>
+            <classifier>templates</classifier>
+            <scope>provided</scope>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
