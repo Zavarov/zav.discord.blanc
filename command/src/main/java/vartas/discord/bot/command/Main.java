@@ -42,14 +42,9 @@ import java.util.stream.Collectors;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class Main {
-    private static final File OUTPUT_DIRECTORY = new File("target/generated-sources/monticore/sourcecode/").getAbsoluteFile();
-
     private static final String TEMPLATE_EXTENSION = "ftl";
 
     private static final String TARGET_EXTENSION = "java";
-    private static final File TARGET_DIRECTORY = new File("src/main/java").getAbsoluteFile();
-
-    private static final IterablePath TARGET_PATH = IterablePath.from(TARGET_DIRECTORY, TARGET_EXTENSION);
 
     private static final GlobalExtensionManagement GLEX = new GlobalExtensionManagement();
 
@@ -61,31 +56,37 @@ public class Main {
         GLEX.defineGlobalVar("helper", new CommandGeneratorHelper());
 
         SETUP.setGlex(GLEX);
-        SETUP.setOutputDirectory(OUTPUT_DIRECTORY);
     }
 
     /**
      * Generates the models specified in the arguments.
-     * There are at least three arguments required for this method:
+     * There are at least five arguments required for this method:
      * <ul>
      *     <li>The path to the models</li>
      *     <li>The path to the templates</li>
+     *     <li>The directory of the handwritten sources</li>
+     *     <li>The target directory of the generated sources</li>
      *     <li>The package name of the command builder</li>
      * </ul>
      *
-     * @param args
+     * @param args the arguments for generating the commands.
      */
     public static void main(String[] args){
-        Preconditions.checkArgument(args.length >= 3, "Please provide at least 3 arguments.");
-        Preconditions.checkArgument(new File(args[0]).exists(), "Please make sure that the model file exists");
-        Preconditions.checkArgument(new File(args[1]).exists(), "Please make sure that the template file exists");
+        Preconditions.checkArgument(args.length >= 4, "Please provide at least 5 arguments.");
+        Preconditions.checkArgument(new File(args[0]).exists(), args[0]+": Please make sure that the model file exists");
+        Preconditions.checkArgument(new File(args[1]).exists(), args[1]+": Please make sure that the template file exists");
+        Preconditions.checkArgument(new File(args[2]).exists(), args[2]+": Please make sure that the source file exists");
 
         File modelFolder = new File(args[0]).getAbsoluteFile();
         File templateFolder = new File(args[1]).getAbsoluteFile();
-        String packageName = args[2];
+        File targetDirectory = new File(args[2]).getAbsoluteFile();
+        File outputDirectory = new File(args[3]).getAbsoluteFile();
+        String packageName = args[4];
 
         IterablePath templatePath = IterablePath.from(templateFolder, TEMPLATE_EXTENSION);
+        IterablePath targetPath = IterablePath.from(targetDirectory, TARGET_EXTENSION);
         SETUP.setAdditionalTemplatePaths(templatePath.getPaths().stream().map(Path::toFile).collect(Collectors.toList()));
+        SETUP.setOutputDirectory(outputDirectory);
 
         GlobalScope scope = createGlobalScope();
 
@@ -98,7 +99,7 @@ public class Main {
 
         models.forEach(checker::checkAll);
 
-        generateCommands(models, scope);
+        generateCommands(models, scope, targetPath);
         generateCommandBuilder(models, scope, packageName);
     }
 
@@ -107,12 +108,12 @@ public class Main {
     }
 
 
-    private static void generateCommands(Collection<ASTCommandArtifact> models, GlobalScope scope){
-        models.forEach(model -> generateCommands(model, scope));
+    private static void generateCommands(Collection<ASTCommandArtifact> models, GlobalScope scope, IterablePath targetPath){
+        models.forEach(model -> generateCommands(model, scope, targetPath));
     }
 
-    private static void generateCommands(ASTCommandArtifact ast, GlobalScope scope){
-        CommandGenerator.generate(ast, GENERATOR, TARGET_PATH);
+    private static void generateCommands(ASTCommandArtifact ast, GlobalScope scope, IterablePath targetPath){
+        CommandGenerator.generate(ast, GENERATOR, targetPath);
     }
 
 
