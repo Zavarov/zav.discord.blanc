@@ -37,7 +37,7 @@ public interface CommunicatorInterface extends SendInterface, ActivityInterface,
     /**
      * The executor that deals with all asynchronous processes.
      */
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    ExecutorService executor = Executors.newCachedThreadPool();
     /**
      * Schedules a runnable to be executed and some unspecific point in time.
      * @param runnable the runnable that is going to be executed.
