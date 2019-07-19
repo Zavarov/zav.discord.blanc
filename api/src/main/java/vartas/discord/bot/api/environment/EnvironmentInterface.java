@@ -20,12 +20,15 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.utils.JDALogger;
+import org.slf4j.Logger;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
 import vartas.discord.bot.io.rank.RankConfiguration;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +36,10 @@ import java.util.stream.Collectors;
  * for each shard.
  */
 public interface EnvironmentInterface extends RedditInterface{
+    /**
+     * The logger for the environment.
+     */
+    Logger log = JDALogger.getLog(EnvironmentInterface.class.getSimpleName());
     /**
      * @return the configuration file.
      */
@@ -86,4 +93,9 @@ public interface EnvironmentInterface extends RedditInterface{
     default List<Guild> guilds(){
         return jdas().stream().map(JDA::getGuilds).flatMap(Collection::stream).collect(Collectors.toList());
     }
+    /**
+     * Attempts to shutdown all communicators.
+     * @return the result once all tasks have been finished.
+     */
+    Future<?> shutdown();
 }
