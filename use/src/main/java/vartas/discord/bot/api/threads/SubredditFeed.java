@@ -137,16 +137,12 @@ public class SubredditFeed{
                         environment.communicator(channel).send(channel, submission);
                     }catch(InsufficientPermissionException e){
                         log.warn("Couldn't send a submission from "+subreddit, e);
-                        mutex.acquireUninterruptibly();
                         environment.communicator(channel).execute(() -> environment.remove(subreddit, channel));
-                        mutex.release();
                     }catch(ErrorResponseException e){
                         log.warn("Couldn't send a submission from "+subreddit, e);
                         ErrorResponse response = e.getErrorResponse();
                         if(response == ErrorResponse.UNKNOWN_GUILD || response == ErrorResponse.UNKNOWN_CHANNEL) {
-                            mutex.acquireUninterruptibly();
                             environment.communicator(channel).execute(() -> environment.remove(subreddit, channel));
-                            mutex.release();
                         }
                     }
                 }
