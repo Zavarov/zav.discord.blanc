@@ -82,7 +82,7 @@ public class RedditInterfaceTest {
     public void testStoreComment() throws ParseException{
         assertThat(new File("pushshift/subreddit/2001-01-01.com")).doesNotExist();
 
-        List<? extends CommentInterface> comments = RedditInterface.loadComment(dateFormat.parse("2000-01-01").toInstant(), "subreddit");
+        List<CommentInterface> comments = RedditInterface.loadComment(dateFormat.parse("2000-01-01").toInstant(), "subreddit");
 
         RedditInterface.storeComment(dateFormat.parse("2001-01-01").toInstant(), "subreddit", comments);
 
@@ -93,7 +93,7 @@ public class RedditInterfaceTest {
     public void testStoreSubmission() throws ParseException{
         assertThat(new File("pushshift/subreddit/2001-01-01.sub")).doesNotExist();
 
-        List<? extends SubmissionInterface> submissions = RedditInterface.loadSubmission(dateFormat.parse("2000-01-01").toInstant(), "subreddit");
+        List<SubmissionInterface> submissions = RedditInterface.loadSubmission(dateFormat.parse("2000-01-01").toInstant(), "subreddit");
 
         RedditInterface.storeSubmission(dateFormat.parse("2001-01-01").toInstant(), "subreddit", submissions);
 

@@ -13,10 +13,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -57,6 +54,34 @@ public interface RedditInterface {
      */
     Optional<List<SubmissionInterface>> submission(String subreddit, Instant start, Instant end);
     /**
+     * @param subreddit the subreddit the submissions are from.
+     * @param start the inclusively oldest submission in the interval.
+     * @param end the inclusively newest submission in the interval.
+     * @param submission the submission the comments are requested from.
+     * @return the comments of the submission.
+     */
+    Optional<List<CommentInterface>> comment(String subreddit, Instant start, Instant end, SubmissionInterface submission);
+    /**
+     * @param subreddit the subreddit the submissions are from.
+     * @param start the inclusively oldest submission in the interval.
+     * @param end the inclusively newest submission in the interval.
+     * @param submissions a collection of submissions the comments are requested from.
+     * @return the comments of the submissions.
+     */
+    default Optional<List<CommentInterface>> comment(String subreddit, Instant start, Instant end, Collection<SubmissionInterface> submissions){
+        List<CommentInterface> comments = new ArrayList<>();
+        Optional<List<CommentInterface>> comment;
+        for(SubmissionInterface submission : submissions){
+            comment = comment(subreddit, start, end, submission);
+            if(comment.isPresent())
+                comments.addAll(comment.get());
+            else
+                return Optional.empty();
+        }
+        return Optional.of(comments);
+    }
+
+    /**
      * @param subreddit the name of the subreddit.
      * @return the subreddit instance with that name.
      */
@@ -80,7 +105,7 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from.
      * @return a list of all submissions from that subreddit on that specific date.
      */
-    static List<? extends SubmissionInterface> loadSubmission(Instant date, String subreddit){
+    static List<SubmissionInterface> loadSubmission(Instant date, String subreddit){
         String source = String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date)));
         return SubmissionHelper.parse(source);
     }
@@ -107,7 +132,7 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from
      * @return a list of all comments in that subreddit during the specified date.
      */
-    static List<? extends CommentInterface> loadComment(Instant date, String subreddit){
+    static List<CommentInterface> loadComment(Instant date, String subreddit){
         String source = String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date)));
         return CommentHelper.parse(source);
     }
@@ -148,7 +173,7 @@ public interface RedditInterface {
      * @param comments the comments that are stored.
      * @throws IllegalArgumentException if the comment couldn't be stored in the internal file.
      */
-    static void storeComment(Instant date, String subreddit, Collection<? extends CommentInterface> comments) throws IllegalArgumentException{
+    static void storeComment(Instant date, String subreddit, Collection<CommentInterface> comments) throws IllegalArgumentException{
         File target = new File(String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date))));
         CommentHelper.store(comments, target);
     }
@@ -160,7 +185,7 @@ public interface RedditInterface {
      * @param submissions the submissions that are stored.
      * @throws IllegalArgumentException if the comment couldn't be stored in the internal file.
      */
-    static void storeSubmission(Instant date, String subreddit, Collection<? extends SubmissionInterface> submissions) throws IllegalArgumentException{
+    static void storeSubmission(Instant date, String subreddit, Collection<SubmissionInterface> submissions) throws IllegalArgumentException{
         File target = new File(String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date))));
         SubmissionHelper.store(submissions, target);
     }
