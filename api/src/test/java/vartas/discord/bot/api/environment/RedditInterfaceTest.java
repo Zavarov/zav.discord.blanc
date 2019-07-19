@@ -106,4 +106,11 @@ public class RedditInterfaceTest {
         Instant until = dateFormat.parse("2000-01-02").toInstant();
         assertThat(RedditInterface.countDays(from, until)).isEqualTo(2);
     }
+
+    @Test
+    public void testListRequestedDates() throws ParseException{
+        Instant from = dateFormat.parse("2000-01-01").toInstant();
+        Instant until = dateFormat.parse("2000-01-02").toInstant();
+        assertThat(RedditInterface.listRequestedDates("subreddit", from, until)).containsExactly(from);
+    }
 }

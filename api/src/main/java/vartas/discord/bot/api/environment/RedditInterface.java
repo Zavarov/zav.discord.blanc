@@ -183,4 +183,24 @@ public interface RedditInterface {
         File target = new File(String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date))));
         SubmissionHelper.store(submissions, target);
     }
+
+    /**
+     * @param subreddit the subreddit in question.
+     * @param from the start of the interval.
+     * @param until the inclusive end of the interval
+     * @return all dates for which data is present
+     */
+    static List<Instant> listRequestedDates(String subreddit, Instant from, Instant until){
+        List<Instant> timestamps = new ArrayList<>((int)countDays(from, until));
+        File file;
+
+        //Visit all days including the last day
+        while(!from.isAfter(until)){
+            file = new File(String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(from))));
+            if(file.exists())
+                timestamps.add(from);
+            from = from.plus(1, DAYS);
+        }
+        return timestamps;
+    }
 }
