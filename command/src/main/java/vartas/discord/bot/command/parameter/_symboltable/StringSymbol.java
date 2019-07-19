@@ -2,8 +2,6 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import vartas.discord.bot.command.entity._ast.ASTStringType;
 
-import java.util.Optional;
-
 /*
  * Copyright (C) 2019 Zavarov
  *
@@ -35,7 +33,7 @@ public class StringSymbol extends StringSymbolTOP{
         return ast;
     }
 
-    public Optional<String> resolve(){
-        return Optional.of(ast.getStringLiteral().getValue());
+    public String resolve(){
+        return ast.getStringLiteral().getValue();
     }
 }
