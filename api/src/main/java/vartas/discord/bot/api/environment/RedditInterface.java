@@ -1,7 +1,7 @@
 package vartas.discord.bot.api.environment;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ListMultimap;
 import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.reddit.CommentInterface;
 import vartas.reddit.SubmissionInterface;
@@ -89,8 +89,8 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from.
      * @return a list of all submissions from that subreddit within the given interval.
      */
-    static Multimap<Instant, SubmissionInterface> loadSubmission(Instant from, Instant until, String subreddit){
-        Multimap<Instant, SubmissionInterface> submissions = ArrayListMultimap.create();
+    static ListMultimap<Instant, SubmissionInterface> loadSubmission(Instant from, Instant until, String subreddit){
+        ListMultimap<Instant, SubmissionInterface> submissions = ArrayListMultimap.create();
         Instant current = from;
 
         //Visit all days including the last day
@@ -116,8 +116,8 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from.
      * @return a list of all comments from that subreddit within the given interval.
      */
-    static Multimap<Instant, CommentInterface> loadComment(Instant from, Instant until, String subreddit){
-        Multimap<Instant, CommentInterface> comments = ArrayListMultimap.create();
+    static ListMultimap<Instant, CommentInterface> loadComment(Instant from, Instant until, String subreddit){
+        ListMultimap<Instant, CommentInterface> comments = ArrayListMultimap.create();
         Instant current = from;
 
         //Visit all days including the last day
