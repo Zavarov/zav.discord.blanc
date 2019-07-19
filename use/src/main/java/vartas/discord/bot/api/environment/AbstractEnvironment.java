@@ -26,6 +26,7 @@ import vartas.discord.bot.exec.AbstractCommandBuilder;
 import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
 import vartas.discord.bot.io.rank.RankConfiguration;
 import vartas.discord.bot.io.rank.RankHelper;
+import vartas.reddit.CommentInterface;
 import vartas.reddit.SubmissionInterface;
 import vartas.reddit.SubredditInterface;
 import vartas.reddit.UnresolvableRequestException;
@@ -189,5 +190,13 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
     @Override
     public RankConfiguration rank() {
         return permission;
+    }
+    /**
+     * @param submission the submission the comments are requested from.
+     * @return the comments of the submission.
+     */
+    @Override
+    public Optional<List<CommentInterface>> comment(SubmissionInterface submission) {
+        return reddit.requestComment(submission.getId());
     }
 }

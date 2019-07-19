@@ -28,7 +28,6 @@ import vartas.discord.bot.api.communicator.DiscordCommunicator;
 import vartas.discord.bot.exec.AbstractCommandBuilder;
 import vartas.discord.bot.io.config.ConfigHelper;
 import vartas.discord.bot.io.guild._symboltable.GuildLanguage;
-import vartas.discord.bot.io.rank.RankConfiguration;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -110,10 +109,5 @@ public class DiscordEnvironment extends AbstractEnvironment{
                 .useSharding(shard, config().getDiscordShards())
                 .build()
                 .awaitStatus(JDA.Status.CONNECTED);
-    }
-
-    @Override
-    public RankConfiguration rank() {
-        return null;
     }
 }
