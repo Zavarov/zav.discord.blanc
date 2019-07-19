@@ -1,6 +1,5 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
-import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.command.entity._ast.ASTStringType;
 
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class StringSymbol extends StringSymbolTOP{
         return ast;
     }
 
-    public Optional<String> resolve(Message context){
+    public Optional<String> resolve(){
         return Optional.of(ast.getStringLiteral().getValue());
     }
 }

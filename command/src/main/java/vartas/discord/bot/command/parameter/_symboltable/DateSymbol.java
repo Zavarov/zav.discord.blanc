@@ -1,6 +1,5 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
-import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.command.entity._ast.ASTDateType;
 
 import java.text.ParseException;
@@ -44,7 +43,7 @@ public class DateSymbol extends DateSymbolTOP{
         return ast;
     }
 
-    public Optional<Date> resolve(Message context){
+    public Optional<Date> resolve(){
         try{
             Date date = dateFormat.parse(String.format("%2d-%2d-%4d", ast.getDay().getValue(), ast.getMonth().getValue(), ast.getYear().getValue()));
             return Optional.of(date);

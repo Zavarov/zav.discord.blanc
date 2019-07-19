@@ -1,6 +1,5 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
-import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.command.entity._ast.ASTIntervalType;
 import vartas.reddit.chart.line.AbstractChart.Interval;
 
@@ -38,7 +37,7 @@ public class IntervalSymbol extends IntervalSymbolTOP{
         return ast;
     }
 
-    public Optional<Interval> resolve(Message context){
+    public Optional<Interval> resolve(){
         try{
             return Optional.of(Interval.valueOf(ast.getInterval().toUpperCase(Locale.ENGLISH)));
         //Thrown when there is no interval with the specified name

@@ -1,7 +1,6 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.command.entity._ast.ASTExpressionType;
 
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class ExpressionSymbol extends ExpressionSymbolTOP{
         return ast;
     }
 
-    public Optional<ASTExpression> resolve(Message context){
+    public Optional<ASTExpression> resolve(){
         return Optional.of(ast.getExpression());
     }
 }

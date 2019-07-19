@@ -1,7 +1,6 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.command.entity._ast.ASTOnlineStatusType;
 
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
         return ast;
     }
 
-    public Optional<OnlineStatus> resolve(Message context){
+    public Optional<OnlineStatus> resolve(){
         switch(ast.getStatus()){
             case "online":
                 return Optional.of(OnlineStatus.ONLINE);
