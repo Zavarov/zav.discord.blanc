@@ -3,8 +3,8 @@ package vartas.discord.bot.command;
 /**
  * This grammar defines the syntax of the parameter specified in Parameter.mc4.
  */
-component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNumbers, de.monticore.expressions.CommonExpressions, de.monticore.expressions.ExpressionsBasis{
-    ExtLiteral = Literal;
+component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expressions.CommonExpressions, de.monticore.expressions.ExpressionsBasis{
+    ExtLiteral = SignedLiteral;
 
     interface EntityType;
 
@@ -29,9 +29,9 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNu
     /*=========================================================*/
 
     DateType implements EntityType =
-          day:Decimal "-"
-        month:Decimal "-"
-         year:Decimal
+          day:NatLiteral "-"
+        month:NatLiteral "-"
+         year:NatLiteral
     ;
 
     /*=========================================================*/
@@ -39,36 +39,36 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNu
     /*=========================================================*/
 
     MessageType implements EntityType =
-        id:Decimal
+        id:BasicLongLiteral
     ;
 
     GuildType implements EntityType =
-          id:Decimal         |
+          id:BasicLongLiteral                |
         name:StringLiteral
     ;
 
     MemberType implements EntityType =
-          id:Decimal         |
-        name:StringLiteral   |
-        "<" "@" "!"? id:Decimal ">"
+          id:BasicLongLiteral                |
+        name:StringLiteral          |
+        "<" "@" "!"? id:BasicLongLiteral ">"
     ;
 
     UserType implements EntityType =
-          id:Decimal         |
-        name:StringLiteral   |
-        "<" "@" id:Decimal ">"
+          id:BasicLongLiteral                |
+        name:StringLiteral          |
+        "<" "@" id:BasicLongLiteral ">"
     ;
 
     TextChannelType implements EntityType =
-          id:Decimal         |
-        name:StringLiteral   |
-        "<" "#" id:Decimal ">"
+          id:BasicLongLiteral                |
+        name:StringLiteral          |
+        "<" "#" id:BasicLongLiteral ">"
     ;
 
     RoleType implements EntityType =
-          id:Decimal         |
-        name:StringLiteral   |
-        "<" "@" "&" id:Decimal ">"
+          id:BasicLongLiteral                |
+        name:StringLiteral          |
+        "<" "@" "&" id:BasicLongLiteral ">"
     ;
 
     /*=========================================================*/
@@ -79,7 +79,77 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.MCNu
         Expression
     ;
 
-    RollExpression implements Expression =
-        count:Decimal "d" dice:Decimal
+    interface SingleArgument = Expression;
+
+    AtArgument implements SingleArgument =
+        "@" Expression
+    ;
+
+    BracketArgument implements SingleArgument =
+        "(" Expression ")"
+    ;
+
+    PowExpression implements Expression <185> =
+        Expression operator:"^" amount:SignedNatLiteral
+    ;
+
+    RandomNumberExpression implements Expression <250> =
+        "random" "(" dice:Expression "," eyes:Expression ")"
+    ;
+
+    AbsExpression implements Expression <250> =
+        "abs" argument:SingleArgument
+    ;
+
+    ACosExpression implements Expression <250> =
+        "acos" argument:SingleArgument
+    ;
+
+    ASinExpression implements Expression <250> =
+        "asin" argument:SingleArgument
+    ;
+
+    ATanExpression implements Expression <250> =
+        "atan" argument:SingleArgument
+    ;
+
+    CeilExpression implements Expression <250> =
+        "ceil" argument:SingleArgument
+    ;
+
+    CosExpression implements Expression <250> =
+        "cos" argument:SingleArgument
+    ;
+
+    FloorExpression implements Expression <250> =
+        "floor" argument:SingleArgument
+    ;
+
+    LogExpression implements Expression <250> =
+        "log" argument:SingleArgument
+    ;
+
+    LnExpression implements Expression <250> =
+        "ln" argument:SingleArgument
+    ;
+
+    MaxExpression implements Expression <250> =
+        "max" "(" left:Expression "," right:Expression ")"
+    ;
+
+    MinExpression implements Expression <250> =
+        "min" "(" left:Expression "," right:Expression ")"
+    ;
+
+    SinExpression implements Expression <250> =
+        "sin" argument:SingleArgument
+    ;
+
+    SqrtExpression implements Expression <250> =
+        "sqrt" argument:SingleArgument
+    ;
+
+    TanExpression implements Expression <250> =
+        "tan" argument:SingleArgument
     ;
 }
