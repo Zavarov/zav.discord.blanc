@@ -54,25 +54,19 @@ public interface RedditInterface {
      */
     Optional<List<SubmissionInterface>> submission(String subreddit, Instant start, Instant end);
     /**
-     * @param subreddit the subreddit the submissions are from.
-     * @param start the inclusively oldest submission in the interval.
-     * @param end the inclusively newest submission in the interval.
      * @param submission the submission the comments are requested from.
      * @return the comments of the submission.
      */
-    Optional<List<CommentInterface>> comment(String subreddit, Instant start, Instant end, SubmissionInterface submission);
+    Optional<List<CommentInterface>> comment(SubmissionInterface submission);
     /**
-     * @param subreddit the subreddit the submissions are from.
-     * @param start the inclusively oldest submission in the interval.
-     * @param end the inclusively newest submission in the interval.
      * @param submissions a collection of submissions the comments are requested from.
      * @return the comments of the submissions.
      */
-    default Optional<List<CommentInterface>> comment(String subreddit, Instant start, Instant end, Collection<SubmissionInterface> submissions){
+    default Optional<List<CommentInterface>> comment(Collection<SubmissionInterface> submissions){
         List<CommentInterface> comments = new ArrayList<>();
         Optional<List<CommentInterface>> comment;
         for(SubmissionInterface submission : submissions){
-            comment = comment(subreddit, start, end, submission);
+            comment = comment(submission);
             if(comment.isPresent())
                 comments.addAll(comment.get());
             else
