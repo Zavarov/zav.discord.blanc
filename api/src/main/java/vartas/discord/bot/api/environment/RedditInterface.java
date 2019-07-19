@@ -10,10 +10,9 @@ import vartas.reddit.api.submission.SubmissionHelper;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /*
  * Copyright (C) 2019 Zavarov
@@ -80,6 +79,24 @@ public interface RedditInterface {
         return SubmissionHelper.parse(source);
     }
     /**
+     * @param from the start of the interval.
+     * @param until the inclusive end of the interval
+     * @param subreddit the subreddit the submissions are from.
+     * @return a list of all submissions from that subreddit within the given interval.
+     */
+    static List<SubmissionInterface> loadSubmission(Instant from, Instant until, String subreddit){
+        Instant current = from;
+        List<SubmissionInterface> submissions = new ArrayList<>();
+
+        //Visit all days including the last day
+        while(!current.isAfter(until)){
+            submissions.addAll(loadSubmission(current, subreddit));
+            current = current.plus(1, DAYS);
+        }
+
+        return submissions;
+    }
+    /**
      * @param date the date the submissions were submitted.
      * @param subreddit the subreddit the submissions are from
      * @return a list of all comments in that subreddit during the specified date.
@@ -87,6 +104,24 @@ public interface RedditInterface {
     static List<? extends CommentInterface> loadComment(Instant date, String subreddit){
         String source = String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date)));
         return CommentHelper.parse(source);
+    }
+    /**
+     * @param from the start of the interval.
+     * @param until the inclusive end of the interval
+     * @param subreddit the subreddit the submissions are from.
+     * @return a list of all comments from that subreddit within the given interval.
+     */
+    static List<CommentInterface> loadComment(Instant from, Instant until, String subreddit){
+        Instant current = from;
+        List<CommentInterface> comments = new ArrayList<>();
+
+        //Visit all days including the last day
+        while(!current.isAfter(until)){
+            comments.addAll(loadComment(current, subreddit));
+            current = current.plus(1, DAYS);
+        }
+
+        return comments;
     }
 
     /**
