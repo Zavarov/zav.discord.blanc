@@ -3,7 +3,7 @@ ${signature("parameters")}
         <#assign var = parameter.getVar()>
         <#assign index = parameter?index>
         <#assign symbol = parameter.getSymbol().getClass().getSimpleName()>
-        this.${var} = parameters
+        this.${var}Symbol = parameters
                     .get(${index})
                     .getEnclosingScope()
                     .<${symbol}>resolve("${var}", ${symbol}.KIND)

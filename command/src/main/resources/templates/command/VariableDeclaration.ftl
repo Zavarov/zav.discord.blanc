@@ -1,4 +1,4 @@
 ${signature("parameters")}
 <#list parameters as parameter>
-    protected ${parameter.getSymbol().getClass().getSimpleName()} ${parameter.getVar()};
+    protected ${parameter.getSymbol().getClass().getSimpleName()} ${parameter.getVar()}Symbol;
 </#list>
