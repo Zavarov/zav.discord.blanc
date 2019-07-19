@@ -1,4 +1,12 @@
-${signature("parameters")}
+${signature("parameters","symbol")}
+<#if symbol.requiresGuild()>
+        this.config = communicator.config(source.getGuild());
+        this.guild = source.getGuild();
+        this.member = source.getMember();
+        this.channel = source.getTextChannel();
+<#else>
+        this.channel = source.getChannel();
+</#if>
 <#list parameters as parameter>
         <#assign var = parameter.getVar()>
         <#assign index = parameter?index>
