@@ -1,5 +1,7 @@
 package vartas.discord.bot.api.environment;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.reddit.CommentInterface;
 import vartas.reddit.SubmissionInterface;
@@ -10,7 +12,10 @@ import vartas.reddit.api.submission.SubmissionHelper;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -84,13 +89,13 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from.
      * @return a list of all submissions from that subreddit within the given interval.
      */
-    static List<SubmissionInterface> loadSubmission(Instant from, Instant until, String subreddit){
+    static Multimap<Instant, SubmissionInterface> loadSubmission(Instant from, Instant until, String subreddit){
+        Multimap<Instant, SubmissionInterface> submissions = ArrayListMultimap.create();
         Instant current = from;
-        List<SubmissionInterface> submissions = new ArrayList<>();
 
         //Visit all days including the last day
         while(!current.isAfter(until)){
-            submissions.addAll(loadSubmission(current, subreddit));
+            submissions.putAll(current, loadSubmission(current, subreddit));
             current = current.plus(1, DAYS);
         }
 
@@ -111,13 +116,13 @@ public interface RedditInterface {
      * @param subreddit the subreddit the submissions are from.
      * @return a list of all comments from that subreddit within the given interval.
      */
-    static List<CommentInterface> loadComment(Instant from, Instant until, String subreddit){
+    static Multimap<Instant, CommentInterface> loadComment(Instant from, Instant until, String subreddit){
+        Multimap<Instant, CommentInterface> comments = ArrayListMultimap.create();
         Instant current = from;
-        List<CommentInterface> comments = new ArrayList<>();
 
         //Visit all days including the last day
         while(!current.isAfter(until)){
-            comments.addAll(loadComment(current, subreddit));
+            comments.putAll(current, loadComment(current, subreddit));
             current = current.plus(1, DAYS);
         }
 
