@@ -11,6 +11,7 @@ import vartas.reddit.api.submission.SubmissionHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -127,6 +128,17 @@ public interface RedditInterface {
         }
 
         return comments;
+    }
+
+    /**
+     * Counts the number of days in the interval.
+     * @param from the start of the interval.
+     * @param until the inclusive end of the interval
+     * @return the number of days it takes to get from the start to the end of the interval.
+     */
+    static long countDays(Instant from, Instant until){
+        //In Duration.between the end is exclusive
+        return Duration.between(from, until).plusDays(1).toDays();
     }
 
     /**

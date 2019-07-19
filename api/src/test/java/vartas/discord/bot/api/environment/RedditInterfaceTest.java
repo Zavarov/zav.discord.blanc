@@ -8,6 +8,7 @@ import vartas.reddit.SubmissionInterface;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -97,5 +98,12 @@ public class RedditInterfaceTest {
         RedditInterface.storeSubmission(dateFormat.parse("2001-01-01").toInstant(), "subreddit", submissions);
 
         assertThat(new File("pushshift/subreddit/2001-01-01.sub")).exists();
+    }
+
+    @Test
+    public void testCountDays() throws ParseException{
+        Instant from = dateFormat.parse("2000-01-01").toInstant();
+        Instant until = dateFormat.parse("2000-01-02").toInstant();
+        assertThat(RedditInterface.countDays(from, until)).isEqualTo(2);
     }
 }
