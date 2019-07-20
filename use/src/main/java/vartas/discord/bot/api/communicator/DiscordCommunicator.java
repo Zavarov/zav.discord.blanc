@@ -121,6 +121,7 @@ public class DiscordCommunicator implements CommunicatorInterface {
     public Future<?> shutdown() {
         jda.shutdown();
         executor.shutdown();
+        log.info("Shutting down shard "+jda.getShardInfo().getShardString()+".");
         return new FutureTask<>(() -> executor.awaitTermination(1, TimeUnit.MINUTES));
     }
 }

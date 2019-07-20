@@ -215,6 +215,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
                 log.error(e.getMessage());
             }
         });
+        log.info("Shutting down the environment.");
         return new FutureTask<>(() -> shutdown);
     }
 }
