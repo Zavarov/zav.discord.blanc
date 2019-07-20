@@ -22,10 +22,13 @@ import vartas.discord.bot.api.environment.RedditInterface;
 import vartas.discord.bot.api.message.InteractiveMessage;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,21 +48,47 @@ public class MemoryCommand extends MemoryCommandTOP{
         Instant to = toSymbol.resolve().get().toInstant();
         String subreddit = subredditSymbol.resolve();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE, MMM d, ''yy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM ''yy", Locale.ENGLISH);
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, communicator);
 
-        List<String> dates = RedditInterface.listRequestedDates(subreddit, from, to)
+        //Group all stored files by the month
+        Map<YearMonth, List<Instant>> dates = RedditInterface
+                .listRequestedDates(subreddit, from, to)
                 .stream()
-                .map(Date::from)
-                .map(formatter::format)
-                .collect(Collectors.toList());
+                .collect(Collectors.groupingBy(this::getStartOfMonth));
         
         if(dates.isEmpty()){
             communicator.send(channel, "No data in the given interval has been requested so far.");
         }else{
-            builder.addDescription("All stored data over the given interval.");
-            builder.addLines(dates, 20);
-            communicator.send(builder.build());
+            //Print all files of a month on one page
+            for(Map.Entry<YearMonth, List<Instant>> entry : dates.entrySet()){
+                YearMonth month = entry.getKey();
+
+                builder.addDescription(entry.getKey().format(formatter));
+
+                for(int week = 0 ; week < month.lengthOfMonth() ; week += 7){
+
+                    StringBuilder line = new StringBuilder();
+                    line.append("`");
+                    for(int day = week ; day < Math.min(month.lengthOfMonth(), week+7) ; day++){
+                        //Add a space between each day
+                        if(day > week)
+                            line.append(" ");
+                        //All days have two characters
+                        line.append(String.format("%02d", day+1));
+
+                    }
+                    line.append("`");
+                    builder.addLine(line.toString());
+                }
+
+                builder.nextPage();
+            }
         }
+        communicator.send(builder.build());
+    }
+
+    private YearMonth getStartOfMonth(Instant date){
+        return YearMonth.from(date.atZone(ZoneId.of("UTC")).toLocalDate());
     }
 }
