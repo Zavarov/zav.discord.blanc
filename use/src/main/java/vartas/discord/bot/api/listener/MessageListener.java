@@ -185,10 +185,24 @@ public class MessageListener extends ListenerAdapter {
             try {
                 ASTCallArtifact source = CallHelper.parse(commands, getContent(message));
                 AbstractCommand command = builder.setContext(message).setSource(source).build();
-                communicator.execute(command);
+
+                //Wrap the command in a runnable that notifies us about any uncaught exception.
+                Runnable runnable = () -> {
+                    try{
+                        command.run();
+                    }catch(Exception e){
+                        String error = e.getClass().getSimpleName() + ": " + e.getMessage();
+                        log.error(error);
+                        communicator.send(message.getChannel(), error);
+                    }
+                };
+
+                communicator.execute(runnable);
                 log.info("Executed "+command.getClass().getSimpleName());
             }catch(RuntimeException e){
-                communicator.send(message.getChannel(), e.getClass().getSimpleName() + ": " + e.getMessage());
+                String error = e.getClass().getSimpleName() + ": " + e.getMessage();
+                log.error(error);
+                communicator.send(message.getChannel(), error);
             }
         }
     }
