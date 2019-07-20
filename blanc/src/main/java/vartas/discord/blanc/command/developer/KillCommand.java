@@ -22,7 +22,6 @@ import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * This command terminates the whole instance by halting all threads.
@@ -37,12 +36,10 @@ public class KillCommand extends KillCommandTOP{
      */
     @Override
     public void run(){
-        try {
-            environment.shutdown().get();
-        }catch(ExecutionException | InterruptedException e){
-            log.error(e.getMessage());
-        }finally {
+        //Don't wait for all commands to finish while still being in a command.
+        new Thread(() -> {
+            environment.shutdown().run();
             System.exit(0);
-        }
+        }).start();
     }
 }

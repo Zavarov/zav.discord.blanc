@@ -28,7 +28,6 @@ import vartas.discord.bot.api.environment.EnvironmentInterface;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 /**
@@ -96,8 +95,8 @@ public interface CommunicatorInterface extends SendInterface, ActivityInterface,
     }
 
     /**
-     * Attempts to shutdown all ongoing tasks.
-     * @return the result once all tasks have been finished.
+     * Attempts to shutdown the current shard.
+     * @return the task that will await the shutdown of this shard.
      */
-    Future<?> shutdown();
+    Runnable shutdown();
 }

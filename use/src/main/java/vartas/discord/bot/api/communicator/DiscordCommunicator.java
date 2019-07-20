@@ -29,8 +29,6 @@ import vartas.discord.bot.api.threads.MessageTracker;
 import vartas.discord.bot.exec.AbstractCommandBuilder;
 
 import java.util.Collection;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -114,14 +112,20 @@ public class DiscordCommunicator implements CommunicatorInterface {
     }
 
     /**
-     * Attempts to shutdown all ongoing tasks.
-     * @return the result once all tasks have been finished.
+     * Attempts to shutdown the current shard.
+     * @return the task that will await the shutdown of this shard.
      */
     @Override
-    public Future<?> shutdown() {
+    public Runnable shutdown() {
         jda.shutdown();
         executor.shutdown();
         log.info("Shutting down shard "+jda.getShardInfo().getShardString()+".");
-        return new FutureTask<>(() -> executor.awaitTermination(1, TimeUnit.MINUTES));
+        return () -> {
+            try{
+                executor.awaitTermination(1, TimeUnit.MINUTES);
+            }catch(InterruptedException e){
+                log.error(e.getMessage());
+            }
+        };
     }
 }

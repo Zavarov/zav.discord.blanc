@@ -28,7 +28,6 @@ import vartas.discord.bot.io.rank.RankConfiguration;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -95,7 +94,7 @@ public interface EnvironmentInterface extends RedditInterface{
     }
     /**
      * Attempts to shutdown all communicators.
-     * @return the result once all tasks have been finished.
+     * @return the task that will await the shutdown of all communicators.
      */
-    Future<?> shutdown();
+    Runnable shutdown();
 }

@@ -37,9 +37,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -204,18 +201,11 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
     }
     /**
      * Attempts to shutdown all communicators.
-     * @return the result once all tasks have been finished.
+     * @return the task that will await the shutdown of all communicators.
      */
     @Override
-    public Future<?> shutdown(){
-        Runnable shutdown = () -> shards.stream().map(CommunicatorInterface::shutdown).forEach(future -> {
-            try{
-                future.get();
-            }catch(ExecutionException | InterruptedException e){
-                log.error(e.getMessage());
-            }
-        });
+    public Runnable shutdown(){
         log.info("Shutting down the environment.");
-        return new FutureTask<>(() -> shutdown);
+        return () -> shards.stream().map(CommunicatorInterface::shutdown).forEach(Runnable::run);
     }
 }
