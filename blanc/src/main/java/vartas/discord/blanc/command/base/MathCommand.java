@@ -19,10 +19,8 @@ package vartas.discord.blanc.command.base;
 
 import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
-import vartas.discord.bot.command.entity.ExpressionValueCalculator;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -38,7 +36,6 @@ public class MathCommand extends MathCommandTOP {
      */
     @Override
     public void run() {
-        BigDecimal solution = ExpressionValueCalculator.valueOf(expressionSymbol.getValue().getExpression());
-        communicator.send(channel, Double.toString(solution.doubleValue()));
+        communicator.send(channel, Double.toString(expressionSymbol.resolve().doubleValue()));
     }
 }
