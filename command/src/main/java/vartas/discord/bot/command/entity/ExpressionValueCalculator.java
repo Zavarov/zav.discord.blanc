@@ -21,7 +21,6 @@ import de.monticore.MCLiteralsDecoder;
 import de.monticore.ast.ASTNode;
 import de.monticore.expressions.commonexpressions._ast.*;
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import de.monticore.expressions.prettyprint2.CommonExpressionsPrettyPrinter;
 import de.monticore.mcbasicliterals._ast.ASTSignedBasicDoubleLiteral;
 import de.monticore.mcbasicliterals._ast.ASTSignedBasicFloatLiteral;
 import de.monticore.mcbasicliterals._ast.ASTSignedBasicLongLiteral;
@@ -29,6 +28,7 @@ import de.monticore.mcbasicliterals._ast.ASTSignedNatLiteral;
 import de.monticore.prettyprint.IndentPrinter;
 import vartas.discord.bot.command.entity._ast.*;
 import vartas.discord.bot.command.entity._visitor.EntityVisitor;
+import vartas.discord.bot.command.entity.prettyprinter.EntityPrettyPrinter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -152,8 +152,9 @@ public class ExpressionValueCalculator implements EntityVisitor {
 
     @Override
     public void visit(ASTCallExpression node) {
-        CommonExpressionsPrettyPrinter prettyPrinter = new CommonExpressionsPrettyPrinter(new IndentPrinter());
-        throw new IllegalArgumentException("The call " + prettyPrinter.prettyprint(node) + " is not defined.");
+        EntityPrettyPrinter prettyPrinter = new EntityPrettyPrinter(new IndentPrinter());
+
+        throw new IllegalArgumentException("The expression " + prettyPrinter.prettyprint(node) + " is not defined.");
     }
 
     @Override

@@ -44,7 +44,7 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     ;
 
     UserType implements MentionedEntityType =
-        "<" "@" "!"? id:Digits ">"
+        "<" "@" semicolon:["!"]? id:Digits ">"
     ;
 
     TextChannelType implements MentionedEntityType =
