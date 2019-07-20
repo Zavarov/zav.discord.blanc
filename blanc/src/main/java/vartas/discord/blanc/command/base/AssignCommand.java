@@ -22,9 +22,12 @@ import net.dv8tion.jda.core.entities.Role;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 /**
  * The command that assigns self-assignable roles to the user.
@@ -55,12 +58,24 @@ public class AssignCommand extends AssignCommandTOP{
             if (optional.isPresent()) {
                 Role role = optional.get();
 
-                if(config.isTagged(role)){
+                Optional<String> tag = config.getTag(role);
+                if(tag.isPresent()){
                     if(member.getRoles().contains(role)){
                         communicator.send(guild.getController().removeSingleRoleFromMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
                         communicator.send(channel, String.format("Removed role %s.", role.getName()));
                     }else{
-                        communicator.send(guild.getController().addSingleRoleToMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
+                        Collection<Role> others = config.getTags(guild).get(tag.get());
+                        Collection<Role> conflictingRoles = member
+                                .getRoles()
+                                .stream()
+                                .filter(others::contains)
+                                .collect(Collectors.toList());
+
+                        if(conflictingRoles.isEmpty()){
+                            communicator.send(guild.getController().addSingleRoleToMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
+                        }else{
+                            communicator.send(guild.getController().modifyMemberRoles(member, Collections.singleton(role), conflictingRoles), o -> MUTEX.release(), o -> MUTEX.release());
+                        }
                         communicator.send(channel, String.format("Added role %s.", role.getName()));
                     }
                 }else{
