@@ -19,7 +19,6 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
-import vartas.discord.bot.command.entity._ast.ASTGuildType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,18 +27,19 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GuildSymbol extends GuildSymbolTOP{
-    protected ASTGuildType ast;
+    protected Optional<Long> id = Optional.empty();
+    protected Optional<String> name = Optional.empty();
 
     public GuildSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTGuildType ast){
-        this.ast = ast;
+    public void setValue(String name){
+        this.name = Optional.of(name);
     }
 
-    public ASTGuildType getValue(){
-        return ast;
+    public void setValue(long id){
+        this.id = Optional.of(id);
     }
 
     public Optional<Guild> resolve(Message context){
@@ -48,10 +48,10 @@ public class GuildSymbol extends GuildSymbolTOP{
 
         Collection<Guild> guilds = Collections.emptyList();
 
-        if(ast.isPresentId())
-            guilds = Collections.singleton(context.getJDA().getGuildById(ast.getId().getValue()));
-        else if(ast.isPresentName())
-            guilds = context.getJDA().getGuildsByName(ast.getName().getValue(), false);
+        if(id.isPresent())
+            guilds = Collections.singleton(context.getJDA().getGuildById(id.get()));
+        else if(name.isPresent())
+            guilds = context.getJDA().getGuildsByName(name.get(), false);
 
         if(guilds.size() != 1)
             return Optional.empty();

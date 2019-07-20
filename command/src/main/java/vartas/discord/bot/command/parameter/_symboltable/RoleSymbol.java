@@ -19,7 +19,6 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
-import vartas.discord.bot.command.entity._ast.ASTRoleType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,19 +27,21 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class RoleSymbol extends RoleSymbolTOP{
-    protected ASTRoleType ast;
+    protected Optional<Long> id = Optional.empty();
+    protected Optional<String> name = Optional.empty();
 
     public RoleSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTRoleType ast){
-        this.ast = ast;
+    public void setValue(String name){
+        this.name = Optional.of(name);
     }
 
-    public ASTRoleType getValue(){
-        return ast;
+    public void setValue(long id){
+        this.id = Optional.of(id);
     }
+
 
     public Optional<Role> resolve(Message context){
         checkNotNull(context);
@@ -48,10 +49,10 @@ public class RoleSymbol extends RoleSymbolTOP{
 
         Collection<Role> roles = Collections.emptyList();
 
-        if(ast.isPresentId())
-            roles = Collections.singleton(context.getGuild().getRoleById(ast.getId().getValue()));
-        else if(ast.isPresentName())
-            roles = context.getGuild().getRolesByName(ast.getName().getValue(), false);
+        if(id.isPresent())
+            roles = Collections.singleton(context.getGuild().getRoleById(id.get()));
+        else if(name.isPresent())
+            roles = context.getGuild().getRolesByName(name.get(), false);
 
         if(roles.size() != 1)
             return Optional.empty();

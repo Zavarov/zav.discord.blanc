@@ -17,24 +17,18 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
-import vartas.discord.bot.command.entity._ast.ASTStringType;
-
 public class StringSymbol extends StringSymbolTOP{
-    protected ASTStringType ast;
+    protected String value;
 
     public StringSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTStringType ast){
-        this.ast = ast;
-    }
-
-    public ASTStringType getValue(){
-        return ast;
+    public void setValue(String value){
+        this.value = value;
     }
 
     public String resolve(){
-        return ast.getStringLiteral().getValue();
+        return value;
     }
 }

@@ -17,8 +17,6 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
-import vartas.discord.bot.command.entity._ast.ASTDateType;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +25,9 @@ import java.util.TimeZone;
 
 public class DateSymbol extends DateSymbolTOP{
     protected SimpleDateFormat dateFormat;
-    protected ASTDateType ast;
+    protected int day;
+    protected int month;
+    protected int year;
 
     public DateSymbol(String name) {
         super(name);
@@ -36,17 +36,15 @@ public class DateSymbol extends DateSymbolTOP{
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public void setValue(ASTDateType ast){
-        this.ast = ast;
-    }
-
-    public ASTDateType getValue(){
-        return ast;
+    public void setValue(int day, int month, int year){
+        this.day = day;
+        this.month = month;
+        this.year = year;
     }
 
     public Optional<Date> resolve(){
         try{
-            Date date = dateFormat.parse(String.format("%2d-%2d-%4d", ast.getDay().getValue(), ast.getMonth().getValue(), ast.getYear().getValue()));
+            Date date = dateFormat.parse(String.format("%2d-%2d-%4d", day, month, year));
             return Optional.of(date);
         }catch(ParseException e){
             return Optional.empty();

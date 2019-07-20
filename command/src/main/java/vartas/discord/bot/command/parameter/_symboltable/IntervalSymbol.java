@@ -17,30 +17,25 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
-import vartas.discord.bot.command.entity._ast.ASTIntervalType;
 import vartas.reddit.chart.line.AbstractChart.Interval;
 
 import java.util.Locale;
 import java.util.Optional;
 
 public class IntervalSymbol extends IntervalSymbolTOP{
-    protected ASTIntervalType ast;
+    protected String interval;
 
     public IntervalSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTIntervalType ast){
-        this.ast = ast;
-    }
-
-    public ASTIntervalType getValue(){
-        return ast;
+    public void setValue(String interval){
+        this.interval = interval;
     }
 
     public Optional<Interval> resolve(){
         try{
-            return Optional.of(Interval.valueOf(ast.getInterval().toUpperCase(Locale.ENGLISH)));
+            return Optional.of(Interval.valueOf(interval.toUpperCase(Locale.ENGLISH)));
         //Thrown when there is no interval with the specified name
         }catch(IllegalArgumentException e){
             return Optional.empty();

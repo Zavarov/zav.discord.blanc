@@ -18,27 +18,22 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.OnlineStatus;
-import vartas.discord.bot.command.entity._ast.ASTOnlineStatusType;
 
 import java.util.Optional;
 
 public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
-    protected ASTOnlineStatusType ast;
+    protected String status;
 
     public OnlineStatusSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTOnlineStatusType ast){
-        this.ast = ast;
-    }
-
-    public ASTOnlineStatusType getValue(){
-        return ast;
+    public void setValue(String status){
+        this.status = status;
     }
 
     public Optional<OnlineStatus> resolve(){
-        switch(ast.getStatus()){
+        switch(status){
             case "online":
                 return Optional.of(OnlineStatus.ONLINE);
             case "invisible":

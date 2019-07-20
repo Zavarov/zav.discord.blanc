@@ -20,25 +20,20 @@ package vartas.discord.bot.command.parameter._symboltable;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
-import vartas.discord.bot.command.entity._ast.ASTMessageType;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MessageSymbol extends MessageSymbolTOP{
-    protected ASTMessageType ast;
+    protected long id;
 
     public MessageSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTMessageType ast){
-        this.ast = ast;
-    }
-
-    public ASTMessageType getValue(){
-        return ast;
+    public void setValue(long id){
+        this.id = id;
     }
 
     public Optional<Message> resolve(Message context){
@@ -46,7 +41,7 @@ public class MessageSymbol extends MessageSymbolTOP{
         checkNotNull(context.getTextChannel());
 
         try {
-            return Optional.of(context.getTextChannel().getMessageById(ast.getId().getValue()).complete());
+            return Optional.of(context.getTextChannel().getMessageById(id).complete());
         }catch(ErrorResponseException e){
             //The message id was invalid
             if(e.getErrorResponse() == ErrorResponse.UNKNOWN_MESSAGE)

@@ -19,7 +19,6 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import vartas.discord.bot.command.entity._ast.ASTMemberType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,18 +27,19 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MemberSymbol extends MemberSymbolTOP{
-    protected ASTMemberType ast;
+    protected Optional<Long> id = Optional.empty();
+    protected Optional<String> name = Optional.empty();
 
     public MemberSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTMemberType ast){
-        this.ast = ast;
+    public void setValue(String name){
+        this.name = Optional.of(name);
     }
 
-    public ASTMemberType getValue(){
-        return ast;
+    public void setValue(long id){
+        this.id = Optional.of(id);
     }
 
     public Optional<Member> resolve(Message source){
@@ -48,10 +48,10 @@ public class MemberSymbol extends MemberSymbolTOP{
 
         Collection<Member> members = Collections.emptyList();
 
-        if(ast.isPresentId())
-            members = Collections.singleton(source.getGuild().getMemberById(ast.getId().getValue()));
-        else if(ast.isPresentName())
-            members = source.getGuild().getMembersByName(ast.getName().getValue(), false);
+        if(id.isPresent())
+            members = Collections.singleton(source.getGuild().getMemberById(id.get()));
+        else if(name.isPresent())
+            members = source.getGuild().getMembersByName(name.get(), false);
 
         if(members.size() != 1)
             return Optional.empty();

@@ -41,6 +41,7 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
         node.setEnclosingScopeOpt(currentScope());
 
         for(index = 0 ; index < node.getParameterList().size() ; ++index){
+            System.out.println(node.getParameter(index).getClass().getSimpleName());
             node.getParameter(index).accept(getRealThis());
         }
     }
@@ -48,49 +49,35 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     @Override
     public void visit(ASTDateType node){
         DateSymbol symbol = new DateSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
-        addToScopeAndLinkWithNode(symbol, node);
-    }
-
-    @Override
-    public void visit(ASTMessageType node){
-        MessageSymbol symbol = new MessageSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
-        addToScopeAndLinkWithNode(symbol, node);
-    }
-
-    @Override
-    public void visit(ASTGuildType node){
-        GuildSymbol symbol = new GuildSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getDay().getValue(), node.getMonth().getValue(), node.getYear().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTMemberType node){
         MemberSymbol symbol = new MemberSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTUserType node){
         UserSymbol symbol = new UserSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTTextChannelType node){
         TextChannelSymbol symbol = new TextChannelSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTRoleType node){
         RoleSymbol symbol = new RoleSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
@@ -102,23 +89,80 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     }
 
     @Override
-    public void visit(ASTStringType node){
-        StringSymbol symbol = new StringSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
-        addToScopeAndLinkWithNode(symbol, node);
-    }
-
-    @Override
     public void visit(ASTOnlineStatusType node){
         OnlineStatusSymbol symbol = new OnlineStatusSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getStatus());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTIntervalType node){
         IntervalSymbol symbol = new IntervalSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(node);
+        symbol.setValue(node.getInterval());
         addToScopeAndLinkWithNode(symbol, node);
+    }
+
+    /*================================================================================================================*/
+    /*============================================  Ambiguous symbols  ===============================================*/
+    /*================================================================================================================*/
+
+    @Override
+    public void visit(ASTStringType node){
+        String var = command.getParameters().get(index).getVar();
+        String value = node.getStringLiteral().getValue();
+
+        StringSymbol string = new StringSymbol(var);
+        string.setValue(value);
+        addToScopeAndLinkWithNode(string, node);
+
+        GuildSymbol guild = new GuildSymbol(var);
+        guild.setValue(value);
+        addToScopeAndLinkWithNode(guild, node);
+
+        MemberSymbol member = new MemberSymbol(var);
+        member.setValue(value);
+        addToScopeAndLinkWithNode(member, node);
+
+        RoleSymbol role = new RoleSymbol(var);
+        role.setValue(value);
+        addToScopeAndLinkWithNode(role, node);
+
+        TextChannelSymbol channel = new TextChannelSymbol(var);
+        channel.setValue(value);
+        addToScopeAndLinkWithNode(channel, node);
+
+        UserSymbol user = new UserSymbol(var);
+        user.setValue(value);
+        addToScopeAndLinkWithNode(user, node);
+    }
+
+    @Override
+    public void visit(ASTIdType node){
+        String var = command.getParameters().get(index).getVar();
+        long value = node.getId().getValue();
+
+        MessageSymbol message = new MessageSymbol(var);
+        message.setValue(value);
+        addToScopeAndLinkWithNode(message, node);
+
+        GuildSymbol guild = new GuildSymbol(var);
+        guild.setValue(value);
+        addToScopeAndLinkWithNode(guild, node);
+
+        MemberSymbol member = new MemberSymbol(var);
+        member.setValue(value);
+        addToScopeAndLinkWithNode(member, node);
+
+        RoleSymbol role = new RoleSymbol(var);
+        role.setValue(value);
+        addToScopeAndLinkWithNode(role, node);
+
+        TextChannelSymbol channel = new TextChannelSymbol(var);
+        channel.setValue(value);
+        addToScopeAndLinkWithNode(channel, node);
+
+        UserSymbol user = new UserSymbol(var);
+        user.setValue(value);
+        addToScopeAndLinkWithNode(user, node);
     }
 }

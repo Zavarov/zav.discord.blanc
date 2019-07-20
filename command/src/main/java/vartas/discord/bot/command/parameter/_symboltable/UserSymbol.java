@@ -19,7 +19,6 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import vartas.discord.bot.command.entity._ast.ASTUserType;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,18 +27,19 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UserSymbol extends UserSymbolTOP{
-    protected ASTUserType ast;
+    protected Optional<Long> id = Optional.empty();
+    protected Optional<String> name = Optional.empty();
 
     public UserSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTUserType ast){
-        this.ast = ast;
+    public void setValue(String name){
+        this.name = Optional.of(name);
     }
 
-    public ASTUserType getValue(){
-        return ast;
+    public void setValue(long id){
+        this.id = Optional.of(id);
     }
 
     public Optional<User> resolve(Message context){
@@ -48,10 +48,10 @@ public class UserSymbol extends UserSymbolTOP{
 
         Collection<User> users = Collections.emptyList();
 
-        if(ast.isPresentId())
-            users = Collections.singleton(context.getJDA().getUserById(ast.getId().getValue()));
-        else if(ast.isPresentName())
-            users = context.getJDA().getUsersByName(ast.getName().getValue(), false);
+        if(id.isPresent())
+            users = Collections.singleton(context.getJDA().getUserById(id.get()));
+        else if(name.isPresent())
+            users = context.getJDA().getUsersByName(name.get(), false);
 
         if(users.size() != 1)
             return Optional.empty();
