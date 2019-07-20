@@ -69,7 +69,7 @@ public class GuildConfiguration {
     /**
      * The custom prefix in the guild.
      */
-    protected Optional<String> prefix;
+    protected Optional<String> prefix = Optional.empty();
     /**
      * The respective file containing this configuration.
      */
