@@ -39,7 +39,7 @@ public abstract class CallHelper {
 
             Optional<ASTCallArtifact> call = parser.parse_String(content);
             if(parser.hasErrors())
-                throw new IllegalArgumentException("The parser encountered errors while parsing "+content);
+                throw new IllegalArgumentException("The parser encountered errors while parsing:\n"+content);
             if(!call.isPresent())
                 throw new IllegalArgumentException("The command file couldn't be parsed");
 
