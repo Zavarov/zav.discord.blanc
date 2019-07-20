@@ -65,7 +65,7 @@ public class GuildConfiguration {
     /**
      * The combined pattern for all expressions.
      */
-    protected Pattern pattern;
+    protected Optional<Pattern> pattern = Optional.empty();
     /**
      * The custom prefix in the guild.
      */
@@ -88,7 +88,7 @@ public class GuildConfiguration {
         filteredExpressions.addAll(guild.getFilter());
         prefix = guild.getPrefix();
 
-        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile);
 
         this.reference = reference;
         this.update();
@@ -244,7 +244,7 @@ public class GuildConfiguration {
         filteredExpressions.add(expression);
         mutex.release();
 
-        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile);
         update();
     }
     /**
@@ -256,7 +256,7 @@ public class GuildConfiguration {
         filteredExpressions.remove(expression);
         mutex.release();
 
-        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile).orElse(Pattern.compile(""));
+        pattern = filteredExpressions.stream().reduce((u,v) -> u + "|" + v).map(Pattern::compile);
         update();
     }
 
@@ -265,7 +265,7 @@ public class GuildConfiguration {
      * @return true if at least one expression is matched in the text.
      */
     public boolean anyMatch(String text){
-        return pattern.matcher(text).find();
+        return pattern.map(p -> p.matcher(text).find()).orElse(false);
     }
     /**
      * @return all filtered words.
