@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.discord.bot.io.guild.GuildConfiguration;
+import vartas.discord.bot.io.guild.GuildHelper;
 
 import java.io.File;
 import java.util.HashMap;
@@ -39,8 +40,14 @@ public interface ConfigInterface {
         if(configs.containsKey(guild)){
             return configs.get(guild);
         }else{
-            File target = new File(String.format("guilds/%s.gld", guild.getId()));
-            GuildConfiguration config = new GuildConfiguration(target);
+            String filePath = String.format("guilds/%s.gld", guild.getId());
+            File target = new File(filePath);
+
+            GuildConfiguration config;
+            if(target.exists())
+                config = GuildHelper.parse(filePath, target);
+            else
+                config = new GuildConfiguration(target);
             configs.put(guild, config);
             return config;
         }
