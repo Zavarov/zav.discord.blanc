@@ -131,6 +131,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                         String error = String.format("%d %s failed in a row, giving up.", counter, English.plural("request", counter));
                         log.warn(error);
                         communicator.send(t.editMessage(error));
+                        break;
                     } else {
                         counter++;
                         log.info(String.format("Comment request failed, %d attempts remain.", MAX_RETRY - counter));
@@ -140,6 +141,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                     String error = String.format("%d %s failed in a row, giving up.", counter, English.plural("request", counter));
                     log.warn(error);
                     communicator.send(t.editMessage(error));
+                    break;
                 } else {
                     counter++;
                     continue;
