@@ -5,7 +5,7 @@ package vartas.discord.bot.command;
  * It consists of two parts, the qualified name of the command and the required parameters.
  */
 grammar Call extends de.monticore.MCBasics, vartas.discord.bot.command.Entity{
-    scope CallArtifact = command:(Name || ".")+ parameter:EntityType*;
+    scope CallArtifact = command:(Name& || ".")+ parameter:EntityType*;
 
     /*=========================================================*/
     /*======================= AST RULES =======================*/
