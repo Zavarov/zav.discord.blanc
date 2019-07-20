@@ -120,6 +120,9 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                     if (comments.isPresent()) {
                         RedditInterface.storeSubmission(current, subreddit, submissions.get());
                         RedditInterface.storeComment(current, subreddit, comments.get());
+
+                        commentsAmount += comments.get().size();
+                        submissionsAmount += submissions.get().size();
                         counter = 0;
                     } else if (counter == MAX_RETRY) {
                         String error = String.format("%d %s failed in a row, giving up.", counter, English.plural("request", counter));
