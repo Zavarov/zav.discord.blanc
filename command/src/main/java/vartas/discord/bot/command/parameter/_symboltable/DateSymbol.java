@@ -1,15 +1,5 @@
-package vartas.discord.bot.command.parameter._symboltable;
-
-import vartas.discord.bot.command.entity._ast.ASTDateType;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
-import java.util.TimeZone;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +14,17 @@ import java.util.TimeZone;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.parameter._symboltable;
+
+import vartas.discord.bot.command.entity._ast.ASTDateType;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Optional;
+import java.util.TimeZone;
+
 public class DateSymbol extends DateSymbolTOP{
     protected SimpleDateFormat dateFormat;
     protected ASTDateType ast;

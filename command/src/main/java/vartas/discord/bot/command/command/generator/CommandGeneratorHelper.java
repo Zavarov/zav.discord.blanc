@@ -1,17 +1,5 @@
-package vartas.discord.bot.command.command.generator;
-
-import com.ibm.icu.text.RuleBasedNumberFormat;
-import de.se_rwth.commons.Joiners;
-import org.atteo.evo.inflector.English;
-import vartas.discord.bot.command.command._ast.ASTCommandArtifact;
-
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +14,19 @@ import java.util.Locale;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.command.generator;
+
+import com.ibm.icu.text.RuleBasedNumberFormat;
+import de.se_rwth.commons.Joiners;
+import org.atteo.evo.inflector.English;
+import vartas.discord.bot.command.command._ast.ASTCommandArtifact;
+
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+
 public class CommandGeneratorHelper {
     protected RuleBasedNumberFormat ordinalFormatter = new RuleBasedNumberFormat(Locale.ENGLISH, RuleBasedNumberFormat.ORDINAL);
 

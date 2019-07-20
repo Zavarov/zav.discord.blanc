@@ -1,15 +1,5 @@
-package vartas.discord.bot.io.rank.prettyprint;
-
-import de.monticore.prettyprint.IndentPrinter;
-import vartas.discord.bot.io.rank.RankConfiguration;
-import vartas.discord.bot.io.rank.RankType;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +14,17 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.rank.prettyprint;
+
+import de.monticore.prettyprint.IndentPrinter;
+import vartas.discord.bot.io.rank.RankConfiguration;
+import vartas.discord.bot.io.rank.RankType;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+
 public class RankPrettyPrinter {
     protected IndentPrinter printer;
 

@@ -1,14 +1,5 @@
-package vartas.discord.bot.io.rank;
-
-import vartas.discord.bot.io.rank._ast.ASTRankArtifact;
-import vartas.discord.bot.io.rank._parser.RankParser;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +14,16 @@ import java.util.Optional;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.rank;
+
+import vartas.discord.bot.io.rank._ast.ASTRankArtifact;
+import vartas.discord.bot.io.rank._parser.RankParser;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
 public abstract class RankHelper {
 
     public static RankConfiguration parse(String filePath, File reference){

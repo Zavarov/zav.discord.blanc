@@ -1,19 +1,5 @@
-package vartas.discord.bot.command.command._symboltable;
-
-import de.monticore.symboltable.ArtifactScope;
-import de.monticore.symboltable.ResolvingConfiguration;
-import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Joiners;
-import vartas.discord.bot.command.command._ast.ASTCommand;
-import vartas.discord.bot.command.command._ast.ASTCommandArtifact;
-
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +14,21 @@ import static java.util.Objects.requireNonNull;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.command._symboltable;
+
+import de.monticore.symboltable.ArtifactScope;
+import de.monticore.symboltable.ResolvingConfiguration;
+import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.Joiners;
+import vartas.discord.bot.command.command._ast.ASTCommand;
+import vartas.discord.bot.command.command._ast.ASTCommandArtifact;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
+
 public class CommandSymbolTableCreator extends CommandSymbolTableCreatorTOP{
     public CommandSymbolTableCreator(ResolvingConfiguration resolverConfig, Scope enclosingScope) {
         super(resolverConfig, enclosingScope);

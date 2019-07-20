@@ -1,17 +1,5 @@
-package vartas.discord.bot.io.guild;
-
-import com.google.common.collect.Multimap;
-import org.junit.Before;
-import org.junit.Test;
-import vartas.discord.bot.io.guild._ast.ASTGuildArtifact;
-import vartas.discord.bot.io.guild._symboltable.GuildSymbolTableCreator;
-
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +14,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.guild;
+
+import com.google.common.collect.Multimap;
+import org.junit.Before;
+import org.junit.Test;
+import vartas.discord.bot.io.guild._ast.ASTGuildArtifact;
+import vartas.discord.bot.io.guild._symboltable.GuildSymbolTableCreator;
+
+import java.io.File;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class GuildConfigurationTest {
     ASTGuildArtifact ast;
     GuildSymbolTableCreator symbolTableCreator;

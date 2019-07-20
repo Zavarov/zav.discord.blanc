@@ -1,15 +1,5 @@
-package vartas.discord.bot.io.config;
-
-import org.junit.Before;
-import org.junit.Test;
-import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
-
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +14,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.config;
+
+import org.junit.Before;
+import org.junit.Test;
+import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ConfigTest {
     ASTConfigArtifact ast;
 

@@ -1,12 +1,5 @@
-package vartas.discord.bot.command.command._cocos;
-
-import de.se_rwth.commons.logging.Log;
-import vartas.discord.bot.command.command._ast.ASTCommand;
-import vartas.discord.bot.command.command._visitor.CommandVisitor;
-import vartas.discord.bot.command.parameter._ast.ASTMember;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +14,14 @@ import vartas.discord.bot.command.parameter._ast.ASTMember;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.command._cocos;
+
+import de.se_rwth.commons.logging.Log;
+import vartas.discord.bot.command.command._ast.ASTCommand;
+import vartas.discord.bot.command.command._visitor.CommandVisitor;
+import vartas.discord.bot.command.parameter._ast.ASTMember;
+
 public class MemberParameterRequiresGuildCoCo implements CommandASTCommandCoCo, CommandVisitor {
     public static final String ERROR_MESSAGE = "%s: The command must be restricted to a guild if it has a member as a parameter.";
     protected boolean inGuild;

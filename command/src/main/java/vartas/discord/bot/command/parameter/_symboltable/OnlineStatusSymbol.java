@@ -1,12 +1,5 @@
-package vartas.discord.bot.command.parameter._symboltable;
-
-import net.dv8tion.jda.core.OnlineStatus;
-import vartas.discord.bot.command.entity._ast.ASTOnlineStatusType;
-
-import java.util.Optional;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +14,14 @@ import java.util.Optional;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.parameter._symboltable;
+
+import net.dv8tion.jda.core.OnlineStatus;
+import vartas.discord.bot.command.entity._ast.ASTOnlineStatusType;
+
+import java.util.Optional;
+
 public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
     protected ASTOnlineStatusType ast;
 

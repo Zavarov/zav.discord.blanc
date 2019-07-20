@@ -1,18 +1,5 @@
-package vartas.discord.bot.command.command._symboltable;
-
-import net.dv8tion.jda.core.Permission;
-import vartas.discord.bot.command.parameter._ast.ASTParameterType;
-import vartas.discord.bot.command.permission._ast.ASTPermissionType;
-import vartas.discord.bot.command.rank._ast.ASTRankType;
-import vartas.discord.bot.io.rank.RankType;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +14,20 @@ import java.util.stream.Collectors;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.command._symboltable;
+
+import net.dv8tion.jda.core.Permission;
+import vartas.discord.bot.command.parameter._ast.ASTParameterType;
+import vartas.discord.bot.command.permission._ast.ASTPermissionType;
+import vartas.discord.bot.command.rank._ast.ASTRankType;
+import vartas.discord.bot.io.rank.RankType;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 public class CommandSymbol extends CommandSymbolTOP{
     public CommandSymbol(String name){
         super(name);

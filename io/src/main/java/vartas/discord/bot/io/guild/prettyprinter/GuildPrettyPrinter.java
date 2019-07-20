@@ -1,18 +1,5 @@
-package vartas.discord.bot.io.guild.prettyprinter;
-
-import com.google.common.collect.Multimap;
-import de.monticore.prettyprint.IndentPrinter;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import vartas.discord.bot.io.guild.GuildConfiguration;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +14,17 @@ import java.util.Set;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.guild.prettyprinter;
+
+import com.google.common.collect.Multimap;
+import de.monticore.prettyprint.IndentPrinter;
+import vartas.discord.bot.io.guild.GuildConfiguration;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 public class GuildPrettyPrinter {
     protected IndentPrinter printer;
 

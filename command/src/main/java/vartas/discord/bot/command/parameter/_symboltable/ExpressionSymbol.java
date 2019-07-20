@@ -1,10 +1,5 @@
-package vartas.discord.bot.command.parameter._symboltable;
-
-import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import vartas.discord.bot.command.entity._ast.ASTExpressionType;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +14,12 @@ import vartas.discord.bot.command.entity._ast.ASTExpressionType;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.command.parameter._symboltable;
+
+import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
+import vartas.discord.bot.command.entity._ast.ASTExpressionType;
+
 public class ExpressionSymbol extends ExpressionSymbolTOP{
     protected ASTExpressionType ast;
 

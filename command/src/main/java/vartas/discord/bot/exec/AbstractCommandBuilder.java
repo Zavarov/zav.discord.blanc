@@ -1,18 +1,5 @@
-package vartas.discord.bot.exec;
-
-import net.dv8tion.jda.core.entities.Message;
-import vartas.discord.bot.api.communicator.CommunicatorInterface;
-import vartas.discord.bot.command.AbstractCommand;
-import vartas.discord.bot.command.call._ast.ASTCallArtifact;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +14,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.exec;
+
+import net.dv8tion.jda.core.entities.Message;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
+import vartas.discord.bot.command.AbstractCommand;
+import vartas.discord.bot.command.call._ast.ASTCallArtifact;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractCommandBuilder {
     protected ASTCallArtifact source;
     protected CommunicatorInterface communicator;

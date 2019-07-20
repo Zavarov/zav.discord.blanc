@@ -1,17 +1,5 @@
-package vartas.discord.bot.io.config._symboltable;
-
-import de.monticore.symboltable.ArtifactScope;
-import de.monticore.symboltable.ResolvingConfiguration;
-import de.monticore.symboltable.Scope;
-import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
-
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
-
 /*
- * Copyright (C) 2019 Zavarov
+ * Copyright (c) 2019 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +14,19 @@ import static java.util.Objects.requireNonNull;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+package vartas.discord.bot.io.config._symboltable;
+
+import de.monticore.symboltable.ArtifactScope;
+import de.monticore.symboltable.ResolvingConfiguration;
+import de.monticore.symboltable.Scope;
+import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
+
 public class ConfigSymbolTableCreator extends ConfigSymbolTableCreatorTOP{
 
     public ConfigSymbolTableCreator(ResolvingConfiguration resolverConfig, Scope enclosingScope) {
