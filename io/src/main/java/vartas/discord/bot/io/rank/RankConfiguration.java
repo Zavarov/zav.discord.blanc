@@ -66,7 +66,7 @@ public class RankConfiguration {
         this.reference = reference;
         this.ranks = HashMultimap.create(ast.getRanks());
 
-        //In case there is no file
+        //In case there is no file,
         update();
     }
 
@@ -210,6 +210,8 @@ public class RankConfiguration {
     private void update(){
         try {
             mutex.acquireUninterruptibly();
+            if(reference.getParentFile() != null)
+                reference.getParentFile().mkdirs();
             reference.createNewFile();
             String content = new RankPrettyPrinter(new IndentPrinter()).prettyprint(this);
             Files.writeToTextFile(new StringReader(content), reference);
