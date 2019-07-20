@@ -32,6 +32,7 @@ import vartas.reddit.SubmissionInterface;
 import vartas.reddit.UnresolvableRequestException;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -93,8 +94,10 @@ public class SubredditFeed{
      */
     protected List<SubmissionInterface> request(){
         //The lastest submission is not initialized during the first request
-        Instant start = latestSubmission == null ? Instant.now() : latestSubmission.getCreated().toInstant();
-        Instant end = Instant.now().minusSeconds(60);
+        Instant start = latestSubmission == null ? Instant.now().minus(2, ChronoUnit.MINUTES) : latestSubmission.getCreated().toInstant();
+
+        //Submissions need to be at least 1 minute old so that the user can flag them correctly
+        Instant end = Instant.now().minus(1, ChronoUnit.MINUTES);
 
         List<SubmissionInterface> submissions;
 
