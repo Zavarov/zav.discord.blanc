@@ -17,25 +17,20 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
-import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import vartas.discord.bot.command.entity._ast.ASTExpressionType;
+import java.math.BigDecimal;
 
 public class ExpressionSymbol extends ExpressionSymbolTOP{
-    protected ASTExpressionType ast;
+    protected BigDecimal value;
 
     public ExpressionSymbol(String name) {
         super(name);
     }
 
-    public void setValue(ASTExpressionType ast){
-        this.ast = ast;
+    public void setValue(BigDecimal value){
+        this.value = value;
     }
 
-    public ASTExpressionType getValue(){
-        return ast;
-    }
-
-    public ASTExpression resolve(){
-        return ast.getExpression();
+    public BigDecimal resolve(){
+        return value;
     }
 }

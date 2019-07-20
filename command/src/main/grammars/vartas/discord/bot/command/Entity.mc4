@@ -12,59 +12,60 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     /*========================  Misc  =========================*/
     /*=========================================================*/
 
-    IdType implements EntityType =
-        id:BasicLongLiteral
-    ;
-
     StringType implements EntityType =
         StringLiteral
     ;
 
-    OnlineStatusType implements EntityType =
-        status:Name
-    ;
-
-    IntervalType implements EntityType =
-        interval:Name
+    NameType implements EntityType =
+        Name
     ;
 
     /*=========================================================*/
     /*========================  Time  =========================*/
     /*=========================================================*/
 
-    DateType implements EntityType =
-          day:NatLiteral "-"
-        month:NatLiteral "-"
-         year:NatLiteral
+    //All dates are also arithmetic expressions
+    DateType implements EntityType <4> =
+          day:Expression "-"
+        month:Expression "-"
+         year:Expression
     ;
 
     /*=========================================================*/
     /*==================  Discord Entities  ===================*/
     /*=========================================================*/
 
-    MemberType implements EntityType =
-        "<" "@" "!"? id:BasicLongLiteral ">"
+    interface MentionedEntityType extends EntityType = id:Digits;
+
+    astrule MentionedEntityType =
+        method public long getIdLong(){
+            return Long.parseLong(getId());
+        }
     ;
 
-    UserType implements EntityType =
-        "<" "@" id:BasicLongLiteral ">"
+    UserType implements MentionedEntityType =
+        "<" "@" "!"? id:Digits ">"
     ;
 
-    TextChannelType implements EntityType =
-        "<" "#" id:BasicLongLiteral ">"
+    TextChannelType implements MentionedEntityType =
+        "<" "#" id:Digits ">"
     ;
 
-    RoleType implements EntityType =
-        "<" "@" "&" id:BasicLongLiteral ">"
+    RoleType implements MentionedEntityType =
+        "<" "@" "&" id:Digits ">"
     ;
 
     /*=========================================================*/
     /*================  Arithmetic Expression  ================*/
     /*=========================================================*/
 
-    ExpressionType implements EntityType =
+    ExpressionType implements EntityType <0> =
         Expression
     ;
+
+    /*=========================================================*/
+    /*=======================  Methods  =======================*/
+    /*=========================================================*/
 
     interface SingleArgument = Expression;
 

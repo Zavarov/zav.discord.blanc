@@ -20,6 +20,7 @@ package vartas.discord.bot.command.parameter._symboltable;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UserSymbol extends UserSymbolTOP{
-    protected Optional<Long> id = Optional.empty();
+    protected Optional<BigDecimal> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public UserSymbol(String name) {
@@ -38,7 +39,7 @@ public class UserSymbol extends UserSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(long id){
+    public void setValue(BigDecimal id){
         this.id = Optional.of(id);
     }
 
@@ -49,7 +50,7 @@ public class UserSymbol extends UserSymbolTOP{
         Collection<User> users = Collections.emptyList();
 
         if(id.isPresent())
-            users = Collections.singleton(context.getJDA().getUserById(id.get()));
+            users = Collections.singleton(context.getJDA().getUserById(id.get().longValueExact()));
         else if(name.isPresent())
             users = context.getJDA().getUsersByName(name.get(), false);
 

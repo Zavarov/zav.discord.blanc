@@ -20,11 +20,18 @@ package vartas.discord.bot.command;
 import de.monticore.ModelingLanguage;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.symboltable.GlobalScope;
+import de.se_rwth.commons.logging.Log;
+import org.junit.BeforeClass;
 import vartas.discord.bot.command.command._symboltable.CommandLanguage;
 
 import java.nio.file.Paths;
 
 public abstract class AbstractTest {
+    @BeforeClass
+    public static void setUpClass(){
+        Log.initWARN();
+    }
+
     protected GlobalScope createGlobalScope(){
         ModelPath path = new ModelPath(Paths.get(""));
         ModelingLanguage language = new CommandLanguage();

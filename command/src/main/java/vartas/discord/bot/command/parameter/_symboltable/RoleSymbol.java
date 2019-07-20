@@ -20,6 +20,7 @@ package vartas.discord.bot.command.parameter._symboltable;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class RoleSymbol extends RoleSymbolTOP{
-    protected Optional<Long> id = Optional.empty();
+    protected Optional<BigDecimal> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public RoleSymbol(String name) {
@@ -38,7 +39,7 @@ public class RoleSymbol extends RoleSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(long id){
+    public void setValue(BigDecimal id){
         this.id = Optional.of(id);
     }
 
@@ -50,7 +51,7 @@ public class RoleSymbol extends RoleSymbolTOP{
         Collection<Role> roles = Collections.emptyList();
 
         if(id.isPresent())
-            roles = Collections.singleton(context.getGuild().getRoleById(id.get()));
+            roles = Collections.singleton(context.getGuild().getRoleById(id.get().longValueExact()));
         else if(name.isPresent())
             roles = context.getGuild().getRolesByName(name.get(), false);
 

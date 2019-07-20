@@ -19,6 +19,7 @@ package vartas.discord.bot.command.entity;
 
 import org.assertj.core.data.Percentage;
 import org.junit.Test;
+import vartas.discord.bot.command.AbstractTest;
 import vartas.discord.bot.command.call._parser.CallParser;
 import vartas.discord.bot.command.entity._ast.ASTExpressionType;
 
@@ -28,7 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExpressionValueCalculatorTest {
+public class ExpressionValueCalculatorTest extends AbstractTest {
     protected Percentage precision = Percentage.withPercentage(10e-15);
 
     protected ASTExpressionType parse(String expression){
