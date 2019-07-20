@@ -38,7 +38,7 @@ public interface ConfigInterface {
         if(configs.containsKey(guild)){
             return configs.get(guild);
         }else{
-            File target = new File("guilds/%s.gld", guild.getId());
+            File target = new File(String.format("guilds/%s.gld", guild.getId()));
             GuildConfiguration config = new GuildConfiguration(target);
             configs.put(guild, config);
             return config;
