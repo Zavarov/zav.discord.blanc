@@ -65,8 +65,6 @@ public class RankConfiguration {
     public RankConfiguration(ASTRankArtifact ast, File reference){
         this.reference = reference;
         this.ranks = HashMultimap.create(ast.getRanks());
-
-        update();
     }
 
     /**
