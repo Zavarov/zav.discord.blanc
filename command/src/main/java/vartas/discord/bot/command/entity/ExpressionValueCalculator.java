@@ -17,14 +17,9 @@
 
 package vartas.discord.bot.command.entity;
 
-import de.monticore.MCLiteralsDecoder;
 import de.monticore.ast.ASTNode;
 import de.monticore.expressions.commonexpressions._ast.*;
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import de.monticore.mcbasicliterals._ast.ASTSignedBasicDoubleLiteral;
-import de.monticore.mcbasicliterals._ast.ASTSignedBasicFloatLiteral;
-import de.monticore.mcbasicliterals._ast.ASTSignedBasicLongLiteral;
-import de.monticore.mcbasicliterals._ast.ASTSignedNatLiteral;
 import de.monticore.prettyprint.IndentPrinter;
 import vartas.discord.bot.command.entity._ast.*;
 import vartas.discord.bot.command.entity._visitor.EntityVisitor;
@@ -69,23 +64,23 @@ public class ExpressionValueCalculator implements EntityVisitor {
     //***---------------------------------------------  Literals  ---------------------------------------------------***
     //***------------------------------------------------------------------------------------------------------------***
     @Override
-    public void visit(ASTSignedNatLiteral node) {
-        values.put(node, BigDecimal.valueOf(MCLiteralsDecoder.decodeNat((node.isNegative() ? "-" : "") + node.getDigits())));
+    public void visit(ASTSignedDecimalNumberType node) {
+        values.put(node, BigDecimal.valueOf(node.getValue()));
     }
 
     @Override
-    public void visit(ASTSignedBasicLongLiteral node) {
-        values.put(node, BigDecimal.valueOf(MCLiteralsDecoder.decodeLong((node.isNegative() ? "-" : "") + node.getDigits() + "L")));
+    public void visit(ASTDecimalNumberType node) {
+        values.put(node, BigDecimal.valueOf(node.getValue()));
     }
 
     @Override
-    public void visit(ASTSignedBasicFloatLiteral node) {
-        values.put(node, BigDecimal.valueOf(MCLiteralsDecoder.decodeFloat((node.isNegative() ? "-" : "") + node.getPre() + "." + node.getPost() + "F")));
+    public void visit(ASTSignedFloatingPointNumberType node) {
+        values.put(node, BigDecimal.valueOf(node.getValue()));
     }
 
     @Override
-    public void visit(ASTSignedBasicDoubleLiteral node) {
-        values.put(node, BigDecimal.valueOf(MCLiteralsDecoder.decodeDouble((node.isNegative() ? "-" : "") + node.getPre() + "." + node.getPost() + "D")));
+    public void visit(ASTFloatingPointNumberType node) {
+        values.put(node, BigDecimal.valueOf(node.getValue()));
     }
     //***------------------------------------------------------------------------------------------------------------***
     //***------------------------------------------  Expressions  ---------------------------------------------------***
@@ -247,7 +242,7 @@ public class ExpressionValueCalculator implements EntityVisitor {
 
         BigDecimal value = values.get(node.getExpression());
 
-        values.put(node, value.pow(node.getAmount().getValue()));
+        values.put(node, value.pow((int)node.getAmount().getValue()));
     }
 
     @Override
@@ -403,8 +398,8 @@ public class ExpressionValueCalculator implements EntityVisitor {
 
     @Override
     public void endVisit(ASTExtLiteral node) {
-        checkArgument(values.containsKey(node.getSignedLiteral()));
+        checkArgument(values.containsKey(node.getSignedNumberType()));
 
-        values.put(node, values.get(node.getSignedLiteral()));
+        values.put(node, values.get(node.getSignedNumberType()));
     }
 }

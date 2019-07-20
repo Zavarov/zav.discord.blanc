@@ -100,5 +100,29 @@ public class EntityPrettyPrinter extends EntityDelegatorVisitor{
             printer.print(node.getId());
             printer.print(">");
         }
+
+        @Override
+        public void handle(ASTDecimalNumberType node){
+            printer.print(node.getSource());
+        }
+
+        @Override
+        public void handle(ASTSignedDecimalNumberType node){
+            printer.print(node.getSource());
+        }
+
+        @Override
+        public void handle(ASTFloatingPointNumberType node){
+            printer.print(node.getPre());
+            printer.print(".");
+            printer.print(node.getPost());
+        }
+
+        @Override
+        public void handle(ASTSignedFloatingPointNumberType node){
+            printer.print(node.getPre());
+            printer.print(".");
+            printer.print(node.getPost());
+        }
     }
 }

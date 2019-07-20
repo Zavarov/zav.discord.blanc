@@ -52,25 +52,25 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     @Override
     public void visit(ASTUserType node){
         UserSymbol user = new UserSymbol(command.getParameters().get(index).getVar());
-        user.setValue(BigDecimal.valueOf(node.getIdLong()));
+        user.setValue(BigDecimal.valueOf(node.getId().getValue()));
         addToScopeAndLinkWithNode(user, node);
 
         MemberSymbol member = new MemberSymbol(command.getParameters().get(index).getVar());
-        member.setValue(BigDecimal.valueOf(node.getIdLong()));
+        member.setValue(BigDecimal.valueOf(node.getId().getValue()));
         addToScopeAndLinkWithNode(member, node);
     }
 
     @Override
     public void visit(ASTTextChannelType node){
         TextChannelSymbol symbol = new TextChannelSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(BigDecimal.valueOf(node.getIdLong()));
+        symbol.setValue(BigDecimal.valueOf(node.getId().getValue()));
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTRoleType node){
         RoleSymbol symbol = new RoleSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(BigDecimal.valueOf(node.getIdLong()));
+        symbol.setValue(BigDecimal.valueOf(node.getId().getValue()));
         addToScopeAndLinkWithNode(symbol, node);
     }
 

@@ -4,9 +4,68 @@ package vartas.discord.bot.command;
  * This grammar defines the syntax of the parameter specified in Parameter.mc4.
  */
 component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expressions.CommonExpressions, de.monticore.expressions.ExpressionsBasis{
-    ExtLiteral = SignedLiteral;
+    ExtLiteral = SignedNumberType;
 
     interface EntityType;
+
+    /*=========================================================*/
+    /*=======================  Numbers  =======================*/
+    /*=========================================================*/
+
+    interface NumberType;
+    interface SignedNumberType;
+
+    DecimalNumberType implements NumberType =
+        source:Digits
+    ;
+
+    SignedDecimalNumberType implements SignedNumberType =
+        negative:["-"]? source:Digits
+    ;
+
+    FloatingPointNumberType implements NumberType =
+        pre:Digits "." post:Digits
+    ;
+
+    SignedFloatingPointNumberType implements SignedNumberType =
+        negative:["-"]? pre:Digits "." post:Digits
+    ;
+
+    astrule DecimalNumberType =
+        method public long getValue(){
+            return Long.parseLong(getSource());
+        }
+    ;
+
+    astrule SignedDecimalNumberType =
+        method public String getSource(){
+            return (isNegative() ? "-" : "") + source;
+        }
+
+        method public long getValue(){
+            return Long.parseLong(getSource());
+        }
+    ;
+
+    astrule FloatingPointNumberType =
+        method public String getSource(){
+            return getPre() + "." + getPost();
+        }
+
+        method public double getValue(){
+            return Double.parseDouble(getSource());
+        }
+    ;
+
+    astrule SignedFloatingPointNumberType =
+        method public String getSource(){
+            return (isNegative() ? "-" : "") + getPre() + "." + getPost();
+        }
+
+        method public double getValue(){
+            return Double.parseDouble(getSource());
+        }
+    ;
 
     /*=========================================================*/
     /*========================  Misc  =========================*/
@@ -35,24 +94,18 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     /*==================  Discord Entities  ===================*/
     /*=========================================================*/
 
-    interface MentionedEntityType extends EntityType = id:Digits;
-
-    astrule MentionedEntityType =
-        method public long getIdLong(){
-            return Long.parseLong(getId());
-        }
-    ;
+    interface MentionedEntityType extends EntityType = id:DecimalNumberType;
 
     UserType implements MentionedEntityType =
-        "<" "@" semicolon:["!"]? id:Digits ">"
+        "<" "@" semicolon:["!"]? id:DecimalNumberType ">"
     ;
 
     TextChannelType implements MentionedEntityType =
-        "<" "#" id:Digits ">"
+        "<" "#" id:DecimalNumberType ">"
     ;
 
     RoleType implements MentionedEntityType =
-        "<" "@" "&" id:Digits ">"
+        "<" "@" "&" id:DecimalNumberType ">"
     ;
 
     /*=========================================================*/
@@ -78,7 +131,7 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     ;
 
     PowExpression implements Expression <185> =
-        Expression operator:"^" amount:SignedNatLiteral
+        Expression operator:"^" amount:SignedDecimalNumberType
     ;
 
     RandomNumberExpression implements Expression <250> =
