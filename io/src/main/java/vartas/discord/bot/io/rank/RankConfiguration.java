@@ -207,7 +207,6 @@ public class RankConfiguration {
     private void update(){
         try {
             mutex.acquireUninterruptibly();
-            reference.getParentFile().mkdirs();
             reference.createNewFile();
             String content = new RankPrettyPrinter(new IndentPrinter()).prettyprint(this);
             Files.writeToTextFile(new StringReader(content), reference);
