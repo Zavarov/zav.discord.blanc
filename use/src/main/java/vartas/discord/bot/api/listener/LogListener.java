@@ -34,7 +34,7 @@ public class LogListener<T> extends AppenderBase<T>{
     /**
      * The formatter for the current time.
      */
-    protected static SimpleDateFormat FORMATTER = new SimpleDateFormat("mm:HH | dd.MM.yy");
+    protected static SimpleDateFormat FORMATTER = new SimpleDateFormat("HH:mm | dd.MM.yy");
     /**
      * The size of the list.
      */
