@@ -133,7 +133,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                 current = next;
             }
         }catch(Exception e){
-            communicator.send(t.editMessage(e.getMessage()));
+            communicator.send(t.editMessage(e.getClass().getSimpleName()+":"+e.getMessage()));
         }finally {
             MUTEX.release();
         }
