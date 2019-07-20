@@ -188,7 +188,8 @@ public class MessageListener extends ListenerAdapter {
                 communicator.execute(command);
                 log.info("Executed "+command.getClass().getSimpleName());
             }catch(RuntimeException e){
-                communicator.send(message.getChannel(), e.getMessage());
+                e.printStackTrace();
+                communicator.send(message.getChannel(), e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
     }
