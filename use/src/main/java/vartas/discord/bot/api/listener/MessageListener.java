@@ -114,9 +114,20 @@ public class MessageListener extends ListenerAdapter {
      */
     @Override
     public void onMessageUpdate(MessageUpdateEvent event){
+        boolean isSelfUser = communicator.isSelfUser(event.getAuthor());
+        boolean isInvalid = communicator.config(event.getGuild()).anyMatch(event.getMessage().getContentRaw());
+
+        //This bot is an exception to the rule.
+        if(!isSelfUser && isInvalid){
+            communicator.send(event.getMessage().delete());
+            log.info(String.format("Deleted message %s",event.getMessage().getId()));
+            return;
+        }
+
+        long age = (System.currentTimeMillis()/1000) - event.getMessage().getEditedTime().toEpochSecond();
         //If the message isn't older than a minute
-        if( ((System.currentTimeMillis()/1000) - event.getMessage().getEditedTime().toEpochSecond()) <= 60){
-            messageReceived(event.getMessage());
+        if( age <= 60 && !event.getAuthor().isBot() && event.getTextChannel() != null){
+            communicator.activity(event.getTextChannel());
         }
     }
     /**
