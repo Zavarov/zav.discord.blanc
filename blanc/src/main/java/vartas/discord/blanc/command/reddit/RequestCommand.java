@@ -43,7 +43,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
     /**
      * The default message for each requested day.
      */
-    private static final String MESSAGE = "Requesting data from r/%s over %d %s.\nThis message will be updated until completion.";
+    private static final String MESSAGE = "Requesting data from r/%s over %d %s.\n%d %s and %d %s have been requested so far.\nThis message will be updated until completion.";
     /**
      * Due to the long time it takes, only one request at a time is allowed.
      */
@@ -60,6 +60,14 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
      * The number of days in the interval.
      */
     long days;
+    /**
+     * The number of requested comments so far.
+     */
+    int commentsAmount = 0;
+    /**
+     * The number of requested submissions so far.
+     */
+    int submissionsAmount = 0;
     /**
      * The subreddit data is requested from.
      */
@@ -80,7 +88,11 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
             subreddit = subredditSymbol.resolve();
 
             MessageBuilder message = new MessageBuilder();
-            message.append(String.format(MESSAGE, subreddit, days, English.plural("day", (int) days)));
+            message.append(String.format(MESSAGE,
+                    subreddit,
+                    days, English.plural("day", (int) days),
+                    commentsAmount, English.plural("comment", commentsAmount),
+                    submissionsAmount, English.plural("submission", submissionsAmount)));
 
             communicator.send(channel, message, this);
         }else{
@@ -128,7 +140,11 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                 }
 
                 days--;
-                communicator.send(t.editMessage(String.format(MESSAGE, subreddit, days, English.plural("day", (int) days))));
+                communicator.send(t.editMessage(String.format(MESSAGE,
+                        subreddit,
+                        days, English.plural("day", (int) days),
+                        commentsAmount, English.plural("comment", commentsAmount),
+                        submissionsAmount, English.plural("submission", submissionsAmount))));
 
                 current = next;
             }
