@@ -20,6 +20,7 @@ package vartas.discord.blanc;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import de.monticore.symboltable.GlobalScope;
+import de.se_rwth.commons.logging.Log;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.command.CommandBuilder;
 import vartas.discord.bot.api.environment.DiscordEnvironment;
@@ -34,6 +35,9 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, LoginException {
         Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.INFO);
+
+        //Don't terminate when a single command failed.
+        Log.enableFailQuick(false);
 
         GlobalScope scope = createGlobalScope();
         parseModels(new File("models"),scope);
