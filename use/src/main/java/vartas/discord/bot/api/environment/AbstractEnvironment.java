@@ -100,7 +100,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
         this.permission = RankHelper.parse("rank.perm", new File("rank.perm"));
 
         this.shards = new ArrayList<>(config.getDiscordShards());
-        this.reddit = new JrawClient(config.getRedditAccount(), config.getVersion(), config.getRedditId(), config.getRedditSecret());
+        this.reddit = new JrawClient(config.getRedditAccount(), this.getClass().getPackage().getImplementationVersion(), config.getRedditId(), config.getRedditSecret());
         this.pushshift = new PushshiftClient(reddit);
 
         this.feed = new RedditFeed(this);

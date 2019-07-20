@@ -60,11 +60,6 @@ public class ASTConfigArtifact extends ASTConfigArtifactTOP{
         return symbol.get().getBotNameNode().get().getStringLiteral().getValue();
     }
 
-    public String getVersion(){
-        Optional<VersionSymbol> symbol = getEnclosingScope().resolve("version", VersionSymbol.KIND);
-        return symbol.get().getVersionNode().get().getStringLiteral().getValue();
-    }
-
     public String getGlobalPrefix(){
         Optional<GlobalPrefixSymbol> symbol = getEnclosingScope().resolve("globalPrefix", GlobalPrefixSymbol.KIND);
         return symbol.get().getGlobalPrefixNode().get().getStringLiteral().getValue();

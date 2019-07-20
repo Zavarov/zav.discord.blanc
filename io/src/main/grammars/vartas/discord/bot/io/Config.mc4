@@ -26,9 +26,6 @@ grammar Config extends de.monticore.MCBasicLiterals{
     symbol BotName implements Entry =
         name:"botName" "=" StringLiteral;
 
-    symbol Version implements Entry =
-        name:"version" "=" StringLiteral;
-
     symbol GlobalPrefix implements Entry =
         name:"globalPrefix" "=" StringLiteral;
 

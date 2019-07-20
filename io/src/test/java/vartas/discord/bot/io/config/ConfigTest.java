@@ -62,11 +62,6 @@ public class ConfigTest {
     }
 
     @Test
-    public void testVersion(){
-        assertThat(ast.getVersion()).isEqualTo("1.0");
-    }
-
-    @Test
     public void testGlobalPrefix(){
         assertThat(ast.getGlobalPrefix()).isEqualTo("globalPrefix");
     }

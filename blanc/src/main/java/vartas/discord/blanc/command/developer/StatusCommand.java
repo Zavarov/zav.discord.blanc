@@ -57,7 +57,7 @@ public class StatusCommand extends StatusCommandTOP {
         long available = (memory.getHeapMemoryUsage().getMax()+ memory.getNonHeapMemoryUsage().getMax())/MEBI;
         double systemload = os.getSystemLoadAverage()/os.getAvailableProcessors();
         
-        builder.append(String.format("%s v%s\n\n",environment.config().getBotName(),environment.config().getVersion()));
+        builder.append(String.format("%s v%s\n\n",environment.config().getBotName(),this.getClass().getPackage().getImplementationVersion()));
         builder.append(String.format("`Architecture :` %s\n",os.getArch()));
         builder.append(String.format("`OS           :` %s\n",os.getName()));
         builder.append(String.format("`Version      :` %s\n",os.getVersion()));
