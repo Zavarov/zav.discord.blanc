@@ -32,7 +32,7 @@ public class DateSymbol extends DateSymbolTOP{
     public DateSymbol(String name) {
         super(name);
 
-        dateFormat = new SimpleDateFormat("dd-mm-yyyy");
+        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
