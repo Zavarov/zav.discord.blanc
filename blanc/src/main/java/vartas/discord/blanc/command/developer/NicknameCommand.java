@@ -38,10 +38,10 @@ public class NicknameCommand extends NicknameCommandTOP{
     public void run(){
         String nickname = nicknameSymbol.resolve();
         if(nickname.isEmpty()){
-            communicator.send(guild.getController().setNickname(member,null));
+            communicator.send(guild.getController().setNickname(guild.getSelfMember(),null));
             communicator.send(channel, "Nickname removed.");
         }else{
-            communicator.send(guild.getController().setNickname(member,nickname));
+            communicator.send(guild.getController().setNickname(guild.getSelfMember(),nickname));
             communicator.send(channel, "Nickname changed to "+nickname+".");
         }
     }
