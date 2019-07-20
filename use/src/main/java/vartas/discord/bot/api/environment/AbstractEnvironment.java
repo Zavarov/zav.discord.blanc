@@ -103,6 +103,8 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
         this.reddit = new JrawClient(config.getRedditAccount(), this.getClass().getPackage().getImplementationVersion(), config.getRedditId(), config.getRedditSecret());
         this.pushshift = new PushshiftClient(reddit);
 
+        this.reddit.login();
+
         this.feed = new RedditFeed(this);
         this.tracker = new StatusTracker(this);
 
