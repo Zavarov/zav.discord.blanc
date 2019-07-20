@@ -21,8 +21,9 @@ import ch.qos.logback.core.AppenderBase;
 import com.google.common.collect.EvictingQueue;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * An implementation of a logger that adds every event to a public list.
@@ -30,6 +31,10 @@ import java.time.format.DateTimeFormatter;
  * @param <T> the type of objects that are stored.
  */
 public class LogListener<T> extends AppenderBase<T>{
+    /**
+     * The formatter for the current time.
+     */
+    protected static SimpleDateFormat FORMATTER = new SimpleDateFormat("mm:HH | dd.MM.yy");
     /**
      * The size of the list.
      */
@@ -47,15 +52,21 @@ public class LogListener<T> extends AppenderBase<T>{
      */
     public static final EvictingQueue<Object> MEMORY = EvictingQueue.create(SIZE);
     /**
+     * Set the timezone for the formatter
+     */
+    static{
+        FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+    /**
      * Adds a new event to the internal queue. If the message is too long, it'll be truncated.
      * @param eventObject the new event.
      */
     @Override
     protected void append(T eventObject) {
         StringBuilder builder = new StringBuilder();
-        builder.append("[")
-               .append(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()))
-               .append("]")
+        builder.append("`[")
+               .append(FORMATTER.format(new Date()))
+               .append("]`")
                .append(" ");
         
         if(eventObject.toString().length() <= MAX_LENGTH){
