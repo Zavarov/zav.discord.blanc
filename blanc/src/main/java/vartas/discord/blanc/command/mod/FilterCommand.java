@@ -40,11 +40,11 @@ public class FilterCommand extends FilterCommandTOP {
         String expression = expressionSymbol.resolve();
 
         if(config.isFiltered(expression)){
-            config.addToFilter(expression);
-            communicator.send(channel, "Messages containing "+expression+" will now be removed when possible.");
-        }else{
             config.removeFromFilter(expression);
             communicator.send(channel, "Messages containing "+expression+" will no longer be removed.");
+        }else{
+            config.addToFilter(expression);
+            communicator.send(channel, "Messages containing "+expression+" will now be removed when possible.");
         }
     }
 }
