@@ -128,7 +128,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                         submissionsAmount += submissions.get().size();
                         counter = 0;
                     } else if (counter == MAX_RETRY) {
-                        String error = String.format("%d %s failed in a row, giving up.", counter, English.plural("request", counter));
+                        String error = String.format("%d %s failed in a row, giving up.\nReddit might be down.", counter, English.plural("request", counter));
                         log.warn(error);
                         communicator.send(t.editMessage(error));
                         break;
@@ -138,7 +138,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                         continue;
                     }
                 } else if (counter == MAX_RETRY) {
-                    String error = String.format("%d %s failed in a row, giving up.", counter, English.plural("request", counter));
+                    String error = String.format("%d %s failed in a row, giving up.\npushshift.io might be down.", counter, English.plural("request", counter));
                     log.warn(error);
                     communicator.send(t.editMessage(error));
                     break;
