@@ -41,10 +41,10 @@ public class RedditCommand extends RedditCommandTOP {
 
         if(config.containsRedditFeed(subreddit, textChannel)){
             config.removeRedditFeed(subreddit, textChannel);
-            communicator.send(channel, "Submissions from r/"+subreddit+" will be posted in "+textChannel.getAsMention()+".");
+            communicator.send(channel, "Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getAsMention()+".");
         }else{
             config.addRedditFeed(subreddit, textChannel);
-            communicator.send(channel, "Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getAsMention()+".");
+            communicator.send(channel, "Submissions from r/"+subreddit+" will be posted in "+textChannel.getAsMention()+".");
         }
     }
 }
