@@ -17,7 +17,6 @@
 package vartas.discord.bot.api.environment;
 
 import com.google.common.io.Files;
-import com.google.common.util.concurrent.RateLimiter;
 import de.monticore.symboltable.GlobalScope;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -39,10 +38,6 @@ import java.util.stream.Collectors;
  * This class allows the program to communicate to the actual JDA API.
  */
 public class DiscordEnvironment extends AbstractEnvironment{
-    /**
-     * We are only allowed to create a new JDA instance every 5 seconds.
-     */
-    protected static RateLimiter limiter = RateLimiter.create(1/5.0);
     /**
      * Creates an instance with the configuration file in the main directory.
      * @param commands the scope for all valid commands
@@ -67,7 +62,9 @@ public class DiscordEnvironment extends AbstractEnvironment{
      */
     public final void addShards() throws LoginException, InterruptedException{
         for(int i = 0 ; i < config.getDiscordShards() ; ++i){
-            limiter.acquire();
+            //We are only allowed to connect one shard every 5 seconds.
+            if(i > 0)
+                Thread.sleep(5000);
             shards.add(new DiscordCommunicator(this, create(i), commands, builder.get()));
         }
     }
