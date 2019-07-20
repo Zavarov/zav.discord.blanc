@@ -113,11 +113,14 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                 log.info(String.format("Requesting data from r/%s on the %s", subreddit, current));
                 next = current.plus(Duration.ofDays(1));
 
+                log.info("Requesting submissions");
                 Optional<List<SubmissionInterface>> submissions = environment.pushshift(subreddit, current, next);
 
                 if (submissions.isPresent()) {
+                    log.info("Requesting comments");
                     Optional<List<CommentInterface>> comments = environment.comment(submissions.get());
                     if (comments.isPresent()) {
+                        log.info("Storing data");
                         RedditInterface.storeSubmission(current, subreddit, submissions.get());
                         RedditInterface.storeComment(current, subreddit, comments.get());
 
