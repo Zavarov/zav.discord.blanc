@@ -22,6 +22,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.JDALogger;
+import org.slf4j.Logger;
 import vartas.discord.bot.api.environment.EnvironmentInterface;
 
 import java.util.concurrent.ExecutorService;
@@ -35,6 +37,10 @@ import java.util.function.Consumer;
  * Instead of directly, they have to be accessed via this
  */
 public interface CommunicatorInterface extends SendInterface, ActivityInterface, ConfigInterface{
+    /**
+     * The logger for the communicator.
+     */
+    Logger log = JDALogger.getLog(CommunicatorInterface.class.getSimpleName());
     /**
      * The executor that deals with all asynchronous processes.
      */
