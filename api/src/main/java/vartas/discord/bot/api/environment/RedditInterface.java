@@ -46,14 +46,14 @@ public interface RedditInterface {
      * @param end the inclusively newest submission in the interval.
      * @return the submissions in the subreddit within the given interval.
      */
-    Optional<SortedSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end);
+    Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end);
     /**
      * @param subreddit the subreddit the submissions are from.
      * @param start the inclusively oldest submission in the interval.
      * @param end the inclusively newest submission in the interval.
      * @return the submissions in the subreddit within the given interval.
      */
-    Optional<SortedSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end);
+    Optional<TreeSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end);
     /**
      * @param submission the submission the comments are requested from.
      * @return the comments of the submission.

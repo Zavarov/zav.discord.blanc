@@ -126,7 +126,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
      * @throws UnresolvableRequestException if an error occured during the request that couldn't be handled.
      */
     @Override
-    public Optional<SortedSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
+    public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
         return pushshift.requestSubmission(subreddit, Date.from(start), Date.from(end));
     }
     /**
@@ -137,7 +137,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
      * @throws UnresolvableRequestException if an error occured during the request that couldn't be handled.
      */
     @Override
-    public Optional<SortedSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
+    public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
         return reddit.requestSubmission(subreddit, Date.from(start), Date.from(end));
     }
     /**
