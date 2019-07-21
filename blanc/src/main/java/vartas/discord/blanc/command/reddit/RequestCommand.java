@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
@@ -114,7 +115,7 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
                 next = current.plus(Duration.ofDays(1));
 
                 log.info("Requesting submissions");
-                Optional<List<SubmissionInterface>> submissions = environment.pushshift(subreddit, current, next);
+                Optional<TreeSet<SubmissionInterface>> submissions = environment.pushshift(subreddit, current, next);
 
                 if (submissions.isPresent()) {
                     log.info("Requesting comments");
