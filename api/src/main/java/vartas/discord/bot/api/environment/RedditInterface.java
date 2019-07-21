@@ -27,6 +27,8 @@ import vartas.reddit.api.comment.CommentHelper;
 import vartas.reddit.api.submission.SubmissionHelper;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -102,7 +104,11 @@ public interface RedditInterface {
      */
     static List<SubmissionInterface> loadSubmission(Instant date, String subreddit){
         String source = String.format("pushshift/%s/%s.sub",subreddit, dateFormat.format(Date.from(date)));
-        return SubmissionHelper.parse(source);
+
+        if(Files.exists(Paths.get(source)))
+            return SubmissionHelper.parse(source);
+        else
+            return Collections.emptyList();
     }
     /**
      * @param from the start of the interval.
@@ -129,7 +135,11 @@ public interface RedditInterface {
      */
     static List<CommentInterface> loadComment(Instant date, String subreddit){
         String source = String.format("pushshift/%s/%s.com",subreddit, dateFormat.format(Date.from(date)));
-        return CommentHelper.parse(source);
+
+        if(Files.exists(Paths.get(source)))
+            return CommentHelper.parse(source);
+        else
+            return Collections.emptyList();
     }
     /**
      * @param from the start of the interval.
