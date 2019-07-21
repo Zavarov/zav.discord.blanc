@@ -3,6 +3,8 @@
 The main purpose of this project is to implement an [RSS-like](https://en.wikipedia.org/wiki/RSS) feature in [Discord](https://discordapp.com/) with respect to [Reddit](https://www.reddit.com/) submissions.
 This means that with this program, a guild is able to be notified in real-time, whenever a new post in a subreddit was made.
 
+Moreover, it also allows to analyze comments and submission during an interval and plot the activity for each day, to name one feature.
+
 #### api
 This module implements the core functionality of the program, with the main features being the communicator and the environment interfaces.
 For each shard, a single communicator instance will be created that handels all requests in it. The communicator is built on top of them and allows to communicate between shards.
