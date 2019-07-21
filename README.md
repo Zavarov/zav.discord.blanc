@@ -38,9 +38,9 @@ mvn clean install
 
 The final executable will be generated in the [blanc](blanc) module.
 
-To then run the program, you need to copy the [models](models) directory and the configuration files in the [templates](templates) folder into the same file the jar is in.
+To then run the program, you need to copy the [models](blanc/models) directory and the configuration files in the [templates](blanc/templates) folder into the same file the jar is in.
 
-Additionally, you need to replace the credentials in [config.cfg](templates/config.cfg) with your own.
+Additionally, you need to replace the credentials in [config.cfg](blanc/templates/config.cfg) with your own.
 
 ## Built With
 
