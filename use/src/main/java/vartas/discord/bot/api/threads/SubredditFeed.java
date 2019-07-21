@@ -113,7 +113,7 @@ public class SubredditFeed{
         }
 
         //Since the set is ordered, the oldest one will be first.
-        submissions = Sets.filter(submissions, submission -> !memory.contains(submission));
+        submissions = new TreeSet<>(Sets.filter(submissions, submission -> !memory.contains(submission)));
         memory = submissions;
 
         return submissions;
