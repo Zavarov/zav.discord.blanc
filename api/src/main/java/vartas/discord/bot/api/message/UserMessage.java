@@ -22,8 +22,11 @@ import net.dv8tion.jda.core.entities.User;
 import org.atteo.evo.inflector.English;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -39,7 +42,10 @@ public abstract class UserMessage {
     /**
      * The formatter for the dates.
      */
-    protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
+    protected static final SimpleDateFormat DATE = new SimpleDateFormat("EEE, d MMM ''yy z", Locale.ENGLISH);
+    static{
+        DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     /**
      * Adds the full name of the member to the message.
      * @param builder the message builder.
@@ -48,7 +54,8 @@ public abstract class UserMessage {
     protected static void addName(EmbedBuilder builder, User user){
         builder.addField("Full Name",String.format("%s#%s",
                 user.getName(),
-                user.getDiscriminator()),false
+                user.getDiscriminator()),
+                true
         );
     }
     /**
@@ -66,10 +73,10 @@ public abstract class UserMessage {
      */
     protected static void addCreated(EmbedBuilder builder, User user){
         int days = (int)DAYS.between(user.getCreationTime().toLocalDate(),LocalDate.now());
-        builder.addField("Created",String.format("%s (%d %s ago)",
-                DATE.format(user.getCreationTime()),
+        builder.addField("Created",String.format("%s\n(%d %s ago)",
+                DATE.format(Date.from(user.getCreationTime().toInstant())),
                 days,
-                English.plural("day", days)),false
+                English.plural("day", days)),true
         );
         
     }
@@ -97,7 +104,6 @@ public abstract class UserMessage {
         addThumbnail(builder,user);
         
         EmbedBuilder embed = new EmbedBuilder();
-        embed.addField("Description", String.format("The basic information about %s", user.getAsMention()), false);
         addName(embed,user);
         addId(embed,user);
         addCreated(embed,user);

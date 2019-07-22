@@ -29,6 +29,7 @@ import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,7 +59,7 @@ public abstract class MemberMessage extends UserMessage{
      */
     private static void addNickname(EmbedBuilder builder, Member member){
         if(member.getNickname() != null){
-            builder.addField("Nickname",member.getNickname(),false);
+            builder.addField("Nickname",member.getNickname(),true);
         }
         
     }
@@ -69,10 +70,10 @@ public abstract class MemberMessage extends UserMessage{
      */
     private static void addJoined(EmbedBuilder builder, Member member){
         int days = (int)DAYS.between(member.getJoinDate().toLocalDate(),LocalDate.now());
-        builder.addField("Joined",String.format("%s (%d %s ago)",
-                DATE.format(member.getJoinDate()),
+        builder.addField("Joined",String.format("%s\n(%d %s ago)",
+                DATE.format(Date.from(member.getJoinDate().toInstant())),
                 days,
-                English.plural("day", days)),false
+                English.plural("day", days)),true
         );
     }
     /**
@@ -86,7 +87,8 @@ public abstract class MemberMessage extends UserMessage{
             builder.addField("Color",String.format("0x%02X%02X%02X",
                 c.getRed(),
                 c.getGreen(),
-                c.getBlue()),false
+                c.getBlue()),
+                true
             );
         }
     }
@@ -113,7 +115,7 @@ public abstract class MemberMessage extends UserMessage{
      * @param member the member in question.
      */
     private static void addRoleCount(EmbedBuilder builder, Member member){
-        builder.addField("#Roles",Integer.toString(member.getRoles().size()),false);
+        builder.addField("#Roles",Integer.toString(member.getRoles().size()),true);
     }
     /**
      * Adds all roles of the member to the message.
@@ -158,15 +160,14 @@ public abstract class MemberMessage extends UserMessage{
         addThumbnail(builder,member.getUser());
         
         EmbedBuilder embed = new EmbedBuilder();
-        embed.addField("Description", String.format("The basic information about %s", member.getAsMention()), false);
         addName(embed,member.getUser());
-        addId(embed,member.getUser());
         addNickname(embed,member);
+        addId(embed,member.getUser());
+        addColor(embed,member);
+        addRoleCount(embed,member);
         addCreated(embed,member.getUser());
         addJoined(embed,member);
-        addColor(embed,member);
         addGame(embed,member);
-        addRoleCount(embed,member);
         builder.addPage(embed);
         
         addDescription(builder, "All assigned roles");
