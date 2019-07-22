@@ -44,7 +44,8 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     public void handle(ASTCallArtifact node){
         node.setEnclosingScopeOpt(currentScope());
 
-        for(index = 0 ; index < node.getParameterList().size() ; ++index){
+        //The call might have more parameters than what is required by the command
+        for(index = 0 ; index < Math.min(node.getParameterList().size(), command.getParameters().size()) ; ++index){
             node.getParameter(index).accept(getRealThis());
         }
     }
