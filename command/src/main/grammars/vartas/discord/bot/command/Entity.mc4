@@ -131,7 +131,7 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     ;
 
     PowExpression implements Expression <185> =
-        Expression operator:"^" amount:SignedDecimalNumberType
+        left:Expression operator:"^" right:Expression
     ;
 
     RandomNumberExpression implements Expression <250> =

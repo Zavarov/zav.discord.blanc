@@ -238,11 +238,13 @@ public class ExpressionValueCalculator implements EntityVisitor {
 
     @Override
     public void endVisit(ASTPowExpression node) {
-        checkArgument(values.containsKey(node.getExpression()));
+        checkArgument(values.containsKey(node.getLeft()));
+        checkArgument(values.containsKey(node.getRight()));
 
-        BigDecimal value = values.get(node.getExpression());
+        BigDecimal left = values.get(node.getLeft());
+        BigDecimal right = values.get(node.getRight());
 
-        values.put(node, value.pow((int)node.getAmount().getValue()));
+        values.put(node, left.pow(right.intValueExact()));
     }
 
     @Override
