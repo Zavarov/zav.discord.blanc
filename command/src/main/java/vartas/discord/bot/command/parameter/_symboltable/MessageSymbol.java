@@ -23,18 +23,23 @@ import net.dv8tion.jda.core.requests.ErrorResponse;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MessageSymbol extends MessageSymbolTOP{
-    protected BigDecimal id;
+    protected Supplier<BigDecimal> id;
 
     public MessageSymbol(String name) {
         super(name);
     }
 
-    public void setValue(BigDecimal id){
+    public void setValue(Supplier<BigDecimal> id){
         this.id = id;
+    }
+
+    public void setValue(BigDecimal id){
+        this.id = () -> id;
     }
 
     public Optional<Message> resolve(Message context){
@@ -42,7 +47,7 @@ public class MessageSymbol extends MessageSymbolTOP{
         checkNotNull(context.getTextChannel());
 
         try {
-            return Optional.of(context.getTextChannel().getMessageById(id.longValueExact()).complete());
+            return Optional.of(context.getTextChannel().getMessageById(id.get().longValueExact()).complete());
         }catch(ErrorResponseException e){
             //The message id was invalid
             if(e.getErrorResponse() == ErrorResponse.UNKNOWN_MESSAGE)

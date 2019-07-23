@@ -24,11 +24,12 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TextChannelSymbol extends TextChannelSymbolTOP{
-    protected Optional<BigDecimal> id = Optional.empty();
+    protected Optional<Supplier<BigDecimal>> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public TextChannelSymbol(String name) {
@@ -39,21 +40,30 @@ public class TextChannelSymbol extends TextChannelSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(BigDecimal id){
+    public void setValue(Supplier<BigDecimal> id){
         this.id = Optional.of(id);
     }
 
+    public void setValue(BigDecimal id){
+        this.id = Optional.of(() -> id);
+    }
 
+    /**
+     * We first attempt to resolve the text channel by its name first, if it is present.
+     * If this fails we try to resolve it via the id.
+     * @param context the message that is necessary to uniquely identify the text channel.
+     * @return The resolved text channel instance.
+     */
     public Optional<TextChannel> resolve(Message context){
         checkNotNull(context);
         checkNotNull(context.getGuild());
 
         Collection<TextChannel> channels = Collections.emptyList();
 
-        if(id.isPresent())
-            channels = Collections.singleton(context.getGuild().getTextChannelById(id.get().longValueExact()));
-        else if(name.isPresent())
+        if(name.isPresent())
             channels = context.getGuild().getTextChannelsByName(name.get(), false);
+        if(id.isPresent() && channels.isEmpty())
+            channels = Collections.singleton(context.getGuild().getTextChannelById(id.get().get().longValueExact()));
 
         if(channels.size() != 1)
             return Optional.empty();

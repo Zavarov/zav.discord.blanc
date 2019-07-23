@@ -24,11 +24,12 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GuildSymbol extends GuildSymbolTOP{
-    protected Optional<BigDecimal> id = Optional.empty();
+    protected Optional<Supplier<BigDecimal>> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public GuildSymbol(String name) {
@@ -39,20 +40,30 @@ public class GuildSymbol extends GuildSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(BigDecimal id){
+    public void setValue(Supplier<BigDecimal> id){
         this.id = Optional.of(id);
     }
 
+    public void setValue(BigDecimal id){
+        this.id = Optional.of(() -> id);
+    }
+
+    /**
+     * We first attempt to resolve the guild by its name first, if it is present.
+     * If this fails we try to resolve it via the id.
+     * @param context the message that is necessary to uniquely identify the guild.
+     * @return The resolved guild instance.
+     */
     public Optional<Guild> resolve(Message context){
         checkNotNull(context);
         checkNotNull(context.getJDA());
 
         Collection<Guild> guilds = Collections.emptyList();
 
-        if(id.isPresent())
-            guilds = Collections.singleton(context.getJDA().getGuildById(id.get().longValueExact()));
-        else if(name.isPresent())
+        if(name.isPresent())
             guilds = context.getJDA().getGuildsByName(name.get(), false);
+        if(id.isPresent() && guilds.isEmpty())
+            guilds = Collections.singleton(context.getJDA().getGuildById(id.get().get().longValueExact()));
 
         if(guilds.size() != 1)
             return Optional.empty();

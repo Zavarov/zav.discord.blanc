@@ -24,11 +24,12 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MemberSymbol extends MemberSymbolTOP{
-    protected Optional<BigDecimal> id = Optional.empty();
+    protected Optional<Supplier<BigDecimal>> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public MemberSymbol(String name) {
@@ -39,20 +40,30 @@ public class MemberSymbol extends MemberSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(BigDecimal id){
+    public void setValue(Supplier<BigDecimal> id){
         this.id = Optional.of(id);
     }
 
-    public Optional<Member> resolve(Message source){
-        checkNotNull(source);
-        checkNotNull(source.getGuild());
+    public void setValue(BigDecimal id){
+        this.id = Optional.of(() -> id);
+    }
+
+    /**
+     * We first attempt to resolve the member by its name first, if it is present.
+     * If this fails we try to resolve it via the id.
+     * @param context the message that is necessary to uniquely identify the member.
+     * @return The resolved member instance.
+     */
+    public Optional<Member> resolve(Message context){
+        checkNotNull(context);
+        checkNotNull(context.getGuild());
 
         Collection<Member> members = Collections.emptyList();
 
-        if(id.isPresent())
-            members = Collections.singleton(source.getGuild().getMemberById(id.get().longValueExact()));
-        else if(name.isPresent())
-            members = source.getGuild().getMembersByName(name.get(), false);
+        if(name.isPresent())
+            members = context.getGuild().getMembersByName(name.get(), false);
+        if(id.isPresent() && members.isEmpty())
+            members = Collections.singleton(context.getGuild().getMemberById(id.get().get().longValueExact()));
 
         if(members.size() != 1)
             return Optional.empty();

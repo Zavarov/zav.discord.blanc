@@ -18,19 +18,20 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import java.math.BigDecimal;
+import java.util.function.Supplier;
 
 public class ExpressionSymbol extends ExpressionSymbolTOP{
-    protected BigDecimal value;
+    protected Supplier<BigDecimal> value;
 
     public ExpressionSymbol(String name) {
         super(name);
     }
 
-    public void setValue(BigDecimal value){
+    public void setValue(Supplier<BigDecimal> value){
         this.value = value;
     }
 
     public BigDecimal resolve(){
-        return value;
+        return value.get();
     }
 }

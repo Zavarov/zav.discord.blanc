@@ -24,11 +24,12 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UserSymbol extends UserSymbolTOP{
-    protected Optional<BigDecimal> id = Optional.empty();
+    protected Optional<Supplier<BigDecimal>> id = Optional.empty();
     protected Optional<String> name = Optional.empty();
 
     public UserSymbol(String name) {
@@ -39,20 +40,30 @@ public class UserSymbol extends UserSymbolTOP{
         this.name = Optional.of(name);
     }
 
-    public void setValue(BigDecimal id){
+    public void setValue(Supplier<BigDecimal> id){
         this.id = Optional.of(id);
     }
 
+    public void setValue(BigDecimal id){
+        this.id = Optional.of(() -> id);
+    }
+
+    /**
+     * We first attempt to resolve the user by its name first, if it is present.
+     * If this fails we try to resolve it via the id.
+     * @param context the message that is necessary to uniquely identify the user.
+     * @return The resolved user instance.
+     */
     public Optional<User> resolve(Message context){
         checkNotNull(context);
         checkNotNull(context.getJDA());
 
         Collection<User> users = Collections.emptyList();
 
-        if(id.isPresent())
-            users = Collections.singleton(context.getJDA().getUserById(id.get().longValueExact()));
-        else if(name.isPresent())
+        if(name.isPresent())
             users = context.getJDA().getUsersByName(name.get(), false);
+        if(id.isPresent() && users.isEmpty())
+            users = Collections.singleton(context.getJDA().getUserById(id.get().get().longValueExact()));
 
         if(users.size() != 1)
             return Optional.empty();

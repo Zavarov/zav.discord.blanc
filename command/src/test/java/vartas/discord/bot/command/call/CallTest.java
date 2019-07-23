@@ -115,6 +115,19 @@ public class CallTest extends AbstractTest {
     }
 
     @Test
+    public void testResolveExpressionStartingWithName(){
+        ASTCallArtifact call = parse("example.expression e-0");
+        CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
+
+        String var = symbol.getParameters().get(0).getVar();
+        ASTEntityType parameter = call.getParameterList().get(0);
+
+        //E might be matched as a name and -0 as expression
+        assertThat(symbol.getParameters()).hasSize(1);
+        assertThat(parameter.getEnclosingScope().resolve(var, ExpressionSymbol.KIND)).isPresent();
+    }
+
+    @Test
     public void testResolveGuildByName(){
         ASTCallArtifact call = parse("example.guild \"guild\"");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
@@ -192,8 +205,19 @@ public class CallTest extends AbstractTest {
     }
 
     @Test
-    public void testResolveUserByName(){
+    public void testResolveUserByString(){
         ASTCallArtifact call = parse("example.user \"name\"");
+        CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
+
+        String var = symbol.getParameters().get(0).getVar();
+        ASTEntityType parameter = call.getParameterList().get(0);
+
+        assertThat(parameter.getEnclosingScope().resolve(var, UserSymbol.KIND)).isPresent();
+    }
+
+    @Test
+    public void testResolveUserByName(){
+        ASTCallArtifact call = parse("example.user name");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();
@@ -225,8 +249,19 @@ public class CallTest extends AbstractTest {
     }
 
     @Test
-    public void testResolveTextChannelByName(){
+    public void testResolveTextChannelByString(){
         ASTCallArtifact call = parse("example.textchannel \"name\"");
+        CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
+
+        String var = symbol.getParameters().get(0).getVar();
+        ASTEntityType parameter = call.getParameterList().get(0);
+
+        assertThat(parameter.getEnclosingScope().resolve(var, TextChannelSymbol.KIND)).isPresent();
+    }
+
+    @Test
+    public void testResolveTextChannelByName(){
+        ASTCallArtifact call = parse("example.textchannel name");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();
@@ -258,8 +293,19 @@ public class CallTest extends AbstractTest {
     }
 
     @Test
-    public void testResolveMemberByName(){
+    public void testResolveMemberByString(){
         ASTCallArtifact call = parse("example.member \"name\"");
+        CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
+
+        String var = symbol.getParameters().get(0).getVar();
+        ASTEntityType parameter = call.getParameterList().get(0);
+
+        assertThat(parameter.getEnclosingScope().resolve(var, MemberSymbol.KIND)).isPresent();
+    }
+
+    @Test
+    public void testResolveMemberByName(){
+        ASTCallArtifact call = parse("example.member name");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();
@@ -291,8 +337,19 @@ public class CallTest extends AbstractTest {
     }
 
     @Test
-    public void testResolveRoleByName(){
+    public void testResolveRoleByString(){
         ASTCallArtifact call = parse("example.role \"name\"");
+        CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
+
+        String var = symbol.getParameters().get(0).getVar();
+        ASTEntityType parameter = call.getParameterList().get(0);
+
+        assertThat(parameter.getEnclosingScope().resolve(var, RoleSymbol.KIND)).isPresent();
+    }
+
+    @Test
+    public void testResolveRoleByName(){
+        ASTCallArtifact call = parse("example.role name");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();

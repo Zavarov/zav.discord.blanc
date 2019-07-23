@@ -18,15 +18,21 @@
 package vartas.discord.bot.command.call._symboltable;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.expressions.commonexpressions._ast.ASTNameExpression;
+import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
 import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import vartas.discord.bot.command.call._ast.ASTCallArtifact;
 import vartas.discord.bot.command.command._symboltable.CommandSymbol;
-import vartas.discord.bot.command.entity.ExpressionValueCalculator;
 import vartas.discord.bot.command.entity._ast.*;
 import vartas.discord.bot.command.parameter._symboltable.*;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static vartas.discord.bot.command.entity.ExpressionValueCalculator.valueOf;
 
 public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     protected int index;
@@ -49,6 +55,10 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
             node.getParameter(index).accept(getRealThis());
         }
     }
+
+    /*================================================================================================================*/
+    /*============================================  Discord Entities  ================================================*/
+    /*================================================================================================================*/
 
     @Override
     public void visit(ASTUserType node){
@@ -76,78 +86,73 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     }
 
     /*================================================================================================================*/
-    /*============================================  Ambiguous symbols  ===============================================*/
+    /*=================================================  Numbers  ====================================================*/
     /*================================================================================================================*/
 
     @Override
     public void visit(ASTExpressionType node){
         String var = command.getParameters().get(index).getVar();
-        BigDecimal value = ExpressionValueCalculator.valueOf(node.getExpression());
 
-        visit(var, value, node);
+        visit(var, () -> valueOf(node.getExpression()), node);
     }
 
     @Override
     public void visit(ASTDateType node){
         String var = command.getParameters().get(index).getVar();
-        BigDecimal day = ExpressionValueCalculator.valueOf(node.getDay());
-        BigDecimal month = ExpressionValueCalculator.valueOf(node.getMonth());
-        BigDecimal year = ExpressionValueCalculator.valueOf(node.getYear());
+
+        ASTExpression day = node.getDay();
+        ASTExpression month = node.getMonth();
+        ASTExpression year = node.getYear();
 
         DateSymbol date = new DateSymbol(var);
         date.setValue(day, month, year);
         addToScopeAndLinkWithNode(date, node);
 
         //value = day-month-year
-        visit(var, day.subtract(month).subtract(year), node);
+        visit(var, () -> valueOf(day).subtract(valueOf(month)).subtract(valueOf(year)), node);
     }
 
-    private void visit(String var, BigDecimal value, ASTNode node){
-        ExpressionSymbol symbol = new ExpressionSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(value);
-        addToScopeAndLinkWithNode(symbol, node);
+    private void visit(String var, Supplier<BigDecimal> value, ASTNode node){
+        ExpressionSymbol expression = new ExpressionSymbol(var);
+        expression.setValue(value);
+        addToScopeAndLinkWithNode(expression, node);
 
         MessageSymbol message = new MessageSymbol(var);
         message.setValue(value);
         addToScopeAndLinkWithNode(message, node);
 
-        GuildSymbol guild = new GuildSymbol(var);
-        guild.setValue(value);
-        addToScopeAndLinkWithNode(guild, node);
-
-        MemberSymbol member = new MemberSymbol(var);
-        member.setValue(value);
-        addToScopeAndLinkWithNode(member, node);
-
-        RoleSymbol role = new RoleSymbol(var);
-        role.setValue(value);
-        addToScopeAndLinkWithNode(role, node);
-
-        TextChannelSymbol channel = new TextChannelSymbol(var);
-        channel.setValue(value);
-        addToScopeAndLinkWithNode(channel, node);
-
-        UserSymbol user = new UserSymbol(var);
-        user.setValue(value);
-        addToScopeAndLinkWithNode(user, node);
+        visitGuild(var, guild -> guild.setValue(value), node);
+        visitMember(var, guild -> guild.setValue(value), node);
+        visitUser(var, guild -> guild.setValue(value), node);
+        visitRole(var, guild -> guild.setValue(value), node);
+        visitTextChannel(var, guild -> guild.setValue(value), node);
     }
 
+    /*================================================================================================================*/
+    /*=================================================  Strings  ====================================================*/
+    /*================================================================================================================*/
     @Override
     public void visit(ASTIntervalType node){
         String var = command.getParameters().get(index).getVar();
+        String value = node.getInterval().getName();
 
         IntervalSymbol interval = new IntervalSymbol(var);
         interval.setValue(node.getInterval().getIntervalType());
         addToScopeAndLinkWithNode(interval, node);
+
+        visit(var, value, node);
     }
 
     @Override
     public void visit(ASTOnlineStatusType node){
         String var = command.getParameters().get(index).getVar();
+        String value = node.getOnlineStatus().getName();
 
         OnlineStatusSymbol status = new OnlineStatusSymbol(var);
         status.setValue(node.getOnlineStatus().getOnlineStatusType());
         addToScopeAndLinkWithNode(status, node);
+
+        visit(var, value, node);
     }
 
     @Override
@@ -155,28 +160,86 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
         String var = command.getParameters().get(index).getVar();
         String value = node.getStringLiteral().getValue();
 
+        visit(var, value, node);
+    }
+
+    @Override
+    public void visit(ASTNameExpression node){
+        String var = command.getParameters().get(index).getVar();
+        String value = node.getName();
+
+        visit(var, value, node);
+    }
+
+    private void visit(String var, String value, ASTNode node){
         StringSymbol string = new StringSymbol(var);
         string.setValue(value);
         addToScopeAndLinkWithNode(string, node);
 
-        GuildSymbol guild = new GuildSymbol(var);
-        guild.setValue(value);
-        addToScopeAndLinkWithNode(guild, node);
+        visitGuild(var, guild -> guild.setValue(value), node);
+        visitMember(var, guild -> guild.setValue(value), node);
+        visitUser(var, guild -> guild.setValue(value), node);
+        visitRole(var, guild -> guild.setValue(value), node);
+        visitTextChannel(var, guild -> guild.setValue(value), node);
+    }
 
-        MemberSymbol member = new MemberSymbol(var);
-        member.setValue(value);
-        addToScopeAndLinkWithNode(member, node);
+    private void visitGuild(String var, Consumer<GuildSymbol> setValue, ASTNode node){
+        Optional<GuildSymbol> guild = node.getEnclosingScope().resolve(var, GuildSymbol.KIND);
+        if(guild.isPresent()){
+            GuildSymbol symbol = guild.get();
+            setValue.accept(symbol);
+        }else{
+            GuildSymbol symbol = new GuildSymbol(var);
+            setValue.accept(symbol);
+            addToScopeAndLinkWithNode(symbol, node);
+        }
+    }
 
-        RoleSymbol role = new RoleSymbol(var);
-        role.setValue(value);
-        addToScopeAndLinkWithNode(role, node);
+    private void visitMember(String var, Consumer<MemberSymbol> setValue, ASTNode node){
+        Optional<MemberSymbol> member = node.getEnclosingScope().resolve(var, MemberSymbol.KIND);
+        if(member.isPresent()){
+            MemberSymbol symbol = member.get();
+            setValue.accept(symbol);
+        }else{
+            MemberSymbol symbol = new MemberSymbol(var);
+            setValue.accept(symbol);
+            addToScopeAndLinkWithNode(symbol, node);
+        }
+    }
 
-        TextChannelSymbol channel = new TextChannelSymbol(var);
-        channel.setValue(value);
-        addToScopeAndLinkWithNode(channel, node);
+    private void visitUser(String var, Consumer<UserSymbol> setValue, ASTNode node){
+        Optional<UserSymbol> user = node.getEnclosingScope().resolve(var, UserSymbol.KIND);
+        if(user.isPresent()){
+            UserSymbol symbol = user.get();
+            setValue.accept(symbol);
+        }else{
+            UserSymbol symbol = new UserSymbol(var);
+            setValue.accept(symbol);
+            addToScopeAndLinkWithNode(symbol, node);
+        }
+    }
 
-        UserSymbol user = new UserSymbol(var);
-        user.setValue(value);
-        addToScopeAndLinkWithNode(user, node);
+    private void visitTextChannel(String var, Consumer<TextChannelSymbol> setValue, ASTNode node){
+        Optional<TextChannelSymbol> channel = node.getEnclosingScope().resolve(var, TextChannelSymbol.KIND);
+        if(channel.isPresent()){
+            TextChannelSymbol symbol = channel.get();
+            setValue.accept(symbol);
+        }else{
+            TextChannelSymbol symbol = new TextChannelSymbol(var);
+            setValue.accept(symbol);
+            addToScopeAndLinkWithNode(symbol, node);
+        }
+    }
+
+    private void visitRole(String var, Consumer<RoleSymbol> setValue, ASTNode node){
+        Optional<RoleSymbol> role = node.getEnclosingScope().resolve(var, RoleSymbol.KIND);
+        if(role.isPresent()){
+            RoleSymbol symbol = role.get();
+            setValue.accept(symbol);
+        }else{
+            RoleSymbol symbol = new RoleSymbol(var);
+            setValue.accept(symbol);
+            addToScopeAndLinkWithNode(symbol, node);
+        }
     }
 }

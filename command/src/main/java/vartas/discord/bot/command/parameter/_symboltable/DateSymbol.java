@@ -17,7 +17,9 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
-import java.math.BigDecimal;
+import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
+import vartas.discord.bot.command.entity.ExpressionValueCalculator;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,9 +28,9 @@ import java.util.TimeZone;
 
 public class DateSymbol extends DateSymbolTOP{
     protected SimpleDateFormat dateFormat;
-    protected BigDecimal day;
-    protected BigDecimal month;
-    protected BigDecimal year;
+    protected ASTExpression day;
+    protected ASTExpression month;
+    protected ASTExpression year;
 
     public DateSymbol(String name) {
         super(name);
@@ -37,7 +39,7 @@ public class DateSymbol extends DateSymbolTOP{
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    public void setValue(BigDecimal day, BigDecimal month, BigDecimal year){
+    public void setValue(ASTExpression day, ASTExpression month, ASTExpression year){
         this.day = day;
         this.month = month;
         this.year = year;
@@ -45,7 +47,10 @@ public class DateSymbol extends DateSymbolTOP{
 
     public Optional<Date> resolve(){
         try{
-            Date date = dateFormat.parse(String.format("%2d-%2d-%4d", day.intValueExact(), month.intValueExact(), year.intValueExact()));
+            int day = ExpressionValueCalculator.valueOf(this.day).intValueExact();
+            int month = ExpressionValueCalculator.valueOf(this.month).intValueExact();
+            int year = ExpressionValueCalculator.valueOf(this.year).intValueExact();
+            Date date = dateFormat.parse(String.format("%2d-%2d-%4d", day, month, year));
             return Optional.of(date);
         }catch(ParseException e){
             return Optional.empty();
