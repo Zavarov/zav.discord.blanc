@@ -77,6 +77,7 @@ public class RedditInterfaceTest {
         assertThat(submission.getSelfText()).contains("selfText");
         assertThat(submission.getThumbnail()).contains("thumbnail");
         assertThat(submission.getUrl()).isEqualTo("url");
+        assertThat(submission.getPermalink()).isEqualTo("permalink");
     }
 
     @Test

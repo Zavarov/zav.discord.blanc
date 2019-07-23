@@ -156,7 +156,7 @@ public abstract class SubmissionMessage {
         //The message
         message.append(String.format("New submission from %s in `r/%s`\n",submission.getAuthor(),submission.getSubreddit()));
         message.append("\n");
-        message.append(submission.getPermalink());
+        message.append(submission.getShortLink());
 
         String url = submission.getPermalink();
         //Creates the title and truncates it, if it is getting too long.
