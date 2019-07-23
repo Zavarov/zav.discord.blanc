@@ -43,8 +43,16 @@ public class ExpressionValueCalculator implements EntityVisitor {
     /**
      * The number generator for the dice.
      */
-    private static Random rng = new Random();
+    protected static Random rng = new Random();
 
+    /**
+     * Indicates if an error occurred during the evaluation of the expression. For example if a constant was used that
+     * isn't defined.
+     */
+    protected boolean hasErrors;
+    /**
+     * Contains the value of each subexpression.
+     */
     protected Map<ASTNode, BigDecimal> values = new HashMap<>();
 
     protected ExpressionValueCalculator(){}

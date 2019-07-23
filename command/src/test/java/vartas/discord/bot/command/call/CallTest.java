@@ -138,7 +138,7 @@ public class CallTest extends AbstractTest {
 
     @Test
     public void testResolveOnlineStatus(){
-        ASTCallArtifact call = parse("example.onlinestatus status");
+        ASTCallArtifact call = parse("example.onlinestatus online");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();
@@ -149,7 +149,7 @@ public class CallTest extends AbstractTest {
 
     @Test
     public void testResolveInterval(){
-        ASTCallArtifact call = parse("example.interval interval");
+        ASTCallArtifact call = parse("example.interval day");
         CommandSymbol symbol = commandScope.<CommandSymbol>resolve(call.getQualifiedName(), CommandSymbol.KIND).get();
 
         String var = symbol.getParameters().get(0).getVar();

@@ -3,7 +3,11 @@ package vartas.discord.bot.command;
 /**
  * This grammar defines the syntax of the parameter specified in Parameter.mc4.
  */
-component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expressions.CommonExpressions, de.monticore.expressions.ExpressionsBasis{
+component grammar Entity extends de.monticore.MCBasicLiterals,
+                                 de.monticore.expressions.CommonExpressions,
+                                 de.monticore.expressions.ExpressionsBasis,
+                                 vartas.discord.bot.command.Interval,
+                                 vartas.discord.bot.command.OnlineStatus{
     ExtLiteral = SignedNumberType;
 
     interface EntityType;
@@ -71,12 +75,16 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     /*========================  Misc  =========================*/
     /*=========================================================*/
 
-    StringType implements EntityType =
+    StringType implements EntityType <500> =
         StringLiteral
     ;
 
-    NameType implements EntityType =
-        Name
+    IntervalType implements EntityType <500> =
+        Interval
+    ;
+
+    OnlineStatusType implements EntityType <500> =
+        OnlineStatus
     ;
 
     /*=========================================================*/
@@ -84,7 +92,7 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     /*=========================================================*/
 
     //All dates are also arithmetic expressions
-    DateType implements EntityType <4> =
+    DateType implements EntityType <400> =
           day:Expression "-"
         month:Expression "-"
          year:Expression
@@ -96,15 +104,15 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
 
     interface MentionedEntityType extends EntityType = id:DecimalNumberType;
 
-    UserType implements MentionedEntityType =
+    UserType implements MentionedEntityType <400> =
         "<" "@" semicolon:["!"]? id:DecimalNumberType ">"
     ;
 
-    TextChannelType implements MentionedEntityType =
+    TextChannelType implements MentionedEntityType <400> =
         "<" "#" id:DecimalNumberType ">"
     ;
 
-    RoleType implements MentionedEntityType =
+    RoleType implements MentionedEntityType <400> =
         "<" "@" "&" id:DecimalNumberType ">"
     ;
 
@@ -112,7 +120,7 @@ component grammar Entity extends de.monticore.MCBasicLiterals, de.monticore.expr
     /*================  Arithmetic Expression  ================*/
     /*=========================================================*/
 
-    ExpressionType implements EntityType <0> =
+    ExpressionType implements EntityType <300> =
         Expression
     ;
 

@@ -38,7 +38,7 @@ public class OnlineStatusCommand extends OnlineStatusCommandTOP{
      */
     @Override
     public void run(){
-        OnlineStatus status = statusSymbol.resolve().get();
+        OnlineStatus status = statusSymbol.resolve();
         communicator.jda().getPresence().setStatus(status);
     }
 }

@@ -19,26 +19,18 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import vartas.reddit.chart.line.AbstractChart.Interval;
 
-import java.util.Locale;
-import java.util.Optional;
-
 public class IntervalSymbol extends IntervalSymbolTOP{
-    protected String interval;
+    protected Interval interval;
 
     public IntervalSymbol(String name) {
         super(name);
     }
 
-    public void setValue(String interval){
+    public void setValue(Interval interval){
         this.interval = interval;
     }
 
-    public Optional<Interval> resolve(){
-        try{
-            return Optional.of(Interval.valueOf(interval.toUpperCase(Locale.ENGLISH)));
-        //Thrown when there is no interval with the specified name
-        }catch(IllegalArgumentException e){
-            return Optional.empty();
-        }
+    public Interval resolve(){
+        return interval;
     }
 }

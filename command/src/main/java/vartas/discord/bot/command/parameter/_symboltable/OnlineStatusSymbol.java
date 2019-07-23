@@ -19,31 +19,18 @@ package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.OnlineStatus;
 
-import java.util.Optional;
-
 public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
-    protected String status;
+    protected OnlineStatus status;
 
     public OnlineStatusSymbol(String name) {
         super(name);
     }
 
-    public void setValue(String status){
+    public void setValue(OnlineStatus status){
         this.status = status;
     }
 
-    public Optional<OnlineStatus> resolve(){
-        switch(status){
-            case "online":
-                return Optional.of(OnlineStatus.ONLINE);
-            case "invisible":
-                return Optional.of(OnlineStatus.INVISIBLE);
-            case "busy":
-                return Optional.of(OnlineStatus.DO_NOT_DISTURB);
-            case "idle":
-                return Optional.of(OnlineStatus.IDLE);
-            default:
-                return Optional.empty();
-        }
+    public OnlineStatus resolve(){
+        return status;
     }
 }

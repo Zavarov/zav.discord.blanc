@@ -48,7 +48,7 @@ public class NsfwChartCommand extends NsfwChartCommandTOP{
         Instant from = fromSymbol.resolve().get().toInstant();
         Instant to = toSymbol.resolve().get().toInstant();
         String subreddit = subredditSymbol.resolve();
-        AbstractChart.Interval interval = intervalSymbol.resolve().get();
+        AbstractChart.Interval interval = intervalSymbol.resolve();
 
         int width = environment.config().getImageWidth();
         int height = environment.config().getImageHeight();

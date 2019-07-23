@@ -133,17 +133,21 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     }
 
     @Override
-    public void visit(ASTNameType node){
+    public void visit(ASTIntervalType node){
         String var = command.getParameters().get(index).getVar();
-        String value = node.getName();
-
-        OnlineStatusSymbol status = new OnlineStatusSymbol(var);
-        status.setValue(value);
-        addToScopeAndLinkWithNode(status, node);
 
         IntervalSymbol interval = new IntervalSymbol(var);
-        interval.setValue(value);
+        interval.setValue(node.getInterval().getIntervalType());
         addToScopeAndLinkWithNode(interval, node);
+    }
+
+    @Override
+    public void visit(ASTOnlineStatusType node){
+        String var = command.getParameters().get(index).getVar();
+
+        OnlineStatusSymbol status = new OnlineStatusSymbol(var);
+        status.setValue(node.getOnlineStatus().getOnlineStatusType());
+        addToScopeAndLinkWithNode(status, node);
     }
 
     @Override
