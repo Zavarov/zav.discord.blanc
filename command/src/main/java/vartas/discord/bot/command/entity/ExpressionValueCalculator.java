@@ -244,7 +244,7 @@ public class ExpressionValueCalculator implements EntityVisitor {
         BigDecimal left = values.get(node.getLeft());
         BigDecimal right = values.get(node.getRight());
 
-        values.put(node, left.pow(right.intValueExact()));
+        values.put(node, BigDecimal.valueOf(Math.pow(left.doubleValue(), right.doubleValue())));
     }
 
     @Override
