@@ -15,12 +15,15 @@ This module is the core of the program. It implements the available commands and
 #### command
 This module implements the grammar for commands and generates the frame of the respective classes.
 In those frames, the preconditions are checked and variables initialized.
+
 This module is heavlily featured by [MontiCore](https://github.com/MontiCore/monticore), which is the workbench that, during compilation time, processes the models and creates the respecting commands, and during runtime, parses the inputs and creates new instances of the commands.
 
 Examples on how those classes can be modified can be found in the [blanc](blanc) module.
 
 #### io
 This module is responsible for maintaining all configuration files during runtime.
+
+Similar to  [command](command), this module relies on [MontiCore](https://github.com/MontiCore/monticore) to load the configuration files during the initialization phase of the bot.
 #### use
 This module is a legacy of the previous version and extends the functionality of [api](api).
 It implements the communicator and environment interfaces and also includes the Reddit feature.
