@@ -18,13 +18,13 @@
 package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import vartas.discord.bot.command.command._ast.ASTClassName;
+import vartas.discord.bot.command.command._ast.ASTClassNameAttribute;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
-public class ClassNameStartsWithCapitalLetterCoCo implements CommandASTClassNameCoCo, CommandVisitor {
+public class ClassNameStartsWithCapitalLetterCoCo implements CommandASTClassNameAttributeCoCo, CommandVisitor {
     public static final String ERROR_MESSAGE = "%s: The class name needs to start with a capital letter.";
     @Override
-    public void check(ASTClassName node) {
+    public void check(ASTClassNameAttribute node) {
         if(node.getValue().length() > 0 && Character.isLowerCase(node.getValue().charAt(0)))
             Log.error(String.format(ERROR_MESSAGE, node.getValue()));
     }

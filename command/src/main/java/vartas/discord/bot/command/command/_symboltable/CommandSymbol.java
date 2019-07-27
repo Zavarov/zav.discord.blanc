@@ -18,10 +18,12 @@
 package vartas.discord.bot.command.command._symboltable;
 
 import net.dv8tion.jda.core.Permission;
+import vartas.discord.bot.command.command._ast.ASTClassNameAttribute;
+import vartas.discord.bot.command.command._ast.ASTParameterAttribute;
 import vartas.discord.bot.command.parameter._ast.ASTParameterType;
-import vartas.discord.bot.command.permission._ast.ASTPermissionType;
 import vartas.discord.bot.command.rank._ast.ASTRankType;
 import vartas.discord.bot.io.rank.RankType;
+import vartas.discord.permission._ast.ASTPermission;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,32 +45,41 @@ public class CommandSymbol extends CommandSymbolTOP{
     }
 
     public String getClassName(){
-        Optional<ClassNameSymbol> symbol = getSpannedScope().resolveLocally("class", ClassNameSymbol.KIND);
-        return symbol.get().getClassNameNode().get().getValue();
+        Optional<ClassNameAttributeSymbol> symbol = getSpannedScope().resolveLocally("class", ClassNameAttributeSymbol.KIND);
+        return symbol
+                .flatMap(ClassNameAttributeSymbol::getClassNameAttributeNode)
+                .map(ASTClassNameAttribute::getValue)
+                .orElseThrow(() -> new IllegalStateException("This command doesn't have a class name specified."));
     }
 
     public List<RankType> getValidRanks(){
-        Optional<RankSymbol> symbol = getSpannedScope().resolveLocally("rank", RankSymbol.KIND);
-        if(symbol.isPresent())
-            return symbol.get().getRankNode().get().getRankTypeList().stream().map(ASTRankType::getRankType).collect(Collectors.toList());
-        else
-            return Collections.emptyList();
+        Optional<RankAttributeSymbol> symbol = getSpannedScope().resolveLocally("rank", RankAttributeSymbol.KIND);
+        return symbol
+                .flatMap(RankAttributeSymbol::getRankAttributeNode)
+                .map(s -> s.getRankTypeList()
+                        .stream()
+                        .map(ASTRankType::getRankType)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     public List<Permission> getRequiredPermissions(){
-        Optional<PermissionSymbol> symbol = getSpannedScope().resolveLocally("permission", PermissionSymbol.KIND);
-        if(symbol.isPresent())
-            return symbol.get().getPermissionNode().get().getPermissionTypeList().stream().map(ASTPermissionType::getPermissionType).collect(Collectors.toList());
-        else
-            return Collections.emptyList();
+        Optional<PermissionAttributeSymbol> symbol = getSpannedScope().resolveLocally("permission", PermissionAttributeSymbol.KIND);
+        return symbol
+                .flatMap(PermissionAttributeSymbol::getPermissionAttributeNode)
+                .map(s -> s.getPermissionList()
+                        .stream()
+                        .map(ASTPermission::getPermissionType)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     public List<ASTParameterType> getParameters(){
-        Optional<ParameterSymbol> symbol = getSpannedScope().resolveLocally("parameter", ParameterSymbol.KIND);
-        if(symbol.isPresent())
-            return symbol.get().getParameterNode().get().getParameterTypeList();
-        else
-            return Collections.emptyList();
+        Optional<ParameterAttributeSymbol> symbol = getSpannedScope().resolveLocally("parameter", ParameterAttributeSymbol.KIND);
+        return symbol
+                .flatMap(ParameterAttributeSymbol::getParameterAttributeNode)
+                .map(ASTParameterAttribute::getParameterTypeList)
+                .orElse(Collections.emptyList());
     }
 
     public boolean requiresGuild(){

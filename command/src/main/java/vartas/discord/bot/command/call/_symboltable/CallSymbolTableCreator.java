@@ -32,12 +32,13 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static vartas.discord.bot.command.entity.ExpressionValueCalculator.valueOf;
+import static vartas.arithmeticexpressions.calculator.ArithmeticExpressionsValueCalculator.valueOf;
 
 public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     protected int index;
     protected CommandSymbol command;
 
+    @SuppressWarnings("deprecation")
     public CallSymbolTableCreator(ResolvingConfiguration resolvingConfig, Scope enclosingScope) {
         super(resolvingConfig, enclosingScope);
     }
@@ -63,25 +64,25 @@ public class CallSymbolTableCreator extends CallSymbolTableCreatorTOP{
     @Override
     public void visit(ASTUserType node){
         UserSymbol user = new UserSymbol(command.getParameters().get(index).getVar());
-        user.setValue(BigDecimal.valueOf(node.getId().getValue()));
+        user.setValue(node.getUser().getId().getValue());
         addToScopeAndLinkWithNode(user, node);
 
         MemberSymbol member = new MemberSymbol(command.getParameters().get(index).getVar());
-        member.setValue(BigDecimal.valueOf(node.getId().getValue()));
+        member.setValue(node.getUser().getId().getValue());
         addToScopeAndLinkWithNode(member, node);
     }
 
     @Override
     public void visit(ASTTextChannelType node){
         TextChannelSymbol symbol = new TextChannelSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(BigDecimal.valueOf(node.getId().getValue()));
+        symbol.setValue(node.getTextChannel().getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 
     @Override
     public void visit(ASTRoleType node){
         RoleSymbol symbol = new RoleSymbol(command.getParameters().get(index).getVar());
-        symbol.setValue(BigDecimal.valueOf(node.getId().getValue()));
+        symbol.setValue(node.getRole().getId().getValue());
         addToScopeAndLinkWithNode(symbol, node);
     }
 

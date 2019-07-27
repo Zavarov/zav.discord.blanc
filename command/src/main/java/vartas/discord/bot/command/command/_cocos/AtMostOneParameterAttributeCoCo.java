@@ -19,11 +19,11 @@ package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
 import vartas.discord.bot.command.command._ast.ASTCommand;
-import vartas.discord.bot.command.command._ast.ASTParameter;
+import vartas.discord.bot.command.command._ast.ASTParameterAttribute;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
 public class AtMostOneParameterAttributeCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    protected int counter;
+    private int counter;
     public static final String ERROR_MESSAGE = "%s:The command can have at most one parameter attribute.";
     @Override
     public void check(ASTCommand node) {
@@ -35,7 +35,7 @@ public class AtMostOneParameterAttributeCoCo implements CommandASTCommandCoCo, C
     }
 
     @Override
-    public void visit(ASTParameter node){
+    public void visit(ASTParameterAttribute node){
         counter++;
     }
 }

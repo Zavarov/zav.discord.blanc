@@ -19,11 +19,11 @@ package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
 import vartas.discord.bot.command.command._ast.ASTCommand;
-import vartas.discord.bot.command.command._ast.ASTRank;
+import vartas.discord.bot.command.command._ast.ASTRankAttribute;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
 public class AtMostOneRankAttributeCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    protected int counter;
+    private int counter;
     public static final String ERROR_MESSAGE = "%s: The command can have at most one rank attribute.";
     @Override
     public void check(ASTCommand node) {
@@ -35,7 +35,7 @@ public class AtMostOneRankAttributeCoCo implements CommandASTCommandCoCo, Comman
     }
 
     @Override
-    public void visit(ASTRank node){
+    public void visit(ASTRankAttribute node){
         counter++;
     }
 }

@@ -4,72 +4,12 @@ package vartas.discord.bot.command;
  * This grammar defines the syntax of the parameter specified in Parameter.mc4.
  */
 component grammar Entity extends de.monticore.MCBasicLiterals,
-                                 de.monticore.expressions.CommonExpressions,
-                                 de.monticore.expressions.ExpressionsBasis,
-                                 vartas.discord.bot.command.Interval,
-                                 vartas.discord.bot.command.OnlineStatus{
-    ExtLiteral = SignedNumberType;
-
+                                 vartas.Numbers,
+                                 vartas.ArithmeticExpressions,
+                                 vartas.chart.Interval,
+                                 vartas.discord.Entity,
+                                 vartas.discord.OnlineStatus{
     interface EntityType;
-
-    /*=========================================================*/
-    /*=======================  Numbers  =======================*/
-    /*=========================================================*/
-
-    interface NumberType;
-    interface SignedNumberType;
-
-    DecimalNumberType implements NumberType =
-        source:Digits
-    ;
-
-    SignedDecimalNumberType implements SignedNumberType =
-        negative:["-"]? source:Digits
-    ;
-
-    FloatingPointNumberType implements NumberType =
-        pre:Digits "." post:Digits
-    ;
-
-    SignedFloatingPointNumberType implements SignedNumberType =
-        negative:["-"]? pre:Digits "." post:Digits
-    ;
-
-    astrule DecimalNumberType =
-        method public long getValue(){
-            return Long.parseLong(getSource());
-        }
-    ;
-
-    astrule SignedDecimalNumberType =
-        method public String getSource(){
-            return (isNegative() ? "-" : "") + source;
-        }
-
-        method public long getValue(){
-            return Long.parseLong(getSource());
-        }
-    ;
-
-    astrule FloatingPointNumberType =
-        method public String getSource(){
-            return getPre() + "." + getPost();
-        }
-
-        method public double getValue(){
-            return Double.parseDouble(getSource());
-        }
-    ;
-
-    astrule SignedFloatingPointNumberType =
-        method public String getSource(){
-            return (isNegative() ? "-" : "") + getPre() + "." + getPost();
-        }
-
-        method public double getValue(){
-            return Double.parseDouble(getSource());
-        }
-    ;
 
     /*=========================================================*/
     /*========================  Misc  =========================*/
@@ -102,18 +42,16 @@ component grammar Entity extends de.monticore.MCBasicLiterals,
     /*==================  Discord Entities  ===================*/
     /*=========================================================*/
 
-    interface MentionedEntityType extends EntityType = id:DecimalNumberType;
-
-    UserType implements MentionedEntityType <400> =
-        "<" "@" semicolon:["!"]? id:DecimalNumberType ">"
+    UserType implements EntityType <400> =
+        User
     ;
 
-    TextChannelType implements MentionedEntityType <400> =
-        "<" "#" id:DecimalNumberType ">"
+    TextChannelType implements EntityType <400> =
+        TextChannel
     ;
 
-    RoleType implements MentionedEntityType <400> =
-        "<" "@" "&" id:DecimalNumberType ">"
+    RoleType implements EntityType <400> =
+        Role
     ;
 
     /*=========================================================*/
@@ -122,83 +60,5 @@ component grammar Entity extends de.monticore.MCBasicLiterals,
 
     ExpressionType implements EntityType <300> =
         Expression
-    ;
-
-    /*=========================================================*/
-    /*=======================  Methods  =======================*/
-    /*=========================================================*/
-
-    interface SingleArgument = Expression;
-
-    AtArgument implements SingleArgument =
-        "@" Expression
-    ;
-
-    BracketArgument implements SingleArgument =
-        "(" Expression ")"
-    ;
-
-    PowExpression implements Expression <185> =
-        left:Expression operator:"^" right:Expression
-    ;
-
-    RandomNumberExpression implements Expression <250> =
-        "random" "(" dice:Expression "," eyes:Expression ")"
-    ;
-
-    AbsExpression implements Expression <250> =
-        "abs" argument:SingleArgument
-    ;
-
-    ACosExpression implements Expression <250> =
-        "acos" argument:SingleArgument
-    ;
-
-    ASinExpression implements Expression <250> =
-        "asin" argument:SingleArgument
-    ;
-
-    ATanExpression implements Expression <250> =
-        "atan" argument:SingleArgument
-    ;
-
-    CeilExpression implements Expression <250> =
-        "ceil" argument:SingleArgument
-    ;
-
-    CosExpression implements Expression <250> =
-        "cos" argument:SingleArgument
-    ;
-
-    FloorExpression implements Expression <250> =
-        "floor" argument:SingleArgument
-    ;
-
-    LogExpression implements Expression <250> =
-        "log" argument:SingleArgument
-    ;
-
-    LnExpression implements Expression <250> =
-        "ln" argument:SingleArgument
-    ;
-
-    MaxExpression implements Expression <250> =
-        "max" "(" left:Expression "," right:Expression ")"
-    ;
-
-    MinExpression implements Expression <250> =
-        "min" "(" left:Expression "," right:Expression ")"
-    ;
-
-    SinExpression implements Expression <250> =
-        "sin" argument:SingleArgument
-    ;
-
-    SqrtExpression implements Expression <250> =
-        "sqrt" argument:SingleArgument
-    ;
-
-    TanExpression implements Expression <250> =
-        "tan" argument:SingleArgument
     ;
 }

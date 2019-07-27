@@ -18,12 +18,12 @@
 package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import vartas.discord.bot.command.command._ast.ASTClassName;
+import vartas.discord.bot.command.command._ast.ASTClassNameAttribute;
 import vartas.discord.bot.command.command._ast.ASTCommand;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
 public class ExactlyOneClassNameAttributeCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    protected int counter;
+    private int counter;
     public static final String ERROR_MESSAGE = "%s: The command must have exactly one class name attribute.";
     @Override
     public void check(ASTCommand node) {
@@ -35,7 +35,7 @@ public class ExactlyOneClassNameAttributeCoCo implements CommandASTCommandCoCo, 
     }
 
     @Override
-    public void visit(ASTClassName node){
+    public void visit(ASTClassNameAttribute node){
         counter++;
     }
 }

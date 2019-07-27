@@ -5,8 +5,8 @@ package vartas.discord.bot.command;
  * For example, it is possible to specify the number of arguments or the permissions that are required to execute it.
  */
 grammar Command extends de.monticore.MCBasics,
+                        vartas.discord.Permission,
                         vartas.discord.bot.command.Rank,
-                        vartas.discord.bot.command.Permission,
                         vartas.discord.bot.command.Parameter{
     CommandArtifact =
         ("package" package:(Name& || ".")+ ";")?
@@ -29,15 +29,15 @@ grammar Command extends de.monticore.MCBasics,
 
     interface Attribute;
 
-    symbol ClassName implements Attribute =
+    symbol ClassNameAttribute implements Attribute =
         name:"class" ":" value:Name;
 
-    symbol Permission implements Attribute =
-        name:"permission" ":" (PermissionType || ",")+;
+    symbol PermissionAttribute implements Attribute =
+        name:"permission" ":" (Permission || ",")+;
 
-    symbol Parameter implements Attribute =
+    symbol ParameterAttribute implements Attribute =
          name:"parameter" ":" (ParameterType || ",")+;
 
-    symbol Rank implements Attribute =
+    symbol RankAttribute implements Attribute =
               name:"rank" ":" (RankType || ",")+;
 }

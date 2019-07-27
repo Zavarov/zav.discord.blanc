@@ -19,11 +19,11 @@ package vartas.discord.bot.command.command._cocos;
 
 import de.se_rwth.commons.logging.Log;
 import vartas.discord.bot.command.command._ast.ASTCommand;
-import vartas.discord.bot.command.command._ast.ASTPermission;
+import vartas.discord.bot.command.command._ast.ASTPermissionAttribute;
 import vartas.discord.bot.command.command._visitor.CommandVisitor;
 
 public class AtMostOnePermissionAttributeCoCo implements CommandASTCommandCoCo, CommandVisitor {
-    protected int counter;
+    private int counter;
     public static final String ERROR_MESSAGE = "%s: The command can have at most one permission attribute.";
     @Override
     public void check(ASTCommand node) {
@@ -35,7 +35,7 @@ public class AtMostOnePermissionAttributeCoCo implements CommandASTCommandCoCo, 
     }
 
     @Override
-    public void visit(ASTPermission node){
+    public void visit(ASTPermissionAttribute node){
         counter++;
     }
 }

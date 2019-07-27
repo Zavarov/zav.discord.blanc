@@ -18,7 +18,6 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
-import vartas.discord.bot.command.entity.ExpressionValueCalculator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,11 +25,13 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import static vartas.arithmeticexpressions.calculator.ArithmeticExpressionsValueCalculator.valueOf;
+
 public class DateSymbol extends DateSymbolTOP{
-    protected SimpleDateFormat dateFormat;
-    protected ASTExpression day;
-    protected ASTExpression month;
-    protected ASTExpression year;
+    private SimpleDateFormat dateFormat;
+    private ASTExpression day;
+    private ASTExpression month;
+    private ASTExpression year;
 
     public DateSymbol(String name) {
         super(name);
@@ -47,9 +48,9 @@ public class DateSymbol extends DateSymbolTOP{
 
     public Optional<Date> resolve(){
         try{
-            int day = ExpressionValueCalculator.valueOf(this.day).intValueExact();
-            int month = ExpressionValueCalculator.valueOf(this.month).intValueExact();
-            int year = ExpressionValueCalculator.valueOf(this.year).intValueExact();
+            int day = valueOf(this.day).intValueExact();
+            int month = valueOf(this.month).intValueExact();
+            int year = valueOf(this.year).intValueExact();
             Date date = dateFormat.parse(String.format("%2d-%2d-%4d", day, month, year));
             return Optional.of(date);
         }catch(ParseException e){
