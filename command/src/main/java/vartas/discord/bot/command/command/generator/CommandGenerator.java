@@ -37,6 +37,7 @@ public class CommandGenerator {
 
     public static void generate(ASTCommand ast, GeneratorEngine generator, IterablePath targetPath, String packageName){
         String className = ast.getCommandSymbol().getClassName();
+        String abstractClassName = "Abstract"+ast.getCommandSymbol().getClassName();
 
         boolean fileExists = GeneratorHelper.existsHandwrittenClass(className, packageName, targetPath);
 
@@ -44,7 +45,9 @@ public class CommandGenerator {
 
         Path path = CommandGeneratorHelper.getQualifiedPath(packageName, fileName);
 
-        generator.generate("command.Command", path, ast, packageName, fileExists, fileName);
+        String abstractFileName = GeneratorHelper.getSimpleTypeNameToGenerate(abstractClassName, packageName, targetPath);
+
+        generator.generate("command.Command", path, ast, packageName, fileExists, fileName, abstractFileName);
     }
 
     public static void generateAbstract(ASTCommand ast, GeneratorEngine generator, IterablePath targetPath, String packageName){

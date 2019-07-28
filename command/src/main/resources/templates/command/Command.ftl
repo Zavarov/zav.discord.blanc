@@ -1,4 +1,4 @@
-${signature("package", "existsHandwrittenClass", "name")}
+${signature("package", "existsHandwrittenClass", "name", "abstractName")}
 <#assign symbol = ast.getCommandSymbol()>
 <#assign parameters = symbol.getParameters()>
 package ${package};
@@ -19,7 +19,7 @@ import org.slf4j.*;
 
 import java.util.*;
 
-public <#if existsHandwrittenClass>abstract </#if>class ${name} extends Abstract${name}{
+public <#if existsHandwrittenClass>abstract </#if>class ${name} extends ${abstractName}{
     ${includeArgs("command.VariableDeclaration", parameters)}
 
     public ${name}(Message source, CommunicatorInterface communicator, List<ASTEntityType> parameters) throws IllegalArgumentException, IllegalStateException
