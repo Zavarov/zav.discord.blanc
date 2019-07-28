@@ -48,6 +48,10 @@ public class GuildSymbol extends GuildSymbolTOP{
         this.id = Optional.of(() -> id);
     }
 
+    public String getQualifiedResolvedName(){
+        return Guild.class.getCanonicalName();
+    }
+
     /**
      * We first attempt to resolve the guild by its name first, if it is present.
      * If this fails we try to resolve it via the id.

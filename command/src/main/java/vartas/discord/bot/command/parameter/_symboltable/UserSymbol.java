@@ -48,6 +48,10 @@ public class UserSymbol extends UserSymbolTOP{
         this.id = Optional.of(() -> id);
     }
 
+    public String getQualifiedResolvedName(){
+        return User.class.getCanonicalName();
+    }
+
     /**
      * We first attempt to resolve the user by its name first, if it is present.
      * If this fails we try to resolve it via the id.

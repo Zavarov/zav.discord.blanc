@@ -18,6 +18,7 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import de.monticore.expressions.expressionsbasis._ast.ASTExpression;
+import net.dv8tion.jda.core.entities.Message;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,7 +47,11 @@ public class DateSymbol extends DateSymbolTOP{
         this.year = year;
     }
 
-    public Optional<Date> resolve(){
+    public String getQualifiedResolvedName(){
+        return Date.class.getCanonicalName();
+    }
+
+    public Optional<Date> resolve(Message context){
         try{
             int day = valueOf(this.day).intValueExact();
             int month = valueOf(this.month).intValueExact();

@@ -19,33 +19,12 @@ import org.slf4j.*;
 
 import java.util.*;
 
-public <#if existsHandwrittenClass>abstract </#if>class ${name} extends AbstractCommand{
-    protected Logger log = JDALogger.getLog("${name}");
-    protected Message source;
-    protected CommunicatorInterface communicator;
-    protected EnvironmentInterface environment;
-
-    protected User author;
-
-    ${includeArgs("command.VariableDeclaration", parameters, symbol)}
+public <#if existsHandwrittenClass>abstract </#if>class ${name} extends Abstract${name}{
+    ${includeArgs("command.VariableDeclaration", parameters)}
 
     public ${name}(Message source, CommunicatorInterface communicator, List<ASTEntityType> parameters) throws IllegalArgumentException, IllegalStateException
     {
-        this.source = source;
-        this.communicator = communicator;
-        this.environment = communicator.environment();
-        this.author = source.getAuthor();
-
-        ${includeArgs("command.CheckGuild", symbol)}
-        ${includeArgs("command.CheckPermission", symbol)}
-        ${includeArgs("command.CheckRank", symbol)}
-        ${includeArgs("command.CheckParameter", parameters)}
-
-        ${includeArgs("command.VariableInitialization", parameters, symbol)}
+        super(source, communicator, parameters);
+        ${includeArgs("command.VariableInitialization", parameters)}
     }
-
-<#if !existsHandwrittenClass>
-    @Override
-    public void run(){}
-</#if>
 }

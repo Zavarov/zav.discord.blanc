@@ -42,6 +42,10 @@ public class MessageSymbol extends MessageSymbolTOP{
         this.id = () -> id;
     }
 
+    public String getQualifiedResolvedName(){
+        return Message.class.getCanonicalName();
+    }
+
     public Optional<Message> resolve(Message context){
         checkNotNull(context);
         checkNotNull(context.getTextChannel());

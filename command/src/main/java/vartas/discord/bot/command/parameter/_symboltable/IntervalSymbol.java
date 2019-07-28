@@ -17,7 +17,10 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
+import net.dv8tion.jda.core.entities.Message;
 import vartas.reddit.chart.line.AbstractChart.Interval;
+
+import java.util.Optional;
 
 public class IntervalSymbol extends IntervalSymbolTOP{
     protected Interval interval;
@@ -30,7 +33,11 @@ public class IntervalSymbol extends IntervalSymbolTOP{
         this.interval = interval;
     }
 
-    public Interval resolve(){
-        return interval;
+    public String getQualifiedResolvedName(){
+        return Interval.class.getCanonicalName();
+    }
+
+    public Optional<Interval> resolve(Message context){
+        return Optional.of(interval);
     }
 }

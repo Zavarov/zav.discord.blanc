@@ -17,7 +17,10 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
+import net.dv8tion.jda.core.entities.Message;
+
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ExpressionSymbol extends ExpressionSymbolTOP{
@@ -31,7 +34,11 @@ public class ExpressionSymbol extends ExpressionSymbolTOP{
         this.value = value;
     }
 
-    public BigDecimal resolve(){
-        return value.get();
+    public String getQualifiedResolvedName(){
+        return BigDecimal.class.getCanonicalName();
+    }
+
+    public Optional<BigDecimal> resolve(Message context){
+        return Optional.of(value.get());
     }
 }

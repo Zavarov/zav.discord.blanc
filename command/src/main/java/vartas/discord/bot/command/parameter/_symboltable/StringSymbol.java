@@ -17,6 +17,10 @@
 
 package vartas.discord.bot.command.parameter._symboltable;
 
+import net.dv8tion.jda.core.entities.Message;
+
+import java.util.Optional;
+
 public class StringSymbol extends StringSymbolTOP{
     protected String value;
 
@@ -28,7 +32,11 @@ public class StringSymbol extends StringSymbolTOP{
         this.value = value;
     }
 
-    public String resolve(){
-        return value;
+    public String getQualifiedResolvedName(){
+        return String.class.getCanonicalName();
+    }
+
+    public Optional<String> resolve(Message context){
+        return Optional.of(value);
     }
 }

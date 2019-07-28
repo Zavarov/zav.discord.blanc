@@ -18,6 +18,9 @@
 package vartas.discord.bot.command.parameter._symboltable;
 
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.Message;
+
+import java.util.Optional;
 
 public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
     protected OnlineStatus status;
@@ -30,7 +33,11 @@ public class OnlineStatusSymbol extends OnlineStatusSymbolTOP {
         this.status = status;
     }
 
-    public OnlineStatus resolve(){
-        return status;
+    public String getQualifiedResolvedName(){
+        return OnlineStatus.class.getCanonicalName();
+    }
+
+    public Optional<OnlineStatus> resolve(Message context){
+        return Optional.of(status);
     }
 }

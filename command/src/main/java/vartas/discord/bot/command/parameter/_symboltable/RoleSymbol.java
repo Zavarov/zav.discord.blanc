@@ -48,6 +48,10 @@ public class RoleSymbol extends RoleSymbolTOP{
         this.id = Optional.of(() -> id);
     }
 
+    public String getQualifiedResolvedName(){
+        return Role.class.getCanonicalName();
+    }
+
     /**
      * We first attempt to resolve the role by its name first, if it is present.
      * If this fails we try to resolve it via the id.

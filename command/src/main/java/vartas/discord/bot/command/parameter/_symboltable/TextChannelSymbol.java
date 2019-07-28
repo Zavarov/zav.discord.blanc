@@ -48,6 +48,10 @@ public class TextChannelSymbol extends TextChannelSymbolTOP{
         this.id = Optional.of(() -> id);
     }
 
+    public String getQualifiedResolvedName(){
+        return TextChannel.class.getCanonicalName();
+    }
+
     /**
      * We first attempt to resolve the text channel by its name first, if it is present.
      * If this fails we try to resolve it via the id.

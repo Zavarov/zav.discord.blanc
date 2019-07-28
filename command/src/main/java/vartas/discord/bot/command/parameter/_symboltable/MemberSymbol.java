@@ -48,6 +48,10 @@ public class MemberSymbol extends MemberSymbolTOP{
         this.id = Optional.of(() -> id);
     }
 
+    public String getQualifiedResolvedName(){
+        return Member.class.getCanonicalName();
+    }
+
     /**
      * We first attempt to resolve the member by its name first, if it is present.
      * If this fails we try to resolve it via the id.
