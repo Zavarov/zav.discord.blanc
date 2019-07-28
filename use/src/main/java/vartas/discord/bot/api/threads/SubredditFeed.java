@@ -138,10 +138,10 @@ public class SubredditFeed{
                     try {
                         environment.communicator(channel).send(channel, submission);
                     }catch(InsufficientPermissionException e){
-                        log.warn("Couldn't send a submission from "+subreddit, e);
+                        log.warn("Couldn't send a submission from "+subreddit, e.getMessage());
                         environment.communicator(channel).execute(() -> environment.remove(subreddit, channel));
                     }catch(ErrorResponseException e){
-                        log.warn("Couldn't send a submission from "+subreddit, e);
+                        log.warn("Couldn't send a submission from "+subreddit, e.getMessage());
                         ErrorResponse response = e.getErrorResponse();
                         if(response == ErrorResponse.UNKNOWN_GUILD || response == ErrorResponse.UNKNOWN_CHANNEL) {
                             environment.communicator(channel).execute(() -> environment.remove(subreddit, channel));
