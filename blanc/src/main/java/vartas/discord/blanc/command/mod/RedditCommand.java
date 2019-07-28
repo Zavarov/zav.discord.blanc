@@ -37,9 +37,11 @@ public class RedditCommand extends RedditCommandTOP {
     @Override
     public void run(){
         String subreddit = subredditSymbol.resolve();
-        TextChannel textChannel = channelSymbol.resolve(source).get();
+        TextChannel textChannel = channelSymbol.resolve(source).orElseThrow(() -> new IllegalArgumentException("The textchannel couldn't be resolved"));
 
-        if(config.containsRedditFeed(subreddit, textChannel)){
+        if(!textChannel.canTalk()){
+            communicator.send(channel, "I can't interact with "+textChannel.getAsMention());
+        }else if(config.containsRedditFeed(subreddit, textChannel)){
             environment.remove(subreddit, textChannel);
             communicator.send(channel, "Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getAsMention()+".");
         }else{
