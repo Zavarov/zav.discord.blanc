@@ -17,7 +17,6 @@
 package vartas.discord.blanc.command.mod;
 
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
@@ -36,17 +35,14 @@ public class RedditCommand extends RedditCommandTOP {
      */
     @Override
     public void run(){
-        String subreddit = subredditSymbol.resolve();
-        TextChannel textChannel = channelSymbol.resolve(source).orElseThrow(() -> new IllegalArgumentException("The textchannel couldn't be resolved"));
-
-        if(!textChannel.canTalk()){
-            communicator.send(channel, "I can't interact with "+textChannel.getAsMention());
-        }else if(config.containsRedditFeed(subreddit, textChannel)){
-            environment.remove(subreddit, textChannel);
-            communicator.send(channel, "Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getAsMention()+".");
+        if(!textchannel.canTalk()){
+            communicator.send(channel, "I can't interact with "+textchannel.getAsMention());
+        }else if(config.containsRedditFeed(subreddit, textchannel)){
+            environment.remove(subreddit, textchannel);
+            communicator.send(channel, "Submissions from r/"+subreddit+" will no longer be posted in "+textchannel.getAsMention()+".");
         }else{
-            environment.add(subreddit, textChannel);
-            communicator.send(channel, "Submissions from r/"+subreddit+" will be posted in "+textChannel.getAsMention()+".");
+            environment.add(subreddit, textchannel);
+            communicator.send(channel, "Submissions from r/"+subreddit+" will be posted in "+textchannel.getAsMention()+".");
         }
     }
 }

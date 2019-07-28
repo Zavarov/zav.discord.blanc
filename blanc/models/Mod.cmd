@@ -13,7 +13,7 @@ command @ mod{
     }
     reddit @ guild{
              class : RedditCommand
-         parameter : subreddit:string, channel:textchannel
+         parameter : subreddit:string, textchannel:textchannel
         permission : manage channels
     }
     tag @ guild{

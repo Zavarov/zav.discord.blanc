@@ -18,7 +18,6 @@
 package vartas.discord.blanc.command.base;
 
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.message.RoleMessage;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
@@ -38,7 +37,6 @@ public class RoleCommand extends RoleCommandTOP{
      */
     @Override
     public void run(){
-        Role role = roleSymbol.resolve(source).get();
         communicator.send(RoleMessage.create(author, role, channel, communicator));
     }
 }

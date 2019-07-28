@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.command.base;
 
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.message.MemberMessage;
@@ -38,7 +37,6 @@ public class MemberCommand extends MemberCommandTOP{
      */
     @Override
     public void run(){
-        Member member = memberSymbol.resolve(source).get();
         communicator.send(MemberMessage.create(author, member, channel, communicator));
     }
 }

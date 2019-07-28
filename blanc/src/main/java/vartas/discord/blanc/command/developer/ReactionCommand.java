@@ -36,8 +36,6 @@ public class ReactionCommand extends ReactionCommandTOP{
      */
     @Override
     public void run(){
-        Message message = messageSymbol.resolve(source).get();
-
-        communicator.send(message.addReaction(reactionSymbol.resolve()));
+        communicator.send(message.addReaction(reaction));
     }
 }

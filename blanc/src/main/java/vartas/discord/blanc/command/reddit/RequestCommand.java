@@ -69,10 +69,6 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
      * The number of requested submissions so far.
      */
     int submissionsAmount = 0;
-    /**
-     * The subreddit data is requested from.
-     */
-    String subreddit;
     public RequestCommand(Message source, CommunicatorInterface communicator, List<ASTEntityType> parameters) throws IllegalArgumentException, IllegalStateException {
         super(source, communicator, parameters);
     }
@@ -83,10 +79,9 @@ public class RequestCommand extends RequestCommandTOP implements Consumer<Messag
     @Override
     public void run(){
         if(MUTEX.tryAcquire()){
-            from = fromSymbol.resolve().get().toInstant();
-            to = toSymbol.resolve().get().toInstant();
+            from = super.from.toInstant();
+            to = super.to.toInstant();
             days = RedditInterface.countDays(from, to);
-            subreddit = subredditSymbol.resolve();
 
             MessageBuilder message = new MessageBuilder();
             message.append(String.format(MESSAGE,

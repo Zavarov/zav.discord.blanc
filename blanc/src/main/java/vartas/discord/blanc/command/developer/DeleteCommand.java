@@ -36,8 +36,6 @@ public class DeleteCommand extends DeleteCommandTOP{
      */
     @Override
     public void run() {
-        Message message = messageSymbol.resolve(source).get();
-
         if(message.getAuthor().equals(member.getUser())){
             communicator.send(message.delete());
         }else{

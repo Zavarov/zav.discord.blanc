@@ -37,8 +37,6 @@ public class FilterCommand extends FilterCommandTOP {
      */
     @Override
     public void run(){
-        String expression = expressionSymbol.resolve();
-
         if(config.isFiltered(expression)){
             config.removeFromFilter(expression);
             communicator.send(channel, "Messages containing "+expression+" will no longer be removed.");

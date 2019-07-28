@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.command.developer;
 
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
@@ -38,7 +37,6 @@ public class OnlineStatusCommand extends OnlineStatusCommandTOP{
      */
     @Override
     public void run(){
-        OnlineStatus status = statusSymbol.resolve();
         communicator.jda().getPresence().setStatus(status);
     }
 }

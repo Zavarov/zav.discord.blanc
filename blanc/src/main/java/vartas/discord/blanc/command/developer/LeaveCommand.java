@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.command.developer;
 
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
@@ -37,7 +36,6 @@ public class LeaveCommand extends LeaveCommandTOP{
      */
     @Override
     public void run(){
-        Guild guild = guildSymbol.resolve(source).get();
         communicator.send(channel,"Left guild "+guild.getName()+".");
         communicator.send(guild.leave());
     }

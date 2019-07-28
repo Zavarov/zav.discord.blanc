@@ -18,7 +18,6 @@
 package vartas.discord.blanc.command.mod;
 
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
@@ -35,9 +34,6 @@ public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
 
     @Override
     public void run(){
-        String tag = tagSymbol.resolve();
-        Role role = roleSymbol.resolve(source).get();
-
         Optional<String> group = config.getTag(role);
 
         //The role is grouped under this tag -> Untag

@@ -35,7 +35,6 @@ public class PrefixCommand extends PrefixCommandTOP{
      */
     @Override
     public void run(){
-        String prefix = prefixSymbol.resolve();
         if(prefix.isEmpty()) {
             config.setPrefix(null);
             communicator.send(channel,"Removed the custom prefix.");

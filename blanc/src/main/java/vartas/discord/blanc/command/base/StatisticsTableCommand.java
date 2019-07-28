@@ -172,9 +172,8 @@ public class StatisticsTableCommand extends StatisticsTableCommandTOP{
     public void run(){
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, communicator);
 
-        Instant from = fromSymbol.resolve().get().toInstant();
-        Instant to = toSymbol.resolve().get().toInstant();
-        String subreddit = subredditSymbol.resolve();
+        Instant from = super.from.toInstant();
+        Instant to = super.to.toInstant();
 
         ListMultimap<Instant, CommentInterface> commentMap = RedditInterface.loadComment(from, to, subreddit);
         ListMultimap<Instant, SubmissionInterface> submissionMap = RedditInterface.loadSubmission(from, to, subreddit);

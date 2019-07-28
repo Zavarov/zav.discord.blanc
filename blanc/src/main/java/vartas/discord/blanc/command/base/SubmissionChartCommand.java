@@ -24,7 +24,6 @@ import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.environment.RedditInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 import vartas.reddit.SubmissionInterface;
-import vartas.reddit.chart.line.AbstractChart;
 import vartas.reddit.chart.line.SubmissionChart;
 
 import java.awt.image.BufferedImage;
@@ -44,10 +43,8 @@ public class SubmissionChartCommand extends SubmissionChartCommandTOP{
      */
     @Override
     public void run(){
-        Instant from = fromSymbol.resolve().get().toInstant();
-        Instant to = toSymbol.resolve().get().toInstant();
-        String subreddit = subredditSymbol.resolve();
-        AbstractChart.Interval interval = intervalSymbol.resolve();
+        Instant from = super.from.toInstant();
+        Instant to = super.to.toInstant();
 
         int width = environment.config().getImageWidth();
         int height = environment.config().getImageHeight();

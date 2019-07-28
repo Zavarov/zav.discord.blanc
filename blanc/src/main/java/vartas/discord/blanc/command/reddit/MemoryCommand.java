@@ -44,9 +44,8 @@ public class MemoryCommand extends MemoryCommandTOP{
      */
     @Override
     public void run(){
-        Instant from = fromSymbol.resolve().get().toInstant();
-        Instant to = toSymbol.resolve().get().toInstant();
-        String subreddit = subredditSymbol.resolve();
+        Instant from = super.from.toInstant();
+        Instant to = super.to.toInstant();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM ''yy", Locale.ENGLISH);
         InteractiveMessage.Builder builder = new InteractiveMessage.Builder(channel, author, communicator);

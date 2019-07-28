@@ -36,7 +36,6 @@ public class NicknameCommand extends NicknameCommandTOP{
      */
     @Override
     public void run(){
-        String nickname = nicknameSymbol.resolve();
         if(nickname.isEmpty()){
             communicator.send(guild.getController().setNickname(guild.getSelfMember(),null));
             communicator.send(channel, "Nickname removed.");

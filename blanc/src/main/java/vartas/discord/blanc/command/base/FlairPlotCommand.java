@@ -44,9 +44,8 @@ public class FlairPlotCommand extends FlairPlotCommandTOP{
      */
     @Override
     public void run() {
-        Instant from = fromSymbol.resolve().get().toInstant();
-        Instant to = toSymbol.resolve().get().toInstant();
-        String subreddit = subredditSymbol.resolve();
+        Instant from = super.from.toInstant();
+        Instant to = super.to.toInstant();
 
         int width = environment.config().getImageWidth();
         int height = environment.config().getImageHeight();

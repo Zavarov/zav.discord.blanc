@@ -17,7 +17,6 @@
 package vartas.discord.blanc.command.developer;
 
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.command.entity._ast.ASTEntityType;
 
@@ -37,7 +36,6 @@ public class RedditRankCommand extends RedditRankCommandTOP{
     @Override
     public void run(){
         StringBuilder builder = new StringBuilder();
-        User user = userSymbol.resolve(source).get();
         if(environment.rank().hasRedditRank(user)){
             environment.rank().removeRedditRank(user);
             builder.append("Removed Reddit rank from ").append(user.getName()).append(".");

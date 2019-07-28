@@ -36,6 +36,6 @@ public class SayCommand extends SayCommandTOP{
      */
     @Override
     public void run(){
-        communicator.send(channel, contentSymbol.resolve());
+        communicator.send(channel, content);
     }
 }

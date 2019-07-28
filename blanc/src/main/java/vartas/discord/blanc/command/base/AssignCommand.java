@@ -54,37 +54,28 @@ public class AssignCommand extends AssignCommandTOP{
         MUTEX.acquireUninterruptibly();
 
         try {
-            Optional<Role> optional = roleSymbol.resolve(source);
-            if (optional.isPresent()) {
-                Role role = optional.get();
-
-                Optional<String> tag = config.getTag(role);
-                if(tag.isPresent()){
-                    if(member.getRoles().contains(role)){
-                        communicator.send(guild.getController().removeSingleRoleFromMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
-                        communicator.send(channel, String.format("Removed role %s.", role.getName()));
-                    }else{
-                        Collection<Role> others = config.getTags(guild).get(tag.get());
-                        Collection<Role> conflictingRoles = member
-                                .getRoles()
-                                .stream()
-                                .filter(others::contains)
-                                .collect(Collectors.toList());
-
-                        if(conflictingRoles.isEmpty()){
-                            communicator.send(guild.getController().addSingleRoleToMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
-                        }else{
-                            communicator.send(guild.getController().modifyMemberRoles(member, Collections.singleton(role), conflictingRoles), o -> MUTEX.release(), o -> MUTEX.release());
-                        }
-                        communicator.send(channel, String.format("Added role %s.", role.getName()));
-                    }
+            Optional<String> tag = config.getTag(role);
+            if(tag.isPresent()){
+                if(member.getRoles().contains(role)){
+                    communicator.send(guild.getController().removeSingleRoleFromMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
+                    communicator.send(channel, String.format("Removed role %s.", role.getName()));
                 }else{
-                    communicator.send(channel, "The specified role isn't self-assignable.");
-                    MUTEX.release();
-                }
+                    Collection<Role> others = config.getTags(guild).get(tag.get());
+                    Collection<Role> conflictingRoles = member
+                            .getRoles()
+                            .stream()
+                            .filter(others::contains)
+                            .collect(Collectors.toList());
 
-            } else {
-                communicator.send(channel, "The specified role couldn't be resolved.");
+                    if(conflictingRoles.isEmpty()){
+                        communicator.send(guild.getController().addSingleRoleToMember(member, role), o -> MUTEX.release(), o -> MUTEX.release());
+                    }else{
+                        communicator.send(guild.getController().modifyMemberRoles(member, Collections.singleton(role), conflictingRoles), o -> MUTEX.release(), o -> MUTEX.release());
+                    }
+                    communicator.send(channel, String.format("Added role %s.", role.getName()));
+                }
+            }else{
+                communicator.send(channel, "The specified role isn't self-assignable.");
                 MUTEX.release();
             }
         //Just in case so we don't end up in a deadlock

@@ -36,6 +36,6 @@ public class MathCommand extends MathCommandTOP {
      */
     @Override
     public void run() {
-        communicator.send(channel, Double.toString(expressionSymbol.resolve().doubleValue()));
+        communicator.send(channel, Double.toString(expression.doubleValue()));
     }
 }
