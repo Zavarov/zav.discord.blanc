@@ -179,7 +179,7 @@ public class MessageListener extends ListenerAdapter {
     private void messageReceived(Message message){
         if(!message.getAuthor().isBot() && hasPrefix(message)){
             try {
-                AbstractCommand command = builder.build(message);
+                AbstractCommand command = builder.build(getContent(message), message);
 
                 //Wrap the command in a runnable that notifies us about any uncaught exception.
                 Runnable runnable = () -> {

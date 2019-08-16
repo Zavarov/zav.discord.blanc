@@ -33,10 +33,11 @@ public class CommandBuilder extends AbstractCommandBuilder{
     }
 
     @Override
-    public AbstractCommand build(Message source) {
+    public AbstractCommand build(String content, Message source) {
+        checkNotNull(content);
         checkNotNull(source);
 
-        ASTCallArtifact artifact = CallHelper.parse(scope, source.getContentRaw());
+        ASTCallArtifact artifact = CallHelper.parse(scope, content);
 
         return commands.get(artifact.getQualifiedName()).apply(source, artifact.getParameterList());
     }

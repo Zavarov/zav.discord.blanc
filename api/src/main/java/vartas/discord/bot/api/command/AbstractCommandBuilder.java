@@ -37,5 +37,6 @@ public abstract class AbstractCommandBuilder {
         this.communicator = communicator;
     }
 
-    public abstract AbstractCommand build(Message source);
+
+    public abstract AbstractCommand build(String content, Message source);
 }
