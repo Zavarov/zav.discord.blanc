@@ -19,10 +19,10 @@ package vartas.discord.bot.api.environment;
 import de.monticore.symboltable.GlobalScope;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
+import vartas.discord.bot.api.command.AbstractCommandBuilder;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.threads.RedditFeed;
 import vartas.discord.bot.api.threads.StatusTracker;
-import vartas.discord.bot.exec.AbstractCommandBuilder;
 import vartas.discord.bot.io.config._ast.ASTConfigArtifact;
 import vartas.discord.bot.io.rank.RankConfiguration;
 import vartas.discord.bot.io.rank.RankHelper;
@@ -37,7 +37,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +53,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
     /**
      * The builder for generating the commands from the calls.
      */
-    protected Supplier<AbstractCommandBuilder> builder;
+    protected Function<CommunicatorInterface, AbstractCommandBuilder> builder;
     /**
      * The formatter for dates.
      */
@@ -92,7 +92,7 @@ public abstract class AbstractEnvironment implements EnvironmentInterface {
      * @param commands the scope for all valid commands
      * @param builder the builder for generating the commands from the calls
      */
-    protected AbstractEnvironment(ASTConfigArtifact config, GlobalScope commands, Supplier<AbstractCommandBuilder> builder){
+    protected AbstractEnvironment(ASTConfigArtifact config, GlobalScope commands, Function<CommunicatorInterface, AbstractCommandBuilder> builder){
         this.config = config;
         this.commands = commands;
         this.builder = builder;

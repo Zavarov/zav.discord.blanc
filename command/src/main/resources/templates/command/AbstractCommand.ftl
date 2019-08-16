@@ -3,6 +3,7 @@ ${signature("package", "existsHandwrittenClass", "name")}
 <#assign parameters = symbol.getParameters()>
 package ${package};
 
+import vartas.discord.bot.api.command.*;
 import vartas.discord.bot.command.*;
 import vartas.discord.bot.command.entity._ast.*;
 import vartas.discord.bot.command.parameter._symboltable.*;

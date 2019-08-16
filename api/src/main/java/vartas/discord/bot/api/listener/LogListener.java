@@ -51,10 +51,9 @@ public class LogListener<T> extends AppenderBase<T>{
      * The internal storage for the most recent events.
      */
     public static final EvictingQueue<Object> MEMORY = EvictingQueue.create(SIZE);
-    /**
-     * Set the timezone for the formatter
-     */
+
     static{
+        //We use UTC for all dates
         FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     /**

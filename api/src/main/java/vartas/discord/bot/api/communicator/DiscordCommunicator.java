@@ -21,15 +21,16 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.jfree.chart.JFreeChart;
+import vartas.discord.bot.api.command.AbstractCommandBuilder;
 import vartas.discord.bot.api.environment.EnvironmentInterface;
 import vartas.discord.bot.api.listener.MessageListener;
 import vartas.discord.bot.api.message.InteractiveMessage;
 import vartas.discord.bot.api.threads.ActivityTracker;
 import vartas.discord.bot.api.threads.MessageTracker;
-import vartas.discord.bot.exec.AbstractCommandBuilder;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * The concrete implementation of the communicator.
@@ -62,12 +63,12 @@ public class DiscordCommunicator implements CommunicatorInterface {
      * @param commands the scope for all valid commands
      * @param builder the builder for generating the commands from the calls
      */
-    public DiscordCommunicator(EnvironmentInterface environment, JDA jda, GlobalScope commands, AbstractCommandBuilder builder){
+    public DiscordCommunicator(EnvironmentInterface environment, JDA jda, GlobalScope commands, Function<CommunicatorInterface, AbstractCommandBuilder> builder){
         this.environment = environment;
         this.jda = jda;
         this.activity = new ActivityTracker(this);
         this.messages = new MessageTracker(this);
-        this.listener = new MessageListener(this, messages, commands, builder);
+        this.listener = new MessageListener(this, messages, commands, builder.apply(this));
 
         jda.addEventListener(listener);
     }

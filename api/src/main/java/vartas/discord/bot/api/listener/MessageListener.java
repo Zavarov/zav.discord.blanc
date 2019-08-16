@@ -28,12 +28,10 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discord.bot.api.command.AbstractCommand;
+import vartas.discord.bot.api.command.AbstractCommandBuilder;
 import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.threads.MessageTracker;
-import vartas.discord.bot.command.AbstractCommand;
-import vartas.discord.bot.command.call.CallHelper;
-import vartas.discord.bot.command.call._ast.ASTCallArtifact;
-import vartas.discord.bot.exec.AbstractCommandBuilder;
 import vartas.discord.bot.io.guild.GuildConfiguration;
 
 import java.util.List;
@@ -73,8 +71,6 @@ public class MessageListener extends ListenerAdapter {
         this.builder = builder;
         this.communicator = communicator;
         this.messages = messages;
-
-        builder.setCommunicator(this.communicator);
     }
     /**
      * An reaction was added to a message.
@@ -183,8 +179,7 @@ public class MessageListener extends ListenerAdapter {
     private void messageReceived(Message message){
         if(!message.getAuthor().isBot() && hasPrefix(message)){
             try {
-                ASTCallArtifact source = CallHelper.parse(commands, getContent(message));
-                AbstractCommand command = builder.setContext(message).setSource(source).build();
+                AbstractCommand command = builder.build(message);
 
                 //Wrap the command in a runnable that notifies us about any uncaught exception.
                 Runnable runnable = () -> {

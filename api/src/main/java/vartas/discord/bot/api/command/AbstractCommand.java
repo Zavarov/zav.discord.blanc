@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.command;
+package vartas.discord.bot.api.command;
 
 /**
  * This class acts as a super class for all other commands

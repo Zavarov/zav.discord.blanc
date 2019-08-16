@@ -36,6 +36,6 @@ public class Main {
         GlobalScope scope = createGlobalScope();
         parseModels(new File("models"),scope);
 
-        new DiscordEnvironment(scope, CommandBuilder::new);
+        new DiscordEnvironment(scope, communicator -> new CommandBuilder(scope, communicator));
     }
 }

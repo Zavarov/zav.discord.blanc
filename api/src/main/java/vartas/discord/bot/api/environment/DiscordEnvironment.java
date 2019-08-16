@@ -23,15 +23,16 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import org.apache.commons.io.FileUtils;
+import vartas.discord.bot.api.command.AbstractCommandBuilder;
+import vartas.discord.bot.api.communicator.CommunicatorInterface;
 import vartas.discord.bot.api.communicator.DiscordCommunicator;
-import vartas.discord.bot.exec.AbstractCommandBuilder;
 import vartas.discord.bot.io.config.ConfigHelper;
 import vartas.discord.bot.io.guild._symboltable.GuildLanguage;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +46,7 @@ public class DiscordEnvironment extends AbstractEnvironment{
      * @throws LoginException if the login failed.
      * @throws InterruptedException if the login process was interrupted.
      */
-    public DiscordEnvironment(GlobalScope commands, Supplier<AbstractCommandBuilder> builder) throws LoginException, InterruptedException{
+    public DiscordEnvironment(GlobalScope commands, Function<CommunicatorInterface, AbstractCommandBuilder> builder) throws LoginException, InterruptedException{
         super(ConfigHelper.parse("config.cfg"), commands, builder);
 
         addShards();
@@ -65,7 +66,7 @@ public class DiscordEnvironment extends AbstractEnvironment{
             //We are only allowed to connect one shard every 5 seconds.
             if(i > 0)
                 Thread.sleep(5000);
-            shards.add(new DiscordCommunicator(this, create(i), commands, builder.get()));
+            shards.add(new DiscordCommunicator(this, create(i), commands, builder));
         }
     }
     /**
