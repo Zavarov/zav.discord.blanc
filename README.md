@@ -7,7 +7,7 @@ Moreover, it also allows to analyze comments and submission during an interval a
 
 #### api
 This module implements the core functionality of the program, with the main features being the communicator and the environment interfaces.
-For each shard, a single communicator instance will be created that handels all requests in it. The communicator is built on top of them and allows to communicate between shards.
+For each shard, a single communicator instance will be created that handels all requests in it. The environment is built on top of them and allows to communicate between shards.
 
 Additionally, this module also provides templates that show the relevant information about Discord- and Reddit-entities like members and submissions.
 #### blanc
@@ -16,10 +16,14 @@ This module is the core of the program. It implements the available commands and
 This module implements the grammar for commands and generates the frame of the respective classes.
 In those frames, the preconditions are checked and variables initialized.
 
+This module is heavlily featured by [MontiCore](https://github.com/MontiCore/monticore), which is the workbench that, during compilation time, processes the models and creates the respecting commands, and during runtime, parses the inputs and creates new instances of the commands.
+
 Examples on how those classes can be modified can be found in the [blanc](blanc) module.
 
 #### io
 This module is responsible for maintaining all configuration files during runtime.
+
+Similar to  [command](command), this module relies on [MontiCore](https://github.com/MontiCore/monticore) to load the configuration files during the initialization phase of the bot.
 #### use
 This module is a legacy of the previous version and extends the functionality of [api](api).
 It implements the communicator and environment interfaces and also includes the Reddit feature.
