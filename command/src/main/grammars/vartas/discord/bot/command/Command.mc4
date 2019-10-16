@@ -19,6 +19,10 @@ grammar Command extends de.monticore.MCBasics,
             Attribute*
         "}";
 
+    /**
+     * A restriction imposes a condition on a command.
+     * The command will then be executed if and only if this condition is satisfied.
+     */
     interface Restriction;
 
     symbol GuildRestriction implements Restriction =
@@ -27,6 +31,10 @@ grammar Command extends de.monticore.MCBasics,
     symbol AttachmentRestriction implements Restriction =
         name:"attachment";
 
+    /**
+     * An attribute of a command provides are more specific description of the command.
+     * Examples of this can be the name of the command and the number of expected parameters.
+     */
     interface Attribute;
 
     symbol ClassNameAttribute implements Attribute =
