@@ -19,6 +19,7 @@ package vartas.discord.bot.entities.guild;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
+import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordCommunicator;
 import vartas.discord.bot.listener.CommandListener;
 import vartas.discord.bot.visitor.DiscordCommunicatorVisitor;
@@ -44,6 +45,7 @@ public class Prefix {
             new AddPrefixVisitor().accept(guild.get(), prefixOpt.get());
         else
             new RemovePrefixVisitor().accept(guild.get());
+        new UpdateGuildVisitor().accept();
     }
 
     public Optional<String> get(){
@@ -90,6 +92,18 @@ public class Prefix {
 
         public void handle(CommandListener listener){
             listener.set(guild, prefix);
+        }
+    }
+
+    private class UpdateGuildVisitor implements DiscordCommunicatorVisitor{
+        public void accept(){
+            communicator.accept(this);
+        }
+
+        @Override
+        public void handle(BotGuild config){
+            if(config.getId().equals(guild.get().getId()))
+                config.store();
         }
     }
 }

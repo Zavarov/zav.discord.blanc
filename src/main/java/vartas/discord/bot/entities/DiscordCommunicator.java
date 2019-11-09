@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
-import org.jfree.chart.JFreeChart;
 import org.slf4j.Logger;
 import vartas.discord.bot.listener.*;
 import vartas.discord.bot.message.InteractiveMessage;
@@ -34,7 +33,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +84,7 @@ public class DiscordCommunicator {
         this.command = new CommandListener(this, builder.apply(this));
 
         command.set(environment.config().getGlobalPrefix());
+        init(guilds);
 
         jda.addEventListener(activity);
         jda.addEventListener(messages);
@@ -95,6 +94,11 @@ public class DiscordCommunicator {
 
         environment.schedule(activity, environment.config().getActivityUpdateInterval(), TimeUnit.MINUTES);
     }
+    private void init(Function<Guild, BotGuild> guilds){
+        for(Guild guild : jda().getGuilds())
+            this.guilds.put(guild, guilds.apply(guild));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
     //   Internal                                                                                                     //
@@ -107,7 +111,7 @@ public class DiscordCommunicator {
         return guilds.computeIfAbsent(guild, (g) -> new BotGuild(g, this));
     }
     public void remove(Guild guild){
-        guilds.remove(guild);
+        guilds.remove(guild).delete();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //

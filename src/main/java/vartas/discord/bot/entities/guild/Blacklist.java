@@ -19,6 +19,7 @@ package vartas.discord.bot.entities.guild;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
+import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordCommunicator;
 import vartas.discord.bot.listener.BlacklistListener;
 import vartas.discord.bot.visitor.DiscordCommunicatorVisitor;
@@ -45,7 +46,7 @@ public class Blacklist {
             new AddBlacklistVisitor().accept(guild.get(), patternOpt.get());
         else
             new RemoveBlacklistVisitor().accept(guild.get());
-
+        new UpdateGuildVisitor().accept();
     }
 
     public Optional<Pattern> get(){
@@ -92,6 +93,18 @@ public class Blacklist {
 
         public void handle(BlacklistListener listener){
             listener.set(guild, pattern);
+        }
+    }
+
+    private class UpdateGuildVisitor implements DiscordCommunicatorVisitor{
+        public void accept(){
+            communicator.accept(this);
+        }
+
+        @Override
+        public void handle(BotGuild config){
+            if(config.getId().equals(guild.get().getId()))
+                config.store();
         }
     }
 }

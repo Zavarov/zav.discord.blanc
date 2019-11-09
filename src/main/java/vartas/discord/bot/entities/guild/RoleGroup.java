@@ -21,6 +21,9 @@ import com.google.common.collect.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
+import vartas.discord.bot.entities.BotGuild;
+import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.visitor.DiscordCommunicatorVisitor;
 import vartas.discord.bot.visitor.guild.RoleGroupVisitor;
 
 import java.util.Map;
@@ -31,10 +34,12 @@ import java.util.stream.Collectors;
 
 public class RoleGroup {
     protected SetMultimap<String, Long> group = HashMultimap.create();
+    protected DiscordCommunicator communicator;
     protected UpstreamReference<Guild> guild;
 
-    public RoleGroup(Guild guild){
+    public RoleGroup(Guild guild, DiscordCommunicator communicator){
         this.guild = new UpstreamReference<>(guild);
+        this.communicator = communicator;
     }
 
     public synchronized boolean resolve(String key, Role value){
@@ -75,14 +80,17 @@ public class RoleGroup {
 
     public synchronized void remove(String key){
         group.removeAll(key);
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void remove(String key, Role value){
         group.remove(key, value.getIdLong());
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void add(String key, Role value){
         group.put(key, value.getIdLong());
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void clean(){
@@ -118,5 +126,17 @@ public class RoleGroup {
         });
 
         return builder.toString();
+    }
+
+    private class UpdateGuildVisitor implements DiscordCommunicatorVisitor {
+        public void accept(){
+            communicator.accept(this);
+        }
+
+        @Override
+        public void handle(BotGuild config){
+            if(config.getId().equals(guild.get().getId()))
+                config.store();
+        }
     }
 }

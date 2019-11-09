@@ -48,8 +48,8 @@ public class BotGuild {
         this.guild = new UpstreamReference<>(guild);
         this.prefix = new Prefix(guild, communicator);
         this.blacklist = new Blacklist(guild, communicator);
-        this.roleGroup = new RoleGroup(guild);
-        this.subredditGroup = new SubredditGroup(guild, communicator.environment());
+        this.roleGroup = new RoleGroup(guild, communicator);
+        this.subredditGroup = new SubredditGroup(guild, communicator);
         this.reference = Paths.get("guilds/"+guild.getId()+".gld");
     }
 
@@ -78,8 +78,15 @@ public class BotGuild {
         return builder.toString();
     }
 
+    public String getId(){
+        return guild.get().getId();
+    }
+
     public synchronized void store(){
         try {
+            if(!Files.exists(reference.getParent()))
+                Files.createDirectory(reference.getParent());
+
             Files.write(reference, toString().getBytes());
         }catch(IOException e){
             log.error(e.getMessage(), e);

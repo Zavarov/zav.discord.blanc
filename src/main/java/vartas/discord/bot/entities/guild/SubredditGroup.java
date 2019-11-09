@@ -21,9 +21,12 @@ import com.google.common.collect.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
+import vartas.discord.bot.entities.BotGuild;
+import vartas.discord.bot.entities.DiscordCommunicator;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.reddit.RedditFeed;
 import vartas.discord.bot.reddit.SubredditFeed;
+import vartas.discord.bot.visitor.DiscordCommunicatorVisitor;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 import vartas.discord.bot.visitor.guild.SubredditGroupVisitor;
 
@@ -37,10 +40,12 @@ public class SubredditGroup {
     protected SetMultimap<String, Long> group = HashMultimap.create();
     protected UpstreamReference<Guild> guild;
     protected DiscordEnvironment environment;
+    protected DiscordCommunicator communicator;
 
-    public SubredditGroup(Guild guild, DiscordEnvironment environment){
+    public SubredditGroup(Guild guild, DiscordCommunicator communicator){
         this.guild = new UpstreamReference<>(guild);
-        this.environment = environment;
+        this.communicator = communicator;
+        this.environment = communicator.environment();
     }
 
     public synchronized boolean resolve(String key, TextChannel value){
@@ -82,16 +87,19 @@ public class SubredditGroup {
     public synchronized void remove(String key){
         group.removeAll(key);
         new RemoveSubredditVisitor().accept(key);
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void remove(String key, TextChannel value){
         group.remove(key, value.getIdLong());
         new RemoveTextChannelVisitor().accept(key, value);
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void add(String key, TextChannel value){
         group.put(key, value.getIdLong());
         new AddTextChannelVisitor().accept(key, value);
+        new UpdateGuildVisitor().accept();
     }
 
     public synchronized void clean(){
@@ -177,6 +185,18 @@ public class SubredditGroup {
         public void handle(String subreddit, SubredditFeed feed){
             if(this.subreddit.equals(subreddit))
                 feed.remove(channel);
+        }
+    }
+
+    private class UpdateGuildVisitor implements DiscordCommunicatorVisitor {
+        public void accept(){
+            communicator.accept(this);
+        }
+
+        @Override
+        public void handle(BotGuild config){
+            if(config.getId().equals(guild.get().getId()))
+                config.store();
         }
     }
 }

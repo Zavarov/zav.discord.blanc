@@ -21,8 +21,11 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.internal.utils.JDALogger;
+import org.slf4j.Logger;
 import vartas.discord.bot.StatusTracker;
 import vartas.discord.bot.reddit.RedditFeed;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
@@ -34,6 +37,10 @@ import vartas.reddit.jraw.JrawClient;
 import vartas.reddit.pushshift.PushshiftClient;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -43,6 +50,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DiscordEnvironment {
+    /**
+     * The logger for the communicator.
+     */
+    protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     private ScheduledExecutorService global = Executors.newScheduledThreadPool(2);
     private List<DiscordCommunicator> communicators = new ArrayList<>();
     private BotRank rank;
@@ -90,9 +101,26 @@ public class DiscordEnvironment {
                 .awaitStatus(JDA.Status.CONNECTED);
     }
     private void removeOldGuilds(){
+        Path guildPath = Paths.get("guilds");
+        Set<String> ids = guilds().stream().map(ISnowflake::getId).collect(Collectors.toSet());
 
+        try {
+            Files.newDirectoryStream(guildPath).forEach(file -> {
+                Path fileName = file.getFileName();
+                String name = fileName.toString().substring(0, fileName.toString().lastIndexOf('.'));
+
+                if(!ids.contains(name)){
+                    try{
+                        Files.deleteIfExists(file);
+                    }catch(IOException e){
+                        log.error(e.getMessage(), e);
+                    }
+                }
+            });
+        }catch(IOException e){
+            log.error(e.getMessage(), e);
+        }
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
     //   Configuration Instances                                                                                      //
