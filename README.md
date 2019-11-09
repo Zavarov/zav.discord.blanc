@@ -1,63 +1,66 @@
-# Project Title
+# Bot
 
-The main purpose of this project is to implement an [RSS-like](https://en.wikipedia.org/wiki/RSS) feature in [Discord](https://discordapp.com/) with respect to [Reddit](https://www.reddit.com/) submissions.
-This means that with this program, a guild is able to be notified in real-time, whenever a new post in a subreddit was made.
+This project provides the core functionality of a [Discord](https://discordapp.com/) bot.
 
-Moreover, it also allows to analyze comments and submission during an interval and plot the activity for each day, to name one feature.
+The primary features consist of:
+* Real-Time [Reddit](https://www.reddit.com/) feed
+* Self-Assignable roles and role groups
+* Automatic message removal based on [regular expressions](https://en.wikipedia.org/wiki/Regular_expression)
+* Multi-Pages Messages backed by embeds.
 
-#### api
-This module implements the core functionality of the program, with the main features being the communicator and the environment interfaces.
-For each shard, a single communicator instance will be created that handels all requests in it. The environment is built on top of them and allows to communicate between shards.
+## Getting started
 
-Additionally, this module also provides templates that show the relevant information about Discord- and Reddit-entities like members and submissions.
-#### blanc
-This module is the core of the program. It implements the available commands and generates the executable jar.
-#### command
-This module implements the grammar for commands and generates the frame of the respective classes.
-In those frames, the preconditions are checked and variables initialized.
-
-This module is heavlily featured by [MontiCore](https://github.com/MontiCore/monticore), which is the workbench that, during compilation time, processes the models and creates the respecting commands, and during runtime, parses the inputs and creates new instances of the commands.
-
-Examples on how those classes can be modified can be found in the [blanc](blanc) module.
-
-#### io
-This module is responsible for maintaining all configuration files during runtime.
-
-Similar to  [command](command), this module relies on [MontiCore](https://github.com/MontiCore/monticore) to load the configuration files during the initialization phase of the bot.
-#### use
-This module is a legacy of the previous version and extends the functionality of [api](api).
-It implements the communicator and environment interfaces and also includes the Reddit feature.
-
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Installing
-
-In order to install this project, simply execute the maven command:
-
-```
-mvn clean install
-```
-
-The final executable will be generated in the [blanc](blanc) module.
-
-To then run the program, you need to copy the [models](blanc/models) directory and the configuration files in the [templates](blanc/templates) folder into the same file the jar is in.
-
-Additionally, you need to replace the credentials in [config.cfg](blanc/templates/config.cfg) with your own.
+In order to use this bot, one must provide an implementation of the CommandBuilder, in order to recognize and execute
+the commands, and a parser that transforms the text files with the guild configurations into instances of BotGuild.
 
 ## Built With
 
-* [MontiCore](https://github.com/MontiCore/monticore) - For generating and parsing the commands as well as handling the configuration files.
 * [Maven](https://maven.apache.org/) - Dependency Management
 
 ## Authors
 
 * **Zavarov**
 
-## Dependencies
+## Dependencies:
 
-* [reddit](https://github.com/Zavarov/reddit)
+This project requires at least **Java 8**.  
+Due to an internal dependency of [MontiCore](https://github.com/MontiCore/monticore), we can't use a newer version of [Guava](https://github.com/google/guava) than **23.0**.
+ * **Apache Commons Text**
+   * Version: **1.8**
+   * [Github](https://github.com/apache/commons-text)
+ * **chart**
+   * Version: **1.1.5**
+   * [Github](https://github.com/Zavarov/chart)
+ * **Evo Inflector**
+   * Version: **1.2.2**
+   * [Github](https://github.com/atteo/evo-inflector)
+ * **JDA**
+   * Version: **4.0.0_53**
+   * [Github](https://github.com/DV8FromTheWorld/JDA)
+ * **logback**
+   * Version: **1.2.3**
+   * [Github](https://github.com/qos-ch/logback)
+ * **reddit**
+   * Version: **2.0.11**
+   * [Github](https://github.com/Zavarov/reddit)
+ * **SL4J**
+   * Version: **1.7.29**
+   * [Github](https://github.com/qos-ch/slf4j)
+
+## Plugins:
+ * **Apache Maven JavaDoc Plugin**
+   * Version: **3.1.1**
+   * [Github](https://github.com/apache/maven-javadoc-plugin)
+ * **Apache Maven Source Plugin**
+   * Version: **3.1.0**
+   * [Github](https://github.com/apache/maven-source-plugin)
+## Test Dependencies:
+ * **AssertJ**
+   * Version: **3.12.2**
+   * [Github](https://github.com/joel-costigliola/assertj-core)
+ * **JUnit**
+   * Version: **4.12**
+   * [Github](https://github.com/junit-team/junit4)
 
 ## License
 
