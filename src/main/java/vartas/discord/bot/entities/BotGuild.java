@@ -236,13 +236,14 @@ public class BotGuild {
         adapter.store(this);
     }
 
-    private static class RemoveSubredditChannel implements DiscordEnvironmentVisitor{
+    private class RemoveSubredditChannel implements DiscordEnvironmentVisitor{
         protected TextChannel channel;
         protected String subreddit;
 
         public void accept(TextChannel channel, String subreddit){
             this.channel = channel;
             this.subreddit = subreddit;
+            communicator.environment().accept(this);
         }
 
         public void handle(RedditFeed feed){
@@ -254,13 +255,14 @@ public class BotGuild {
                 feed.remove(channel);
         }
     }
-    private static class AddSubredditChannel implements DiscordEnvironmentVisitor{
+    private class AddSubredditChannel implements DiscordEnvironmentVisitor{
         protected TextChannel channel;
         protected String subreddit;
 
         public void accept(TextChannel channel, String subreddit){
             this.channel = channel;
             this.subreddit = subreddit;
+            communicator.environment().accept(this);
         }
 
         public void handle(RedditFeed feed){
