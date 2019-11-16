@@ -60,6 +60,7 @@ public class SubmissionCache {
         //We only need a few minutes to avoid duplicates
         this.cache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES).build();
         this.subreddit = subreddit;
+        this.environment = environment;
     }
 
     public List<MessageBuilder> retrieve(Instant start, Instant end){
