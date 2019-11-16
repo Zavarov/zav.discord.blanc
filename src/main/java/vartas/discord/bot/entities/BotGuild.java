@@ -246,12 +246,14 @@ public class BotGuild {
             communicator.environment().accept(this);
         }
 
-        public void handle(RedditFeed feed){
+        @Override
+        public void visit(RedditFeed feed){
             feed.remove(subreddit);
         }
 
-        public void handle(SubredditFeed feed){
-            if(feed.getSubredditName().equals(subreddit))
+        @Override
+        public void handle(String subreddit, SubredditFeed feed){
+            if(this.subreddit.equals(subreddit))
                 feed.remove(channel);
         }
     }
@@ -265,12 +267,14 @@ public class BotGuild {
             communicator.environment().accept(this);
         }
 
-        public void handle(RedditFeed feed){
+        @Override
+        public void visit(RedditFeed feed){
             feed.add(subreddit);
         }
 
-        public void handle(SubredditFeed feed){
-            if(feed.getSubredditName().equals(subreddit))
+        @Override
+        public void handle(String subreddit, SubredditFeed feed){
+            if(this.subreddit.equals(subreddit))
                 feed.add(channel);
         }
     }

@@ -65,10 +65,9 @@ public class SubredditFeed {
         this.subreddit = subreddit;
         this.environment = environment;
         this.cache = new SubmissionCache(subreddit, environment);
-    }
 
-    public synchronized String getSubredditName(){
-        return subreddit;
+        //Fill the cache with the latest submissions up until now
+        this.receive();
     }
 
     public synchronized void add(TextChannel channel){
