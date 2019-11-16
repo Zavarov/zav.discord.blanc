@@ -60,14 +60,17 @@ public class SubredditFeed {
      * be registered in this feed as well.
      */
     protected Set<TextChannel> channels = new HashSet<>();
+    /**
+     * The last time a request was made.<br>
+     * The difference between the last time and the time 'update' is called
+     * is the time interval we accept new submissions in.
+     */
+    protected Instant current = Instant.now();
 
     public SubredditFeed(String subreddit, DiscordEnvironment environment){
         this.subreddit = subreddit;
         this.environment = environment;
         this.cache = new SubmissionCache(subreddit, environment);
-
-        //Fill the cache with the latest submissions up until now
-        this.receive();
     }
 
     public synchronized void add(TextChannel channel){
@@ -98,10 +101,12 @@ public class SubredditFeed {
     }
 
     private List<MessageBuilder> receive(){
-        //Go back 2:30 minutes so that we overlap with the previous run by 30 seconds
-        Instant start = Instant.now().minus(150, ChronoUnit.SECONDS);
+        //Include 'end' of the previous call
+        Instant start = current;
         //Submissions should be at least 1 minute old so that the author can flair them correctly
         Instant end = Instant.now().minus(60, ChronoUnit.SECONDS);
+        //Shift the time frame
+        current = end;
 
         cache.request(start, end);
         return cache.retrieve(start, end);
