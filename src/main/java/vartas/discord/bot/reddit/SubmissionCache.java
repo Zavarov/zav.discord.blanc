@@ -83,7 +83,7 @@ public class SubmissionCache {
      */
     public void request(Instant start, Instant end){
         try{
-            log.info("Request submissions from "+subreddit);
+            log.info("Request submissions from '"+subreddit+"'.");
             Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseGet(TreeSet::new);
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
