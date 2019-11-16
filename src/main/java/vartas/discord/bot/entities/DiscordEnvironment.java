@@ -75,6 +75,7 @@ public class DiscordEnvironment {
         String secret = config.getRedditSecret();
 
         this.reddit = new JrawClient(account, version, id, secret);
+        this.reddit.login();
         this.pushshift = new PushshiftClient(reddit);
         this.feed = new RedditFeed(this);
 
@@ -82,7 +83,6 @@ public class DiscordEnvironment {
         removeOldGuilds();
 
         this.rank = adapter.rank(communicators.get(0).jda());
-        this.reddit.login();
 
         schedule(feed, 1, TimeUnit.MINUTES);
         schedule(new StatusTracker(this, adapter.status()), config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
