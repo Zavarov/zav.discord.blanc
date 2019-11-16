@@ -19,11 +19,16 @@ package vartas.discord.bot.entities;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
 import org.slf4j.Logger;
+import vartas.discord.bot.CommandBuilder;
+import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.listener.*;
 import vartas.discord.bot.message.InteractiveMessage;
 import vartas.discord.bot.visitor.DiscordCommunicatorVisitor;
@@ -35,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -69,22 +75,24 @@ public class DiscordCommunicator {
      * All configuration files of the guilds in this shard.
      */
     protected final Map<Guild, BotGuild> guilds = new HashMap<>();
+
+    protected final EntityAdapter adapter;
     /**
      * Initializes all necessary tasks for the communicator in this shard.
      * @param environment the environment of the program
      * @param jda the JDA that this communicator uses.
      * @param builder the builder for generating the commands from the calls
      */
-    public DiscordCommunicator(DiscordEnvironment environment, JDA jda, Function<DiscordCommunicator, CommandBuilder> builder, Function<Guild, BotGuild> guilds){
+    public DiscordCommunicator(DiscordEnvironment environment, JDA jda, Function<DiscordCommunicator, CommandBuilder> builder, EntityAdapter adapter){
         this.environment = environment;
         this.jda = new UpstreamReference<>(jda);
         this.activity = new ActivityListener();
         this.messages = new InteractiveMessageListener(environment.config());
         this.blacklist = new BlacklistListener(this);
         this.command = new CommandListener(this, builder.apply(this));
+        this.adapter = adapter;
 
-        command.set(environment.config().getGlobalPrefix());
-        init(guilds);
+        init();
 
         jda.addEventListener(activity);
         jda.addEventListener(messages);
@@ -94,9 +102,9 @@ public class DiscordCommunicator {
 
         environment.schedule(activity, environment.config().getActivityUpdateInterval(), TimeUnit.MINUTES);
     }
-    private void init(Function<Guild, BotGuild> guilds){
+    private void init(){
         for(Guild guild : jda().getGuilds())
-            this.guilds.put(guild, guilds.apply(guild));
+            this.guilds.put(guild, adapter.guild(guild, this));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,10 +116,16 @@ public class DiscordCommunicator {
         return environment;
     }
     public BotGuild guild(Guild guild){
-        return guilds.computeIfAbsent(guild, (g) -> new BotGuild(g, this));
+        return guilds.computeIfAbsent(guild, (g) -> new BotGuild(g, this, adapter));
     }
     public void remove(Guild guild){
-        guilds.remove(guild).delete();
+        Optional<BotGuild> guildOpt = Optional.ofNullable(guilds.remove(guild));
+        if(guildOpt.isPresent()){
+            BotGuild config = guildOpt.get();
+            adapter.delete(config);
+
+            command.remove(guild);
+        }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //

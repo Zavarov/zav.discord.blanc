@@ -25,8 +25,8 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
+import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
-import vartas.discord.bot.entities.guild.SubredditGroup;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 
 import java.time.Instant;
@@ -67,8 +67,13 @@ public class SubredditFeed {
         this.cache = new SubmissionCache(subreddit, environment);
     }
 
+    public synchronized String getSubredditName(){
+        return subreddit;
+    }
+
     public synchronized void add(TextChannel channel){
         channels.add(channel);
+        log.debug(String.format("Channel '%s' added for subreddit %s.", channel.getName(), subreddit));
     }
 
     public synchronized void remove(TextChannel channel){
@@ -76,6 +81,7 @@ public class SubredditFeed {
         //Remove this entire feed if no more channels remain
         if(channels.isEmpty())
             new RemoveSubredditVisitor().accept();
+        log.debug(String.format("Channel '%s' removed for subreddit %s.", channel.getName(), subreddit));
     }
 
     public synchronized void update(){
@@ -85,7 +91,7 @@ public class SubredditFeed {
             send(submissions);
 
             if(submissions.size() > 0)
-                log.info(String.format("Posted %d new %s from r/%s", submissions.size(), English.plural("submission", submissions.size()),subreddit));
+                log.info(String.format("Posted %d new %s from r/%s.", submissions.size(), English.plural("submission", submissions.size()),subreddit));
             //"If any execution of the task encounters an exception, subsequent executions are suppressed" my ass
         }catch(Exception t){
             log.error("Unhandled exception caught from "+subreddit,t);
@@ -137,8 +143,11 @@ public class SubredditFeed {
             environment.accept(this);
         }
         @Override
-        public void handle(SubredditGroup group){
-            environment.schedule(() -> group.remove(subreddit, channel));
+        public void handle(BotGuild group){
+            environment.schedule(() -> {
+                group.remove(subreddit, channel);
+                group.store();
+            });
         }
     }
 
@@ -147,8 +156,11 @@ public class SubredditFeed {
             environment.accept(this);
         }
         @Override
-        public void handle(SubredditGroup group){
-            environment.schedule(() -> group.remove(subreddit));
+        public void handle(BotGuild group){
+            environment.schedule(() -> {
+                group.remove(BotGuild.SUBREDDIT, subreddit);
+                group.store();
+            });
         }
     }
 }

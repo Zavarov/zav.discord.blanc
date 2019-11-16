@@ -18,6 +18,7 @@
 package vartas.discord.bot.reddit;
 
 import net.dv8tion.jda.internal.utils.JDALogger;
+import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.visitor.reddit.RedditFeedVisitor;
@@ -44,7 +45,7 @@ public class RedditFeed implements Runnable{
      */
     public RedditFeed(DiscordEnvironment environment){
         this.environment = environment;
-        log.info("Reddit feeds created.");
+        log.debug("Reddit feeds created.");
     }
 
     public synchronized void accept(RedditFeedVisitor visitor){
@@ -53,19 +54,18 @@ public class RedditFeed implements Runnable{
     }
 
     public synchronized void add(String subreddit){
-        subreddits.put(subreddit, new SubredditFeed(subreddit, environment));
+        log.debug("Added subreddit "+subreddit+".");
+        subreddits.putIfAbsent(subreddit, new SubredditFeed(subreddit, environment));
     }
 
     public synchronized void remove(String subreddit){
+        log.debug("Removed subreddit "+subreddit+".");
         subreddits.remove(subreddit);
-    }
-
-    public synchronized boolean contains(String subreddit){
-        return subreddits.containsKey(subreddit);
     }
 
     @Override
     public synchronized void run() {
+        log.debug(String.format("Visiting %d %s.", subreddits.size(), English.plural("subreddit", subreddits.size())));
         subreddits.values().forEach(SubredditFeed::update);
     }
 }

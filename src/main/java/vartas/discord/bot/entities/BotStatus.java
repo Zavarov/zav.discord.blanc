@@ -19,6 +19,7 @@ package vartas.discord.bot.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 public class BotStatus {
@@ -29,8 +30,11 @@ public class BotStatus {
         status.add(element);
     }
 
-    public synchronized String get(){
+    public synchronized Optional<String> get(){
+        if(status.isEmpty())
+            return Optional.empty();
+
         int index = random.nextInt(status.size());
-        return status.get(index);
+        return Optional.of(status.get(index));
     }
 }

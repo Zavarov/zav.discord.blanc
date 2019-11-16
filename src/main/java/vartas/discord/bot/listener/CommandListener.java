@@ -24,9 +24,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.Command;
-import vartas.discord.bot.entities.CommandBuilder;
+import vartas.discord.bot.Command;
+import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.entities.DiscordCommunicator;
 
 import java.util.ArrayList;
@@ -57,10 +58,7 @@ public class CommandListener extends ListenerAdapter {
     public CommandListener(DiscordCommunicator communicator, CommandBuilder builder){
         this.communicator = communicator;
         this.builder = builder;
-    }
-
-    public void set(String prefix){
-        this.prefix = prefix;
+        this.prefix = communicator.environment().config().getGlobalPrefix();
     }
 
     public void set(Guild guild, String prefix){
@@ -76,7 +74,7 @@ public class CommandListener extends ListenerAdapter {
      * @param event the corresponding event.
      */
     @Override
-    public void onMessageReceived(MessageReceivedEvent event){
+    public void onMessageReceived(@NotNull MessageReceivedEvent event){
         if(event.getAuthor().isBot())
             return;
 
@@ -128,7 +126,7 @@ public class CommandListener extends ListenerAdapter {
         String content = message.getContentRaw();
         for(String prefix : getPrefixes(message))
             if(content.startsWith(prefix))
-                return StringUtils.removeStart(prefix, content);
+                return StringUtils.removeStart(content, prefix);
         return content;
     }
     /**

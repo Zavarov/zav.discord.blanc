@@ -15,20 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.visitor.guild;
+package vartas.discord.bot;
 
-import vartas.discord.bot.entities.guild.Prefix;
-import vartas.discord.bot.visitor.misc.StringVisitor;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import vartas.discord.bot.entities.*;
 
-public interface PrefixVisitor extends StringVisitor {
-    default void visit(Prefix prefix){}
-
-    default void traverse(Prefix prefix) {
-        prefix.accept(this);
-    }
-
-    default void handle(Prefix prefix){
-        visit(prefix);
-        traverse(prefix);
-    }
+/**
+ * This class implements the interface for loading and storing
+ * the instances as text files.<br>
+ * With this, we are able to feed in a parser at a later point,
+ * avoiding any issues with licenses for this project.
+ */
+public interface EntityAdapter {
+    BotConfig config();
+    BotStatus status();
+    BotGuild guild(Guild guild, DiscordCommunicator communicator);
+    BotRank rank(JDA jda);
+    void store(BotGuild guild);
+    void store(BotRank rank);
+    void delete(BotGuild guild);
 }

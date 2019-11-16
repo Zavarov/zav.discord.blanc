@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.JDALogger;
+import org.atteo.evo.inflector.English;
 import org.jfree.chart.JFreeChart;
 import org.slf4j.Logger;
 import vartas.chart.Interval;
@@ -115,12 +116,16 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
 
         long membersOnline = guild.getMembers()
                 .stream()
-                .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .filter(m -> !m.getUser().isBot())
+                .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .count();
 
         chart.set(AllMembers, Instant.now(), Collections.singleton(allMembers));
         chart.set(MembersOnline, Instant.now(), Collections.singleton(membersOnline));
+
+
+        log.info(String.format("%d total %s in %s", allMembers, English.plural("member", (int)allMembers), guild.getName()));
+        log.info(String.format("%d %s online in %s", membersOnline, English.plural("member", (int)allMembers), guild.getName()));
     }
 
     /**

@@ -17,62 +17,47 @@
 
 package vartas.discord.bot;
 
-import net.dv8tion.jda.api.entities.Message;
-import org.junit.Before;
-import vartas.discord.bot.entities.*;
+import net.dv8tion.jda.api.requests.RestAction;
+import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.DiscordEnvironment;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class AbstractBotTest extends AbstractTest {
-    protected static long STATUS_MESSAGE_UPDATE_INTERVAL = 10;
-    protected static long DISCORD_SHARDS = 11;
-    protected static long INTERACTIVE_MESSAGE_LIFETIME = 12;
-    protected static long ACTIVITY_UPDATE_INTERVAL = 13;
-    protected static String INVITE_SUPPORT_SERVER = "INVITE_SUPPORT_SERVER";
-    protected static String BOT_NAME = "BOT_NAME";
-    protected static String GLOBAL_PREFIX = "GLOBAL_PREFIX";
-    protected static String WIKI_LINK = "WIKI_LINK";
-    protected static long IMAGE_WIDTH = 10;
-    protected static long IMAGE_HEIGHT = 10;
-    protected static String DISCORD_TOKEN = "DISCORD_TOKEN";
-    protected static String REDDIT_ACCOUNT = "REDDIT_ACCOUNT";
-    protected static String REDDIT_ID = "REDDIT_ID";
-    protected static String REDDIT_SECRET = "REDDIT_SECRET";
+    protected static Function<DiscordCommunicator, CommandBuilder> builder;
+    protected static EntityAdapter adapter;
+    protected static DiscordCommunicator communicator;
+    protected static DiscordEnvironment environment;
 
-    protected BotConfig configuration;
-    protected BotRank rank;
-    protected BotStatus status;
+    static {
+        try {
+            Path config = Paths.get("src/test/resources/config.json");
+            Path status = Paths.get("src/test/resources/status.json");
+            Path rank = Paths.get("src/test/resources/rank.json");
+            Path guilds = Paths.get("src/test/guilds");
+            adapter = new JSONEntityAdapter(config, status, rank, guilds);
 
-    @Before
-    public void initConfig(){
-        configuration = new BotConfig();
+            builder = (c) -> new TestCommandBuilder(() -> new Command() {
+                @Override
+                public void run() {
 
-        configuration.setType(BotConfig.Type.STATUS_MESSAGE_UPDATE_INTERVAL, STATUS_MESSAGE_UPDATE_INTERVAL);
-        configuration.setType(BotConfig.Type.DISCORD_SHARDS, DISCORD_SHARDS);
-        configuration.setType(BotConfig.Type.INTERACTIVE_MESSAGE_LIFETIME, INTERACTIVE_MESSAGE_LIFETIME);
-        configuration.setType(BotConfig.Type.ACTIVITY_UPDATE_INTERVAL, ACTIVITY_UPDATE_INTERVAL);
-        configuration.setType(BotConfig.Type.INVITE_SUPPORT_SERVER, INVITE_SUPPORT_SERVER);
-        configuration.setType(BotConfig.Type.BOT_NAME, BOT_NAME);
-        configuration.setType(BotConfig.Type.GLOBAL_PREFIX, GLOBAL_PREFIX);
-        configuration.setType(BotConfig.Type.WIKI_LINK, WIKI_LINK);
-        configuration.setType(BotConfig.Type.IMAGE_WIDTH, IMAGE_WIDTH);
-        configuration.setType(BotConfig.Type.IMAGE_HEIGHT, IMAGE_HEIGHT);
-        configuration.setType(BotConfig.Type.DISCORD_TOKEN, DISCORD_TOKEN);
-        configuration.setType(BotConfig.Type.REDDIT_ACCOUNT, REDDIT_ACCOUNT);
-        configuration.setType(BotConfig.Type.REDDIT_ID, REDDIT_ID);
-        configuration.setType(BotConfig.Type.REDDIT_SECRET, REDDIT_SECRET);
-    }
+                }
+            });
 
-    @Before
-    public void initRank(){
-        rank = new BotRank(jda);
+            environment = new DiscordEnvironment(adapter, builder);
+            communicator = new DiscordCommunicator(environment, jda, builder, adapter){
+                @Override
+                public <T> void send(RestAction<T> action, Consumer<T> success, Consumer<Throwable> failure){
+                }
+            };
 
-        rank.add(user, BotRank.Type.DEVELOPER);
-        rank.add(user, BotRank.Type.REDDIT);
-    }
-
-    @Before
-    public void initStatus(){
-        status = new BotStatus();
+            environment.shutdown();
+            communicator.shutdown();
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
     }
 }

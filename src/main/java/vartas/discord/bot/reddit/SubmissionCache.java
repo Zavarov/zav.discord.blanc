@@ -22,8 +22,8 @@ import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
-import vartas.discord.bot.entities.guild.SubredditGroup;
 import vartas.discord.bot.message.SubmissionMessage;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 import vartas.reddit.SubmissionInterface;
@@ -76,9 +76,9 @@ public class SubmissionCache {
 
 
     /**
-     * Returns a reversed list of all submissions, beginning with the oldest one.
-     * Generates all the message for the latest submissions.
-     * @return all submissions that have been submitted since the last time.
+     * Requests submissions betwee the given intervals and stores them in the local cache.
+     * @param start the (exclusive) minimum age of the submissions.
+     * @param end the (exclusive) maximum age of the submissions.
      */
     public void request(Instant start, Instant end){
         try{
@@ -98,8 +98,11 @@ public class SubmissionCache {
             environment.accept(this);
         }
         @Override
-        public void handle(SubredditGroup group){
-            environment.schedule(() -> group.remove(subreddit));
+        public void handle(BotGuild group){
+            environment.schedule(() -> {
+                group.remove(BotGuild.SUBREDDIT, subreddit);
+                group.store();
+            });
         }
     }
 }

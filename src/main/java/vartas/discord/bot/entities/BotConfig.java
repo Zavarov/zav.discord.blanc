@@ -23,32 +23,32 @@ import java.util.Map;
 
 public class BotConfig {
     protected Map<Type, String> stringMap = Maps.newConcurrentMap();
-    protected Map<Type, Long> longMap = Maps.newConcurrentMap();
+    protected Map<Type, Integer> intMap = Maps.newConcurrentMap();
 
     public void setType(Type key, String value){
-        if(!longMap.containsKey(key))
+        if(!intMap.containsKey(key))
             stringMap.put(key, value);
     }
 
-    public void setType(Type key, long value){
+    public void setType(Type key, int value){
         if(!stringMap.containsKey(key))
-            longMap.put(key, value);
+            intMap.put(key, value);
     }
 
-    public long getStatusMessageUpdateInterval(){
-        return longMap.get(Type.STATUS_MESSAGE_UPDATE_INTERVAL);
+    public int getStatusMessageUpdateInterval(){
+        return intMap.get(Type.STATUS_MESSAGE_UPDATE_INTERVAL);
     }
 
-    public long getDiscordShards(){
-        return longMap.get(Type.DISCORD_SHARDS);
+    public int getDiscordShards(){
+        return intMap.get(Type.DISCORD_SHARDS);
     }
 
-    public long getInteractiveMessageLifetime(){
-        return longMap.get(Type.INTERACTIVE_MESSAGE_LIFETIME);
+    public int getInteractiveMessageLifetime(){
+        return intMap.get(Type.INTERACTIVE_MESSAGE_LIFETIME);
     }
 
-    public long getActivityUpdateInterval(){
-        return longMap.get(Type.ACTIVITY_UPDATE_INTERVAL);
+    public int getActivityUpdateInterval(){
+        return intMap.get(Type.ACTIVITY_UPDATE_INTERVAL);
     }
 
     public String getInviteSupportServer(){
@@ -67,12 +67,12 @@ public class BotConfig {
         return stringMap.get(Type.WIKI_LINK);
     }
 
-    public long getImageWidth(){
-        return longMap.get(Type.IMAGE_WIDTH);
+    public int getImageWidth(){
+        return intMap.get(Type.IMAGE_WIDTH);
     }
 
-    public long getImageHeight(){
-        return longMap.get(Type.IMAGE_HEIGHT);
+    public int getImageHeight(){
+        return intMap.get(Type.IMAGE_HEIGHT);
     }
 
     public String getDiscordToken(){
@@ -92,19 +92,29 @@ public class BotConfig {
     }
 
     public enum Type{
-        STATUS_MESSAGE_UPDATE_INTERVAL,
-        DISCORD_SHARDS,
-        INTERACTIVE_MESSAGE_LIFETIME,
-        ACTIVITY_UPDATE_INTERVAL,
-        INVITE_SUPPORT_SERVER,
-        BOT_NAME,
-        GLOBAL_PREFIX,
-        WIKI_LINK,
-        IMAGE_WIDTH,
-        IMAGE_HEIGHT,
-        DISCORD_TOKEN,
-        REDDIT_ACCOUNT,
-        REDDIT_ID,
-        REDDIT_SECRET;
+        STATUS_MESSAGE_UPDATE_INTERVAL("StatusMessageUpdateInterval"),
+        DISCORD_SHARDS("DiscordShards"),
+        INTERACTIVE_MESSAGE_LIFETIME("InteractiveMessageLifetime"),
+        ACTIVITY_UPDATE_INTERVAL("ActivityUpdateInterval"),
+        INVITE_SUPPORT_SERVER("InviteSupportServer"),
+        BOT_NAME("BotName"),
+        GLOBAL_PREFIX("GlobalPrefix"),
+        WIKI_LINK("WikiLink"),
+        IMAGE_WIDTH("ImageWidth"),
+        IMAGE_HEIGHT("ImageHeight"),
+        DISCORD_TOKEN("DiscordToken"),
+        REDDIT_ACCOUNT("RedditAccount"),
+        REDDIT_ID("RedditId"),
+        REDDIT_SECRET("RedditSecret");
+
+        private String name;
+
+        Type(String name){
+            this.name = name;
+        }
+
+        public String getName(){
+            return name;
+        }
     }
 }

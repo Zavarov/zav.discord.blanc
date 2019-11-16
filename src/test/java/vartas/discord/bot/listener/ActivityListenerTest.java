@@ -19,6 +19,7 @@ package vartas.discord.bot.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jfree.chart.JFreeChart;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.chart.line.DelegatingLineChart;
@@ -45,6 +46,10 @@ public class ActivityListenerTest extends AbstractBotTest {
         listener = new ActivityListener();
         event = new GuildMessageReceivedEvent(jda, 12345L, message);
         chart = listener.charts.getUnchecked(guild);
+    }
+    @After
+    public void cleanUp(){
+        user.setBot(false);
     }
     @Test
     public void createTest(){

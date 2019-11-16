@@ -20,7 +20,7 @@ package vartas.discord.bot.visitor;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.visitor.reddit.RedditFeedVisitor;
 
-public interface DiscordEnvironmentVisitor extends DiscordCommunicatorVisitor, RedditFeedVisitor {
+public interface DiscordEnvironmentVisitor extends DiscordCommunicatorVisitor, RedditFeedVisitor, BotRankListener {
     default void visit(DiscordEnvironment environment){}
 
     default void traverse(DiscordEnvironment environment){

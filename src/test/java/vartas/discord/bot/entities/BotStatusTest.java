@@ -17,22 +17,21 @@
 
 package vartas.discord.bot.entities;
 
+import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractBotTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BotStatusTest extends AbstractBotTest {
-    @Test
-    public void addTest(){
-        assertThat(status.status).isEmpty();
-        status.add("element");
-        assertThat(status.status).containsExactly("element");
+    BotStatus status;
+    @Before
+    public void setUp(){
+        status = adapter.status();
     }
 
     @Test
     public void getTest(){
-        status.add("element");
-        assertThat(status.get()).isEqualTo("element");
+        assertThat(status.get()).contains("element");
     }
 }

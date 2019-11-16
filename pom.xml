@@ -29,10 +29,8 @@
 
         <jda.version>4.0.0_53</jda.version>
         <evo.inflector.version>1.2.2</evo.inflector.version>
-        <org.slf4j.version>1.7.29</org.slf4j.version>
         <chart.version>1.1.5</chart.version>
         <reddit.version>2.0.11</reddit.version>
-        <logback.version>1.2.3</logback.version>
 
         <assertj.version>3.12.2</assertj.version>
         <junit.version>4.12</junit.version>
@@ -85,21 +83,6 @@
             <groupId>vartas</groupId>
             <artifactId>reddit-api</artifactId>
             <version>${reddit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

@@ -17,52 +17,24 @@
 
 package vartas.discord.bot.entities;
 
+import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractBotTest;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BotRankTest extends AbstractBotTest {
-    Path target = Paths.get("src/test/resources/Rank.txt");
+    BotRank rank;
+
+    @Before
+    public void setUp(){
+        rank = adapter.rank(jda);
+    }
+
     @Test
     public void resolveTest(){
         assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isTrue();
         assertThat(rank.resolve(user, BotRank.Type.ROOT)).isFalse();
         assertThat(rank.resolve(user, BotRank.Type.DEVELOPER)).isTrue();
-    }
-
-    @Test
-    public void addTest(){
-        assertThat(rank.resolve(user, BotRank.Type.ROOT)).isFalse();
-        rank.add(user, BotRank.Type.ROOT);
-        assertThat(rank.resolve(user, BotRank.Type.ROOT)).isTrue();
-    }
-
-    @Test
-    public void removeTest(){
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isTrue();
-        rank.remove(user, BotRank.Type.REDDIT);
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isFalse();
-    }
-
-    @Test
-    public void cleanTest(){
-        userMap.clear();
-
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isTrue();
-        assertThat(rank.resolve(user, BotRank.Type.DEVELOPER)).isTrue();
-
-        rank.clean();
-
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isFalse();
-        assertThat(rank.resolve(user, BotRank.Type.DEVELOPER)).isFalse();
-    }
-
-    @Test
-    public void toStringTest(){
-        assertThat(target).hasContent(rank.toString());
     }
 }

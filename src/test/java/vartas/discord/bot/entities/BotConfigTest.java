@@ -17,12 +17,50 @@
 
 package vartas.discord.bot.entities;
 
+import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractBotTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BotConfigTest extends AbstractBotTest {
+    protected static int STATUS_MESSAGE_UPDATE_INTERVAL = 10;
+    protected static int DISCORD_SHARDS = 11;
+    protected static int INTERACTIVE_MESSAGE_LIFETIME = 12;
+    protected static int ACTIVITY_UPDATE_INTERVAL = 13;
+    protected static String INVITE_SUPPORT_SERVER = "INVITE_SUPPORT_SERVER";
+    protected static String BOT_NAME = "BOT_NAME";
+    protected static String GLOBAL_PREFIX = "GLOBAL_PREFIX";
+    protected static String WIKI_LINK = "WIKI_LINK";
+    protected static int IMAGE_WIDTH = 10;
+    protected static int IMAGE_HEIGHT = 10;
+    protected static String DISCORD_TOKEN = "DISCORD_TOKEN";
+    protected static String REDDIT_ACCOUNT = "REDDIT_ACCOUNT";
+    protected static String REDDIT_ID = "REDDIT_ID";
+    protected static String REDDIT_SECRET = "REDDIT_SECRET";
+
+    protected BotConfig configuration;
+
+    @Before
+    public void setUp(){
+        configuration = new BotConfig();
+
+        configuration.setType(BotConfig.Type.STATUS_MESSAGE_UPDATE_INTERVAL, STATUS_MESSAGE_UPDATE_INTERVAL);
+        configuration.setType(BotConfig.Type.DISCORD_SHARDS, DISCORD_SHARDS);
+        configuration.setType(BotConfig.Type.INTERACTIVE_MESSAGE_LIFETIME, INTERACTIVE_MESSAGE_LIFETIME);
+        configuration.setType(BotConfig.Type.ACTIVITY_UPDATE_INTERVAL, ACTIVITY_UPDATE_INTERVAL);
+        configuration.setType(BotConfig.Type.INVITE_SUPPORT_SERVER, INVITE_SUPPORT_SERVER);
+        configuration.setType(BotConfig.Type.BOT_NAME, BOT_NAME);
+        configuration.setType(BotConfig.Type.GLOBAL_PREFIX, GLOBAL_PREFIX);
+        configuration.setType(BotConfig.Type.WIKI_LINK, WIKI_LINK);
+        configuration.setType(BotConfig.Type.IMAGE_WIDTH, IMAGE_WIDTH);
+        configuration.setType(BotConfig.Type.IMAGE_HEIGHT, IMAGE_HEIGHT);
+        configuration.setType(BotConfig.Type.DISCORD_TOKEN, DISCORD_TOKEN);
+        configuration.setType(BotConfig.Type.REDDIT_ACCOUNT, REDDIT_ACCOUNT);
+        configuration.setType(BotConfig.Type.REDDIT_ID, REDDIT_ID);
+        configuration.setType(BotConfig.Type.REDDIT_SECRET, REDDIT_SECRET);
+    }
+
     @Test
     public void setLongTest(){
         assertThat(configuration.getDiscordShards()).isEqualTo(DISCORD_SHARDS);

@@ -21,8 +21,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.entities.BotStatus;
+import vartas.discord.bot.entities.DiscordEnvironment;
+
+import java.util.Optional;
 
 /**
  * This runner is responsible for updating the game of the bot, which is used as a status message.
@@ -54,13 +56,17 @@ public class StatusTracker implements Runnable{
      */
     @Override
     public void run() {
-        String message = status.get();
+        Optional<String> messageOpt = status.get();
 
-        environment.jdas()
-                .stream()
-                .map(JDA::getPresence)
-                .forEach(p -> p.setActivity(Activity.playing(message)));
-
-        log.info(String.format("Status message changed to '%s'",message));
+        if(messageOpt.isPresent()) {
+            String message = messageOpt.get();
+            environment.jdas()
+                    .stream()
+                    .map(JDA::getPresence)
+                    .forEach(p -> p.setActivity(Activity.playing(message)));
+            log.info(String.format("Status message changed to '%s'",message));
+        }else{
+            log.info("No status message to switch to.");
+        }
     }
 }

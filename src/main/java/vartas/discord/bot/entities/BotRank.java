@@ -23,19 +23,22 @@ import com.google.common.collect.Multimaps;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
+import vartas.discord.bot.EntityAdapter;
 
-import java.util.Iterator;
+import java.util.Optional;
 
 public class BotRank {
     protected LinkedHashMultimap<Long, Type> ranks = LinkedHashMultimap.create();
     protected UpstreamReference<JDA> jda;
+    protected EntityAdapter adapter;
 
-    public BotRank(JDA jda){
+    public BotRank(JDA jda, EntityAdapter adapter){
         this.jda = new UpstreamReference<>(jda);
+        this.adapter = adapter;
     }
 
     public synchronized boolean resolve(User key, Type value){
-        return ranks.containsEntry(key.getIdLong(), Type.ROOT) || ranks.containsEntry(key.getIdLong(), value);
+        return ranks.containsEntry(key.getIdLong(), value);
     }
 
     public synchronized void add(User key, Type value){
@@ -55,28 +58,19 @@ public class BotRank {
         invalid.forEach((key, value) -> ranks.remove(key, value));
     }
 
-    @Override
-    public synchronized String toString(){
-        StringBuilder builder = new StringBuilder();
+    public synchronized void store(){
+        adapter.store(this);
+    }
 
-        builder.append("rank {\n");
-        ranks.asMap().forEach((key, values) -> {
-            builder.append("    user : ");
-            builder.append(key);
-            builder.append("L has rank ");
+    public synchronized Multimap<User, Type> asMultimap(){
+        Multimap<User, Type> result = LinkedHashMultimap.create();
 
-            Iterator<Type> iterator = values.iterator();
-            while(iterator.hasNext()){
-                builder.append(iterator.next().getName());
-                if(iterator.hasNext())
-                    builder.append(", ");
-            }
-
-            builder.append("\n");
+        ranks.asMap().forEach((key, value) -> {
+            Optional<User> userOpt = Optional.ofNullable(jda.get().getUserById(key));
+            userOpt.ifPresent(user -> result.putAll(user, value));
         });
-        builder.append("}\n");
 
-        return builder.toString();
+        return result;
     }
 
     public enum Type {
@@ -86,7 +80,7 @@ public class BotRank {
 
         private String name;
 
-        private Type(String name){
+        Type(String name){
             this.name = name;
         }
 

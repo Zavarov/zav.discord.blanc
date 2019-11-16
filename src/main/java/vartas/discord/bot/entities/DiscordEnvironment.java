@@ -26,6 +26,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
+import vartas.discord.bot.CommandBuilder;
+import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.StatusTracker;
 import vartas.discord.bot.reddit.RedditFeed;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
@@ -61,30 +63,38 @@ public class DiscordEnvironment {
     private JrawClient reddit;
     private PushshiftClient pushshift;
     private RedditFeed feed;
+    private EntityAdapter adapter;
 
-    public DiscordEnvironment(BotRank rank, BotConfig config, BotStatus status, Function<DiscordCommunicator, CommandBuilder> builder, Function<Guild, BotGuild> guilds) throws LoginException, InterruptedException {
-        this.rank = rank;
-        this.config = config;
-        this.reddit = new JrawClient(config.getRedditAccount(), this.getClass().getPackage().getImplementationVersion(), config.getRedditId(), config.getRedditSecret());
+    public DiscordEnvironment(EntityAdapter adapter, Function<DiscordCommunicator, CommandBuilder> builder) throws LoginException, InterruptedException {
+        this.adapter = adapter;
+        this.config = adapter.config();
+
+        String account = config.getRedditAccount();
+        String version = Optional.ofNullable(this.getClass().getPackage().getImplementationVersion()).orElse("debug");
+        String id = config.getRedditId();
+        String secret = config.getRedditSecret();
+
+        this.reddit = new JrawClient(account, version, id, secret);
         this.pushshift = new PushshiftClient(reddit);
         this.feed = new RedditFeed(this);
 
-        addCommunicators(builder, guilds);
+        addCommunicators(builder);
         removeOldGuilds();
 
+        this.rank = adapter.rank(communicators.get(0).jda());
         this.reddit.login();
 
         schedule(feed, 1, TimeUnit.MINUTES);
-        schedule(new StatusTracker(this, status), config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
+        schedule(new StatusTracker(this, adapter.status()), config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
     //   Initialization                                                                                               //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    private void addCommunicators(Function<DiscordCommunicator, CommandBuilder> builder, Function<Guild, BotGuild> guilds) throws LoginException, InterruptedException {
+    private void addCommunicators(Function<DiscordCommunicator, CommandBuilder> builder) throws LoginException, InterruptedException {
         for(int i = 0 ; i < config().getDiscordShards() ; ++i){
-            communicators.add(new DiscordCommunicator(this, createJDA(i), builder, guilds));
+            communicators.add(new DiscordCommunicator(this, createJDA(i), builder, adapter));
             //We are only allowed to connect one shard every 5 seconds.
             if(i < config.getDiscordShards() - 1)
                 Thread.sleep(5000);
@@ -96,7 +106,7 @@ public class DiscordEnvironment {
                 .setStatus(OnlineStatus.ONLINE)
                 .setToken(config().getDiscordToken())
                 .setAutoReconnect(true)
-                .useSharding(shard, (int)config().getDiscordShards())
+                .useSharding(shard, config().getDiscordShards())
                 .build()
                 .awaitStatus(JDA.Status.CONNECTED);
     }
@@ -105,6 +115,9 @@ public class DiscordEnvironment {
         Set<String> ids = guilds().stream().map(ISnowflake::getId).collect(Collectors.toSet());
 
         try {
+            if(Files.notExists(guildPath))
+                return;
+
             Files.newDirectoryStream(guildPath).forEach(file -> {
                 Path fileName = file.getFileName();
                 String name = fileName.toString().substring(0, fileName.toString().lastIndexOf('.'));
@@ -209,5 +222,6 @@ public class DiscordEnvironment {
     public void accept(DiscordEnvironmentVisitor visitor){
         communicators.forEach(visitor::handle);
         visitor.handle(feed);
+        visitor.handle(rank);
     }
 }

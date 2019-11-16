@@ -18,6 +18,7 @@
 package vartas.discord.bot;
 
 import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -27,16 +28,14 @@ import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.*;
 import net.dv8tion.jda.internal.requests.RestActionImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
-import org.apache.log4j.BasicConfigurator;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import vartas.discord.bot.entities.BotConfig;
-import vartas.discord.bot.entities.BotRank;
-import vartas.discord.bot.entities.BotStatus;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractTest {
     protected static long guildId = 0L;
@@ -51,25 +50,26 @@ public abstract class AbstractTest {
     protected static String roleName = "role";
     protected static String userName = "user";
     protected static String memberNickname = "member";
+    protected static String messageContent = "b.message";
 
-    protected JDAImpl jda;
-    protected GuildImpl guild;
-    protected TextChannelImpl channel;
-    protected RoleImpl role;
-    protected UserImpl user;
-    protected MemberImpl member;
-    protected Message message;
+    protected static JDAImpl jda;
+    protected static GuildImpl guild;
+    protected static TextChannelImpl channel;
+    protected static RoleImpl role;
+    protected static SelfUserImpl user;
+    protected static MemberImpl member;
+    protected static Message message;
 
-    protected Map<String, GuildImpl> guildMap;
-    protected Map<String, TextChannelImpl> channelMap;
-    protected Map<String, RoleImpl> roleMap;
-    protected Map<String, UserImpl> userMap;
-    protected Map<String, MemberImpl> memberMap;
-    protected Map<String, Message> messageMap;
+    protected static Map<String, GuildImpl> guildMap;
+    protected static Map<String, TextChannelImpl> channelMap;
+    protected static Map<String, RoleImpl> roleMap;
+    protected static Map<String, UserImpl> userMap;
+    protected static Map<String, MemberImpl> memberMap;
+    protected static Map<String, Message> messageMap;
 
 
-    @Before
-    public void initJda(){
+    @BeforeClass
+    public static void initJda(){
         AuthorizationConfig config = new AuthorizationConfig(AccountType.BOT, "12345");
 
         guildMap = new HashMap<>();
@@ -106,6 +106,8 @@ public abstract class AbstractTest {
             public List<User> getUsersByName(@Nonnull String name, boolean ignoreCase){
                 return Collections.singletonList(userMap.get(name));
             }
+            @Override
+            public void shutdown(){}
         };
 
         guild = new GuildImpl(jda, guildId){
@@ -164,7 +166,7 @@ public abstract class AbstractTest {
             }
         };
 
-        message = new DataMessage(false, null, null, null){
+        message = new DataMessage(false, messageContent, null, null){
             @Nonnull
             @Override
             public JDAImpl getJDA(){
@@ -178,6 +180,16 @@ public abstract class AbstractTest {
             @Nonnull
             @Override
             public TextChannelImpl getTextChannel(){
+                return channel;
+            }
+            @Nonnull
+            @Override
+            public ChannelType getChannelType(){
+                return ChannelType.TEXT;
+            }
+            @Nonnull
+            @Override
+            public MessageChannel getChannel(){
                 return channel;
             }
             @Nonnull
@@ -215,8 +227,9 @@ public abstract class AbstractTest {
                 };
             }
         };
+
         role = new RoleImpl(roleId, guild);
-        user = new UserImpl(userId, jda);
+        user = new SelfUserImpl(userId, jda);
         member = new MemberImpl(guild, user);
 
         guild.setName(guildName);
@@ -237,10 +250,9 @@ public abstract class AbstractTest {
         roleMap.put(role.getName(), role);
         userMap.put(user.getName(), user);
         memberMap.put(member.getNickname(), member);
-    }
 
-    @BeforeClass
-    public static void initLog(){
-        BasicConfigurator.configure();
+        jda.setSelfUser(user);
+        guild.setPublicRole(role);
+        role.setRawPermissions(Permission.ALL_PERMISSIONS);
     }
 }

@@ -15,19 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.visitor;
+package vartas.discord.bot;
 
-import vartas.discord.bot.entities.BotGuild;
+import net.dv8tion.jda.api.entities.Message;
 
-public interface BotGuildVisitor{
-    default void visit(BotGuild guild){
+import java.util.function.Supplier;
+
+public class TestCommandBuilder extends CommandBuilder{
+    protected String prefix = "b.";
+    protected Supplier<Command> supplier;
+    public TestCommandBuilder(Supplier<Command> supplier){
+        this.supplier = supplier;
     }
 
-    default void traverse(BotGuild guild){
-    }
-
-    default void handle(BotGuild guild){
-        visit(guild);
-        traverse(guild);
+    @Override
+    public Command build(String content, Message source) {
+        Command command = supplier.get();
+        if(!content.startsWith(prefix))
+            command.run();
+        return command;
     }
 }

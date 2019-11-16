@@ -15,7 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.entities;
+package vartas.discord.bot;
 
-public abstract class Command implements Runnable{
+import net.dv8tion.jda.api.entities.Message;
+
+public abstract class CommandBuilder {
+    public abstract Command build(String content, Message source);
 }

@@ -15,20 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.visitor.guild;
+package vartas.discord.bot.visitor;
 
-import vartas.discord.bot.entities.guild.Blacklist;
-import vartas.discord.bot.visitor.misc.PatternVisitor;
+import vartas.discord.bot.entities.BotRank;
 
-public interface BlacklistVisitor extends PatternVisitor {
-    default void visit(Blacklist blacklist){}
-
-    default void traverse(Blacklist blacklist) {
-        blacklist.accept(this);
+public interface BotRankListener {
+    default void visit(BotRank rank){
     }
 
-    default void handle(Blacklist blacklist){
-        visit(blacklist);
-        traverse(blacklist);
+    default void traverse(BotRank rank){
+    }
+
+    default void handle(BotRank rank){
+        visit(rank);
+        traverse(rank);
     }
 }
