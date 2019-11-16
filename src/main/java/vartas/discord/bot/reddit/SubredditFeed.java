@@ -109,7 +109,7 @@ public class SubredditFeed {
 
     private void send(List<MessageBuilder> messages){
         for(MessageBuilder message : messages)
-            send(messages);
+            send(message);
     }
 
     private void send(MessageBuilder message){
