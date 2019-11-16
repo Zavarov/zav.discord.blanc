@@ -54,12 +54,12 @@ public class RedditFeed implements Runnable{
     }
 
     public synchronized void add(String subreddit){
-        log.debug("Added subreddit "+subreddit+".");
+        log.debug("Added subreddit '"+subreddit+"'.");
         subreddits.putIfAbsent(subreddit, new SubredditFeed(subreddit, environment));
     }
 
     public synchronized void remove(String subreddit){
-        log.debug("Removed subreddit "+subreddit+".");
+        log.debug("Removed subreddit '"+subreddit+"'.");
         subreddits.remove(subreddit);
     }
 

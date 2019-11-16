@@ -73,7 +73,7 @@ public class SubredditFeed {
 
     public synchronized void add(TextChannel channel){
         channels.add(channel);
-        log.debug(String.format("Channel '%s' added for subreddit %s.", channel.getName(), subreddit));
+        log.debug(String.format("Channel '%s' added for subreddit '%s'.", channel.getName(), subreddit));
     }
 
     public synchronized void remove(TextChannel channel){
@@ -81,7 +81,7 @@ public class SubredditFeed {
         //Remove this entire feed if no more channels remain
         if(channels.isEmpty())
             new RemoveSubredditVisitor().accept();
-        log.debug(String.format("Channel '%s' removed for subreddit %s.", channel.getName(), subreddit));
+        log.debug(String.format("Channel '%s' removed for subreddit '%s'.", channel.getName(), subreddit));
     }
 
     public synchronized void update(){
