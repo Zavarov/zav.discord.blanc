@@ -43,7 +43,7 @@ public class ActivityListenerTest extends AbstractBotTest {
 
     @Before
     public void setUp() {
-        listener = new ActivityListener();
+        listener = new ActivityListener(communicator);
         event = new GuildMessageReceivedEvent(jda, 12345L, message);
         chart = listener.charts.getUnchecked(guild);
     }
@@ -71,6 +71,8 @@ public class ActivityListenerTest extends AbstractBotTest {
     @Test
     public void runTest(){
         listener.run();
+
+        System.out.println(communicator.jda().getGuilds());
 
         assertThat(chart.get(ActivityListener.AllMembers, Instant.now())).contains(1L);
         assertThat(chart.get(ActivityListener.MembersOnline, Instant.now())).contains(0L);

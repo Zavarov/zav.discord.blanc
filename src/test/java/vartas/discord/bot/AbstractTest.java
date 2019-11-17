@@ -108,6 +108,16 @@ public abstract class AbstractTest {
             }
             @Override
             public void shutdown(){}
+            @NotNull
+            @Override
+            public List<Guild> getGuilds(){
+                return Collections.singletonList(guild);
+            }
+            @NotNull
+            @Override
+            public List<User> getUsers(){
+                return Collections.singletonList(user);
+            }
         };
 
         guild = new GuildImpl(jda, guildId){

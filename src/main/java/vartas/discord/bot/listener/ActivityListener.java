@@ -32,6 +32,7 @@ import org.jfree.chart.JFreeChart;
 import org.slf4j.Logger;
 import vartas.chart.Interval;
 import vartas.chart.line.DelegatingLineChart;
+import vartas.discord.bot.entities.DiscordCommunicator;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -56,11 +57,15 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      * The chart for all guilds in the current chart.
      */
     protected LoadingCache<Guild, DelegatingLineChart<String, Long>> charts;
-
+    /**
+     * The communicator over this shard.
+     */
+    protected DiscordCommunicator communicator;
     /**
      * Initializes an empty tracker.
      */
-    public ActivityListener(){
+    public ActivityListener(DiscordCommunicator communicator){
+        this.communicator = communicator;
         charts = CacheBuilder.newBuilder().build(CacheLoader.from((guild) -> {
             DelegatingLineChart<String, Long> chart;
 
@@ -103,7 +108,8 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      */
     @Override
     public void run(){
-        charts.asMap().keySet().forEach(this::update);
+        //If we'd use the guilds from the cache we skip servers where nobody has talked
+        communicator.jda().getGuilds().forEach(this::update);
     }
 
     private void update(Guild guild){
@@ -120,12 +126,13 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
                 .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .count();
 
-        chart.set(AllMembers, Instant.now(), Collections.singleton(allMembers));
-        chart.set(MembersOnline, Instant.now(), Collections.singleton(membersOnline));
+        Instant now = Instant.now();
+        chart.set(AllMembers, now, Collections.singleton(allMembers));
+        chart.set(MembersOnline, now, Collections.singleton(membersOnline));
 
 
         log.info(String.format("%d total %s in %s", allMembers, English.plural("member", (int)allMembers), guild.getName()));
-        log.info(String.format("%d %s online in %s", membersOnline, English.plural("member", (int)allMembers), guild.getName()));
+        log.info(String.format("%d %s online in %s", membersOnline, English.plural("member", (int)membersOnline), guild.getName()));
     }
 
     /**

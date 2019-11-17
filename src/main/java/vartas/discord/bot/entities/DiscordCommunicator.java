@@ -86,7 +86,7 @@ public class DiscordCommunicator {
     public DiscordCommunicator(DiscordEnvironment environment, JDA jda, Function<DiscordCommunicator, CommandBuilder> builder, EntityAdapter adapter){
         this.environment = environment;
         this.jda = new UpstreamReference<>(jda);
-        this.activity = new ActivityListener();
+        this.activity = new ActivityListener(this);
         this.messages = new InteractiveMessageListener(environment.config());
         this.blacklist = new BlacklistListener(this);
         this.command = new CommandListener(this, builder.apply(this));
