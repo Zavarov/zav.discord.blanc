@@ -53,6 +53,10 @@ import java.util.stream.Collectors;
 
 public class DiscordEnvironment {
     /**
+     * The maximum amount of times a Reddit request will be repeated when unsuccessful until we give up.
+     */
+    private static final int MAX_RETRIES = 7;
+    /**
      * The logger for the communicator.
      */
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
@@ -182,16 +186,16 @@ public class DiscordEnvironment {
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public Optional<SubredditInterface> subreddit(String subreddit) throws UnresolvableRequestException {
-        return reddit.requestSubreddit(subreddit);
+        return reddit.requestSubreddit(subreddit, MAX_RETRIES);
     }
     public Optional<List<CommentInterface>> comment(SubmissionInterface submission) throws UnresolvableRequestException{
-        return reddit.requestComment(submission.getId());
+        return reddit.requestComment(submission.getId(), MAX_RETRIES);
     }
     public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
-        return pushshift.requestSubmission(subreddit, Date.from(start), Date.from(end));
+        return pushshift.requestSubmission(subreddit, Date.from(start), Date.from(end), MAX_RETRIES);
     }
     public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
-        return reddit.requestSubmission(subreddit, Date.from(start), Date.from(end));
+        return reddit.requestSubmission(subreddit, Date.from(start), Date.from(end), MAX_RETRIES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
