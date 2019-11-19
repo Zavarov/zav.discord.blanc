@@ -25,11 +25,8 @@ the commands, and a parser that transforms the text files with the guild configu
 
 This project requires at least **Java 8**.  
 Due to an internal dependency of [MontiCore](https://github.com/MontiCore/monticore), we can't use a newer version of [Guava](https://github.com/google/guava) than **23.0**.
- * **Apache Commons Text**
-   * Version: **1.8**
-   * [Github](https://github.com/apache/commons-text)
  * **chart**
-   * Version: **1.1.5**
+   * Version: **1.1.6**
    * [Github](https://github.com/Zavarov/chart)
  * **Evo Inflector**
    * Version: **1.2.2**
@@ -38,12 +35,9 @@ Due to an internal dependency of [MontiCore](https://github.com/MontiCore/montic
    * Version: **4.0.0_53**
    * [Github](https://github.com/DV8FromTheWorld/JDA)
  * **reddit**
-   * Version: **2.0.11**
+   * Version: **2.0.13**
    * [Github](https://github.com/Zavarov/reddit)
- * **SL4J**
-   * Version: **1.7.29**
-   * [Github](https://github.com/qos-ch/slf4j)
-
+ 
 ## Plugins:
  * **Apache Maven JavaDoc Plugin**
    * Version: **3.1.1**
