@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActivityListenerTest extends AbstractBotTest {
     ActivityListener listener;
     GuildMessageReceivedEvent event;
-    DelegatingLineChart<String, Long> chart;
+    DelegatingLineChart<Long> chart;
 
     @Before
     public void setUp() {
@@ -71,8 +71,6 @@ public class ActivityListenerTest extends AbstractBotTest {
     @Test
     public void runTest(){
         listener.run();
-
-        System.out.println(communicator.jda().getGuilds());
 
         assertThat(chart.get(ActivityListener.AllMembers, Instant.now())).contains(1L);
         assertThat(chart.get(ActivityListener.MembersOnline, Instant.now())).contains(0L);

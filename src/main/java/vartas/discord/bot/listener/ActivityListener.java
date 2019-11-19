@@ -56,7 +56,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
     /**
      * The chart for all guilds in the current chart.
      */
-    protected LoadingCache<Guild, DelegatingLineChart<String, Long>> charts;
+    protected LoadingCache<Guild, DelegatingLineChart<Long>> charts;
     /**
      * The communicator over this shard.
      */
@@ -67,7 +67,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
     public ActivityListener(DiscordCommunicator communicator){
         this.communicator = communicator;
         charts = CacheBuilder.newBuilder().build(CacheLoader.from((guild) -> {
-            DelegatingLineChart<String, Long> chart;
+            DelegatingLineChart<Long> chart;
 
             chart = new DelegatingLineChart<>(
                     (values) -> values.stream().mapToLong(l -> l).findAny().orElse(0L),
@@ -75,6 +75,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
             );
 
             chart.setGranularity(ChronoUnit.MINUTES);
+            chart.setStepSize(communicator.environment().config().getActivityUpdateInterval());
             chart.setInterval(Interval.MINUTE);
             chart.setTitle("Activity in "+guild.getName());
             chart.setXAxisLabel("Time");
@@ -113,7 +114,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
     }
 
     private void update(Guild guild){
-        DelegatingLineChart<String, Long> chart = charts.getUnchecked(guild);
+        DelegatingLineChart<Long> chart = charts.getUnchecked(guild);
 
         long allMembers = guild.getMembers()
                 .stream()
@@ -145,7 +146,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
         if(event.getAuthor().isBot())
             return;
 
-        DelegatingLineChart<String, Long> chart = charts.getUnchecked(event.getGuild());
+        DelegatingLineChart<Long> chart = charts.getUnchecked(event.getGuild());
         Instant date = Instant.now();
 
         String channelName = event.getMessage().getTextChannel().getName();
