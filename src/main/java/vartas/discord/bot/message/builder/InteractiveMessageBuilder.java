@@ -141,7 +141,7 @@ public class InteractiveMessageBuilder {
      * @param content the value of the field.
      * @return this
      */
-    public InteractiveMessageBuilder addField(String name, String content){
+    public InteractiveMessageBuilder addField(String name, Object content){
         return addField(name, content, false);
     }
 
@@ -152,8 +152,8 @@ public class InteractiveMessageBuilder {
      * @param inline whether the field is inlined
      * @return this
      */
-    public InteractiveMessageBuilder addField(String name, String content, boolean inline){
-        fields.add(new MessageEmbed.Field(name, content, inline));
+    public InteractiveMessageBuilder addField(String name, Object content, boolean inline){
+        fields.add(new MessageEmbed.Field(name, content.toString(), inline));
         return this;
     }
     /**
