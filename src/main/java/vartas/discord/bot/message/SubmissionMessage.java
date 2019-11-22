@@ -124,7 +124,7 @@ public abstract class SubmissionMessage {
      * @param submission the submission.
      */
     private static void setTimestamp(EmbedBuilder embed, SubmissionInterface submission){
-        embed.setTimestamp(LocalDateTime.ofInstant(submission.getCreated().toInstant(),ZoneId.of("UTC")));
+        embed.setTimestamp(LocalDateTime.ofInstant(submission.getCreated(),ZoneId.of("UTC")));
     }
     /**
      * Sets a direct link to the content of the submission.

@@ -68,8 +68,8 @@ public class SubmissionCache {
                 .asMap()
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getKey().getCreated().toInstant().isBefore(end))
-                .filter(entry -> !entry.getKey().getCreated().toInstant().isBefore(start))
+                .filter(entry -> entry.getKey().getCreated().isBefore(end))
+                .filter(entry -> !entry.getKey().getCreated().isBefore(start))
                 .sorted(Comparator.comparing(entry -> entry.getKey().getCreated()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());

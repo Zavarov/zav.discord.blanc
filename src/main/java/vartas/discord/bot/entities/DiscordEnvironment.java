@@ -192,10 +192,10 @@ public class DiscordEnvironment {
         return reddit.requestComment(submission.getId(), MAX_RETRIES);
     }
     public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
-        return pushshift.requestSubmission(subreddit, Date.from(start), Date.from(end), MAX_RETRIES);
+        return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
     public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
-        return reddit.requestSubmission(subreddit, Date.from(start), Date.from(end), MAX_RETRIES);
+        return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
