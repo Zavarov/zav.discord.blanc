@@ -199,7 +199,7 @@ public class InteractiveMessageBuilder {
         List<EmbedBuilder> output = new ArrayList<>(embeds.size()+1);
         output.addAll(embeds);
         //Add the current page as well
-        if(current_page.length() > 0){
+        if(current_page.length() > 0 || fields.size() > 0){
             output.add(createPage());
         }
         updateTitle(output);
