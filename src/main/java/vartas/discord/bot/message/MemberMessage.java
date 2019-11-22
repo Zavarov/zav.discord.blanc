@@ -26,10 +26,13 @@ import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
 import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -47,7 +50,7 @@ public abstract class MemberMessage extends UserMessage{
      * @param builder the message builder.
      * @param desc the description.
      */
-    private static void addDescription(InteractiveMessage.Builder builder, String desc){
+    private static void addDescription(InteractiveMessageBuilder builder, String desc){
         builder.addDescription(desc);
     }
     /**
@@ -121,7 +124,7 @@ public abstract class MemberMessage extends UserMessage{
      * @param builder the message builder.
      * @param member the member in question.
      */
-    private static void addRoles(InteractiveMessage.Builder builder, Member member){
+    private static void addRoles(InteractiveMessageBuilder builder, Member member){
         member.getRoles()
                 .stream()
                 .map(role -> String.format("`%s` - %s", role.getId(), role.getName()))
@@ -133,7 +136,7 @@ public abstract class MemberMessage extends UserMessage{
      * @param member the member in question.
      * @param channel the channel the member is in.
      */
-    private static void addPermissions(InteractiveMessage.Builder builder, Member member, TextChannel channel){
+    private static void addPermissions(InteractiveMessageBuilder builder, Member member, TextChannel channel){
         Permission.getPermissions(PermissionUtil.getEffectivePermission(channel,member))
                 .stream()
                 .sorted(Comparator.comparing(Enum::name))
@@ -151,7 +154,7 @@ public abstract class MemberMessage extends UserMessage{
      * @return an interactive message displaying the members information
      */
     public static InteractiveMessage create(User author, Member member, TextChannel channel, DiscordCommunicator comm){
-        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(author, comm);
+        InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
         addThumbnail(builder,member.getUser());
 
         EmbedBuilder embed = new EmbedBuilder();

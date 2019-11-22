@@ -17,10 +17,10 @@
 package vartas.discord.bot.message;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.atteo.evo.inflector.English;
 import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -85,7 +85,7 @@ public abstract class UserMessage {
      * @param builder the message builder.
      * @param user the member in question.
      */
-    protected static void addThumbnail(InteractiveMessage.Builder builder, User user){
+    protected static void addThumbnail(InteractiveMessageBuilder builder, User user){
         String avatar = user.getAvatarUrl();
         if(avatar != null)
             builder.setThumbnail(avatar);
@@ -99,7 +99,7 @@ public abstract class UserMessage {
      * @return an interactive message displaying the members information
      */
     public static InteractiveMessage create(User author, User user, DiscordCommunicator comm){
-        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(author, comm);
+        InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
         addThumbnail(builder,user);
         
         EmbedBuilder embed = new EmbedBuilder();

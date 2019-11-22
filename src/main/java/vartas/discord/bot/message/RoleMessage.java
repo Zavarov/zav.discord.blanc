@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
 import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -51,7 +52,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param desc the description.
      */
-    private static void addDescription(InteractiveMessage.Builder builder, String desc){
+    private static void addDescription(InteractiveMessageBuilder builder, String desc){
         builder.addDescription(desc);
     }
     /**
@@ -59,7 +60,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addId(InteractiveMessage.Builder builder, Role role){
+    private static void addId(InteractiveMessageBuilder builder, Role role){
         builder.addLine(String.format("%-10s : %s",
                 "ID",
                 role.getId())
@@ -70,7 +71,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addCreated(InteractiveMessage.Builder builder, Role role){
+    private static void addCreated(InteractiveMessageBuilder builder, Role role){
         DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
         int days = (int)DAYS.between(role.getTimeCreated().toLocalDate(),LocalDate.now());
         builder.addLine(String.format("%-10s : %s (%d %s ago)",
@@ -85,7 +86,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addPosition(InteractiveMessage.Builder builder, Role role){
+    private static void addPosition(InteractiveMessageBuilder builder, Role role){
         builder.addLine(String.format("%-10s : %d",
                 "Position",
                 role.getPosition())
@@ -96,7 +97,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addMembersCount(InteractiveMessage.Builder builder, Role role){
+    private static void addMembersCount(InteractiveMessageBuilder builder, Role role){
         builder.addLine(String.format("%-10s : %d",
                 "#Members",
                 role.getGuild().getMembersWithRoles(role).size())
@@ -107,8 +108,10 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addColor(InteractiveMessage.Builder builder, Role role){
+    private static void addColor(InteractiveMessageBuilder builder, Role role){
         Color c = role.getColor();
+        if(c == null)
+            return;
         //0 represents a transparent color
         if(role.getColorRaw() != Role.DEFAULT_COLOR_RAW){
             builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
@@ -124,7 +127,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addPermissions(InteractiveMessage.Builder builder, Role role, TextChannel channel){
+    private static void addPermissions(InteractiveMessageBuilder builder, Role role, TextChannel channel){
         Permission.getPermissions(PermissionUtil.getEffectivePermission(channel,role))
                 .stream()
                 .sorted(Comparator.comparing(Enum::name))
@@ -136,7 +139,7 @@ public abstract class RoleMessage {
      * @param builder the message builder.
      * @param role the role in question.
      */
-    private static void addMembersWithRole(InteractiveMessage.Builder builder, Role role){
+    private static void addMembersWithRole(InteractiveMessageBuilder builder, Role role){
         List<Member> all = role.getGuild().getMembersWithRoles(role);
         for(int i = 0 ; i < all.size() ; i +=10){
             addDescription(builder, String.format("`%s with this role [%d / %d]`",
@@ -160,7 +163,7 @@ public abstract class RoleMessage {
      * @return an interactive message displaying the roles information
      */
     public static InteractiveMessage create(User author, Role role, TextChannel channel, DiscordCommunicator comm){
-        InteractiveMessage.Builder builder = new InteractiveMessage.Builder(author, comm);
+        InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
         
         addDescription(builder, String.format("The basic information about %s", role.getAsMention()));
         builder.addLine("```");
