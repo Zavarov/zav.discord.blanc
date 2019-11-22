@@ -89,6 +89,7 @@ public class CommandListener extends ListenerAdapter {
                     try{
                         command.run();
                     }catch(Exception e){
+                        e.printStackTrace();
                         String error = e.getClass().getSimpleName() + ": " + e.getMessage();
                         log.error(error);
                         communicator.send(message.getChannel(), error);
