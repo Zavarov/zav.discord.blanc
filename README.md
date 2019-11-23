@@ -35,7 +35,7 @@ Due to an internal dependency of [MontiCore](https://github.com/MontiCore/montic
    * Version: **4.0.0_53**
    * [Github](https://github.com/DV8FromTheWorld/JDA)
  * **reddit**
-   * Version: **2.0.13**
+   * Version: **2.2**
    * [Github](https://github.com/Zavarov/reddit)
  
 ## Plugins:
