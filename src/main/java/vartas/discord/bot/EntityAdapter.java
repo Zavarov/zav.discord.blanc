@@ -17,7 +17,6 @@
 
 package vartas.discord.bot;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import vartas.discord.bot.entities.*;
 
@@ -31,7 +30,7 @@ public interface EntityAdapter {
     BotConfig config();
     BotStatus status();
     BotGuild guild(Guild guild, DiscordCommunicator communicator);
-    BotRank rank(JDA jda);
+    BotRank rank();
     void store(BotGuild guild);
     void store(BotRank rank);
     void delete(BotGuild guild);

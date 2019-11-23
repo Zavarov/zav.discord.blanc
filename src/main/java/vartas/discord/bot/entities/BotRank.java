@@ -36,7 +36,11 @@ public class BotRank {
     }
 
     public synchronized void add(User key, Type value){
-        ranks.put(key.getIdLong(), value);
+        add(key.getIdLong(), value);
+    }
+
+    public synchronized void add(long key, Type value){
+        ranks.put(key, value);
     }
 
     public synchronized void remove(User key, Type value){

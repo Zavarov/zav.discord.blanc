@@ -18,11 +18,9 @@
 package vartas.discord.bot;
 
 import com.google.common.collect.Multimap;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -136,15 +134,15 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public BotRank rank(JDA jda) {
+    public BotRank rank() {
         JSONObject object = parse(rank);
         BotRank result = new BotRank(this);
 
         for(String key : object.keySet()){
             for(Object value : object.getJSONArray(key).toList()){
-                Optional<User> userOpt = Optional.ofNullable(jda.getUserById(key));
+                long user = Long.parseUnsignedLong(key);
                 BotRank.Type type = BotRank.Type.valueOf(value.toString());
-                userOpt.ifPresent(user -> result.add(user, type));
+                result.add(user, type);
             }
         }
 
@@ -193,7 +191,7 @@ public class JSONEntityAdapter implements EntityAdapter{
     @Override
     public void delete(BotGuild guild) {
         try{
-            Path reference = Paths.get("guild/"+guild.getId()+".gld");
+            Path reference = Paths.get("guild",guild.getId()+".gld");
             Files.deleteIfExists(reference);
         }catch(IOException e){
             throw new RuntimeException(e);
@@ -213,7 +211,6 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     private JSONObject parse(Path path){
-        JSONObject object;
         try{
             String content = new String(Files.readAllBytes(path));
             return new JSONObject(content);
