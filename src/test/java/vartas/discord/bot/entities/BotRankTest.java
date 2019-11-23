@@ -28,7 +28,7 @@ public class BotRankTest extends AbstractBotTest {
 
     @Before
     public void setUp(){
-        rank = adapter.rank(jda);
+        rank = adapter.rank();
     }
 
     @Test

@@ -86,7 +86,7 @@ public class DiscordEnvironment {
         addCommunicators(builder);
         removeOldGuilds();
 
-        this.rank = adapter.rank(communicators.get(0).jda());
+        this.rank = adapter.rank();
 
         schedule(feed, 1, TimeUnit.MINUTES);
         schedule(new StatusTracker(this, adapter.status()), config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
