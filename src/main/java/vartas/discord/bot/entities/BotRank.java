@@ -20,20 +20,14 @@ package vartas.discord.bot.entities;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
 import vartas.discord.bot.EntityAdapter;
-
-import java.util.Optional;
 
 public class BotRank {
     protected LinkedHashMultimap<Long, Type> ranks = LinkedHashMultimap.create();
-    protected UpstreamReference<JDA> jda;
     protected EntityAdapter adapter;
 
-    public BotRank(JDA jda, EntityAdapter adapter){
-        this.jda = new UpstreamReference<>(jda);
+    public BotRank(EntityAdapter adapter){
         this.adapter = adapter;
     }
 
@@ -49,28 +43,12 @@ public class BotRank {
         ranks.remove(key.getIdLong(), value);
     }
 
-    private synchronized Multimap<Long, Type> validate(){
-        return Multimaps.filterKeys(ranks, id -> jda.get().getUserById(id) == null);
-    }
-
-    public synchronized void clean(){
-        Multimap<Long, Type> invalid = validate();
-        invalid.forEach((key, value) -> ranks.remove(key, value));
-    }
-
     public synchronized void store(){
         adapter.store(this);
     }
 
-    public synchronized Multimap<User, Type> asMultimap(){
-        Multimap<User, Type> result = LinkedHashMultimap.create();
-
-        ranks.asMap().forEach((key, value) -> {
-            Optional<User> userOpt = Optional.ofNullable(jda.get().getUserById(key));
-            userOpt.ifPresent(user -> result.putAll(user, value));
-        });
-
-        return result;
+    public synchronized Multimap<Long, Type> get(){
+        return Multimaps.unmodifiableSetMultimap(ranks);
     }
 
     public enum Type {

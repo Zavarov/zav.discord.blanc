@@ -138,7 +138,7 @@ public class JSONEntityAdapter implements EntityAdapter{
     @Override
     public BotRank rank(JDA jda) {
         JSONObject object = parse(rank);
-        BotRank result = new BotRank(jda, this);
+        BotRank result = new BotRank(this);
 
         for(String key : object.keySet()){
             for(Object value : object.getJSONArray(key).toList()){
@@ -179,12 +179,12 @@ public class JSONEntityAdapter implements EntityAdapter{
     public void store(BotRank rank) {
         JSONObject object = new JSONObject();
 
-        rank.asMultimap().asMap().forEach( (user, types) -> {
+        rank.get().asMap().forEach( (user, types) -> {
             JSONArray values = new JSONArray();
 
             types.forEach(type -> values.put(type.toString()));
 
-            object.put(user.getId(), values);
+            object.put(Long.toString(user), values);
         });
 
         store(object, this.rank);
