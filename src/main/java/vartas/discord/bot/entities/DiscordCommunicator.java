@@ -194,6 +194,7 @@ public class DiscordCommunicator {
         send(channel, builder, received -> {
             send(received.addReaction(InteractiveMessage.ARROW_LEFT));
             send(received.addReaction(InteractiveMessage.ARROW_RIGHT));
+            messages.add(received, message);
         });
     }
     public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure) {
