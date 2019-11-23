@@ -189,7 +189,12 @@ public class DiscordCommunicator {
         send(channel.sendFile(file));
     }
     public void send(MessageChannel channel, InteractiveMessage message){
-        send(channel, message.build());
+        MessageBuilder builder = new MessageBuilder();
+        builder.setEmbed(message.build());
+        send(channel, builder, received -> {
+            send(received.addReaction(InteractiveMessage.ARROW_LEFT));
+            send(received.addReaction(InteractiveMessage.ARROW_RIGHT));
+        });
     }
     public void send(MessageChannel channel, MessageBuilder message, Consumer<Message> success, Consumer<Throwable> failure) {
         Message m = message.stripMentions(jda()).build();
