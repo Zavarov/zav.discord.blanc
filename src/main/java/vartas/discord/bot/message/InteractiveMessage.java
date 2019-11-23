@@ -17,7 +17,10 @@
 package vartas.discord.bot.message;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import vartas.discord.bot.entities.DiscordCommunicator;
 
@@ -65,29 +68,29 @@ public class InteractiveMessage {
         this.pages = pages;
     }
 
-    public void update(User user, MessageChannel channel, String message, Emote emote){
+    public void update(User user, MessageChannel channel, String message, String reaction){
         if(!author.equals(user))
             return;
 
         //Flip the pages on <- and ->
-        if(emote.getName().equals(ARROW_LEFT))
+        if(reaction.equals(ARROW_LEFT))
             current_page = (current_page-1+pages.size()) % pages.size();
-        else if(emote.getName().equals(ARROW_RIGHT))
+        else if(reaction.equals(ARROW_RIGHT))
             current_page = (current_page+1) % pages.size();
 
         //Send the new page
         communicator.send(channel.editMessageById(message, pages.get(current_page)));
     }
 
-    public void update(User user, TextChannel channel, String message, Emote emote){
+    public void update(User user, TextChannel channel, String message, String reaction){
         if(!author.equals(user))
             return;
 
-        update(user, (MessageChannel)channel, message, emote);
+        update(user, (MessageChannel)channel, message, reaction);
 
         //Remove the reaction so that the user doesn't have to do it
         if(canRemoveReactions(channel))
-            communicator.send(channel.removeReactionById(message, emote));
+            communicator.send(channel.removeReactionById(message, reaction, user));
     }
     /**
      * @return true when the bot has the "Manage Messages" rank.

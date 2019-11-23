@@ -75,9 +75,9 @@ public class InteractiveMessageListener extends ListenerAdapter {
 
         Optional.ofNullable(cache.getIfPresent(event.getMessageId())).ifPresent(message -> {
             if(event.getChannelType() == ChannelType.TEXT)
-                message.update(event.getUser(), event.getTextChannel(), event.getMessageId(), event.getReactionEmote().getEmote());
+                message.update(event.getUser(), event.getTextChannel(), event.getMessageId(), event.getReactionEmote().getName());
             else
-                message.update(event.getUser(), event.getChannel(), event.getMessageId(), event.getReactionEmote().getEmote());
+                message.update(event.getUser(), event.getChannel(), event.getMessageId(), event.getReactionEmote().getName());
         });
     }
 }
