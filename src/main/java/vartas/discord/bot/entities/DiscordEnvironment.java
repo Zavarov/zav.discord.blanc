@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -191,10 +191,10 @@ public class DiscordEnvironment {
     public Optional<List<CommentInterface>> comment(SubmissionInterface submission) throws UnresolvableRequestException{
         return reddit.requestComment(submission.getId(), MAX_RETRIES);
     }
-    public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
+    public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) throws UnresolvableRequestException {
         return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
-    public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, Instant start, Instant end) throws UnresolvableRequestException {
+    public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, LocalDateTime start, LocalDateTime end) throws UnresolvableRequestException {
         return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

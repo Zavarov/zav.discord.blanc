@@ -29,7 +29,7 @@ import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
@@ -65,7 +65,7 @@ public class SubredditFeed {
      * The difference between the last time and the time 'update' is called
      * is the time interval we accept new submissions in.
      */
-    protected Instant current = Instant.now();
+    protected LocalDateTime current = LocalDateTime.now();
 
     public SubredditFeed(String subreddit, DiscordEnvironment environment){
         this.subreddit = subreddit;
@@ -102,9 +102,9 @@ public class SubredditFeed {
 
     private List<MessageBuilder> receive(){
         //Include 'end' of the previous call
-        Instant start = current;
+        LocalDateTime start = current;
         //Submissions should be at least 1 minute old so that the author can flair them correctly
-        Instant end = Instant.now().minus(60, ChronoUnit.SECONDS);
+        LocalDateTime end = LocalDateTime.now().minus(60, ChronoUnit.SECONDS);
         //Shift the time frame
         current = end;
 

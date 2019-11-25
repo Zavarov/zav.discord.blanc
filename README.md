@@ -23,8 +23,7 @@ the commands, and a parser that transforms the text files with the guild configu
 
 ## Dependencies:
 
-This project requires at least **Java 8**.  
-Due to an internal dependency of [MontiCore](https://github.com/MontiCore/monticore), we can't use a newer version of [Guava](https://github.com/google/guava) than **23.0**.
+This project requires at least **Java 11**.  
  * **chart**
    * Version: **1.1.6**
    * [Github](https://github.com/Zavarov/chart)

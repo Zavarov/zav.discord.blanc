@@ -29,7 +29,7 @@ import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 import vartas.reddit.SubmissionInterface;
 import vartas.reddit.UnresolvableRequestException;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class SubmissionCache {
         this.environment = environment;
     }
 
-    public List<MessageBuilder> retrieve(Instant start, Instant end){
+    public List<MessageBuilder> retrieve(LocalDateTime start, LocalDateTime end){
         return cache
                 .asMap()
                 .entrySet()
@@ -81,7 +81,7 @@ public class SubmissionCache {
      * @param start the (exclusive) minimum age of the submissions.
      * @param end the (exclusive) maximum age of the submissions.
      */
-    public void request(Instant start, Instant end){
+    public void request(LocalDateTime start, LocalDateTime end){
         try{
             log.info("Request submissions from '"+subreddit+"'.");
             Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseGet(TreeSet::new);

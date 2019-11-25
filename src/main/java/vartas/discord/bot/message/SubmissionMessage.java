@@ -23,8 +23,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import vartas.reddit.SubmissionInterface;
 
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Locale;
 
 /**
@@ -124,7 +122,7 @@ public abstract class SubmissionMessage {
      * @param submission the submission.
      */
     private static void setTimestamp(EmbedBuilder embed, SubmissionInterface submission){
-        embed.setTimestamp(LocalDateTime.ofInstant(submission.getCreated(),ZoneId.of("UTC")));
+        embed.setTimestamp(submission.getCreated());
     }
     /**
      * Sets a direct link to the content of the submission.
