@@ -17,10 +17,7 @@
 package vartas.discord.bot.message;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.atteo.evo.inflector.English;
 import vartas.discord.bot.entities.DiscordCommunicator;
@@ -31,6 +28,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -50,10 +49,10 @@ public abstract class RoleMessage {
     /**
      * Sets the description of the current page of the message.
      * @param builder the message builder.
-     * @param desc the description.
+     * @param role the role in question.
      */
-    private static void addDescription(InteractiveMessageBuilder builder, String desc){
-        builder.addDescription(desc);
+    private static void addDescription(InteractiveMessageBuilder builder, Role role){
+        builder.addDescription(role.getName());
     }
     /**
      * Adds the id of the role to the message.
@@ -61,10 +60,7 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addId(InteractiveMessageBuilder builder, Role role){
-        builder.addLine(String.format("%-10s : %s",
-                "ID",
-                role.getId())
-        );
+        builder.addField("ID", role.getId());
     }
     /**
      * Adds the number of days since the role was created to the message.
@@ -73,13 +69,11 @@ public abstract class RoleMessage {
      */
     private static void addCreated(InteractiveMessageBuilder builder, Role role){
         DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-        int days = (int)DAYS.between(role.getTimeCreated().toLocalDate(),LocalDate.now());
-        builder.addLine(String.format("%-10s : %s (%d %s ago)",
-                "Created",
-                formatter.format(role.getTimeCreated()),
-                days,
-                English.plural("day", days))
-        );
+        LocalDate created = role.getTimeCreated().toLocalDate();
+        String date = formatter.format(created);
+        int days = (int)DAYS.between(created,LocalDate.now());
+
+        builder.addField("Created", String.format("%s (%d %s ago)", date, days, English.plural("day", days)));
     }
     /**
      * Adds the position of the role in the hierarchy to the message.
@@ -87,10 +81,7 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addPosition(InteractiveMessageBuilder builder, Role role){
-        builder.addLine(String.format("%-10s : %d",
-                "Position",
-                role.getPosition())
-        );
+        builder.addField("Position", role.getPosition());
     }
     /**
      * Adds the number of members with this role to the message.
@@ -98,10 +89,7 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addMembersCount(InteractiveMessageBuilder builder, Role role){
-        builder.addLine(String.format("%-10s : %d",
-                "#Members",
-                role.getGuild().getMembersWithRoles(role).size())
-        );
+        builder.addField("#Members", role.getGuild().getMembersWithRoles(role).size());
     }
     /**
      * Adds the color of the role to the message if the color isn't the default one.
@@ -109,18 +97,19 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addColor(InteractiveMessageBuilder builder, Role role){
-        Color c = role.getColor();
-        if(c == null)
-            return;
-        //0 represents a transparent color
-        if(role.getColorRaw() != Role.DEFAULT_COLOR_RAW){
-            builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
-                "Color",
-                c.getRed(),
-                c.getGreen(),
-                c.getBlue())
-            );
-        }
+        Optional<Color> colorOpt = Optional.ofNullable(role.getColor());
+
+        colorOpt.ifPresent(color -> {
+            //0 represents a transparent color
+            if (role.getColorRaw() != Role.DEFAULT_COLOR_RAW) {
+                builder.addLine(String.format("%-10s : 0x%02X%02X%02X",
+                        "Color",
+                        color.getRed(),
+                        color.getGreen(),
+                        color.getBlue())
+                );
+            }
+        });
     }
     /**
      * Adds the effective ranks this role gives to the message.
@@ -128,9 +117,10 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addPermissions(InteractiveMessageBuilder builder, Role role, TextChannel channel){
+        builder.addDescription("Role permissions");
         Permission.getPermissions(PermissionUtil.getEffectivePermission(channel,role))
                 .stream()
-                .sorted(Comparator.comparing(Enum::name))
+                .sorted(Comparator.comparing(Permission::getOffset))
                 .map(Permission::getName)
                 .forEach(builder::addLine);
     }
@@ -140,18 +130,15 @@ public abstract class RoleMessage {
      * @param role the role in question.
      */
     private static void addMembersWithRole(InteractiveMessageBuilder builder, Role role){
-        List<Member> all = role.getGuild().getMembersWithRoles(role);
-        for(int i = 0 ; i < all.size() ; i +=10){
-            addDescription(builder, String.format("`%s with this role [%d / %d]`",
-                    English.plural("Member",all.size()),
-                    i,
-                    Math.min(i+10,all.size()-1))
-            );
-            for(int j = i ; j < Math.min(i+20,all.size()) ; ++j){
-                builder.addLine(all.get(j).getAsMention());
-            }
-            builder.nextPage();
-        }
+        builder.addDescription("Members with this role");
+        List<String> members = role
+                .getGuild()
+                .getMembersWithRoles(role)
+                .stream()
+                .sorted(Comparator.comparing(ISnowflake::getIdLong))
+                .map(IMentionable::getAsMention)
+                .collect(Collectors.toList());
+        builder.addLines(members, 10);
     }
     
     /**
@@ -164,18 +151,15 @@ public abstract class RoleMessage {
      */
     public static InteractiveMessage create(User author, Role role, TextChannel channel, DiscordCommunicator comm){
         InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
-        
-        addDescription(builder, String.format("The basic information about %s", role.getAsMention()));
-        builder.addLine("```");
+
+        addDescription(builder, role);
         addId(builder,role);
         addCreated(builder,role);
         addPosition(builder,role);
         addMembersCount(builder,role);
         addColor(builder, role);
-        builder.addLine("```");
         builder.nextPage();
-        
-        addDescription(builder, String.format("All ranks in %s", channel.getAsMention()));
+
         addPermissions(builder, role, channel);
         builder.nextPage();
         
