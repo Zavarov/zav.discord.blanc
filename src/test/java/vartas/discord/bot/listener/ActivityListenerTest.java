@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 
@@ -53,8 +53,8 @@ public class ActivityListenerTest extends AbstractBotTest {
     }
     @Test
     public void createTest(){
-        Instant first = Instant.now();
-        Instant second = first.minus(1, ChronoUnit.MINUTES);
+        LocalDateTime first = LocalDateTime.now();
+        LocalDateTime second = first.minus(1, ChronoUnit.MINUTES);
 
         chart.set(channel.getName(), first, Collections.singletonList(2L));
         chart.set(ActivityListener.AllMembers, first, Collections.singletonList(3L));
@@ -72,21 +72,21 @@ public class ActivityListenerTest extends AbstractBotTest {
     public void runTest(){
         listener.run();
 
-        assertThat(chart.get(ActivityListener.AllMembers, Instant.now())).contains(1L);
-        assertThat(chart.get(ActivityListener.MembersOnline, Instant.now())).contains(0L);
+        assertThat(chart.get(ActivityListener.AllMembers, LocalDateTime.now())).contains(1L);
+        assertThat(chart.get(ActivityListener.MembersOnline, LocalDateTime.now())).contains(0L);
     }
     @Test
     public void onGuildMessageReceivedTest(){
         listener.onGuildMessageReceived(event);
 
-        assertThat(chart.get(ActivityListener.AllChannels, Instant.now())).contains(1L);
-        assertThat(chart.get(channel.getName(), Instant.now())).contains(1L);
+        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now())).contains(1L);
+        assertThat(chart.get(channel.getName(), LocalDateTime.now())).contains(1L);
 
         user.setBot(true);
         listener.onGuildMessageReceived(event);
 
-        assertThat(chart.get(ActivityListener.AllChannels, Instant.now())).contains(1L);
-        assertThat(chart.get(channel.getName(), Instant.now())).contains(1L);
+        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now())).contains(1L);
+        assertThat(chart.get(channel.getName(), LocalDateTime.now())).contains(1L);
     }
 
     private void save(JFreeChart chart, String fileName){

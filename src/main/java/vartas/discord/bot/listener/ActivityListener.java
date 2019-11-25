@@ -35,7 +35,7 @@ import vartas.chart.line.DelegatingLineChart;
 import vartas.discord.bot.entities.DiscordCommunicator;
 
 import java.time.Duration;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,7 +127,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
                 .filter(m -> m.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .count();
 
-        Instant now = Instant.now();
+        LocalDateTime now = LocalDateTime.now();
         chart.set(AllMembers, now, Collections.singleton(allMembers));
         chart.set(MembersOnline, now, Collections.singleton(membersOnline));
 
@@ -147,7 +147,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
             return;
 
         DelegatingLineChart<Long> chart = charts.getUnchecked(event.getGuild());
-        Instant date = Instant.now();
+        LocalDateTime date = LocalDateTime.now();
 
         String channelName = event.getMessage().getTextChannel().getName();
 
