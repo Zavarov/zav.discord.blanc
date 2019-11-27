@@ -31,7 +31,10 @@ import vartas.reddit.SubmissionInterface;
 import vartas.reddit.UnresolvableRequestException;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -65,6 +68,7 @@ public class SubmissionCache {
     }
 
     public List<MessageBuilder> retrieve(LocalDateTime start, LocalDateTime end){
+        log.debug(String.format("retrieve [%s, %s] from '%s'", start, end, subreddit));
         return cache
                 .asMap()
                 .entrySet()
@@ -84,8 +88,8 @@ public class SubmissionCache {
      */
     public void request(LocalDateTime start, LocalDateTime end){
         try{
-            log.info("Request submissions from '"+subreddit+"'.");
-            Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseGet(TreeSet::new);
+            log.debug(String.format("requesting [%s, %s] from '%s'", start, end, subreddit));
+            Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseThrow();
             log.debug(String.format("%d %s retrieved.", submissions.size(), English.plural("submission", submissions.size())));
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));

@@ -41,7 +41,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -100,7 +99,10 @@ public class DiscordCommunicator {
         this.blacklist = new BlacklistListener(this);
         this.command = new CommandListener(this, builder.apply(this));
         this.adapter = adapter;
-        this.guilds = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).build(CacheLoader.from(g -> adapter.guild(g, this)));
+        this.guilds = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build(CacheLoader.from(g -> adapter.guild(g, this)));
+
+        //Load the configuration for each guild
+        jda.getGuilds().forEach(this::guild);
 
         jda.addEventListener(activity);
         jda.addEventListener(messages);

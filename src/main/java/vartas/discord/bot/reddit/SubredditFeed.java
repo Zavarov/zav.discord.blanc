@@ -30,6 +30,7 @@ import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class SubredditFeed {
      * The difference between the last time and the time 'update' is called
      * is the time interval we accept new submissions in.
      */
-    protected LocalDateTime previous;
+    protected LocalDateTime previous = LocalDateTime.now(ZoneId.of("UTC"));
 
     public SubredditFeed(String subreddit, DiscordEnvironment environment){
         this.subreddit = subreddit;
@@ -102,20 +103,16 @@ public class SubredditFeed {
     }
 
     private List<MessageBuilder> receive(){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
         //Submissions should be at least 1 minute old so that the author can flair them correctly
         LocalDateTime end = now.minusMinutes(1);
         //Go back 2 minutes instead of 1 since we can't assume the interval to be exact
-        LocalDateTime start = now.minusMinutes(3);
+        //LocalDateTime start = now.minusMinutes(3);
+        LocalDateTime start = now.minusDays(2);
         cache.request(start, end);
-
-        log.debug(String.format("requesting [%s, %s]", start, end));
 
         //'previous' is ~1 minute before 'end'
         List<MessageBuilder> submissions = cache.retrieve(previous, end);
-
-        log.debug(String.format("retrieve [%s, %s]", previous, end));
-
         previous = end;
         return submissions;
     }

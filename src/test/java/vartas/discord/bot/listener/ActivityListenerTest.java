@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 
@@ -48,7 +49,7 @@ public class ActivityListenerTest extends AbstractTest {
     }
     @Test
     public void createUnknownChannelTest(){
-        LocalDateTime first = LocalDateTime.now();
+        LocalDateTime first = LocalDateTime.now(ZoneId.of("UTC"));
         LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
         LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
 
@@ -68,7 +69,7 @@ public class ActivityListenerTest extends AbstractTest {
     }
     @Test
     public void createTest(){
-        LocalDateTime first = LocalDateTime.now();
+        LocalDateTime first = LocalDateTime.now(ZoneId.of("UTC"));
         LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
         LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
 
@@ -93,21 +94,21 @@ public class ActivityListenerTest extends AbstractTest {
     public void runTest(){
         listener.run();
 
-        assertThat(chart.get(ActivityListener.AllMembers, LocalDateTime.now())).contains(1L);
-        assertThat(chart.get(ActivityListener.MembersOnline, LocalDateTime.now())).contains(0L);
+        assertThat(chart.get(ActivityListener.AllMembers, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
+        assertThat(chart.get(ActivityListener.MembersOnline, LocalDateTime.now(ZoneId.of("UTC")))).contains(0L);
     }
     @Test
     public void onGuildMessageReceivedTest(){
         listener.onGuildMessageReceived(event);
 
-        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now())).contains(1L);
-        assertThat(chart.get(channel.getName(), LocalDateTime.now())).contains(1L);
+        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
+        assertThat(chart.get(channel.getName(), LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
 
         user.setBot(true);
         listener.onGuildMessageReceived(event);
 
-        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now())).contains(1L);
-        assertThat(chart.get(channel.getName(), LocalDateTime.now())).contains(1L);
+        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
+        assertThat(chart.get(channel.getName(), LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
     }
 
     private void save(JFreeChart chart, String fileName){

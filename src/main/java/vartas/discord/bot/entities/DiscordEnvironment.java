@@ -89,6 +89,8 @@ public class DiscordEnvironment {
     public DiscordEnvironment(EntityAdapter adapter, Function<DiscordCommunicator, CommandBuilder> builder) throws LoginException, InterruptedException {
         this(adapter);
 
+        reddit.login();
+
         addCommunicators(builder);
         removeOldGuilds();
 
