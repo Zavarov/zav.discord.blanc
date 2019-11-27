@@ -17,6 +17,9 @@
 
 package vartas.discord.bot.entities;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,7 +28,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.JDALogger;
-import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
 import org.slf4j.Logger;
 import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
@@ -38,9 +40,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +62,13 @@ public class DiscordCommunicator {
      * The activity tracker for all message.
      */
     protected final ActivityListener activity;
+    /**
+     * The listener responsible for filtering all blacklisted words.
+     */
     protected BlacklistListener blacklist;
+    /**
+     * The listener responsible for parsing and scheduling the bot commands.
+     */
     protected CommandListener command;
     /**
      * The environment of the program.
@@ -70,12 +77,14 @@ public class DiscordCommunicator {
     /**
      * The JDA that this communicator uses.
      */
-    protected final UpstreamReference<JDA> jda;
+    protected final JDA jda;
     /**
      * All configuration files of the guilds in this shard.
      */
-    protected final Map<Guild, BotGuild> guilds = new HashMap<>();
-
+    protected final LoadingCache<Guild, BotGuild> guilds;
+    /**
+     * The adapter for parsing the local data files.
+     */
     protected final EntityAdapter adapter;
     /**
      * Initializes all necessary tasks for the communicator in this shard.
@@ -85,14 +94,13 @@ public class DiscordCommunicator {
      */
     public DiscordCommunicator(DiscordEnvironment environment, JDA jda, Function<DiscordCommunicator, CommandBuilder> builder, EntityAdapter adapter){
         this.environment = environment;
-        this.jda = new UpstreamReference<>(jda);
+        this.jda = jda;
         this.activity = new ActivityListener(this);
         this.messages = new InteractiveMessageListener(environment.config());
         this.blacklist = new BlacklistListener(this);
         this.command = new CommandListener(this, builder.apply(this));
         this.adapter = adapter;
-
-        init();
+        this.guilds = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).build(CacheLoader.from(g -> adapter.guild(g, this)));
 
         jda.addEventListener(activity);
         jda.addEventListener(messages);
@@ -102,11 +110,6 @@ public class DiscordCommunicator {
 
         environment.schedule(activity, environment.config().getActivityUpdateInterval(), TimeUnit.MINUTES);
     }
-    private void init(){
-        for(Guild guild : jda().getGuilds())
-            this.guilds.put(guild, adapter.guild(guild, this));
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
     //   Internal                                                                                                     //
@@ -116,16 +119,14 @@ public class DiscordCommunicator {
         return environment;
     }
     public BotGuild guild(Guild guild){
-        return guilds.computeIfAbsent(guild, (g) -> new BotGuild(g, this, adapter));
+        return guilds.getUnchecked(guild);
     }
     public void remove(Guild guild){
-        Optional<BotGuild> guildOpt = Optional.ofNullable(guilds.remove(guild));
-        if(guildOpt.isPresent()){
-            BotGuild config = guildOpt.get();
-            adapter.delete(config);
-
-            command.remove(guild);
-        }
+        BotGuild config = guild(guild);
+        //Delete file
+        adapter.delete(config);
+        //Remove prefix
+        command.remove(guild);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -136,9 +137,9 @@ public class DiscordCommunicator {
      * @return the task that will await the termination of all threads of this shard.
      */
     public Runnable shutdown() {
-        jda.get().shutdown();
+        jda.shutdown();
         executor.shutdown();
-        log.info("Shutting down shard "+jda.get().getShardInfo().getShardString()+".");
+        log.info("Shutting down shard "+jda.getShardInfo().getShardString()+".");
         return () -> {
             try{
                 executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -156,7 +157,7 @@ public class DiscordCommunicator {
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public JDA jda(){
-        return jda.get();
+        return jda;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -180,8 +181,7 @@ public class DiscordCommunicator {
 
             ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
             send(channel.sendFile(input, "image.png"));
-            //Fuck ImageIO and just catch anything (And use "Throwable" to allow testing)
-        }catch(Throwable e){
+        }catch(IOException e){
             throw new IllegalArgumentException(e);
         }
     }
@@ -222,7 +222,7 @@ public class DiscordCommunicator {
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void accept(DiscordCommunicatorVisitor visitor){
-        guilds.values().forEach(visitor::handle);
+        guilds.asMap().values().forEach(visitor::handle);
         visitor.handle(command);
         visitor.handle(blacklist);
         visitor.handle(activity);

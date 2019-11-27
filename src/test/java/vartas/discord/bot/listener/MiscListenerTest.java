@@ -15,29 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.entities;
+package vartas.discord.bot.listener;
 
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BotStatusTest extends AbstractTest {
-    BotStatus status;
+public class MiscListenerTest extends AbstractTest {
+    MiscListener listener;
+    GuildLeaveEvent event;
     @Before
     public void setUp(){
-        status = adapter.status();
+        listener = new MiscListener(communicator);
+        event = new GuildLeaveEvent(jda, 12345L, guild);
     }
 
     @Test
-    public void getTest(){
-        assertThat(status.get()).contains("element");
-    }
-
-    @Test
-    public void getEmptyTest(){
-        status.status.clear();
-        assertThat(status.get()).isEmpty();
+    public void onGuildLeaveTest(){
+        listener.onGuildLeave(event);
+        assertThat(communicator.removed).containsExactly(guild);
     }
 }

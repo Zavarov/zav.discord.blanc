@@ -20,7 +20,7 @@ package vartas.discord.bot.listener;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.junit.Before;
 import org.junit.Test;
-import vartas.discord.bot.AbstractBotTest;
+import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.Command;
 import vartas.discord.bot.TestCommandBuilder;
 
@@ -28,22 +28,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CommandListenerTest extends AbstractBotTest {
+public class CommandListenerTest extends AbstractTest {
     CommandListener listener;
     MessageReceivedEvent event;
     AtomicBoolean flag;
+    Command command;
 
     @Before
     public void setUp(){
         flag = new AtomicBoolean(false);
-        listener = new CommandListener(communicator, new TestCommandBuilder(() -> new Command() {
-            @Override
-            public void run() {
-                flag.set(true);
-            }
-        }));
+        command = () -> flag.set(true);
+        listener = new CommandListener(communicator, new TestCommandBuilder(() -> command));
         event = new MessageReceivedEvent(jda, 54321L, message);
-
     }
 
     @Test
@@ -66,5 +62,33 @@ public class CommandListenerTest extends AbstractBotTest {
     public void onMessageReceivedTest(){
         listener.onMessageReceived(event);
         assertThat(flag).isTrue();
+    }
+
+    @Test
+    public void onMessageReceivedIsBotTest(){
+        user.setBot(true);
+
+        listener.onMessageReceived(event);
+        assertThat(flag).isFalse();
+    }
+
+    @Test
+    public void onMessageReceivedErrorInCommandTest(){
+        command = () -> { throw new RuntimeException(); };
+
+        assertThat(communicator.send).isEmpty();
+        listener.onMessageReceived(event);
+        assertThat(flag).isFalse();
+        assertThat(communicator.send).hasSize(1);
+    }
+
+    @Test
+    public void onMessageReceivedErrorInParserTest(){
+        listener = new CommandListener(communicator, null);
+
+        assertThat(communicator.send).isEmpty();
+        listener.onMessageReceived(event);
+        assertThat(flag).isFalse();
+        assertThat(communicator.send).hasSize(1);
     }
 }

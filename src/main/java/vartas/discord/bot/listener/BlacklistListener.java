@@ -62,7 +62,6 @@ public class BlacklistListener extends ListenerAdapter {
         patternOpt.ifPresent(pattern -> {
             if(pattern.matcher(event.getMessage().getContentRaw()).matches())
                 communicator.send(event.getMessage().delete());
-
         });
     }
 }

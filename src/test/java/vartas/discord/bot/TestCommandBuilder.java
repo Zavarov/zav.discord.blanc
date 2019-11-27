@@ -30,9 +30,6 @@ public class TestCommandBuilder extends CommandBuilder{
 
     @Override
     public Command build(String content, Message source) {
-        Command command = supplier.get();
-        if(!content.startsWith(prefix))
-            command.run();
-        return command;
+        return supplier.get();
     }
 }

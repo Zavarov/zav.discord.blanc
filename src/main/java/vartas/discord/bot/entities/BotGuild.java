@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.JDALogger;
-import net.dv8tion.jda.internal.utils.cache.UpstreamReference;
 import org.slf4j.Logger;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.listener.BlacklistListener;
@@ -40,11 +39,9 @@ import java.util.stream.Collectors;
 public class BotGuild {
     public static final String SUBREDDIT = "subreddit";
     public static final String ROLEGROUP = "rolegroup";
-    /**
-     * The logger for this configuration file.
-     */
+
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
-    protected UpstreamReference<Guild> guild;
+    protected Guild guild;
     protected EntityAdapter adapter;
     protected DiscordCommunicator communicator;
 
@@ -53,13 +50,13 @@ public class BotGuild {
     protected String prefix = null;
 
     public BotGuild(Guild guild, DiscordCommunicator communicator, EntityAdapter adapter){
-        this.guild = new UpstreamReference<>(guild);
+        this.guild = guild;
         this.adapter = adapter;
         this.communicator = communicator;
     }
 
     public String getId(){
-        return guild.get().getId();
+        return guild.getId();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -71,9 +68,9 @@ public class BotGuild {
 
         Optional<Pattern> patternOpt = blacklist();
         if(patternOpt.isPresent())
-            new AddBlacklistVisitor().accept(guild.get(), patternOpt.get());
+            new AddBlacklistVisitor().accept(guild, patternOpt.get());
         else
-            new RemoveBlacklistVisitor().accept(guild.get());
+            new RemoveBlacklistVisitor().accept(guild);
     }
     public Optional<Pattern> blacklist(){
         return Optional.ofNullable(pattern);
@@ -114,9 +111,9 @@ public class BotGuild {
 
         Optional<String> prefixOpt = prefix();
         if(prefixOpt.isPresent())
-            new AddPrefixVisitor().accept(guild.get(), prefixOpt.get());
+            new AddPrefixVisitor().accept(guild, prefixOpt.get());
         else
-            new RemovePrefixVisitor().accept(guild.get());
+            new RemovePrefixVisitor().accept(guild);
     }
     public Optional<String> prefix(){
         return Optional.ofNullable(prefix);
@@ -152,14 +149,11 @@ public class BotGuild {
     //   Role Group                                                                                                   //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public synchronized boolean resolve(String row, String column, Role value){
-        return groups.getOrDefault(row, HashMultimap.create()).get(column).contains(value.getIdLong());
+    public synchronized boolean resolve(String column, Role value){
+        return resolve(value).contains(column);
     }
-    public synchronized Optional<String> resolve(String row, Role value){
-        return Multimaps.filterValues(groups.getOrDefault(row, HashMultimap.create()), l -> Objects.equals(l, value.getIdLong()))
-                .keySet()
-                .stream()
-                .findAny();
+    public synchronized Set<String> resolve(Role value){
+        return Multimaps.filterValues(groups.getOrDefault(ROLEGROUP, HashMultimap.create()), l -> Objects.equals(l, value.getIdLong())).keySet();
     }
     public synchronized void remove(String column, Role value){
         groups.computeIfAbsent(ROLEGROUP, (x) -> HashMultimap.create()).remove(column, value.getIdLong());
@@ -172,14 +166,11 @@ public class BotGuild {
     //   Subreddits                                                                                                   //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public synchronized boolean resolve(String row, String column, TextChannel value){
-        return groups.getOrDefault(row, HashMultimap.create()).get(column).contains(value.getIdLong());
+    public synchronized boolean resolve(String column, TextChannel value){
+        return resolve(value).contains(column);
     }
-    public synchronized Optional<String> resolve(String row, TextChannel value){
-        return Multimaps.filterValues(groups.getOrDefault(row, HashMultimap.create()), l -> Objects.equals(l, value.getIdLong()))
-                .keySet()
-                .stream()
-                .findAny();
+    public synchronized Set<String> resolve(TextChannel value){
+        return Multimaps.filterValues(groups.getOrDefault(SUBREDDIT, HashMultimap.create()), l -> Objects.requireNonNull(l).equals(value.getIdLong())).keySet();
     }
     public synchronized void remove(String column, TextChannel value){
         groups.computeIfAbsent(SUBREDDIT, (x) -> HashMultimap.create()).remove(column, value.getIdLong());
@@ -199,37 +190,21 @@ public class BotGuild {
     }
 
     public synchronized <T> Set<T> resolve(String row, String column, BiFunction<Guild, Long, T> mapper){
-        clean(row, column, mapper);
-
         return groups.getOrDefault(row, HashMultimap.create())
                      .get(column)
                      .stream()
-                     .map((l) -> mapper.apply(guild.get(), l))
+                     .map((l) -> mapper.apply(guild, l))
                      .filter(Objects::nonNull)
                      .collect(Collectors.toSet());
     }
 
     public synchronized <T> Multimap<String, T> resolve(String row, BiFunction<Guild, Long, T> mapper){
-        clean(row, mapper);
+        Set<String> keys = groups.getOrDefault(row, HashMultimap.create()).keySet();
+        Map<String, Collection<T>> entries = Maps.asMap(keys, column -> resolve(row, column, mapper));
 
-        Multimap<String, Long> group = groups.getOrDefault(row, HashMultimap.create());
-        Multimap<String, T> result = Multimaps.transformValues(group, l -> mapper.apply(guild.get(), l));
-        return Multimaps.filterValues(result, Objects::nonNull);
-    }
-
-    public synchronized Set<Long> validate(String row, String column, BiFunction<Guild, Long, ?> mapper){
-        return Sets.filter(groups.getOrDefault(row, HashMultimap.create()).get(column), l -> mapper.apply(guild.get(), l) == null);
-    }
-
-    public synchronized void clean(String row, BiFunction<Guild, Long, ?> mapper){
-        for(String key : groups.getOrDefault(row, HashMultimap.create()).keySet())
-            clean(row, key, mapper);
-    }
-
-    public synchronized void clean(String row, String column, BiFunction<Guild, Long, ?> mapper){
-        Set<Long> invalid = validate(row, column, mapper);
-
-        groups.getOrDefault(row, HashMultimap.create()).get(column).removeAll(invalid);
+        HashMultimap<String, T> multimap = HashMultimap.create();
+        entries.forEach(multimap::putAll);
+        return multimap;
     }
 
     public synchronized void store(){

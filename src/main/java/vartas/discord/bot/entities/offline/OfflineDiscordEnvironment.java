@@ -15,29 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.bot.entities;
+package vartas.discord.bot.entities.offline;
 
-import org.junit.Before;
-import org.junit.Test;
-import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.EntityAdapter;
+import vartas.discord.bot.entities.DiscordEnvironment;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class BotStatusTest extends AbstractTest {
-    BotStatus status;
-    @Before
-    public void setUp(){
-        status = adapter.status();
-    }
-
-    @Test
-    public void getTest(){
-        assertThat(status.get()).contains("element");
-    }
-
-    @Test
-    public void getEmptyTest(){
-        status.status.clear();
-        assertThat(status.get()).isEmpty();
+/**
+ * Initializes the environment without connecting to Reddit and Discord.<br>
+ * Used for testing and debugging.
+ */
+public class OfflineDiscordEnvironment extends DiscordEnvironment {
+    public OfflineDiscordEnvironment(EntityAdapter adapter) {
+        super(adapter);
     }
 }

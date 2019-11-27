@@ -24,53 +24,80 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.Response;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.*;
 import net.dv8tion.jda.internal.requests.RestActionImpl;
+import net.dv8tion.jda.internal.requests.restaction.AuditableRestActionImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import org.jetbrains.annotations.NotNull;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.offline.OfflineDiscordCommunicator;
+import vartas.discord.bot.entities.offline.OfflineDiscordEnvironment;
+import vartas.discord.bot.message.InteractiveMessage;
 
 import javax.annotation.Nonnull;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public abstract class AbstractTest {
-    protected static long guildId = 0L;
-    protected static long channelId = 1L;
-    protected static long roleId = 2L;
-    protected static long userId = 3L;
-    protected static long memberId = userId;
-    protected static long messageId = 4L;
+    protected long guildId = 0L;
+    protected long channelId = 1L;
+    protected long roleId = 2L;
+    protected long userId = 3L;
+    protected long memberId = userId;
+    protected long messageId = 4L;
 
-    protected static String guildName = "guild";
-    protected static String channelName = "channel";
-    protected static String roleName = "role";
-    protected static String userName = "user";
-    protected static String memberNickname = "member";
-    protected static String messageContent = "b.message";
+    protected String guildName;
+    protected String channelName;
+    protected String roleName;
+    protected String userName;
+    protected String memberNickname;
+    protected String messageContent;
+    protected String emote;
 
-    protected static JDAImpl jda;
-    protected static GuildImpl guild;
-    protected static TextChannelImpl channel;
-    protected static RoleImpl role;
-    protected static SelfUserImpl user;
-    protected static MemberImpl member;
-    protected static Message message;
+    protected ChannelType messageChannelType = ChannelType.TEXT;
 
-    protected static Map<String, GuildImpl> guildMap;
-    protected static Map<String, TextChannelImpl> channelMap;
-    protected static Map<String, RoleImpl> roleMap;
-    protected static Map<String, UserImpl> userMap;
-    protected static Map<String, MemberImpl> memberMap;
-    protected static Map<String, Message> messageMap;
+    protected JDAImpl jda;
+    protected GuildImpl guild;
+    protected TextChannelImpl channel;
+    protected RoleImpl role;
+    protected SelfUserImpl user;
+    protected MemberImpl member;
+    protected Message message;
+    protected MessageReaction messageReaction;
+    protected MessageReaction.ReactionEmote reactionEmote;
+
+    protected Map<String, GuildImpl> guildMap;
+    protected Map<String, TextChannelImpl> channelMap;
+    protected Map<String, RoleImpl> roleMap;
+    protected Map<String, UserImpl> userMap;
+    protected Map<String, MemberImpl> memberMap;
+    protected Map<String, Message> messageMap;
+
+    protected Function<DiscordCommunicator, CommandBuilder> builder;
+    protected EntityAdapter adapter;
+    protected OfflineDiscordCommunicator communicator;
+    protected OfflineDiscordEnvironment environment;
 
 
-    @BeforeClass
-    public static void initJda(){
-        AuthorizationConfig config = new AuthorizationConfig(AccountType.BOT, "12345");
+    @Before
+    public void initJda(){
+        guildName = "guild";
+        channelName = "channel";
+        roleName = "role";
+        userName = "user";
+        memberNickname = "member";
+        messageContent = "b.message";
+        emote = InteractiveMessage.ARROW_RIGHT;
+
+        AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
 
         guildMap = new HashMap<>();
         channelMap = new HashMap<>();
@@ -79,7 +106,7 @@ public abstract class AbstractTest {
         memberMap = new HashMap<>();
         messageMap = new HashMap<>();
 
-        jda = new JDAImpl(config){
+        jda = new JDAImpl(authorization){
             @Override
             public GuildImpl getGuildById(long id){
                 return getGuildById(Long.toString(id));
@@ -176,7 +203,21 @@ public abstract class AbstractTest {
             }
         };
 
-        message = new DataMessage(false, messageContent, null, null){
+        message = new DataMessage(false, null, null, null){
+            @Nonnull
+            @Override
+            public ChannelType getChannelType(){
+                return getChannel().getType();
+            }
+            @NotNull
+            public AuditableRestAction<Void> delete(){
+                return new AuditableRestActionImpl<>(jda, null);
+            }
+            @Nonnull
+            @Override
+            public String getContentRaw() {
+                return messageContent;
+            }
             @Nonnull
             @Override
             public JDAImpl getJDA(){
@@ -191,11 +232,6 @@ public abstract class AbstractTest {
             @Override
             public TextChannelImpl getTextChannel(){
                 return channel;
-            }
-            @Nonnull
-            @Override
-            public ChannelType getChannelType(){
-                return ChannelType.TEXT;
             }
             @Nonnull
             @Override
@@ -219,6 +255,11 @@ public abstract class AbstractTest {
         };
 
         channel = new TextChannelImpl(channelId, guild){
+            @Nonnull
+            @Override
+            public ChannelType getType(){
+                return messageChannelType;
+            }
             @Override
             public RestAction<Message> retrieveMessageById(long id){
                 return retrieveMessageById(Long.toString(id));
@@ -226,10 +267,10 @@ public abstract class AbstractTest {
             @Nonnull
             @Override
             public RestAction<Message> retrieveMessageById(@Nonnull String id){
-                return new RestActionImpl<Message>(jda, null){
+                return new RestActionImpl<>(jda, null) {
                     @Override
-                    public Message complete(){
-                        if(messageMap.containsKey(id))
+                    public Message complete() {
+                        if (messageMap.containsKey(id))
                             return messageMap.get(id);
                         else
                             throw ErrorResponseException.create(ErrorResponse.UNAUTHORIZED, new Response(0L, Collections.emptySet()));
@@ -241,6 +282,8 @@ public abstract class AbstractTest {
         role = new RoleImpl(roleId, guild);
         user = new SelfUserImpl(userId, jda);
         member = new MemberImpl(guild, user);
+        reactionEmote = MessageReaction.ReactionEmote.fromUnicode(emote, jda);
+        messageReaction = new MessageReaction(channel, reactionEmote, message.getIdLong(), true, 1);
 
         guild.setName(guildName);
         channel.setName(channelName);
@@ -264,5 +307,15 @@ public abstract class AbstractTest {
         jda.setSelfUser(user);
         guild.setPublicRole(role);
         role.setRawPermissions(Permission.ALL_PERMISSIONS);
+
+        Path config = Paths.get("src/test/resources/config.json");
+        Path status = Paths.get("src/test/resources/status.json");
+        Path rank = Paths.get("src/test/resources/rank.json");
+        Path guilds = Paths.get("src/test/guilds");
+
+        adapter = new JSONEntityAdapter(config, status, rank, guilds);
+        builder = (c) -> new TestCommandBuilder(() -> () -> {});
+        environment = new OfflineDiscordEnvironment(adapter);
+        communicator = new OfflineDiscordCommunicator(environment, jda, builder, adapter);
     }
 }

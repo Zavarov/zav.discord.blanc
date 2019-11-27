@@ -88,10 +88,10 @@ public class CommandListener extends ListenerAdapter {
                 Runnable runnable = () -> {
                     try{
                         command.run();
-                    }catch(Exception e){
+                    }catch(RuntimeException e){
                         e.printStackTrace();
                         String error = e.getClass().getSimpleName() + ": " + e.getMessage();
-                        log.error(error);
+                        JDALogger.getLog(command.getClass().getSimpleName()).error(error);
                         communicator.send(message.getChannel(), error);
                     }
                 };
@@ -99,6 +99,7 @@ public class CommandListener extends ListenerAdapter {
                 communicator.schedule(runnable);
                 log.info("Executed "+command.getClass().getSimpleName());
             }catch(RuntimeException e){
+                e.printStackTrace();
                 String error = e.getClass().getSimpleName() + ": " + e.getMessage();
                 log.error(error);
                 communicator.send(event.getMessage().getChannel(), error);
@@ -125,10 +126,8 @@ public class CommandListener extends ListenerAdapter {
      */
     private String getContent(Message message){
         String content = message.getContentRaw();
-        for(String prefix : getPrefixes(message))
-            if(content.startsWith(prefix))
-                return StringUtils.removeStart(content, prefix);
-        return content;
+        String prefix = getPrefixes(message).stream().filter(content::startsWith).findFirst().orElse("");
+        return StringUtils.removeStart(content, prefix);
     }
     /**
      * @param message the input message.

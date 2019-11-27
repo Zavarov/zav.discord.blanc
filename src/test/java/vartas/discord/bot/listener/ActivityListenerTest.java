@@ -19,11 +19,10 @@ package vartas.discord.bot.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.jfree.chart.JFreeChart;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.chart.line.DelegatingLineChart;
-import vartas.discord.bot.AbstractBotTest;
+import vartas.discord.bot.AbstractTest;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -36,7 +35,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActivityListenerTest extends AbstractBotTest {
+public class ActivityListenerTest extends AbstractTest {
     ActivityListener listener;
     GuildMessageReceivedEvent event;
     DelegatingLineChart<Long> chart;
@@ -47,24 +46,46 @@ public class ActivityListenerTest extends AbstractBotTest {
         event = new GuildMessageReceivedEvent(jda, 12345L, message);
         chart = listener.charts.getUnchecked(guild);
     }
-    @After
-    public void cleanUp(){
-        user.setBot(false);
+    @Test
+    public void createUnknownChannelTest(){
+        LocalDateTime first = LocalDateTime.now();
+        LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
+        LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
+
+        chart.set(ActivityListener.AllMembers, first, Collections.singletonList(3L));
+        chart.set(ActivityListener.AllChannels, first, Collections.singletonList(4L));
+        chart.set(ActivityListener.MembersOnline, first, Collections.singletonList(5L));
+
+        chart.set(ActivityListener.AllMembers, second, Collections.singletonList(4L));
+        chart.set(ActivityListener.AllChannels, second, Collections.singletonList(5L));
+        chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(6L));
+
+        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(5L));
+        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(6L));
+        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(7L));
+
+        save(listener.create(guild, Collections.singletonList(channel)), "UnknownChannelChart");
     }
     @Test
     public void createTest(){
         LocalDateTime first = LocalDateTime.now();
-        LocalDateTime second = first.minus(1, ChronoUnit.MINUTES);
+        LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
+        LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
 
         chart.set(channel.getName(), first, Collections.singletonList(2L));
         chart.set(ActivityListener.AllMembers, first, Collections.singletonList(3L));
         chart.set(ActivityListener.AllChannels, first, Collections.singletonList(4L));
         chart.set(ActivityListener.MembersOnline, first, Collections.singletonList(5L));
 
-        chart.set(channel.getName(), second, Collections.singletonList(2L));
-        chart.set(ActivityListener.AllMembers, second, Collections.singletonList(3L));
-        chart.set(ActivityListener.AllChannels, second, Collections.singletonList(4L));
-        chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(5L));
+        chart.set(channel.getName(), second, Collections.singletonList(3L));
+        chart.set(ActivityListener.AllMembers, second, Collections.singletonList(4L));
+        chart.set(ActivityListener.AllChannels, second, Collections.singletonList(5L));
+        chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(6L));
+
+        chart.set(channel.getName(), third, Collections.singletonList(4L));
+        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(5L));
+        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(6L));
+        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(7L));
 
         save(listener.create(guild, Collections.singletonList(channel)), "Chart");
     }

@@ -30,7 +30,6 @@ import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +64,7 @@ public class SubredditFeed {
      * The difference between the last time and the time 'update' is called
      * is the time interval we accept new submissions in.
      */
-    protected LocalDateTime current = LocalDateTime.now();
+    protected LocalDateTime previous;
 
     public SubredditFeed(String subreddit, DiscordEnvironment environment){
         this.subreddit = subreddit;
@@ -90,6 +89,8 @@ public class SubredditFeed {
         try{
             List<MessageBuilder> submissions = receive();
 
+            log.debug(String.format("%d new %s in r/%s.", submissions.size(), English.plural("submission", submissions.size()), subreddit));
+
             send(submissions);
 
             if(submissions.size() > 0)
@@ -101,15 +102,22 @@ public class SubredditFeed {
     }
 
     private List<MessageBuilder> receive(){
-        //Include 'end' of the previous call
-        LocalDateTime start = current;
+        LocalDateTime now = LocalDateTime.now();
         //Submissions should be at least 1 minute old so that the author can flair them correctly
-        LocalDateTime end = LocalDateTime.now().minus(60, ChronoUnit.SECONDS);
-        //Shift the time frame
-        current = end;
-
+        LocalDateTime end = now.minusMinutes(1);
+        //Go back 2 minutes instead of 1 since we can't assume the interval to be exact
+        LocalDateTime start = now.minusMinutes(3);
         cache.request(start, end);
-        return cache.retrieve(start, end);
+
+        log.debug(String.format("requesting [%s, %s]", start, end));
+
+        //'previous' is ~1 minute before 'end'
+        List<MessageBuilder> submissions = cache.retrieve(previous, end);
+
+        log.debug(String.format("retrieve [%s, %s]", previous, end));
+
+        previous = end;
+        return submissions;
     }
 
     private void send(List<MessageBuilder> messages){

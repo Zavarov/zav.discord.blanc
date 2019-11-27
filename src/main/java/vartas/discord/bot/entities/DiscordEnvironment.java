@@ -68,10 +68,12 @@ public class DiscordEnvironment {
     private PushshiftClient pushshift;
     private RedditFeed feed;
     private EntityAdapter adapter;
+    private StatusTracker status;
 
-    public DiscordEnvironment(EntityAdapter adapter, Function<DiscordCommunicator, CommandBuilder> builder) throws LoginException, InterruptedException {
+    protected DiscordEnvironment(EntityAdapter adapter){
         this.adapter = adapter;
         this.config = adapter.config();
+        this.rank = adapter.rank();
 
         String account = config.getRedditAccount();
         String version = Optional.ofNullable(this.getClass().getPackage().getImplementationVersion()).orElse("debug");
@@ -79,17 +81,19 @@ public class DiscordEnvironment {
         String secret = config.getRedditSecret();
 
         this.reddit = new JrawClient(account, version, id, secret);
-        this.reddit.login();
         this.pushshift = new PushshiftClient(reddit);
         this.feed = new RedditFeed(this);
+        this.status = new StatusTracker(this, adapter.status());
+    }
+
+    public DiscordEnvironment(EntityAdapter adapter, Function<DiscordCommunicator, CommandBuilder> builder) throws LoginException, InterruptedException {
+        this(adapter);
 
         addCommunicators(builder);
         removeOldGuilds();
 
-        this.rank = adapter.rank();
-
         schedule(feed, 1, TimeUnit.MINUTES);
-        schedule(new StatusTracker(this, adapter.status()), config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
+        schedule(status, config.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //

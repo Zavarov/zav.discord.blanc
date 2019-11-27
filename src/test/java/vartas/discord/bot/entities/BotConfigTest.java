@@ -19,11 +19,11 @@ package vartas.discord.bot.entities;
 
 import org.junit.Before;
 import org.junit.Test;
-import vartas.discord.bot.AbstractBotTest;
+import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BotConfigTest extends AbstractBotTest {
+public class BotConfigTest extends AbstractTest {
     protected static int STATUS_MESSAGE_UPDATE_INTERVAL = 10;
     protected static int DISCORD_SHARDS = 11;
     protected static int INTERACTIVE_MESSAGE_LIFETIME = 12;

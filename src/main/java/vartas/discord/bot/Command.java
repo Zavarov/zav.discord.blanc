@@ -17,5 +17,5 @@
 
 package vartas.discord.bot;
 
-public abstract class Command implements Runnable{
+public interface Command extends Runnable{
 }

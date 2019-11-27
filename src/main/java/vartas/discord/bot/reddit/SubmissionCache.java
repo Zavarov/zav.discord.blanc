@@ -21,6 +21,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.internal.utils.JDALogger;
+import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
@@ -77,7 +78,7 @@ public class SubmissionCache {
 
 
     /**
-     * Requests submissions betwee the given intervals and stores them in the local cache.
+     * Requests submissions between the given intervals and stores them in the local cache.
      * @param start the (exclusive) minimum age of the submissions.
      * @param end the (exclusive) maximum age of the submissions.
      */
@@ -85,6 +86,7 @@ public class SubmissionCache {
         try{
             log.info("Request submissions from '"+subreddit+"'.");
             Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseGet(TreeSet::new);
+            log.debug(String.format("%d %s retrieved.", submissions.size(), English.plural("submission", submissions.size())));
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
         //Submissions are impossible to acccess

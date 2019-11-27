@@ -86,6 +86,10 @@ public class JSONEntityAdapter implements EntityAdapter{
     @Override
     public BotGuild guild(Guild guild, DiscordCommunicator communicator) {
         Path reference = Paths.get(guilds.toString()+ File.separator +guild.getId()+".gld");
+
+        if(Files.notExists(reference))
+            return new BotGuild(guild, communicator, this);
+
         JSONObject object = parse(reference);
         BotGuild result = new BotGuild(guild, communicator, this);
 

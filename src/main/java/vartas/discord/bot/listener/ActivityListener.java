@@ -70,14 +70,14 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
             DelegatingLineChart<Long> chart;
 
             chart = new DelegatingLineChart<>(
-                    (values) -> values.stream().mapToLong(l -> l).findAny().orElse(0L),
+                    (values) -> values.iterator().next(),
                     Duration.ofDays(7)
             );
 
             chart.setGranularity(ChronoUnit.MINUTES);
             chart.setStepSize(communicator.environment().config().getActivityUpdateInterval());
             chart.setInterval(Interval.MINUTE);
-            chart.setTitle("Activity in "+guild.getName());
+            chart.setTitle(String.format("Activity in '%s'", guild.getName()));
             chart.setXAxisLabel("Time");
             chart.setYAxisLabel("Count");
 
