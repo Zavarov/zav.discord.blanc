@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.text.StringEscapeUtils;
-import vartas.reddit.SubmissionInterface;
+import vartas.reddit.Submission;
 
 import java.awt.*;
 import java.util.Locale;
@@ -37,7 +37,7 @@ public abstract class SubmissionMessage {
      * @param submission a submission.
      * @return true if the submission is marked as NSFW.
      */
-    public static boolean isNsfw(SubmissionInterface submission){
+    public static boolean isNsfw(Submission submission){
         return submission.isNsfw() 
                 || submission.getTitle().toLowerCase(Locale.ENGLISH).contains("[nsfw]")
                 || submission.getLinkFlairText().map(text -> text.toLowerCase(Locale.ENGLISH).contains("nsfw")).orElse(false);
@@ -46,7 +46,7 @@ public abstract class SubmissionMessage {
      * @param submission a submission.
      * @return true if the submission is marked as a spoiler.
      */
-    public static boolean isSpoiler(SubmissionInterface submission){
+    public static boolean isSpoiler(Submission submission){
         return submission.isSpoiler() 
                 || submission.getTitle().toLowerCase(Locale.ENGLISH).contains("[spoiler]")
                 || submission.getLinkFlairText().map(text -> text.toLowerCase(Locale.ENGLISH).contains("spoiler")).orElse(false);
@@ -68,7 +68,7 @@ public abstract class SubmissionMessage {
      * @param submission the submission.
      * @return the refined title of the submission.
      */
-    private static String formatTitle(SubmissionInterface submission){
+    private static String formatTitle(Submission submission){
         StringBuilder builder = new StringBuilder();
         if(submission.getLinkFlairText().isPresent()){
             builder.append(String.format("[%s] ",submission.getLinkFlairText().get()));
@@ -88,7 +88,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void setDescription(EmbedBuilder embed, SubmissionInterface submission){
+    private static void setDescription(EmbedBuilder embed, Submission submission){
         if(!isNsfw(submission) && !isSpoiler(submission)){
             //If the picture is considered to be SFW, attach it
             if(submission.getThumbnail().isPresent() && EmbedBuilder.URL_PATTERN.matcher(submission.getThumbnail().get()).matches()){
@@ -106,7 +106,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void setColor(EmbedBuilder embed, SubmissionInterface submission){
+    private static void setColor(EmbedBuilder embed, Submission submission){
         if(isNsfw(submission)){
             embed.setColor(Color.RED);
         }else if(isSpoiler(submission)){
@@ -121,7 +121,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void setTimestamp(EmbedBuilder embed, SubmissionInterface submission){
+    private static void setTimestamp(EmbedBuilder embed, Submission submission){
         embed.setTimestamp(submission.getCreated());
     }
     /**
@@ -129,7 +129,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void setAuthor(EmbedBuilder embed, SubmissionInterface submission){
+    private static void setAuthor(EmbedBuilder embed, Submission submission){
         embed.setAuthor("source", submission.getUrl(),null);
     }
     /**
@@ -137,7 +137,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void createContent(EmbedBuilder embed, SubmissionInterface submission){
+    private static void createContent(EmbedBuilder embed, Submission submission){
         setAuthor(embed, submission);
         setTimestamp(embed, submission);
         setColor(embed, submission);
@@ -150,7 +150,7 @@ public abstract class SubmissionMessage {
      * @param embed the embed builder.
      * @param submission the submission.
      */
-    private static void createTitle(MessageBuilder message, EmbedBuilder embed, SubmissionInterface submission){
+    private static void createTitle(MessageBuilder message, EmbedBuilder embed, Submission submission){
         //The message
         message.append(String.format("New submission from %s in `r/%s`\n",submission.getAuthor(),submission.getSubreddit()));
         message.append("\n");
@@ -168,7 +168,7 @@ public abstract class SubmissionMessage {
      * @param submission a submission.
      * @return a framework of a finished message, containg all important information of the submission.
      */
-    public static MessageBuilder create(SubmissionInterface submission){
+    public static MessageBuilder create(Submission submission){
         MessageBuilder message = new MessageBuilder();
         EmbedBuilder embed = new EmbedBuilder();
         

@@ -25,16 +25,16 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.JDALogger;
+import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.StatusTracker;
 import vartas.discord.bot.reddit.RedditFeed;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
-import vartas.reddit.CommentInterface;
-import vartas.reddit.SubmissionInterface;
-import vartas.reddit.SubredditInterface;
-import vartas.reddit.UnresolvableRequestException;
+import vartas.reddit.Comment;
+import vartas.reddit.Submission;
+import vartas.reddit.Subreddit;
 import vartas.reddit.jraw.JrawClient;
 import vartas.reddit.pushshift.PushshiftClient;
 
@@ -191,16 +191,16 @@ public class DiscordEnvironment {
     //   Reddit                                                                                                       //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Optional<SubredditInterface> subreddit(String subreddit) throws UnresolvableRequestException {
+    public Optional<Subreddit> subreddit(String subreddit) throws HttpResponseException {
         return reddit.requestSubreddit(subreddit, MAX_RETRIES);
     }
-    public Optional<List<CommentInterface>> comment(SubmissionInterface submission) throws UnresolvableRequestException{
+    public Optional<List<Comment>> comment(Submission submission) throws HttpResponseException{
         return reddit.requestComment(submission.getId(), MAX_RETRIES);
     }
-    public Optional<TreeSet<SubmissionInterface>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) throws UnresolvableRequestException {
+    public Optional<TreeSet<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) throws HttpResponseException {
         return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
-    public Optional<TreeSet<SubmissionInterface>> submission(String subreddit, LocalDateTime start, LocalDateTime end) throws UnresolvableRequestException {
+    public Optional<TreeSet<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) throws HttpResponseException {
         return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

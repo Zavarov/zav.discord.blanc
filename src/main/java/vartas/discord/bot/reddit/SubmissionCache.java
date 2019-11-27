@@ -21,14 +21,14 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.internal.utils.JDALogger;
+import org.apache.http.client.HttpResponseException;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.message.SubmissionMessage;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
-import vartas.reddit.SubmissionInterface;
-import vartas.reddit.UnresolvableRequestException;
+import vartas.reddit.Submission;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -47,7 +47,7 @@ public class SubmissionCache {
      *  Contains the most recent received submissions and
      *  their corresponding Discord message.
      */
-    protected Cache<SubmissionInterface, MessageBuilder> cache;
+    protected Cache<Submission, MessageBuilder> cache;
     /**
      * The subreddit the submissions belong to.
      */
@@ -89,12 +89,12 @@ public class SubmissionCache {
     public void request(LocalDateTime start, LocalDateTime end){
         try{
             log.debug(String.format("requesting [%s, %s] from '%s'", start, end, subreddit));
-            Set<SubmissionInterface> submissions = environment.submission(subreddit, start, end).orElseThrow();
+            Set<Submission> submissions = environment.submission(subreddit, start, end).orElseThrow();
             log.debug(String.format("%d %s retrieved.", submissions.size(), English.plural("submission", submissions.size())));
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
         //Submissions are impossible to acccess
-        }catch(UnresolvableRequestException e){
+        }catch(HttpResponseException e){
             log.error(e.getMessage());
             new RemoveSubredditVisitor().accept();
         }

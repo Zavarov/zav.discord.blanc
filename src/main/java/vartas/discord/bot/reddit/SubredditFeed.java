@@ -107,8 +107,7 @@ public class SubredditFeed {
         //Submissions should be at least 1 minute old so that the author can flair them correctly
         LocalDateTime end = now.minusMinutes(1);
         //Go back 2 minutes instead of 1 since we can't assume the interval to be exact
-        //LocalDateTime start = now.minusMinutes(3);
-        LocalDateTime start = now.minusDays(2);
+        LocalDateTime start = now.minusMinutes(3);
         cache.request(start, end);
 
         //'previous' is ~1 minute before 'end'
