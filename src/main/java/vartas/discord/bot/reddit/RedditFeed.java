@@ -65,7 +65,7 @@ public class RedditFeed implements Runnable{
 
     @Override
     public synchronized void run() {
-        log.debug(String.format("Visiting %d %s.", subreddits.size(), English.plural("subreddit", subreddits.size())));
+        log.info(String.format("Visiting %d %s.", subreddits.size(), English.plural("subreddit", subreddits.size())));
         subreddits.values().forEach(SubredditFeed::update);
     }
 }
