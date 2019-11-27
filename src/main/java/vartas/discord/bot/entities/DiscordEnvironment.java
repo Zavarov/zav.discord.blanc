@@ -191,17 +191,33 @@ public class DiscordEnvironment {
     //   Reddit                                                                                                       //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public Optional<Subreddit> subreddit(String subreddit) throws HttpResponseException {
-        return reddit.requestSubreddit(subreddit, MAX_RETRIES);
+    public Optional<Subreddit> subreddit(String subreddit) {
+        try {
+            return reddit.requestSubreddit(subreddit, MAX_RETRIES);
+        }catch(HttpResponseException e){
+            throw new IllegalArgumentException(e);
+        }
     }
-    public Optional<List<Comment>> comment(Submission submission) throws HttpResponseException{
-        return reddit.requestComment(submission.getId(), MAX_RETRIES);
+    public Optional<List<Comment>> comment(Submission submission) {
+        try {
+            return reddit.requestComment(submission.getId(), MAX_RETRIES);
+        }catch(HttpResponseException e){
+            throw new IllegalArgumentException(e);
+        }
     }
-    public Optional<TreeSet<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) throws HttpResponseException {
-        return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
+    public Optional<TreeSet<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) {
+        try {
+            return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
+        }catch(HttpResponseException e){
+            throw new IllegalArgumentException(e);
+        }
     }
-    public Optional<TreeSet<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) throws HttpResponseException {
-        return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
+    public Optional<TreeSet<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) {
+        try {
+            return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
+        }catch(HttpResponseException e){
+            throw new IllegalArgumentException(e);
+        }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //

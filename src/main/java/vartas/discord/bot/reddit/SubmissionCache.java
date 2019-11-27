@@ -21,7 +21,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.internal.utils.JDALogger;
-import org.apache.http.client.HttpResponseException;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import vartas.discord.bot.entities.BotGuild;
@@ -94,7 +93,7 @@ public class SubmissionCache {
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
         //Submissions are impossible to acccess
-        }catch(HttpResponseException e){
+        }catch(IllegalArgumentException e){
             log.error(e.getMessage());
             new RemoveSubredditVisitor().accept();
         }
