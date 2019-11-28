@@ -30,7 +30,7 @@
         <jda.version>4.0.0_53</jda.version>
         <evo.inflector.version>1.2.2</evo.inflector.version>
         <chart.version>1.1.8</chart.version>
-        <reddit.version>2.3.5</reddit.version>
+        <reddit.version>2.3.8</reddit.version>
 
         <assertj.version>3.12.2</assertj.version>
         <junit.version>4.12</junit.version>

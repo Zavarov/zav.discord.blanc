@@ -61,11 +61,9 @@ public class SubredditFeed {
      */
     protected Set<TextChannel> channels = new HashSet<>();
     /**
-     * The last time a request was made.<br>
-     * The difference between the last time and the time 'update' is called
-     * is the time interval we accept new submissions in.
+     * The date we used as the starting point in the last cycle.
      */
-    protected LocalDateTime previous = LocalDateTime.now(ZoneId.of("UTC"));
+    protected LocalDateTime current = LocalDateTime.now(ZoneId.of("UTC"));
 
     public SubredditFeed(String subreddit, DiscordEnvironment environment){
         this.subreddit = subreddit;
@@ -105,15 +103,19 @@ public class SubredditFeed {
     private List<MessageBuilder> receive(){
         LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
         //Submissions should be at least 1 minute old so that the author can flair them correctly
-        LocalDateTime end = now.minusMinutes(1);
+        LocalDateTime cacheEnd = now.minusMinutes(1);
         //Go back 2 minutes instead of 1 since we can't assume the interval to be exact
-        LocalDateTime start = now.minusMinutes(3);
-        cache.request(start, end);
+        LocalDateTime cacheStart = now.minusMinutes(3);
 
-        //'previous' is ~1 minute before 'end'
-        List<MessageBuilder> submissions = cache.retrieve(previous, end);
-        previous = end;
-        return submissions;
+        //We won't have anything past the cache
+        LocalDateTime submissionEnd = cacheEnd;
+        //Use the exclusive end of the last cycle to not miss anything
+        LocalDateTime submissionStart = current;
+        //Shift the interval, evn if the request fails
+        current = submissionEnd;
+
+        cache.request(cacheStart, cacheEnd);
+        return cache.retrieve(submissionStart, submissionEnd);
     }
 
     private void send(List<MessageBuilder> messages){
