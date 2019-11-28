@@ -25,6 +25,8 @@ import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -69,9 +71,9 @@ public abstract class RoleMessage {
      */
     private static void addCreated(InteractiveMessageBuilder builder, Role role){
         DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-        LocalDate created = role.getTimeCreated().toLocalDate();
+        OffsetDateTime created = role.getTimeCreated();
         String date = formatter.format(created);
-        int days = (int)DAYS.between(created,LocalDate.now());
+        int days = (int)DAYS.between(created.atZoneSameInstant(ZoneOffset.UTC).toLocalDate(), LocalDate.now(ZoneOffset.UTC));
 
         builder.addField("Created", String.format("%s (%d %s ago)", date, days, English.plural("day", days)));
     }
