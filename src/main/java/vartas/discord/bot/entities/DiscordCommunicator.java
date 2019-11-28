@@ -166,29 +166,53 @@ public class DiscordCommunicator {
     //   Send                                                                                                         //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void send(MessageChannel channel, String message){
+    public void send(MessageChannel channel, String message, Consumer<Message> success, Consumer<Throwable> failure){
         MessageBuilder builder = new MessageBuilder();
         builder.setContent(message);
-        send(channel, builder);
+        send(channel, builder, success, failure);
     }
-    public void send(MessageChannel channel, MessageEmbed embed){
+    public void send(MessageChannel channel, String message, Consumer<Message> success){
+        send(channel, message, success, null);
+    }
+    public void send(MessageChannel channel, String message){
+        send(channel, message, null);
+    }
+    public void send(MessageChannel channel, MessageEmbed embed, Consumer<Message> success, Consumer<Throwable> failure){
         MessageBuilder builder = new MessageBuilder();
         builder.setEmbed(embed);
-        send(channel, builder);
+        send(channel, builder, success, failure);
     }
-    public void send(MessageChannel channel, BufferedImage image) throws IllegalArgumentException{
+    public void send(MessageChannel channel, MessageEmbed embed, Consumer<Message> success){
+        send(channel, embed, success, null);
+    }
+    public void send(MessageChannel channel, MessageEmbed embed){
+        send(channel, embed, null);
+    }
+    public void send(MessageChannel channel, BufferedImage image, Consumer<Message> success, Consumer<Throwable> failure) throws IllegalArgumentException{
         try{
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             ImageIO.write(image, "png", output);
 
             ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-            send(channel.sendFile(input, "image.png"));
+            send(channel.sendFile(input, "image.png"), success, failure);
         }catch(IOException e){
             throw new IllegalArgumentException(e);
         }
     }
+    public void send(MessageChannel channel, BufferedImage image, Consumer<Message> success) throws IllegalArgumentException{
+        send(channel, image, success, null);
+    }
+    public void send(MessageChannel channel, BufferedImage image) throws IllegalArgumentException{
+        send(channel, image, null);
+    }
+    public void send(MessageChannel channel, File file, Consumer<Message> success, Consumer<Throwable> failure){
+        send(channel.sendFile(file), success, failure);
+    }
+    public void send(MessageChannel channel, File file, Consumer<Message> success){
+        send(channel, file, success, null);
+    }
     public void send(MessageChannel channel, File file){
-        send(channel.sendFile(file));
+        send(channel, file, null);
     }
     public void send(MessageChannel channel, InteractiveMessage message){
         MessageBuilder builder = new MessageBuilder();
