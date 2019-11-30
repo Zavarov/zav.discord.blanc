@@ -198,21 +198,21 @@ public class DiscordEnvironment {
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<List<Comment>> comment(Submission submission) {
+    public Optional<? extends Collection<Comment>> comment(Submission submission) {
         try {
             return reddit.requestComment(submission.getId(), MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<TreeSet<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) {
+    public Optional<? extends Collection<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) {
         try {
             return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<TreeSet<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) {
+    public Optional<? extends Collection<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) {
         try {
             return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
         }catch(HttpResponseException e){

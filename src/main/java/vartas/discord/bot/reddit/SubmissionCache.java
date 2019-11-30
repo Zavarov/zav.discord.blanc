@@ -30,10 +30,10 @@ import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
 import vartas.reddit.Submission;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -88,7 +88,7 @@ public class SubmissionCache {
     public void request(LocalDateTime start, LocalDateTime end){
         try{
             log.debug(String.format("requesting [%s, %s] from '%s'", start, end, subreddit));
-            Set<Submission> submissions = environment.submission(subreddit, start, end).orElseThrow();
+            Collection<Submission> submissions = environment.submission(subreddit, start, end).orElseThrow();
             log.debug(String.format("%d %s retrieved.", submissions.size(), English.plural("submission", submissions.size())));
             //Register/Update the new submission and replace any older ones
             submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
