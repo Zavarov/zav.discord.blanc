@@ -73,16 +73,6 @@ public class CommandListenerTest extends AbstractTest {
     }
 
     @Test
-    public void onMessageReceivedErrorInCommandTest(){
-        command = () -> { throw new RuntimeException(); };
-
-        assertThat(communicator.send).isEmpty();
-        listener.onMessageReceived(event);
-        assertThat(flag).isFalse();
-        assertThat(communicator.send).hasSize(1);
-    }
-
-    @Test
     public void onMessageReceivedErrorInParserTest(){
         listener = new CommandListener(communicator, null);
 

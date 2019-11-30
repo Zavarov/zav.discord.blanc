@@ -88,11 +88,12 @@ public class CommandListener extends ListenerAdapter {
                 Runnable runnable = () -> {
                     try{
                         command.run();
-                    }catch(RuntimeException e){
+                    }catch(Throwable e){
                         e.printStackTrace();
                         String error = e.getClass().getSimpleName() + ": " + e.getMessage();
                         JDALogger.getLog(command.getClass().getSimpleName()).error(error);
                         communicator.send(message.getChannel(), error);
+                        throw e;
                     }
                 };
 
