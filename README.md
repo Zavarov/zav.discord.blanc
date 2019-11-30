@@ -34,7 +34,7 @@ This project requires at least **Java 11**.
    * Version: **4.0.0_53**
    * [Github](https://github.com/DV8FromTheWorld/JDA)
  * **reddit**
-   * Version: **2.3.5**
+   * Version: **2.4**
    * [Github](https://github.com/Zavarov/reddit)
  
 ## Plugins:
