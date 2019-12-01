@@ -71,7 +71,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
             DelegatingLineChart<Long> chart;
 
             chart = new DelegatingLineChart<>(
-                    (values) -> values.iterator().next(),
+                    (values) -> values.stream().findFirst().map(Long::longValue).orElse(0L),
                     Duration.ofDays(7)
             );
 
