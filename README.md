@@ -25,7 +25,7 @@ the commands, and a parser that transforms the text files with the guild configu
 
 This project requires at least **Java 11**.  
  * **chart**
-   * Version: **1.1.8**
+   * Version: **1.1.9**
    * [Github](https://github.com/Zavarov/chart)
  * **Evo Inflector**
    * Version: **1.2.2**
