@@ -83,10 +83,10 @@ public class ActivityListenerTest extends AbstractTest {
         chart.set(ActivityListener.AllChannels, second, Collections.singletonList(5L));
         chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(6L));
 
-        chart.set(channel.getName(), third, Collections.singletonList(4L));
-        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(5L));
-        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(6L));
-        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(7L));
+        chart.set(channel.getName(), third, Collections.singletonList(5L));
+        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(6L));
+        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(7L));
+        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(8L));
 
         save(listener.create(guild, Collections.singletonList(channel)), "Chart");
     }
