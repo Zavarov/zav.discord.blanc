@@ -27,13 +27,11 @@ import vartas.discord.bot.entities.BotGuild;
 import vartas.discord.bot.entities.DiscordEnvironment;
 import vartas.discord.bot.message.SubmissionMessage;
 import vartas.discord.bot.visitor.DiscordEnvironmentVisitor;
+import vartas.reddit.RedditSnowflake;
 import vartas.reddit.Submission;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -66,17 +64,35 @@ public class SubmissionCache {
         this.environment = environment;
     }
 
-    public List<MessageBuilder> retrieve(LocalDateTime start, LocalDateTime end){
-        log.debug(String.format("retrieve [%s, %s] from '%s'", start, end, subreddit));
-        return cache
-                .asMap()
-                .entrySet()
+    /**
+     * Transforms the submission into a Discord message and sorts the entries
+     * by their creation date.
+     * @param submissions the newly requested submissions.
+     * @return a list containing the messages for the individual submissions.
+     */
+    private List<MessageBuilder> toMessage(List<Submission> submissions){
+        return submissions
                 .stream()
-                .filter(entry -> entry.getKey().getCreated().isBefore(end))
-                .filter(entry -> !entry.getKey().getCreated().isBefore(start))
-                .sorted(Comparator.comparing(entry -> entry.getKey().getCreated()))
-                .map(Map.Entry::getValue)
+                .sorted(Comparator.comparing(RedditSnowflake::getCreated))
+                .map(submission -> cache.asMap().get(submission))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Adds all submissions to the cache and updates duplicates.
+     * @param submissions the newly requested submissions.
+     * @return a list of submissions that have been newly added.
+     */
+    private List<Submission> update(Collection<Submission> submissions){
+        LinkedList<Submission> result = new LinkedList<>();
+
+        for(Submission submission : submissions){
+            if(!cache.asMap().containsKey(submission))
+                result.add(submission);
+            cache.put(submission, SubmissionMessage.create(submission));
+        }
+
+        return result;
     }
 
 
@@ -84,18 +100,21 @@ public class SubmissionCache {
      * Requests submissions between the given intervals and stores them in the local cache.
      * @param start the (exclusive) minimum age of the submissions.
      * @param end the (exclusive) maximum age of the submissions.
+     * @return a sorted list of all new submission messages.
      */
-    public void request(LocalDateTime start, LocalDateTime end){
+    public List<MessageBuilder> request(LocalDateTime start, LocalDateTime end){
         try{
             log.debug(String.format("requesting [%s, %s] from '%s'", start, end, subreddit));
             Collection<Submission> submissions = environment.submission(subreddit, start, end).orElseThrow();
             log.debug(String.format("%d %s retrieved.", submissions.size(), English.plural("submission", submissions.size())));
-            //Register/Update the new submission and replace any older ones
-            submissions.forEach(submission -> cache.put(submission, SubmissionMessage.create(submission)));
+
+            List<Submission> result = update(submissions);
+            return toMessage(result);
         //Submissions are impossible to acccess
         }catch(IllegalArgumentException e){
             log.error(e.getMessage());
             new RemoveSubredditVisitor().accept();
+            return Collections.emptyList();
         }
     }
 
