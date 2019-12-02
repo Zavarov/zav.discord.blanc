@@ -43,6 +43,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * This class keeps track of the activity in all guilds in the respective shard.
  */
@@ -68,10 +70,11 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
     public ActivityListener(DiscordCommunicator communicator){
         this.communicator = communicator;
         charts = CacheBuilder.newBuilder().build(CacheLoader.from((guild) -> {
+            checkNotNull(guild);
             DelegatingLineChart<Long> chart;
 
             chart = new DelegatingLineChart<>(
-                    (values) -> values.stream().findFirst().map(Long::longValue).orElse(0L),
+                    (values) -> values.stream().mapToLong(l -> l).sum(),
                     Duration.ofDays(7)
             );
 
