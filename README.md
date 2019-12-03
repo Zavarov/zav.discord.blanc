@@ -31,7 +31,7 @@ This project requires at least **Java 11**.
    * Version: **1.2.2**
    * [Github](https://github.com/atteo/evo-inflector)
  * **JDA**
-   * Version: **4.0.0_53**
+   * Version: **4.0.0_70**
    * [Github](https://github.com/DV8FromTheWorld/JDA)
  * **reddit**
    * Version: **2.4**
