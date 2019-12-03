@@ -57,13 +57,12 @@ public class StatusTracker implements Runnable{
     @Override
     public void run() {
         Optional<String> messageOpt = status.get();
-
         if(messageOpt.isPresent()) {
             String message = messageOpt.get();
             environment.jdas()
                     .stream()
                     .map(JDA::getPresence)
-                    .forEach(p -> p.setActivity(Activity.playing(message)));
+                    .forEach(p -> p.setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS ,message)));
             log.info(String.format("Status message changed to '%s'",message));
         }else{
             log.info("No status message to switch to.");
