@@ -27,7 +27,7 @@
     <properties>
         <!-- .. Libraries ..................................................... -->
 
-        <jda.version>4.0.0_53</jda.version>
+        <jda.version>4.0.0_70</jda.version>
         <evo.inflector.version>1.2.2</evo.inflector.version>
         <chart.version>1.1.9</chart.version>
         <reddit.version>2.4</reddit.version>

@@ -36,7 +36,7 @@ public class InteractiveMessageListenerTest extends AbstractTest {
     @Before
     public void setUp(){
         listener = new InteractiveMessageListener(adapter.config());
-        event = new MessageReactionAddEvent(jda, 54321L, user, messageReaction);
+        event = new MessageReactionAddEvent(jda, 54321L, user, member, messageReaction, userId);
         interactiveMessage = new InteractiveMessageBuilder(user, communicator).nextPage().nextPage().build();
         firstPage = interactiveMessage.build();
 
