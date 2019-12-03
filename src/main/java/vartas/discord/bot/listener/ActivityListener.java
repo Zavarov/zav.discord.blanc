@@ -97,8 +97,6 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      * @return the image representing the data.
      */
     public JFreeChart create(Guild guild, Collection<TextChannel> channels){
-        update(guild);
-
         List<String> names = new ArrayList<>(channels.size() + 3);
 
         names.add(AllChannels);
