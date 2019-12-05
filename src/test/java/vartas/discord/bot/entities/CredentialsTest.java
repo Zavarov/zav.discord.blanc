@@ -23,7 +23,7 @@ import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BotConfigTest extends AbstractTest {
+public class CredentialsTest extends AbstractTest {
     protected static int STATUS_MESSAGE_UPDATE_INTERVAL = 10;
     protected static int DISCORD_SHARDS = 11;
     protected static int INTERACTIVE_MESSAGE_LIFETIME = 12;
@@ -39,39 +39,49 @@ public class BotConfigTest extends AbstractTest {
     protected static String REDDIT_ID = "REDDIT_ID";
     protected static String REDDIT_SECRET = "REDDIT_SECRET";
 
-    protected BotConfig configuration;
+    protected Credentials configuration;
 
     @Before
     public void setUp(){
-        configuration = new BotConfig();
+        configuration = new Credentials();
 
-        configuration.setType(BotConfig.Type.STATUS_MESSAGE_UPDATE_INTERVAL, STATUS_MESSAGE_UPDATE_INTERVAL);
-        configuration.setType(BotConfig.Type.DISCORD_SHARDS, DISCORD_SHARDS);
-        configuration.setType(BotConfig.Type.INTERACTIVE_MESSAGE_LIFETIME, INTERACTIVE_MESSAGE_LIFETIME);
-        configuration.setType(BotConfig.Type.ACTIVITY_UPDATE_INTERVAL, ACTIVITY_UPDATE_INTERVAL);
-        configuration.setType(BotConfig.Type.INVITE_SUPPORT_SERVER, INVITE_SUPPORT_SERVER);
-        configuration.setType(BotConfig.Type.BOT_NAME, BOT_NAME);
-        configuration.setType(BotConfig.Type.GLOBAL_PREFIX, GLOBAL_PREFIX);
-        configuration.setType(BotConfig.Type.WIKI_LINK, WIKI_LINK);
-        configuration.setType(BotConfig.Type.IMAGE_WIDTH, IMAGE_WIDTH);
-        configuration.setType(BotConfig.Type.IMAGE_HEIGHT, IMAGE_HEIGHT);
-        configuration.setType(BotConfig.Type.DISCORD_TOKEN, DISCORD_TOKEN);
-        configuration.setType(BotConfig.Type.REDDIT_ACCOUNT, REDDIT_ACCOUNT);
-        configuration.setType(BotConfig.Type.REDDIT_ID, REDDIT_ID);
-        configuration.setType(BotConfig.Type.REDDIT_SECRET, REDDIT_SECRET);
+        configuration.setType(Credentials.IntegerType.STATUS_MESSAGE_UPDATE_INTERVAL, STATUS_MESSAGE_UPDATE_INTERVAL);
+        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, DISCORD_SHARDS);
+        configuration.setType(Credentials.IntegerType.INTERACTIVE_MESSAGE_LIFETIME, INTERACTIVE_MESSAGE_LIFETIME);
+        configuration.setType(Credentials.IntegerType.ACTIVITY_UPDATE_INTERVAL, ACTIVITY_UPDATE_INTERVAL);
+        configuration.setType(Credentials.StringType.INVITE_SUPPORT_SERVER, INVITE_SUPPORT_SERVER);
+        configuration.setType(Credentials.StringType.BOT_NAME, BOT_NAME);
+        configuration.setType(Credentials.StringType.GLOBAL_PREFIX, GLOBAL_PREFIX);
+        configuration.setType(Credentials.StringType.WIKI_LINK, WIKI_LINK);
+        configuration.setType(Credentials.IntegerType.IMAGE_WIDTH, IMAGE_WIDTH);
+        configuration.setType(Credentials.IntegerType.IMAGE_HEIGHT, IMAGE_HEIGHT);
+        configuration.setType(Credentials.StringType.DISCORD_TOKEN, DISCORD_TOKEN);
+        configuration.setType(Credentials.StringType.REDDIT_ACCOUNT, REDDIT_ACCOUNT);
+        configuration.setType(Credentials.StringType.REDDIT_ID, REDDIT_ID);
+        configuration.setType(Credentials.StringType.REDDIT_SECRET, REDDIT_SECRET);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void setMalformedIntegerTest(){
+        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, 0);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void setMalformedStringTest(){
+        configuration.setType(Credentials.StringType.BOT_NAME, null);
     }
 
     @Test
-    public void setLongTest(){
+    public void setIntegerTest(){
         assertThat(configuration.getDiscordShards()).isEqualTo(DISCORD_SHARDS);
-        configuration.setType(BotConfig.Type.DISCORD_SHARDS, -1);
-        assertThat(configuration.getDiscordShards()).isEqualTo(-1);
+        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, 4711);
+        assertThat(configuration.getDiscordShards()).isEqualTo(4711);
     }
 
     @Test
     public void setStringTest(){
         assertThat(configuration.getBotName()).isEqualTo(BOT_NAME);
-        configuration.setType(BotConfig.Type.BOT_NAME, "test");
+        configuration.setType(Credentials.StringType.BOT_NAME, "test");
         assertThat(configuration.getBotName()).isEqualTo("test");
     }
 

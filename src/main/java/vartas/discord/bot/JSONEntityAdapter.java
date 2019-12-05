@@ -37,6 +37,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static vartas.discord.bot.entities.Credentials.IntegerType.*;
+import static vartas.discord.bot.entities.Credentials.StringType.*;
+
 public class JSONEntityAdapter implements EntityAdapter{
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     protected Path config;
@@ -51,24 +54,24 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public BotConfig config() {
+    public Credentials config() {
         JSONObject object = parse(config);
-        BotConfig result = new BotConfig();
+        Credentials result = new Credentials();
 
-        result.setType(BotConfig.Type.STATUS_MESSAGE_UPDATE_INTERVAL, object.getInt(BotConfig.Type.STATUS_MESSAGE_UPDATE_INTERVAL.getName()));
-        result.setType(BotConfig.Type.INTERACTIVE_MESSAGE_LIFETIME, object.getInt(BotConfig.Type.INTERACTIVE_MESSAGE_LIFETIME.getName()));
-        result.setType(BotConfig.Type.ACTIVITY_UPDATE_INTERVAL, object.getInt(BotConfig.Type.ACTIVITY_UPDATE_INTERVAL.getName()));
-        result.setType(BotConfig.Type.BOT_NAME, object.getString(BotConfig.Type.BOT_NAME.getName()));
-        result.setType(BotConfig.Type.GLOBAL_PREFIX, object.getString(BotConfig.Type.GLOBAL_PREFIX.getName()));
-        result.setType(BotConfig.Type.DISCORD_SHARDS, object.getInt(BotConfig.Type.DISCORD_SHARDS.getName()));
-        result.setType(BotConfig.Type.IMAGE_WIDTH, object.getInt(BotConfig.Type.IMAGE_WIDTH.getName()));
-        result.setType(BotConfig.Type.IMAGE_HEIGHT, object.getInt(BotConfig.Type.IMAGE_HEIGHT.getName()));
-        result.setType(BotConfig.Type.INVITE_SUPPORT_SERVER, object.getString(BotConfig.Type.INVITE_SUPPORT_SERVER.getName()));
-        result.setType(BotConfig.Type.WIKI_LINK, object.getString(BotConfig.Type.WIKI_LINK.getName()));
-        result.setType(BotConfig.Type.DISCORD_TOKEN, object.getString(BotConfig.Type.DISCORD_TOKEN.getName()));
-        result.setType(BotConfig.Type.REDDIT_ACCOUNT, object.getString(BotConfig.Type.REDDIT_ACCOUNT.getName()));
-        result.setType(BotConfig.Type.REDDIT_ID, object.getString(BotConfig.Type.REDDIT_ID.getName()));
-        result.setType(BotConfig.Type.REDDIT_SECRET, object.getString(BotConfig.Type.REDDIT_SECRET.getName()));
+        result.setType(STATUS_MESSAGE_UPDATE_INTERVAL, object.getInt(STATUS_MESSAGE_UPDATE_INTERVAL.getName()));
+        result.setType(INTERACTIVE_MESSAGE_LIFETIME  , object.getInt(INTERACTIVE_MESSAGE_LIFETIME.getName()));
+        result.setType(ACTIVITY_UPDATE_INTERVAL      , object.getInt(ACTIVITY_UPDATE_INTERVAL.getName()));
+        result.setType(BOT_NAME                      , object.getString(BOT_NAME.getName()));
+        result.setType(GLOBAL_PREFIX                 , object.getString(GLOBAL_PREFIX.getName()));
+        result.setType(DISCORD_SHARDS                , object.getInt(DISCORD_SHARDS.getName()));
+        result.setType(IMAGE_WIDTH                   , object.getInt(IMAGE_WIDTH.getName()));
+        result.setType(IMAGE_HEIGHT                  , object.getInt(IMAGE_HEIGHT.getName()));
+        result.setType(INVITE_SUPPORT_SERVER         , object.getString(INVITE_SUPPORT_SERVER.getName()));
+        result.setType(WIKI_LINK                     , object.getString(WIKI_LINK.getName()));
+        result.setType(DISCORD_TOKEN                 , object.getString(DISCORD_TOKEN.getName()));
+        result.setType(REDDIT_ACCOUNT                , object.getString(REDDIT_ACCOUNT.getName()));
+        result.setType(REDDIT_ID                     , object.getString(REDDIT_ID.getName()));
+        result.setType(REDDIT_SECRET                 , object.getString(REDDIT_SECRET.getName()));
 
         return result;
     }

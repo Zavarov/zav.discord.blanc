@@ -21,11 +21,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.BotConfig;
+import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.message.InteractiveMessage;
 
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class InteractiveMessageListener extends ListenerAdapter {
      * Initializes an empty tracker
      * @param config the configuration file containing the lifetime of the messages.
      */
-    public InteractiveMessageListener(BotConfig config){
+    public InteractiveMessageListener(Credentials config){
         cache = CacheBuilder
                 .newBuilder()
                 .expireAfterAccess(config.getInteractiveMessageLifetime(), TimeUnit.MINUTES)
@@ -70,7 +71,7 @@ public class InteractiveMessageListener extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event){
-        if(event.getUser().isBot())
+        if(Optional.ofNullable(event.getUser()).map(User::isBot).orElse(true))
             return;
 
         Optional.ofNullable(cache.getIfPresent(event.getMessageId())).ifPresent(message -> {

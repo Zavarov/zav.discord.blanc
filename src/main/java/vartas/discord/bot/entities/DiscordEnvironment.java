@@ -63,7 +63,7 @@ public class DiscordEnvironment {
     private ScheduledExecutorService global = Executors.newScheduledThreadPool(2);
     private List<DiscordCommunicator> communicators = new ArrayList<>();
     private BotRank rank;
-    private BotConfig config;
+    private Credentials config;
     private JrawClient reddit;
     private PushshiftClient pushshift;
     private RedditFeed feed;
@@ -152,7 +152,7 @@ public class DiscordEnvironment {
     public BotRank rank(){
         return rank;
     }
-    public BotConfig config(){
+    public Credentials config(){
         return config;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
