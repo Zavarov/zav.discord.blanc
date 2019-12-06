@@ -17,8 +17,13 @@
 
 package vartas.discord.bot.entities;
 
+import com.google.common.base.Preconditions;
+
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * This name contains all valid status messages of the Discord bot.<br>
@@ -45,7 +50,8 @@ public class Status {
      * @throws NullPointerException if {@code element} is null
      */
     public synchronized void add(@Nonnull String element) throws NullPointerException{
-        status.add(Objects.requireNonNull(element));
+        Preconditions.checkNotNull(element);
+        status.add(element);
     }
 
     /**
