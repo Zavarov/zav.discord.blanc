@@ -62,7 +62,7 @@ public class DiscordEnvironment {
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     private ScheduledExecutorService global = Executors.newScheduledThreadPool(2);
     private List<DiscordCommunicator> communicators = new ArrayList<>();
-    private BotRank rank;
+    private Rank rank;
     private Credentials config;
     private JrawClient reddit;
     private PushshiftClient pushshift;
@@ -149,7 +149,7 @@ public class DiscordEnvironment {
     //   Configuration Instances                                                                                      //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public BotRank rank(){
+    public Rank rank(){
         return rank;
     }
     public Credentials config(){

@@ -25,8 +25,8 @@ import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BotRankTest extends AbstractTest {
-    BotRank rank;
+public class RankTest extends AbstractTest {
+    Rank rank;
 
     @Before
     public void setUp(){
@@ -35,46 +35,46 @@ public class BotRankTest extends AbstractTest {
 
     @After
     public void tearDown(){
-        rank.add(user, BotRank.Type.DEVELOPER);
-        rank.add(user, BotRank.Type.REDDIT);
-        rank.remove(user, BotRank.Type.ROOT);
-        rank.store();
+        rank.add(user, Rank.Ranks.DEVELOPER);
+        rank.add(user, Rank.Ranks.REDDIT);
+        rank.remove(user, Rank.Ranks.ROOT);
+        adapter.store(rank);
     }
 
     @Test
     public void resolveTest(){
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isTrue();
-        assertThat(rank.resolve(user, BotRank.Type.ROOT)).isFalse();
-        assertThat(rank.resolve(user, BotRank.Type.DEVELOPER)).isTrue();
+        assertThat(rank.resolve(user, Rank.Ranks.REDDIT)).isTrue();
+        assertThat(rank.resolve(user, Rank.Ranks.ROOT)).isFalse();
+        assertThat(rank.resolve(user, Rank.Ranks.DEVELOPER)).isTrue();
     }
 
     @Test
     public void addTest(){
-        assertThat(rank.resolve(user, BotRank.Type.ROOT)).isFalse();
-        rank.add(user, BotRank.Type.ROOT);
-        assertThat(rank.resolve(user, BotRank.Type.ROOT)).isTrue();
+        assertThat(rank.resolve(user, Rank.Ranks.ROOT)).isFalse();
+        rank.add(user, Rank.Ranks.ROOT);
+        assertThat(rank.resolve(user, Rank.Ranks.ROOT)).isTrue();
     }
 
     @Test
     public void removeTest(){
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isTrue();
-        rank.remove(user, BotRank.Type.REDDIT);
-        assertThat(rank.resolve(user, BotRank.Type.REDDIT)).isFalse();
+        assertThat(rank.resolve(user, Rank.Ranks.REDDIT)).isTrue();
+        rank.remove(user, Rank.Ranks.REDDIT);
+        assertThat(rank.resolve(user, Rank.Ranks.REDDIT)).isFalse();
     }
 
     @Test
     public void getTest(){
-        Multimap<Long, BotRank.Type> multimap = rank.get();
+        Multimap<Long, Rank.Ranks> multimap = rank.get();
 
         assertThat(multimap.size()).isEqualTo(2);
         assertThat(multimap.containsKey(user.getIdLong())).isTrue();
-        assertThat(multimap.get(user.getIdLong())).containsExactlyInAnyOrder(BotRank.Type.REDDIT, BotRank.Type.DEVELOPER);
+        assertThat(multimap.get(user.getIdLong())).containsExactlyInAnyOrder(Rank.Ranks.REDDIT, Rank.Ranks.DEVELOPER);
     }
 
     @Test
     public void typeGetNameTest(){
-        assertThat(BotRank.Type.DEVELOPER.getName()).isEqualTo("Developer");
-        assertThat(BotRank.Type.REDDIT.getName()).isEqualTo("Reddit");
-        assertThat(BotRank.Type.ROOT.getName()).isEqualTo("Root");
+        assertThat(Rank.Ranks.DEVELOPER.getName()).isEqualTo("Developer");
+        assertThat(Rank.Ranks.REDDIT.getName()).isEqualTo("Reddit");
+        assertThat(Rank.Ranks.ROOT.getName()).isEqualTo("Root");
     }
 }

@@ -17,16 +17,16 @@
 
 package vartas.discord.bot.visitor;
 
-import vartas.discord.bot.entities.BotRank;
+import vartas.discord.bot.entities.Rank;
 
 public interface BotRankListener {
-    default void visit(BotRank rank){
+    default void visit(Rank rank){
     }
 
-    default void traverse(BotRank rank){
+    default void traverse(Rank rank){
     }
 
-    default void handle(BotRank rank){
+    default void handle(Rank rank){
         visit(rank);
         traverse(rank);
     }

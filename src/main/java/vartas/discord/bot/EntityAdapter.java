@@ -30,8 +30,8 @@ public interface EntityAdapter {
     Credentials config();
     Status status();
     BotGuild guild(Guild guild, DiscordCommunicator communicator);
-    BotRank rank();
+    Rank rank();
     void store(BotGuild guild);
-    void store(BotRank rank);
+    void store(Rank rank);
     void delete(BotGuild guild);
 }

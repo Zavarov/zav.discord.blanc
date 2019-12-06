@@ -141,15 +141,15 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public BotRank rank() {
+    public Rank rank() {
         JSONObject object = parse(rank);
-        BotRank result = new BotRank(this);
+        Rank result = new Rank();
 
         for(String key : object.keySet()){
             for(Object value : object.getJSONArray(key).toList()){
                 long user = Long.parseUnsignedLong(key);
-                BotRank.Type type = BotRank.Type.valueOf(value.toString());
-                result.add(user, type);
+                Rank.Ranks ranks = Rank.Ranks.valueOf(value.toString());
+                result.add(user, ranks);
             }
         }
 
@@ -181,13 +181,13 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public void store(BotRank rank) {
+    public void store(Rank rank) {
         JSONObject object = new JSONObject();
 
         rank.get().asMap().forEach( (user, types) -> {
             JSONArray values = new JSONArray();
 
-            types.forEach(type -> values.put(type.toString()));
+            types.forEach(ranks -> values.put(ranks.toString()));
 
             object.put(Long.toString(user), values);
         });
