@@ -23,8 +23,8 @@ import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BotStatusTest extends AbstractTest {
-    BotStatus status;
+public class StatusTest extends AbstractTest {
+    Status status;
     @Before
     public void setUp(){
         status = adapter.status();

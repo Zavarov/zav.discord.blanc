@@ -77,9 +77,9 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public BotStatus status() {
+    public Status status() {
         JSONObject object = parse(status);
-        BotStatus result = new BotStatus();
+        Status result = new Status();
 
         object.getJSONArray("status").toList().stream().map(Object::toString).forEach(result::add);
 

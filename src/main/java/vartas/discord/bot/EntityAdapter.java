@@ -28,7 +28,7 @@ import vartas.discord.bot.entities.*;
  */
 public interface EntityAdapter {
     Credentials config();
-    BotStatus status();
+    Status status();
     BotGuild guild(Guild guild, DiscordCommunicator communicator);
     BotRank rank();
     void store(BotGuild guild);

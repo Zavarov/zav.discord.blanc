@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.BotStatus;
 import vartas.discord.bot.entities.DiscordEnvironment;
+import vartas.discord.bot.entities.Status;
 
 import java.util.Optional;
 
@@ -41,12 +41,12 @@ public class StatusTracker implements Runnable{
     /**
      * All status messages.
      */
-    protected final BotStatus status;
+    protected final Status status;
     /**
      * Initializes the status.
      * @param environment the environment of the program.
      */
-    public StatusTracker(DiscordEnvironment environment, BotStatus status){
+    public StatusTracker(DiscordEnvironment environment, Status status){
         this.environment = environment;
         this.status = status;
         log.info("Status Tracker started");
