@@ -17,6 +17,8 @@
 
 package vartas.discord.bot.entities;
 
+import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -348,8 +350,11 @@ public class Credentials {
          * Initializes the key with its name.
          * @param name the name of the key.
          * @param check the checker for the values.
+         * @throws NullPointerException if {@code name} or {@code check} is null
          */
-        StringType(String name, Predicate<String> check){
+        StringType(String name, Predicate<String> check) throws NullPointerException{
+            Preconditions.checkNotNull(name);
+            Preconditions.checkNotNull(check);
             this.name = name;
             this.checker = check;
         }
