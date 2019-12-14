@@ -20,7 +20,7 @@ package vartas.discord.bot.message.builder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.InteractiveMessage;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class InteractiveMessageBuilder {
     /**
      * The communicator of the shard the message is in.
      */
-    protected DiscordCommunicator comm;
+    protected Shard comm;
     /**
      * All fields in the current page.
      */
@@ -63,7 +63,7 @@ public class InteractiveMessageBuilder {
      * @param author the user who can interact with the message.
      * @param comm the communicator of the shard the message is in.
      */
-    public InteractiveMessageBuilder(User author, DiscordCommunicator comm){
+    public InteractiveMessageBuilder(User author, Shard comm){
         this.author = author;
         this.comm = comm;
     }
@@ -207,6 +207,6 @@ public class InteractiveMessageBuilder {
         List<MessageEmbed> pages = output.stream()
                 .map(EmbedBuilder::build)
                 .collect(Collectors.toList());
-        return new InteractiveMessage(author,pages,comm);
+        return new InteractiveMessage(author,pages, comm);
     }
 }

@@ -31,6 +31,7 @@
         <evo.inflector.version>1.2.2</evo.inflector.version>
         <chart.version>1.1.9</chart.version>
         <reddit.version>2.4</reddit.version>
+        <mpi.version>4.0.2</mpi.version>
 
         <assertj.version>3.12.2</assertj.version>
         <junit.version>4.12</junit.version>
@@ -43,12 +44,17 @@
 
         <!-- .. Misc .......................................................... -->
 
+        <mpi.path>/usr/local/lib/mpi.jar</mpi.path>
+
         <java.version>11</java.version>
         <wagon.provider.version>2.6</wagon.provider.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <maven.compiler.fork>true</maven.compiler.fork>
+        <maven.compiler.verbose>true</maven.compiler.verbose>
+        <maven.compiler.executable>mpijavac</maven.compiler.executable>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
@@ -95,6 +101,13 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>OpenMPI</groupId>
+            <artifactId>MPI</artifactId>
+            <version>${mpi.version}</version>
+            <scope>system</scope>
+            <systemPath>${mpi.path}</systemPath>
         </dependency>
     </dependencies>
 

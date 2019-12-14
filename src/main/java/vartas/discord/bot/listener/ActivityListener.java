@@ -17,9 +17,11 @@
 
 package vartas.discord.bot.listener;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -32,54 +34,79 @@ import org.jfree.chart.JFreeChart;
 import org.slf4j.Logger;
 import vartas.chart.Interval;
 import vartas.chart.line.DelegatingLineChart;
-import vartas.discord.bot.entities.DiscordCommunicator;
 
+import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
- * This class keeps track of the activity in all guilds in the respective shard.
+ * This listener keeps track of the activity in all guilds in the respective shard.
  */
+@Nonnull
 public class ActivityListener extends ListenerAdapter implements Runnable{
-    protected static final String AllChannels = "All Channels";
-    protected static final String AllMembers = "All Members";
-    protected static final String MembersOnline = "Members Online";
+    /**
+     * This constant describes the chart entry containing the accumulated activity over all channels in a guild.
+     */
+    @Nonnull
+    private static final String AllChannels = "All Channels";
+    /**
+     * This constants describes the total number of members in a guild. Bots are excluded.
+     */
+    @Nonnull
+    private static final String AllMembers = "All Members";
+    /**
+     * This constant describes the number of members that have been online at the time of measurement.
+     * The bot can't distinguish between members that are offline or simply invisible.
+     * Bots are excluded.
+     */
+    @Nonnull
+    private static final String MembersOnline = "Members Online";
     /**
      * The log for this class.
      */
-    protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
+    @Nonnull
+    private final Logger log = JDALogger.getLog(this.getClass());
     /**
      * The chart for all guilds in the current chart.
      */
-    protected LoadingCache<Guild, DelegatingLineChart<Long>> charts;
+    @Nonnull
+    private final LoadingCache<Guild, DelegatingLineChart<Long>> charts;
     /**
-     * The communicator over this shard.
+     * The JDA instance of this shard. Containing all guilds the listener has to keep track of.
      */
-    protected DiscordCommunicator communicator;
+    @Nonnull
+    private final JDA jda;
     /**
      * Initializes an empty tracker.
+     * @param jda the jda of this shard
+     * @param stepSize the time between two measurements (in minutes)
+     * @throws NullPointerException if {@code jda} is null
+     * @throws IllegalArgumentException if {@code stepSize} is smaller than one
      */
-    public ActivityListener(DiscordCommunicator communicator){
-        this.communicator = communicator;
+    public ActivityListener(@Nonnull JDA jda, int stepSize) throws NullPointerException, IllegalArgumentException{
+        Preconditions.checkNotNull(jda);
+        Preconditions.checkArgument(stepSize > 0);
+        this.jda = jda;
         charts = CacheBuilder.newBuilder().build(CacheLoader.from((guild) -> {
-            checkNotNull(guild);
+            Preconditions.checkNotNull(guild);
+
             DelegatingLineChart<Long> chart;
 
             chart = new DelegatingLineChart<>(
-                    (values) -> values.stream().mapToLong(l -> l).sum(),
+                    //Take the average per minute
+                    (values) -> values.stream().mapToLong(l -> l).sum() / stepSize,
                     Duration.ofDays(7)
             );
 
             chart.setGranularity(ChronoUnit.MINUTES);
-            chart.setStepSize(communicator.environment().config().getActivityUpdateInterval());
+            chart.setStepSize(stepSize);
             chart.setInterval(Interval.MINUTE);
             chart.setTitle(String.format("Activity in '%s'", guild.getName()));
             chart.setXAxisLabel("Time");
@@ -95,8 +122,12 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      * @param guild the guild to get the name.
      * @param channels all channels whose data also has to be plotted.
      * @return the image representing the data.
+     * @throws NullPointerException if {@code guild} or {@code channels} is null
      */
-    public JFreeChart create(Guild guild, Collection<TextChannel> channels){
+    @Nonnull
+    public JFreeChart create(@Nonnull Guild guild, @Nonnull Collection<TextChannel> channels){
+        Preconditions.checkNotNull(guild);
+        Preconditions.checkNotNull(channels);
         List<String> names = new ArrayList<>(channels.size() + 3);
 
         names.add(AllChannels);
@@ -114,10 +145,18 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
     @Override
     public void run(){
         //If we'd use the guilds from the cache we skip servers where nobody has talked
-        communicator.jda().getGuilds().forEach(this::update);
+        jda.getGuilds().forEach(this::update);
     }
 
-    private synchronized void update(Guild guild){
+    /**
+     * Counts the total number of members and those that are online in the specified guild.
+     * The measured values are stored in the internal cache, keyed by the time at measurement.
+     * Bots are excluded.
+     * @param guild the guild for which a measurement is made
+     * @throws NullPointerException if {@code guild} is null
+     */
+    private void update(@Nonnull Guild guild) throws NullPointerException{
+        Preconditions.checkNotNull(guild);
         DelegatingLineChart<Long> chart = charts.getUnchecked(guild);
 
         long allMembers = guild.getMembers()
@@ -135,31 +174,37 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
         chart.set(AllMembers, now, Collections.singleton(allMembers));
         chart.set(MembersOnline, now, Collections.singleton(membersOnline));
 
-
         log.info(String.format("%d total %s in %s", allMembers, English.plural("member", (int)allMembers), guild.getName()));
         log.info(String.format("%d %s online in %s", membersOnline, English.plural("member", (int)membersOnline), guild.getName()));
     }
 
     /**
-     * Updates the counter for the channel the message was received in and the counter
-     * for all received messages so far by one.
+     * Unlike the member count, the number of messages are measured in real time. Every time a message is received,
+     * the counter for the respective text channel, at the time of creation, is increased by one.
+     * The chart later accumulates all messages within the step size, so we don't have to worry about grouping the
+     * messages based on their creation date.
+     * As a little side effect, it will happen that
+     * that the plot for the messages is ahead of the member plot, due to the latter one not updating in real time.
      * @param event the triggered event.
+     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event){
+    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) throws NullPointerException{
+        Preconditions.checkNotNull(event);
+        //Ignore bot messages
         if(event.getAuthor().isBot())
             return;
 
         DelegatingLineChart<Long> chart = charts.getUnchecked(event.getGuild());
-        LocalDateTime date = LocalDateTime.now(ZoneId.of("UTC"));
+        LocalDateTime created = event.getMessage().getTimeCreated().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
 
         String channelName = event.getMessage().getTextChannel().getName();
 
         //Can't use 'update' since there might be no values to update
-        long allChannels = chart.get(AllChannels, date).stream().mapToLong(l -> l).findAny().orElse(0L);
-        long channel = chart.get(channelName, date).stream().mapToLong(l -> l).findAny().orElse(0L);
+        long allChannels = chart.get(AllChannels, created).stream().mapToLong(l -> l).findAny().orElse(0L);
+        long channel = chart.get(channelName, created).stream().mapToLong(l -> l).findAny().orElse(0L);
 
-        chart.set(AllChannels, date, Collections.singleton(allChannels + 1));
-        chart.set(channelName, date, Collections.singleton(channel + 1));
+        chart.set(AllChannels, created, Collections.singleton(allChannels + 1));
+        chart.set(channelName, created, Collections.singleton(channel + 1));
     }
 }

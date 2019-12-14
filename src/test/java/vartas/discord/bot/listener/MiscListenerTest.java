@@ -18,6 +18,8 @@
 package vartas.discord.bot.listener;
 
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.GuildImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
@@ -25,17 +27,22 @@ import vartas.discord.bot.AbstractTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MiscListenerTest extends AbstractTest {
+    JDAImpl jda;
+    GuildImpl guild;
+
     MiscListener listener;
     GuildLeaveEvent event;
     @Before
     public void setUp(){
-        listener = new MiscListener(communicator);
+        jda = new JDAImpl(authorization);
+        guild = new GuildImpl(jda, guildId);
+        listener = new MiscListener(shard);
         event = new GuildLeaveEvent(jda, 12345L, guild);
     }
 
     @Test
     public void onGuildLeaveTest(){
         listener.onGuildLeave(event);
-        assertThat(communicator.removed).containsExactly(guild);
+        assertThat(shard.removed).containsExactly(guildId);
     }
 }

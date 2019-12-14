@@ -17,17 +17,17 @@
 
 package vartas.discord.bot;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.DiscordEnvironment;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.entities.Status;
+import vartas.discord.bot.mpi.command.MPIUpdateStatusMessage;
+import vartas.discord.bot.mpi.serializable.MPIStatusMessageModification;
 
 import java.util.Optional;
 
 /**
- * This runner is responsible for updating the game of the bot, which is used as a status message.
+ * This runner is responsible for updating the activity of the bot, which is used as a status message.
  */
 public class StatusTracker implements Runnable{
     /**
@@ -35,38 +35,35 @@ public class StatusTracker implements Runnable{
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The environment of the program.
+     * The shard of the master node.
      */
-    protected final DiscordEnvironment environment;
+    protected final Shard shard;
     /**
      * All status messages.
      */
     protected final Status status;
     /**
      * Initializes the status.
-     * @param environment the environment of the program.
+     * @param shard the shard of the master node
+     * @param status all valid status messages
      */
-    public StatusTracker(DiscordEnvironment environment, Status status){
-        this.environment = environment;
+    public StatusTracker(Shard shard, Status status){
+        this.shard = shard;
         this.status = status;
         log.info("Status Tracker started");
     }
     /**
-     * Changes the message to a new one.
+     * Picks a new status message at random and updates
      */
     @Override
     public void run() {
         Optional<String> messageOpt = status.get();
 
-        if(messageOpt.isPresent()) {
-            String message = messageOpt.get();
-            environment.jdas()
-                    .stream()
-                    .map(JDA::getPresence)
-                    .forEach(p -> p.setActivity(Activity.playing(message)));
+        messageOpt.ifPresent(message -> {
+            MPIUpdateStatusMessage command = new MPIUpdateStatusMessage();
+            MPIStatusMessageModification object = new MPIStatusMessageModification(message);
+            shard.broadcast(command, object);
             log.info(String.format("Status message changed to '%s'",message));
-        }else{
-            log.info("No status message to switch to.");
-        }
+        });
     }
 }

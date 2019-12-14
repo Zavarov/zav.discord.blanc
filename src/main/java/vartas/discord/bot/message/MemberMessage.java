@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.awt.*;
@@ -153,7 +153,7 @@ public abstract class MemberMessage extends UserMessage{
      * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the members information
      */
-    public static InteractiveMessage create(User author, Member member, TextChannel channel, DiscordCommunicator comm){
+    public static InteractiveMessage create(User author, Member member, TextChannel channel, Shard comm){
         InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
         addThumbnail(builder,member.getUser());
 

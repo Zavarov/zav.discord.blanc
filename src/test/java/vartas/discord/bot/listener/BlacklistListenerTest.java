@@ -17,24 +17,35 @@
 
 package vartas.discord.bot.listener;
 
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.internal.entities.SelfUserImpl;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.*;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 
-import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BlacklistListenerTest extends AbstractTest {
+    JDAImpl jda;
+    SelfUserImpl user;
+    GuildImpl guild;
+    TextChannelImpl channel;
     BlacklistListener listener;
     GuildMessageReceivedEvent event;
     @Before
     public void setUp(){
-        listener = new BlacklistListener(communicator);
-        listener.set(guild, Pattern.compile("invalid"));
-        event = new GuildMessageReceivedEvent(jda, 54321L, message);
+        jda = new JDAImpl(authorization);
+        user = new SelfUserImpl(userId, jda);
+        guild = new GuildImpl(jda, guildId);
+        channel = new TextChannelImpl(channelId, guild);
+
+        listener = new BlacklistListener(shard);
+        listener.set(configuration);
+        event = new GuildMessageReceivedEvent(jda, 54321L, createMessage("pattern"));
         jda.setSelfUser(new SelfUserImpl(50, jda));
     }
 
@@ -42,36 +53,50 @@ public class BlacklistListenerTest extends AbstractTest {
     public void onGuildMessageReceivedFromItselfTest(){
         jda.setSelfUser(user);
 
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
     }
 
     @Test
     public void onGuildMessageReceivedMatchTest(){
-        messageContent = "invalid";
-
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
-        assertThat(communicator.send).hasSize(1);
+        assertThat(shard.send).hasSize(1);
     }
 
     @Test
     public void onGuildMessageReceivedNoMatchTest(){
-        messageContent = "valid";
+        event = new GuildMessageReceivedEvent(jda, 54321L, createMessage("junk"));
 
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
     }
 
     @Test
     public void onGuildMessageReceivedNoPatternTest(){
-        listener.remove(guild);
-        messageContent = "invalid";
+        listener.remove(guildId);
 
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
-        assertThat(communicator.send).isEmpty();
+        assertThat(shard.send).isEmpty();
+    }
+
+    private DataMessage createMessage(String content){
+        return new DataMessage(false, content, null, null){
+            @Override
+            protected void unsupported() {}
+            @Nonnull
+            @Override
+            public TextChannel getTextChannel(){
+                return channel;
+            }
+            @Nonnull
+            @Override
+            public UserImpl getAuthor(){
+                return user;
+            }
+        };
     }
 }

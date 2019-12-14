@@ -18,7 +18,8 @@
 package vartas.discord.bot.entities;
 
 import com.google.common.collect.Multimap;
-import org.junit.After;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.UserImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
@@ -26,19 +27,12 @@ import vartas.discord.bot.AbstractTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RankTest extends AbstractTest {
-    Rank rank;
-
+    JDAImpl jda;
+    UserImpl user;
     @Before
     public void setUp(){
-        rank = adapter.rank();
-    }
-
-    @After
-    public void tearDown(){
-        rank.add(user, Rank.Ranks.DEVELOPER);
-        rank.add(user, Rank.Ranks.REDDIT);
-        rank.remove(user, Rank.Ranks.ROOT);
-        adapter.store(rank);
+        jda = shard.createJda();
+        user = new UserImpl(userId, jda);
     }
 
     @Test

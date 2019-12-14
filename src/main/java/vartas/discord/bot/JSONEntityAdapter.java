@@ -17,10 +17,10 @@
 
 package vartas.discord.bot;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,28 +34,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static vartas.discord.bot.entities.Configuration.LongType.SELFASSIGNABLE;
+import static vartas.discord.bot.entities.Configuration.LongType.SUBREDDIT;
 import static vartas.discord.bot.entities.Credentials.IntegerType.*;
 import static vartas.discord.bot.entities.Credentials.StringType.*;
 
 public class JSONEntityAdapter implements EntityAdapter{
     protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
-    protected Path config;
+    protected Path credentials;
     protected Path status;
     protected Path rank;
-    protected Path guilds;
-    public JSONEntityAdapter(Path config, Path status, Path rank, Path guilds){
-        this.config = config;
+    protected Path configurations;
+    public JSONEntityAdapter(Path credentials, Path status, Path rank, Path configurations){
+        this.credentials = credentials;
         this.rank = rank;
         this.status = status;
-        this.guilds = guilds;
+        this.configurations = configurations;
     }
 
     @Override
-    public Credentials config() {
-        JSONObject object = parse(config);
+    public Credentials credentials() {
+        JSONObject object = parse(credentials);
         Credentials result = new Credentials();
 
         result.setType(STATUS_MESSAGE_UPDATE_INTERVAL, object.getInt(STATUS_MESSAGE_UPDATE_INTERVAL.getName()));
@@ -79,6 +80,7 @@ public class JSONEntityAdapter implements EntityAdapter{
     @Override
     public Status status() {
         JSONObject object = parse(status);
+
         Status result = new Status();
 
         object.getJSONArray("status").toList().stream().map(Object::toString).forEach(result::add);
@@ -87,52 +89,44 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public BotGuild guild(Guild guild, DiscordCommunicator communicator) {
-        Path reference = Paths.get(guilds.toString()+ File.separator +guild.getId()+".gld");
+    public Configuration configuration(long guildId, Shard shard) {
+        Path reference = Paths.get(configurations.toString()+ File.separator +guildId+".gld");
 
         if(Files.notExists(reference))
-            return new BotGuild(guild, communicator, this);
+            return new Configuration(guildId, shard);
 
         JSONObject object = parse(reference);
-        BotGuild result = new BotGuild(guild, communicator, this);
+        Configuration result = new Configuration(guildId, shard);
 
         //Prefix
         try{
-            result.set(object.getString("prefix"));
+            result.setPrefix(object.getString("prefix"));
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
         //Pattern
         try{
-            result.set(Pattern.compile(object.getString("blacklist")));
+            result.setPattern(Pattern.compile(object.getString("blacklist")));
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
-        //Role groups
+        //Self-Assignable Roles
         try{
-            JSONObject group = object.getJSONObject(BotGuild.ROLEGROUP);
+            JSONObject group = object.getJSONObject(SELFASSIGNABLE.getName());
 
-            for(String key : group.keySet()){
-                for(Object value : group.getJSONArray(key).toList()){
-                    Optional<Role> roleOpt = Optional.ofNullable(guild.getRoleById(value.toString()));
-
-                    roleOpt.ifPresent(role -> result.add(key, role));
-                }
-            }
+            for(String key : group.keySet())
+                for(Object value : group.getJSONArray(key).toList())
+                    result.add(SELFASSIGNABLE, key, Long.parseUnsignedLong(value.toString()));
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
         //Subreddits
         try{
-            JSONObject group = object.getJSONObject(BotGuild.SUBREDDIT);
+            JSONObject group = object.getJSONObject(SUBREDDIT.getName());
 
-            for(String key : group.keySet()){
-                for(Object value : group.getJSONArray(key).toList()){
-                    Optional<TextChannel> channelOpt = Optional.ofNullable(guild.getTextChannelById(value.toString()));
-
-                    channelOpt.ifPresent(channel -> result.add(key, channel));
-                }
-            }
+            for(String key : group.keySet())
+                for(Object value : group.getJSONArray(key).toList())
+                    result.add(SUBREDDIT, key, Long.parseUnsignedLong(value.toString()));
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
@@ -157,24 +151,26 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public void store(BotGuild guild) {
-        Path reference = Paths.get(guilds.toString()+ File.separator +guild.getId()+".gld");
+    public void store(Configuration configuration, Guild context) {
+        Path reference = Paths.get(configurations.toString()+ File.separator +configuration.getGuildId()+".gld");
         JSONObject object = new JSONObject();
         Multimap<String, Long> data;
 
-        guild.prefix().ifPresent(prefix -> object.put("prefix", prefix));
-        guild.blacklist().ifPresent(blacklist -> object.put("blacklist", blacklist.pattern()));
+        configuration.getPrefix().ifPresent(prefix -> object.put("prefix", prefix));
+        configuration.getPattern().ifPresent(blacklist -> object.put("blacklist", blacklist.pattern()));
 
         JSONObject roles = new JSONObject();
-        object.put(BotGuild.ROLEGROUP, roles);
+        object.put(SELFASSIGNABLE.getName(), roles);
 
-        data = guild.resolve(BotGuild.ROLEGROUP, (g,l) -> l);
+        data = configuration.resolve(SELFASSIGNABLE);
+        data = Multimaps.filterValues(data, value -> SELFASSIGNABLE.exists(context, Preconditions.checkNotNull(value)));
         data.asMap().forEach( (key, values) -> roles.put(key, new JSONArray(values)));
 
         JSONObject subreddits = new JSONObject();
-        object.put(BotGuild.SUBREDDIT, subreddits);
+        object.put(SUBREDDIT.getName(), subreddits);
 
-        data = guild.resolve(BotGuild.SUBREDDIT, (g,l) -> l);
+        data = configuration.resolve(SUBREDDIT);
+        data = Multimaps.filterValues(data, value -> SUBREDDIT.exists(context, Preconditions.checkNotNull(value)));
         data.asMap().forEach( (key, values) -> subreddits.put(key, new JSONArray(values)));
 
         store(object, reference);
@@ -196,9 +192,9 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public void delete(BotGuild guild) {
+    public void delete(Configuration guild) {
         try{
-            Path reference = Paths.get("guild",guild.getId()+".gld");
+            Path reference = Paths.get("guild",guild.getGuildId()+".gld");
             Files.deleteIfExists(reference);
         }catch(IOException e){
             throw new RuntimeException(e);

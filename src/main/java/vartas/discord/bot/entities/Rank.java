@@ -37,19 +37,22 @@ import javax.annotation.Nonnull;
  * since those are restricted to {@link net.dv8tion.jda.api.entities.Guild Guilds}, they are not sufficient
  * to deal with commands only the developer should be able to execute.
  */
+@Nonnull
 public class Rank {
     /**
      * The internal multimap that maps the unique id of an {@link User} to all of its {@link Ranks Ranks}.
      */
+    @Nonnull
     protected SetMultimap<Long, Ranks> ranks = Multimaps.synchronizedSetMultimap(LinkedHashMultimap.create());
 
     /**
      * One might think that this method always returns true if the {@code user} has the {@link Ranks#ROOT Root} rank.
-     * But this is not the case and has to be checked separately.
+     * But this is not the case and has to be checked separately. This method checks if an user has the specific rank,
+     * not if it has the permissions a user with this rank has.
      * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the {@link User}
      * @return true, if there is a {@link User} with the given {@link Ranks Rank}.
-     * @throws NullPointerException if either the {@code key} or the ${code value} is null
+     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
     public boolean resolve(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
         Preconditions.checkNotNull(key);
@@ -61,7 +64,7 @@ public class Rank {
      * Associates a {@link User} with a {@link Ranks Rank}.
      * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the {@link User}
-     * @throws NullPointerException if either the {@code key} or the ${code value} is null
+     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
     public void add(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
         Preconditions.checkNotNull(key);
@@ -74,7 +77,7 @@ public class Rank {
      * {@link User} instances.
      * @param key the unique user id associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the unique user id
-     * @throws NullPointerException if the ${code value} is null
+     * @throws NullPointerException if ${code value} is null
      */
     public void add(long key, @Nonnull Ranks value) throws NullPointerException{
         Preconditions.checkNotNull(value);
@@ -83,14 +86,25 @@ public class Rank {
 
     /**
      * Removes the mapping for a key-value pair in the underlying multimap.
-     * @param key the unique user id associated with the {@link Ranks Rank}
+     * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the unique user id
-     * @throws NullPointerException if either the {@code key} or the ${code value} is null
+     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
     public void remove(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
         Preconditions.checkNotNull(key);
+        remove(key.getIdLong(), value);
+    }
+
+    /**
+     * Removes the mapping for a key-value pair in the underlying multimap.
+     * This method is necessary when modifying the file via an MPI command.
+     * @param key the unique user id associated with the {@link Ranks Rank}
+     * @param value the {@link Ranks Rank} associated with the unique user id
+     * @throws NullPointerException if either {@code key} or ${code value} is null
+     */
+    public void remove(long key, @Nonnull Ranks value) throws NullPointerException{
         Preconditions.checkNotNull(value);
-        ranks.remove(key.getIdLong(), value);
+        ranks.remove(key, value);
     }
 
     /**
@@ -100,6 +114,7 @@ public class Rank {
      * since we are working in a parallel environment.
      * @return an unmodifiable copy of the underlying multimap.
      */
+    @Nonnull
     public Multimap<Long, Ranks> get(){
         return Multimaps.unmodifiableSetMultimap(LinkedHashMultimap.create(ranks));
     }
@@ -115,9 +130,9 @@ public class Rank {
          */
         ROOT("Root"),
         /**
-         * The reddit should entitle the {@link User} to use commands that communicate with the Reddit API. This
-         * restriction is necessary since those commands can be costly and allowing everyone might overload the
-         * program.
+         * The reddit rank should entitle the {@link User} to use commands that communicate with the Reddit API.
+         * This restriction is necessary since those commands can be costly and allowing everyone to use them
+         * might overstrain the program.
          */
         REDDIT("Reddit"),
         /**
@@ -132,11 +147,12 @@ public class Rank {
         /**
          * The name identifying this rank in the rank file
          */
+        @Nonnull
         private String name;
 
         /**
-         * @param name identifying this rank in the rank file
-         * @throws NullPointerException if the {@code name} is null
+         * @param name the name identifying this rank in the rank file
+         * @throws NullPointerException if {@code name} is null
          */
         Ranks(@Nonnull String name) throws NullPointerException{
             Preconditions.checkNotNull(name);
@@ -145,6 +161,7 @@ public class Rank {
         /**
          * @return the name identifying this rank in the rank file
          */
+        @Nonnull
         public String getName(){
             return name;
         }

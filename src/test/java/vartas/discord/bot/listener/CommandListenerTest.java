@@ -17,51 +17,73 @@
 
 package vartas.discord.bot.listener;
 
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.*;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.Command;
-import vartas.discord.bot.TestCommandBuilder;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommandListenerTest extends AbstractTest {
+    JDAImpl jda;
+    UserImpl user;
+    GuildImpl guild;
+    TextChannelImpl channel;
+    String prefixFreeMessageContent;
+
     CommandListener listener;
     MessageReceivedEvent event;
     AtomicBoolean flag;
-    Command command;
 
     @Before
     public void setUp(){
+        jda = new JDAImpl(authorization);
+        user = new SelfUserImpl(userId, jda);
+        guild = new GuildImpl(jda, guildId);
+        channel = new TextChannelImpl(channelId, guild){
+            @Override
+            protected void checkPermission(Permission permission){}
+        };
+
+        prefixFreeMessageContent = "message";
+        listener = new CommandListener(shard, builder, credentials.getGlobalPrefix());
+        event = createEvent(credentials.getGlobalPrefix());
         flag = new AtomicBoolean(false);
-        command = () -> flag.set(true);
-        listener = new CommandListener(communicator, new TestCommandBuilder(() -> command));
-        event = new MessageReceivedEvent(jda, 54321L, message);
-    }
-
-    @Test
-    public void setTest(){
-        assertThat(listener.prefixes).isEmpty();
-        listener.set(guild, "local");
-        assertThat(listener.prefixes).containsEntry(guild, "local");
-    }
-
-    @Test
-    public void removeTest(){
-        assertThat(listener.prefixes).isEmpty();
-        listener.set(guild, "local");
-        assertThat(listener.prefixes).containsEntry(guild, "local");
-        listener.remove(guild);
-        assertThat(listener.prefixes).isEmpty();
     }
 
     @Test
     public void onMessageReceivedTest(){
         listener.onMessageReceived(event);
         assertThat(flag).isTrue();
+    }
+
+    @Test
+    public void onGuildMessageReceivedTest(){
+        String prefix = configuration.getPrefix().orElseThrow();
+        event = createEvent(prefix);
+
+        listener.onMessageReceived(event);
+        assertThat(flag).isTrue();
+    }
+
+    @Test
+    public void onInvalidMessageReceivedTest(){
+        builder.commands.clear();
+
+        listener.onMessageReceived(event);
+        assertThat(flag).isFalse();
+        assertThat(shard.send).hasSize(1);
     }
 
     @Test
@@ -74,11 +96,54 @@ public class CommandListenerTest extends AbstractTest {
 
     @Test
     public void onMessageReceivedErrorInParserTest(){
-        listener = new CommandListener(communicator, null);
+        event = createEvent(credentials.getGlobalPrefix(), () -> {
+            throw new NullPointerException();
+        });
 
-        assertThat(communicator.send).isEmpty();
         listener.onMessageReceived(event);
         assertThat(flag).isFalse();
-        assertThat(communicator.send).hasSize(1);
+        assertThat(shard.send).hasSize(1);
+    }
+
+    private MessageReceivedEvent createEvent(String prefix){
+        return createEvent(prefix, () -> flag.set(true));
+    }
+
+    private MessageReceivedEvent createEvent(String prefix, Command command){
+        Message message = createMessage(prefix+"message");
+        builder.commands.put(message, command);
+        return new MessageReceivedEvent(jda, 54321L, message);
+    }
+
+    private DataMessage createMessage(String content){
+        return new DataMessage(false, content, null, null){
+            @Override
+            protected void unsupported() {}
+            @Nonnull
+            @Override
+            public TextChannel getTextChannel(){
+                return channel;
+            }
+            @Nonnull
+            @Override
+            public UserImpl getAuthor(){
+                return user;
+            }
+            @Nonnull
+            @Override
+            public GuildImpl getGuild(){
+                return guild;
+            }
+            @Nonnull
+            @Override
+            public ChannelType getChannelType(){
+                return getTextChannel().getType();
+            }
+            @Nonnull
+            @Override
+            public MessageChannel getChannel(){
+                return getTextChannel();
+            }
+        };
     }
 }

@@ -33,15 +33,18 @@ import java.util.Random;
  * It is to note that there seems to be some inconsistencies regarding what status message is shown, when they differ
  * across shards.
  */
+@Nonnull
 public class Status {
     /**
      * The random number generator for picking one status message out of all valid messages.
      */
+    @Nonnull
     protected Random random = new Random();
     /**
      * The internal list containing all valid status messages.
      */
-    protected List<String> status = new ArrayList<>();
+    @Nonnull
+    protected List<String> entries = new ArrayList<>();
 
     /**
      * Adds a new status message to the list of valid messages.<br>
@@ -51,7 +54,7 @@ public class Status {
      */
     public synchronized void add(@Nonnull String element) throws NullPointerException{
         Preconditions.checkNotNull(element);
-        status.add(element);
+        entries.add(element);
     }
 
     /**
@@ -62,11 +65,12 @@ public class Status {
      * @return an {@link Optional} with a random status message if at least one valid message exists.
      *         Otherwise {@link Optional#empty()}.
      */
+    @Nonnull
     public synchronized Optional<String> get(){
-        if(status.isEmpty())
+        if(entries.isEmpty())
             return Optional.empty();
 
-        int index = random.nextInt(status.size());
-        return Optional.of(status.get(index));
+        int index = random.nextInt(entries.size());
+        return Optional.of(entries.get(index));
     }
 }

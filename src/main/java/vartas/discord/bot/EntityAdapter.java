@@ -27,11 +27,11 @@ import vartas.discord.bot.entities.*;
  * avoiding any issues with licenses for this project.
  */
 public interface EntityAdapter {
-    Credentials config();
+    Credentials credentials();
     Status status();
-    BotGuild guild(Guild guild, DiscordCommunicator communicator);
+    Configuration configuration(long guildId, Shard shard);
     Rank rank();
-    void store(BotGuild guild);
+    void store(Configuration configuration, Guild context);
     void store(Rank rank);
-    void delete(BotGuild guild);
+    void delete(Configuration configuration);
 }

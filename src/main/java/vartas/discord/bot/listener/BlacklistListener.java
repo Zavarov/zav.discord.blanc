@@ -17,51 +17,98 @@
 
 package vartas.discord.bot.listener;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.Shard;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+/**
+ * This listener applies the blacklist pattern on all received guild messages.
+ * If a message matches the pattern, the program will attempt to remove it automatically.
+ * An exception to this are messages sent by this program, which will be ignored.
+ */
+@Nonnull
 public class BlacklistListener extends ListenerAdapter {
-    protected DiscordCommunicator communicator;
-    protected Map<Guild, Pattern> blacklist = Maps.newConcurrentMap();
+    /**
+     * A mapping of each guild id and its corresponding configuration.
+     * The configuration file contains the pattern for the guild.
+     */
+    @Nonnull
+    private final Map<Long, Configuration> blacklist = Maps.newConcurrentMap();
+    /**
+     * The shard associated with the listener.
+     * It is required for scheduling the removal.
+     */
+    @Nonnull
+    private final Shard shard;
 
-    public BlacklistListener(DiscordCommunicator communicator){
-        this.communicator = communicator;
+    /**
+     * Initializes a fresh listener.
+     * @param shard the shard associated with the listener
+     * @throws NullPointerException if {@code shard} is null
+     */
+    public BlacklistListener(@Nonnull Shard shard) throws NullPointerException{
+        Preconditions.checkNotNull(shard);
+        this.shard = shard;
     }
 
-    public void set(Guild guild, Pattern pattern){
-        blacklist.put(guild, pattern);
+    /**
+     * Adds the configuration to the internal mapping. The key for the instance is provided
+     * by its guild id.
+     * From now on, every message from this guild that matches the expression
+     * defined in the configuration will be deleted, if possible.
+     * @param configuration the guild configuration
+     * @throws NullPointerException if {@code configuration} is null
+     */
+    public void set(@Nonnull Configuration configuration) throws NullPointerException{
+        Preconditions.checkNotNull(configuration);
+        blacklist.put(configuration.getGuildId(), configuration);
     }
 
-    public void remove(Guild guild){
-        blacklist.remove(guild);
+    /**
+     * Removes the mapping for the guild. Now all messages from the guild will be accepted.
+     * @param guildId the guild id
+     */
+    public void remove(long guildId){
+        blacklist.remove(guildId);
     }
 
     /**
      * Checks if the message contains any blacklisted words.
+     * If the message was sent from the author, nothing happens. Otherwise the pattern from the configuration
+     * is retrieved, to assure that it isn't outdated, and compared to the message content.
+     * On a match, the message is attempted to be deleted.
      * @param event the corresponding event.
      */
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event){
+    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) throws NullPointerException{
+        Preconditions.checkNotNull(event);
+        Message message = event.getMessage();
         SelfUser self = event.getJDA().getSelfUser();
         User author = event.getAuthor();
+        Guild guild = event.getGuild();
+        long guildId = guild.getIdLong();
         //Ignore everything this bot posts
         if(self.equals(author))
             return;
 
-        Optional<Pattern> patternOpt = Optional.ofNullable(blacklist.getOrDefault(event.getGuild(),null));
+        Optional<Pattern> patternOpt;
+        patternOpt = blacklist.containsKey(guildId) ? blacklist.get(guildId).getPattern() : Optional.empty();
         //Delete the message on a match
         patternOpt.ifPresent(pattern -> {
-            if(pattern.matcher(event.getMessage().getContentRaw()).matches())
-                communicator.send(event.getMessage().delete());
+            if(pattern.matcher(message.getContentRaw()).matches())
+                shard.queue(message.delete());
         });
     }
 }

@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Shard;
 
 import java.util.List;
 
@@ -48,24 +48,21 @@ public class InteractiveMessage {
      * The user that caused this message to be sent.
      */
     protected final User author;
+    protected final Shard shard;
     /**
      * The page that is displayed.
      */
     protected int current_page = 0;
     /**
-     * The communicator for the current shard.
-     */
-    protected DiscordCommunicator communicator;
-    /**
      * creates an message with the specified pages.
      * @param author the author of the message.
      * @param pages the different pages of the message.
-     * @param communicator the communicator for the local shard.
+     * @param shard the communicator for the local shard.
      */
-    public InteractiveMessage(User author, List<MessageEmbed> pages, DiscordCommunicator communicator){
-        this.communicator = communicator;
+    public InteractiveMessage(User author, List<MessageEmbed> pages, Shard shard){
         this.author = author;
         this.pages = pages;
+        this.shard = shard;
     }
 
     public void update(User user, MessageChannel channel, String message, String reaction){
@@ -79,7 +76,7 @@ public class InteractiveMessage {
             current_page = (current_page+1) % pages.size();
 
         //Send the new page
-        communicator.send(channel.editMessageById(message, pages.get(current_page)));
+        shard.queue(channel.editMessageById(message, pages.get(current_page)));
     }
 
     public void update(User user, TextChannel channel, String message, String reaction){
@@ -90,7 +87,7 @@ public class InteractiveMessage {
 
         //Remove the reaction so that the user doesn't have to do it
         if(canRemoveReactions(channel))
-            communicator.send(channel.removeReactionById(message, reaction, user));
+            channel.removeReactionById(message, reaction, user).queue();
     }
     /**
      * @return true when the bot has the "Manage Messages" rank.

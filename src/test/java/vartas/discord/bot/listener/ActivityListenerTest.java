@@ -17,108 +17,125 @@
 
 package vartas.discord.bot.listener;
 
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.*;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
 import org.junit.Before;
 import org.junit.Test;
-import vartas.chart.line.DelegatingLineChart;
 import vartas.discord.bot.AbstractTest;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+import javax.annotation.Nonnull;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActivityListenerTest extends AbstractTest {
+    DataMessage message;
+    JDAImpl jda;
+    UserImpl user;
+    MemberImpl member;
+    GuildImpl guild;
+    TextChannelImpl channel;
     ActivityListener listener;
     GuildMessageReceivedEvent event;
-    DelegatingLineChart<Long> chart;
 
     @Before
     public void setUp() {
-        listener = new ActivityListener(communicator);
+        jda = new JDAImpl(authorization){
+            @Nonnull
+            @Override
+            public List<Guild> getGuilds(){
+                return Collections.singletonList(guild);
+            }
+        };
+        user = new UserImpl(userId, jda);
+        guild = new GuildImpl(jda, guildId){
+            @Nonnull
+            @Override
+            public List<Member> getMembers(){
+                return Collections.singletonList(member);
+            }
+        };
+        channel = new TextChannelImpl(channelId, guild);
+        member = new MemberImpl(guild, user);
+
+        message = new DataMessage(false, null, null, null){
+            @Override
+            protected void unsupported() {}
+            @Nonnull
+            @Override
+            public TextChannel getTextChannel(){
+                return channel;
+            }
+            @Nonnull
+            @Override
+            public UserImpl getAuthor(){
+                return user;
+            }
+        };
+
+        listener = new ActivityListener(jda, 1);
         event = new GuildMessageReceivedEvent(jda, 12345L, message);
-        chart = listener.charts.getUnchecked(guild);
     }
-    @Test
-    public void createUnknownChannelTest(){
-        LocalDateTime first = LocalDateTime.now(ZoneId.of("UTC"));
-        LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
-        LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
 
-        chart.set(ActivityListener.AllMembers, first, Collections.singletonList(3L));
-        chart.set(ActivityListener.AllChannels, first, Collections.singletonList(4L));
-        chart.set(ActivityListener.MembersOnline, first, Collections.singletonList(5L));
-
-        chart.set(ActivityListener.AllMembers, second, Collections.singletonList(4L));
-        chart.set(ActivityListener.AllChannels, second, Collections.singletonList(5L));
-        chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(6L));
-
-        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(5L));
-        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(6L));
-        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(7L));
-
-        save(listener.create(guild, Collections.singletonList(channel)), "UnknownChannelChart");
-    }
-    @Test
-    public void createTest(){
-        LocalDateTime first = LocalDateTime.now(ZoneId.of("UTC"));
-        LocalDateTime second = first.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
-        LocalDateTime third = second.plus(adapter.config().getActivityUpdateInterval(), ChronoUnit.MINUTES);
-
-        chart.set(channel.getName(), first, Collections.singletonList(2L));
-        chart.set(ActivityListener.AllMembers, first, Collections.singletonList(3L));
-        chart.set(ActivityListener.AllChannels, first, Collections.singletonList(4L));
-        chart.set(ActivityListener.MembersOnline, first, Collections.singletonList(5L));
-
-        chart.set(channel.getName(), second, Collections.singletonList(3L));
-        chart.set(ActivityListener.AllMembers, second, Collections.singletonList(4L));
-        chart.set(ActivityListener.AllChannels, second, Collections.singletonList(5L));
-        chart.set(ActivityListener.MembersOnline, second, Collections.singletonList(6L));
-
-        chart.set(channel.getName(), third, Collections.singletonList(5L));
-        chart.set(ActivityListener.AllMembers, third, Collections.singletonList(6L));
-        chart.set(ActivityListener.AllChannels, third, Collections.singletonList(7L));
-        chart.set(ActivityListener.MembersOnline, third, Collections.singletonList(8L));
-
-        save(listener.create(guild, Collections.singletonList(channel)), "Chart");
-    }
+    /**
+     * Creates a chart with only the self member, which is offline
+     */
     @Test
     public void runTest(){
+        member.setOnlineStatus(OnlineStatus.OFFLINE);
         listener.run();
 
-        assertThat(chart.get(ActivityListener.AllMembers, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
-        assertThat(chart.get(ActivityListener.MembersOnline, LocalDateTime.now(ZoneId.of("UTC")))).contains(0L);
+        JFreeChart chart = listener.create(guild, Collections.emptyList());
+
+        XYPlot plot = chart.getXYPlot();
+        XYDataset dataset = plot.getDataset(0);
+
+        assertThat(dataset.getSeriesCount()).isEqualTo(2);
+        //All members
+        assertThat(dataset.getY(0, 0).intValue()).isEqualTo(1);
+        //Members online
+        assertThat(dataset.getY(1, 0).intValue()).isEqualTo(0);
     }
+
+
+    /**
+     * Creates a chart where nothing has been received
+     */
+    @Test
+    public void onGuildBotMessageReceivedTest(){
+        user.setBot(true);
+        listener.onGuildMessageReceived(event);
+
+        JFreeChart chart = listener.create(guild, Collections.emptyList());
+
+        XYPlot plot = chart.getXYPlot();
+        XYDataset dataset = plot.getDataset(0);
+
+        assertThat(dataset.getSeriesCount()).isEqualTo(0);
+    }
+
+    /**
+     * Creates a chart where only one message has been received
+     */
     @Test
     public void onGuildMessageReceivedTest(){
         listener.onGuildMessageReceived(event);
 
-        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
-        assertThat(chart.get(channel.getName(), LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
+        JFreeChart chart = listener.create(guild, Collections.emptyList());
 
-        user.setBot(true);
-        listener.onGuildMessageReceived(event);
+        XYPlot plot = chart.getXYPlot();
+        XYDataset dataset = plot.getDataset(0);
 
-        assertThat(chart.get(ActivityListener.AllChannels, LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
-        assertThat(chart.get(channel.getName(), LocalDateTime.now(ZoneId.of("UTC")))).contains(1L);
-    }
-
-    private void save(JFreeChart chart, String fileName){
-        BufferedImage image = chart.createBufferedImage(1024,768);
-        Path output = Paths.get("target", fileName+".png");
-
-        try {
-            ImageIO.write(image, "png", output.toFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assertThat(dataset.getSeriesCount()).isEqualTo(1);
+        assertThat(dataset.getY(0, 0).intValue()).isEqualTo(1);
     }
 }

@@ -19,7 +19,7 @@ package vartas.discord.bot.message;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import org.atteo.evo.inflector.English;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
 import java.text.SimpleDateFormat;
@@ -98,7 +98,7 @@ public abstract class UserMessage {
      * @param comm the communicator in the shard the message is in.
      * @return an interactive message displaying the members information
      */
-    public static InteractiveMessage create(User author, User user, DiscordCommunicator comm){
+    public static InteractiveMessage create(User author, User user, Shard comm){
         InteractiveMessageBuilder builder = new InteractiveMessageBuilder(author, comm);
         addThumbnail(builder,user);
         

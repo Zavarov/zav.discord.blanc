@@ -66,11 +66,6 @@ public class CredentialsTest extends AbstractTest {
         configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, 0);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void setMalformedStringTest(){
-        configuration.setType(Credentials.StringType.BOT_NAME, null);
-    }
-
     @Test
     public void setIntegerTest(){
         assertThat(configuration.getDiscordShards()).isEqualTo(DISCORD_SHARDS);

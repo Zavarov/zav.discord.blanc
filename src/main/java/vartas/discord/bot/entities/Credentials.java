@@ -19,9 +19,9 @@ package vartas.discord.bot.entities;
 
 import com.google.common.base.Preconditions;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -36,6 +36,7 @@ import java.util.function.Predicate;
  * detailed description, please look at the individual keys.<br>
  * If the condition is not met, an {@link IllegalArgumentException} is thrown.
  */
+@Nonnull
 public class Credentials {
     /**
      * The internal {@link Map} containing all key-value pairs over {@link String strings}.<br>
@@ -51,6 +52,7 @@ public class Credentials {
      *     <li>{@link Credentials.StringType#REDDIT_SECRET REDDIT_SECRET}</li>
      * </p>
      */
+    @Nonnull
     protected Map<StringType, String> stringMap = new HashMap<>();
     /**
      * The internal {@link Map} containing all key-value pairs over {@link Integer integers}.<br>
@@ -64,6 +66,7 @@ public class Credentials {
      *     <li>{@link Credentials.IntegerType#IMAGE_HEIGHT IMAGE_HEIGHT}</li>
      * </p>
      */
+    @Nonnull
     protected Map<IntegerType, Integer> intMap = new HashMap<>();
 
     /**
@@ -72,8 +75,11 @@ public class Credentials {
      * @param key the {@code key} with which the {@code value} is associated
      * @param value the {@code value} with which the {@code key} is associated
      * @throws IllegalArgumentException if the {@code key} is already used in another map
+     * @throws NullPointerException if {@code key} or {@code value} is null
      */
-    public void setType(StringType key, String value) throws IllegalArgumentException{
+    public void setType(@Nonnull StringType key, @Nonnull String value) throws IllegalArgumentException, NullPointerException{
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(value);
         key.check(value);
         stringMap.put(key, value);
     }
@@ -84,9 +90,11 @@ public class Credentials {
      * @param key the {@code key} with which the {@code value} is associated
      * @param value the {@code value} with which the {@code key} is associated
      * @throws IllegalArgumentException if the {@code key} is already used in another map
+     * @throws NullPointerException if {@code key} is null
 
      */
-    public void setType(IntegerType key, int value) throws IllegalArgumentException{
+    public void setType(@Nonnull IntegerType key, int value) throws IllegalArgumentException, NullPointerException{
+        Preconditions.checkNotNull(key);
         key.check(value);
         intMap.put(key, value);
     }
@@ -130,6 +138,7 @@ public class Credentials {
     /**
      * @return the URL required for joining the Discord support server for this bot.
      */
+    @Nonnull
     public String getInviteSupportServer(){
         return stringMap.get(StringType.INVITE_SUPPORT_SERVER);
     }
@@ -137,6 +146,7 @@ public class Credentials {
     /**
      * @return the internal name of this bot.
      */
+    @Nonnull
     public String getBotName(){
         return stringMap.get(StringType.BOT_NAME);
     }
@@ -146,6 +156,7 @@ public class Credentials {
      * the global prefix can be used in any guild. It is also the only prefix that is valid in private messages.
      * @return the global prefix of this bot.
      */
+    @Nonnull
     public String getGlobalPrefix(){
         return stringMap.get(StringType.GLOBAL_PREFIX);
     }
@@ -153,6 +164,7 @@ public class Credentials {
     /**
      * @return an URL listing and explaining the individual commands of this bot.
      */
+    @Nonnull
     public String getWikiLink(){
         return stringMap.get(StringType.WIKI_LINK);
     }
@@ -177,6 +189,7 @@ public class Credentials {
      * The token is required for connecting to the Discord API and should be kept private.
      * @return the Discord token.
      */
+    @Nonnull
     public String getDiscordToken(){
         return stringMap.get(StringType.DISCORD_TOKEN);
     }
@@ -186,6 +199,7 @@ public class Credentials {
      * It is part of the {@link net.dean.jraw.http.UserAgent user agent}.
      * @return the name of the Reddit account.
      */
+    @Nonnull
     public String getRedditAccount(){
         return stringMap.get(StringType.REDDIT_ACCOUNT);
     }
@@ -195,6 +209,7 @@ public class Credentials {
      * It is part of the {@link net.dean.jraw.http.UserAgent user agent}.
      * @return the Reddit id of the bot.
      */
+    @Nonnull
     public String getRedditId(){
         return stringMap.get(StringType.REDDIT_ID);
     }
@@ -205,6 +220,7 @@ public class Credentials {
      * It is part of the {@link net.dean.jraw.http.UserAgent user agent}.
      * @return the Reddit secret of the bot.
      */
+    @Nonnull
     public String getRedditSecret(){
         return stringMap.get(StringType.REDDIT_SECRET);
     }
@@ -225,7 +241,7 @@ public class Credentials {
          * @param argument the value associated with this key.
          * @throws IllegalArgumentException if the argument is malformed.
          */
-        void check(T argument) throws IllegalArgumentException;
+        default void check(T argument) throws IllegalArgumentException{}
     }
 
     /**
@@ -267,28 +283,37 @@ public class Credentials {
         /**
          * The name of the key in the credentials file.
          */
+        @Nonnull
         private String name;
         /**
          * The predicate that checks if the argument is well formed.
          */
+        @Nonnull
         private Predicate<Integer> checker;
         /**
          * Initializes the key with its name.
          * @param name the name of the key.
          * @param check the checker for the values.
+         * @throws NullPointerException if {@code name} or {@code check} is null
          */
-        IntegerType(String name, Predicate<Integer> check){
+        IntegerType(@Nonnull String name, @Nonnull Predicate<Integer> check) throws NullPointerException{
+            Preconditions.checkNotNull(name);
+            Preconditions.checkNotNull(check);
             this.name = name;
             this.checker = check;
         }
-
+        @Nonnull
         @Override
         public String getName(){
             return name;
         }
 
+        /**
+         * @throws NullPointerException if {@code argument} is null
+         */
         @Override
         public void check(Integer argument) throws IllegalArgumentException {
+            Preconditions.checkNotNull(argument);
             if(!checker.test(argument))
                 throw new IllegalArgumentException(Integer.toString(argument));
         }
@@ -299,75 +324,55 @@ public class Credentials {
      */
     public enum StringType implements Type<String>{
         /**
-         * The invite link to the support server.<br>
-         * Can't be {@code null}.
+         * The invite link to the support server.
          */
-        INVITE_SUPPORT_SERVER("InviteSupportServer", Objects::nonNull),
+        INVITE_SUPPORT_SERVER("InviteSupportServer"),
         /**
-         * The internal bot name.<br>
-         * Can't be {@code null}.
+         * The internal bot name.
          */
-        BOT_NAME("BotName", Objects::nonNull),
+        BOT_NAME("BotName"),
         /**
-         * The global prefix for all commands.<br>
-         * Can't be {@code null}.
+         * The global prefix for all commands.
          */
-        GLOBAL_PREFIX("GlobalPrefix", Objects::nonNull),
+        GLOBAL_PREFIX("GlobalPrefix"),
         /**
-         * The URL to the command wiki.<br>
-         * Can't be {@code null}.
+         * The URL to the command wiki.
          */
-        WIKI_LINK("WikiLink", Objects::nonNull),
+        WIKI_LINK("WikiLink"),
         /**
-         * The Discord token used by the bot.<br>
-         * Can't be {@code null}.
+         * The Discord token used by the bot.
          */
-        DISCORD_TOKEN("DiscordToken", Objects::nonNull),
+        DISCORD_TOKEN("DiscordToken"),
         /**
-         * The Reddit user who registered this bot.<br>
-         * Can't be {@code null}.
+         * The Reddit user who registered this bot.
          */
-        REDDIT_ACCOUNT("RedditAccount", Objects::nonNull),
+        REDDIT_ACCOUNT("RedditAccount"),
         /**
-         * The internal Reddit id of the bot.<br>
-         * Can't be {@code null}.
+         * The internal Reddit id of the bot.
          */
-        REDDIT_ID("RedditId", Objects::nonNull),
+        REDDIT_ID("RedditId"),
         /**
-         * The Reddit secret for this bot.<br>
-         * Can't be {@code null}.
+         * The Reddit secret for this bot.
          */
-        REDDIT_SECRET("RedditSecret", Objects::nonNull);
+        REDDIT_SECRET("RedditSecret");
         /**
          * The name of the key in the credentials file.
          */
         private String name;
         /**
-         * The predicate that checks if the argument is well formed.
-         */
-        private Predicate<String> checker;
-        /**
          * Initializes the key with its name.
          * @param name the name of the key.
-         * @param check the checker for the values.
-         * @throws NullPointerException if {@code name} or {@code check} is null
+         * @throws NullPointerException if {@code name} is null
          */
-        StringType(String name, Predicate<String> check) throws NullPointerException{
+        StringType(String name) throws NullPointerException{
             Preconditions.checkNotNull(name);
-            Preconditions.checkNotNull(check);
             this.name = name;
-            this.checker = check;
         }
 
+        @Nonnull
         @Override
         public String getName(){
             return name;
-        }
-
-        @Override
-        public void check(String argument) throws IllegalArgumentException {
-            if(!checker.test(argument))
-                throw new IllegalArgumentException(argument);
         }
     }
 }

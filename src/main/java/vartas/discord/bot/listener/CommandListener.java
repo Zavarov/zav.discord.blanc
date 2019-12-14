@@ -17,124 +17,190 @@
 
 package vartas.discord.bot.listener;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import vartas.discord.bot.Command;
 import vartas.discord.bot.CommandBuilder;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.Shard;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
+/**
+ * This listener is responsible for parsing the received messages and transforming them into commands,
+ * whenever possible.
+ */
+@Nonnull
 public class CommandListener extends ListenerAdapter {
-    protected Map<Guild, String> prefixes = Maps.newConcurrentMap();
-    protected String prefix;
     /**
-     * The log for this nested class.
+     * The global prefix that is valid in all guilds and private messages.
      */
-    protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
+    @Nonnull
+    private final String globalPrefix;
     /**
-     * The communicator for the local shard.
+     * The log for this class
      */
-    protected DiscordCommunicator communicator;
+    @Nonnull
+    private final Logger log = JDALogger.getLog(this.getClass());
     /**
-     * Transforms the messages into executable commands.
+     * The shard associated with this listener.
+     * It is required to schedule the created command.
      */
-    protected CommandBuilder builder;
+    @Nonnull
+    private final Shard shard;
+    /**
+     * The builder for transforming the messages into commands.
+     */
+    @Nonnull
+    private final CommandBuilder builder;
 
     /**
-     * @param communicator the communicator of the local shard.
-     * @param builder the command transformer for the messages.
+     * Initializes a fresh listener.
+     * @param shard the shard associated with this listener
+     * @param builder the command builder for the messages
+     * @param globalPrefix the global prefix
+     * @throws NullPointerException if {@code shard}, {@code builder} or {@code globalPrefix} is null
      */
-    public CommandListener(DiscordCommunicator communicator, CommandBuilder builder){
-        this.communicator = communicator;
+    public CommandListener(@Nonnull Shard shard, @Nonnull CommandBuilder builder, @Nonnull String globalPrefix) throws NullPointerException{
+        this.shard = shard;
         this.builder = builder;
-        this.prefix = communicator.environment().config().getGlobalPrefix();
-    }
-
-    public void set(Guild guild, String prefix){
-        prefixes.put(guild, prefix);
-    }
-
-    public void remove(Guild guild){
-        prefixes.remove(guild);
+        this.globalPrefix = globalPrefix;
     }
 
     /**
      * A message was received on either a private channel or a guild channel.
      * @param event the corresponding event.
+     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event){
-        if(event.getAuthor().isBot())
-            return;
-
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) throws NullPointerException{
+        Preconditions.checkNotNull(event);
+        User author = event.getAuthor();
         Message message = event.getMessage();
 
-        if(hasPrefix(message)){
-            try {
-                Command command = builder.build(getContent(message), message);
+        //Ignore all bot messages
+        if(author.isBot())
+            return;
+        //Return on success
+        if(parseWithGlobalPrefix(message))
+            return;
+        //Check the guild prefix if inside a guild
+        if (message.isFromGuild())
+            parseWithGuildPrefix(message);
+    }
 
-                //Wrap the command in a runnable that notifies us about any uncaught exception.
-                Runnable runnable = () -> {
-                    try{
-                        command.run();
-                    }catch(Throwable e){
-                        e.printStackTrace();
-                        String error = e.getClass().getSimpleName() + ": " + e.getMessage();
-                        JDALogger.getLog(command.getClass().getSimpleName()).error(error);
-                        communicator.send(message.getChannel(), error);
-                        throw e;
-                    }
-                };
+    /**
+     * Checks if the message starts with the global prefix. If so, the prefix-free message content is parsed.
+     * @param message the received message
+     * @return true if the message content starts with the global prefix
+     * @throws NullPointerException if {@code message} is null
+     */
+    private boolean parseWithGlobalPrefix(@Nonnull Message message) throws NullPointerException{
+        Preconditions.checkNotNull(message);
+        String content = message.getContentRaw();
 
-                communicator.schedule(runnable);
-                log.info("Executed "+command.getClass().getSimpleName());
-            }catch(RuntimeException e){
-                e.printStackTrace();
-                String error = e.getClass().getSimpleName() + ": " + e.getMessage();
-                log.error(error);
-                communicator.send(event.getMessage().getChannel(), error);
-            }
+        if(content.startsWith(globalPrefix)){
+            parse(StringUtils.removeStart(content, globalPrefix), message);
+            return true;
+        }else{
+            return false;
         }
     }
+
     /**
-     * @param message the input message
-     * @return all valid prefixes for the message.
+     * Checks if the message starts with the guild prefix. If so, the prefix-free message content is parsed.
+     * @param message the received message
+     * @throws NullPointerException if {@code message} is null
      */
-    private List<String> getPrefixes(Message message){
-        List<String> prefixes = new ArrayList<>(2);
-
-        prefixes.add(prefix);
-
-        if(message.isFromGuild())
-            Optional.ofNullable(this.prefixes.getOrDefault(message.getGuild(), null)).ifPresent(prefixes::add);
-
-        return prefixes;
-    }
-    /**
-     * @param message the input message.
-     * @return the raw content of the message without a prefix.
-     */
-    private String getContent(Message message){
+    private void parseWithGuildPrefix(@Nonnull Message message){
+        Preconditions.checkNotNull(message);
+        Guild guild = message.getGuild();
+        Configuration configuration = shard.guild(guild);
+        Optional<String> prefixOpt = configuration.getPrefix();
         String content = message.getContentRaw();
-        String prefix = getPrefixes(message).stream().filter(content::startsWith).findFirst().orElse("");
-        return StringUtils.removeStart(content, prefix);
+
+        if(prefixOpt.isPresent()){
+            String prefix = prefixOpt.get();
+            parse(StringUtils.removeStart(content, prefix), message);
+        }
     }
+
     /**
-     * @param message the input message.
-     * @return true if the message starts with a valid prefix
+     * Parses the prefix-free message content and schedules it, upon success.<br>
+     * In case of an error, the error message is posted in the same channel the message was received in.
+     * @param prefixFreeContent the prefix-free message content
+     * @param message the received message
+     * @throws NullPointerException if {@code prefixFreeContent} or {@code message} is null
      */
-    private boolean hasPrefix(Message message){
-        return getPrefixes(message).stream().anyMatch(message.getContentRaw()::startsWith);
+    private void parse(@Nonnull String prefixFreeContent, @Nonnull Message message) throws NullPointerException{
+        Preconditions.checkNotNull(prefixFreeContent);
+        Preconditions.checkNotNull(message);
+        MessageChannel channel = message.getChannel();
+        try {
+            Command command = builder.build(prefixFreeContent, message);
+            shard.schedule(new CommandWrapper(command, channel));
+            log.info("Executed "+command.getClass().getSimpleName());
+        }catch(RuntimeException e){
+            e.printStackTrace();
+            String errorMessage = e.toString();
+            log.error(errorMessage);
+            shard.queue(channel.sendMessage(errorMessage));
+        }
+    }
+
+
+    /**
+     * This class is wrapped around the parsed command and will catch any instance of {@link Throwable}.
+     * The caught error message is sent to the channel, to notify the user that something went wrong,
+     * then the error is rethrown.
+     */
+    @Nonnull
+    private class CommandWrapper implements Runnable{
+        /**
+         * The parsed command.
+         */
+        @Nonnull
+        private final Command command;
+        /**
+         * The channel the command is sent in.
+         */
+        @Nonnull
+        private final MessageChannel channel;
+
+        /**
+         * Creates a fresh wrapper.
+         * @param command the command
+         * @param channel the target channel
+         * @throws NullPointerException if {@code command} or {@code channel} is null
+         */
+        public CommandWrapper(@Nonnull Command command, @Nonnull MessageChannel channel) throws NullPointerException{
+            this.command = command;
+            this.channel = channel;
+        }
+
+        /**
+         * Attempts to execute the command.
+         * Upon failure, the error message is sent to the target channel instead, then the error is rethrown.
+         */
+        @Override
+        public void run(){
+            try{
+                command.run();
+            }catch(Throwable e){
+                e.printStackTrace();
+                String errorMessage = e.toString();
+                shard.queue(channel.sendMessage(errorMessage));
+                throw e;
+            }
+        }
     }
 }

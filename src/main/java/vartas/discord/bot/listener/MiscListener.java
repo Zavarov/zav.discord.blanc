@@ -17,25 +17,43 @@
 
 package vartas.discord.bot.listener;
 
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import vartas.discord.bot.entities.DiscordCommunicator;
+import vartas.discord.bot.entities.Shard;
 
+import javax.annotation.Nonnull;
+
+/**
+ * This listener keeps track of all activities that aren't covered by the remaining listeners
+ */
+@Nonnull
 public class MiscListener extends ListenerAdapter {
     /**
-     * The communicator of the program.
+     * The shard is necessary for the I/O access. More specifically, we at least need it when removing configurations
+     * and their corresponding files.
      */
-    protected DiscordCommunicator communicator;
-    public MiscListener(DiscordCommunicator communicator){
-        this.communicator = communicator;
+    @Nonnull
+    protected Shard shard;
+
+    /**
+     * Creates a fresh listener
+     * @param shard the shard associated with this listener.
+     * @throws NullPointerException if {@code shard} is null
+     */
+    public MiscListener(@Nonnull Shard shard) throws NullPointerException{
+        Preconditions.checkNotNull(shard);
+        this.shard = shard;
     }
 
     /**
-     * This bot left a guild.
+     * This bot left a guild. Meaning that we can safely delete its configuration.
      * @param event the corresponding event.
+     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onGuildLeave(GuildLeaveEvent event){
-        communicator.remove(event.getGuild());
+    public void onGuildLeave(@Nonnull GuildLeaveEvent event) throws NullPointerException{
+        Preconditions.checkNotNull(event);
+        shard.remove(event.getGuild());
     }
 }
