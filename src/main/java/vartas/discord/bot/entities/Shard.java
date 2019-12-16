@@ -24,12 +24,16 @@ import mpi.MPI;
 import mpi.MPIException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.listener.*;
+import vartas.discord.bot.message.InteractiveMessage;
 import vartas.discord.bot.mpi.MPIAdapter;
 import vartas.discord.bot.mpi.MPIObserver;
 import vartas.discord.bot.mpi.command.MPICommand;
@@ -111,6 +115,12 @@ public abstract class Shard extends MPIAdapter {
     private final Cluster cluster;
 
     /**
+     * The credentials containing all login-information, as well as some constants.
+     */
+    @Nonnull
+    private final Credentials credentials;
+
+    /**
      * Initializes the MPI node, then the JDA on a single shard.<br>
      * The shard id is equivalent to the rank of the MPI node.
      * @param args the arguments passed to the executable
@@ -121,9 +131,7 @@ public abstract class Shard extends MPIAdapter {
         this.adapter = createEntityAdapter();
         this.jda = createJda();
         this.cluster = createCluster();
-
-        Credentials credentials = adapter.credentials();
-
+        this.credentials = adapter.credentials();
         this.rank = adapter.rank();
         this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
         this.messages = new InteractiveMessageListener(credentials);
@@ -223,6 +231,7 @@ public abstract class Shard extends MPIAdapter {
         getCluster().ifPresent(visitor::handle);
         guilds.asMap().values().forEach(visitor::handle);
         visitor.handle(rank);
+        visitor.handle(credentials);
     }
 
     protected abstract CommandBuilder createCommandBuilder();
@@ -274,5 +283,15 @@ public abstract class Shard extends MPIAdapter {
 
     public <T> void queue(RestAction<T> action, Consumer<? super T> success, Consumer<? super Throwable> failure){
         action.queue(success, failure);
+    }
+
+    public void queue(MessageChannel channel, InteractiveMessage interactiveMessage){
+        MessageEmbed message = interactiveMessage.build();
+        Consumer<Message> onSuccess = (received) -> {
+            messages.add(received, interactiveMessage);
+            queue(received.addReaction(InteractiveMessage.ARROW_LEFT));
+            queue(received.addReaction(InteractiveMessage.ARROW_RIGHT));
+        };
+        queue(channel.sendMessage(message), onSuccess);
     }
 }
