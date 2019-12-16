@@ -129,10 +129,10 @@ public abstract class Shard extends MPIAdapter {
     public Shard(@Nonnull String[] args) throws MPIException, NullPointerException {
         super(args);
         this.adapter = createEntityAdapter();
-        this.jda = createJda();
-        this.cluster = createCluster();
         this.credentials = adapter.credentials();
         this.rank = adapter.rank();
+        this.jda = createJda(credentials);
+        this.cluster = createCluster();
         this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
         this.messages = new InteractiveMessageListener(credentials);
         this.blacklist = new BlacklistListener(this);
@@ -237,7 +237,7 @@ public abstract class Shard extends MPIAdapter {
 
     protected abstract CommandBuilder createCommandBuilder();
     protected abstract EntityAdapter createEntityAdapter();
-    protected abstract JDA createJda();
+    protected abstract JDA createJda(Credentials credentials);
     protected abstract Cluster createCluster();
 
     @Override

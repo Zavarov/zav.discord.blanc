@@ -29,10 +29,7 @@ import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.Main;
-import vartas.discord.bot.entities.Cluster;
-import vartas.discord.bot.entities.Configuration;
-import vartas.discord.bot.entities.Rank;
-import vartas.discord.bot.entities.Shard;
+import vartas.discord.bot.entities.*;
 import vartas.discord.bot.mpi.MPIAdapter;
 import vartas.discord.bot.mpi.command.MPICommand;
 
@@ -78,7 +75,7 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public JDAImpl createJda() {
+    public JDAImpl createJda(Credentials credentials) {
         return new JDAImpl(authorization){
             @Nonnull
             @Override
