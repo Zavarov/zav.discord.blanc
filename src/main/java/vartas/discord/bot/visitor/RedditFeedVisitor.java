@@ -17,19 +17,24 @@
 
 package vartas.discord.bot.visitor;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.bot.RedditFeed;
+
+import javax.annotation.Nonnull;
 
 public interface RedditFeedVisitor extends SubredditFeedVisitor{
 
-    default void visit(RedditFeed feed){}
+    default void visit(@Nonnull RedditFeed feed){}
 
-    default void traverse(RedditFeed feed) {
+    default void traverse(@Nonnull RedditFeed feed) throws NullPointerException{
+        Preconditions.checkNotNull(feed);
         feed.accept(this);
     }
 
-    default void endVisit(RedditFeed feed){}
+    default void endVisit(@Nonnull RedditFeed feed){}
 
-    default void handle(RedditFeed feed){
+    default void handle(@Nonnull RedditFeed feed) throws NullPointerException{
+        Preconditions.checkNotNull(feed);
         visit(feed);
         traverse(feed);
         endVisit(feed);

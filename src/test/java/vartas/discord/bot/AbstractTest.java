@@ -21,6 +21,7 @@ import mpi.MPIException;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import vartas.discord.bot.entities.Configuration;
@@ -80,7 +81,7 @@ public abstract class AbstractTest {
     protected void addRank(UserImpl user, Rank.Ranks ranks){
         shard.accept(new ShardVisitor() {
             @Override
-            public void visit(Rank rank) {
+            public void visit(@NotNull Rank rank) {
                 rank.add(user, ranks);
             }
         });
@@ -89,7 +90,7 @@ public abstract class AbstractTest {
     protected void removeRank(UserImpl user, Rank.Ranks ranks){
         shard.accept(new ShardVisitor() {
             @Override
-            public void visit(Rank rank) {
+            public void visit(@NotNull Rank rank) {
                 rank.remove(user, ranks);
             }
         });
@@ -98,7 +99,7 @@ public abstract class AbstractTest {
     protected void checkRank(UserImpl user, Rank.Ranks ranks, boolean expected){
         shard.accept(new ShardVisitor() {
             @Override
-            public void visit(Rank rank) {
+            public void visit(@NotNull Rank rank) {
                 assertThat(rank.resolve(user, ranks)).isEqualTo(expected);
             }
         });

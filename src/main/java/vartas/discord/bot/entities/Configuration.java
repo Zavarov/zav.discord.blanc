@@ -18,7 +18,7 @@
 package vartas.discord.bot.entities;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Table;
@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import vartas.discord.bot.RedditFeed;
 import vartas.discord.bot.RedditFeed.SubredditFeed;
+import vartas.discord.bot.visitor.ConfigurationVisitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,11 +51,6 @@ public class Configuration {
      * The id of the guild associated with this configuration file.
      */
     protected final long guildId;
-    /**
-     * The shard the guild belongs to.
-     */
-    @Nonnull
-    protected final Shard shard;
     /**
      * The table containing all groups of Discord ids.<br>
      * The row consists of the type of group. It is used to uniquely identify the groups and is also
@@ -85,13 +81,9 @@ public class Configuration {
     /**
      * Initializes an empty configuration file.
      * @param guildId the id of the guild associated with this instance
-     * @param shard the shard the guild belongs to
-     * @throws NullPointerException if {@code guild} or {@code shard} is null
      */
-    public Configuration(long guildId, @Nonnull Shard shard) throws NullPointerException{
-        Preconditions.checkNotNull(shard);
+    public Configuration(long guildId){
         this.guildId = guildId;
-        this.shard = shard;
     }
 
     /**
@@ -330,7 +322,7 @@ public class Configuration {
     @Nonnull
     public synchronized Multimap<String, Long> resolve(@Nonnull LongType row) throws NullPointerException{
         Preconditions.checkNotNull(row);
-        return Multimaps.unmodifiableMultimap(groups.computeIfAbsent(row, x -> HashMultimap.create()));
+        return Multimaps.unmodifiableMultimap(groups.computeIfAbsent(row, x -> LinkedHashMultimap.create()));
     }
     /**
      * Checks if the specified entry exists in the table.
@@ -391,7 +383,7 @@ public class Configuration {
         Preconditions.checkNotNull(column);
 
         if(!groups.containsKey(row))
-            groups.put(row, HashMultimap.create());
+            groups.put(row, LinkedHashMultimap.create());
         groups.get(row).put(column, id);
     }
 
@@ -470,5 +462,15 @@ public class Configuration {
             Preconditions.checkNotNull(guild);
             return checker.apply(guild, id);
         }
+    }
+
+    /**
+     * Applies the visitor pattern on all entries in this configuration.
+     * @param visitor the specified visitor.
+     */
+    public void accept(ConfigurationVisitor visitor){
+        getPattern().ifPresent(visitor::handle);
+        getPrefix().ifPresent(visitor::handle);
+        groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> visitor.handle(type, key, values)));
     }
 }

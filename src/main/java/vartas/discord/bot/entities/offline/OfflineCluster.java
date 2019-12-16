@@ -1,5 +1,6 @@
 package vartas.discord.bot.entities.offline;
 
+import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.Main;
@@ -16,18 +17,21 @@ public class OfflineCluster extends Cluster {
         super(shard);
     }
 
+    @NotNull
     @Override
     protected EntityAdapter createEntityAdapter() {
         return new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
     }
 
+    @NotNull
     @Override
-    protected Client createRedditClient(Credentials credentials) {
+    protected Client createRedditClient(@NotNull Credentials credentials) {
         return null;
     }
 
+    @NotNull
     @Override
-    protected Client createPushshiftClient(Credentials credentials) {
+    protected Client createPushshiftClient(@NotNull Credentials credentials) {
         return null;
     }
 }

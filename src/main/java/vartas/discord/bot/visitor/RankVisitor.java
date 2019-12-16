@@ -17,19 +17,23 @@
 
 package vartas.discord.bot.visitor;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.bot.entities.Rank;
 
+import javax.annotation.Nonnull;
+
 public interface RankVisitor {
-    default void visit(Rank rank){
+    default void visit(@Nonnull Rank rank){
     }
 
-    default void traverse(Rank rank){
+    default void traverse(@Nonnull Rank rank){
     }
 
-    default void endVisit(Rank rank){
+    default void endVisit(@Nonnull Rank rank){
     }
 
-    default void handle(Rank rank){
+    default void handle(@Nonnull Rank rank) throws NullPointerException{
+        Preconditions.checkNotNull(rank);
         visit(rank);
         traverse(rank);
         endVisit(rank);

@@ -1,6 +1,7 @@
 package vartas.discord.bot.mpi.command;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.entities.Rank;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.mpi.MPICoreCommands;
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
 public class MPIStoreRank extends MPICommand<MPIVoid> {
     private Rank rank;
     @Override
-    public void visit(@Nonnull Rank rank) throws NullPointerException{
+    public void visit(@NotNull @Nonnull Rank rank) throws NullPointerException{
         Preconditions.checkNotNull(rank);
         this.rank = rank;
     }

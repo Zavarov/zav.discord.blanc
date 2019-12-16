@@ -17,19 +17,65 @@
 
 package vartas.discord.bot.visitor;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.bot.entities.Configuration;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.regex.Pattern;
+
 public interface ConfigurationVisitor {
-    default void visit(Configuration configuration){
+    default void visit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+    }
+    default void traverse(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+    }
+    default void endVisit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+    }
+    default void handle(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values) throws NullPointerException{
+        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(values);
+        visit(type, key, values);
+        traverse(type, key, values);
+        endVisit(type, key, values);
     }
 
-    default void traverse(Configuration configuration){
+    default void visit(@Nonnull Pattern pattern){
+    }
+    default void traverse(@Nonnull Pattern pattern){
+    }
+    default void endVisit(@Nonnull Pattern pattern){
+    }
+    default void handle(@Nonnull Pattern pattern) throws NullPointerException{
+        Preconditions.checkNotNull(pattern);
+        visit(pattern);
+        traverse(pattern);
+        endVisit(pattern);
     }
 
-    default void endVisit(Configuration configuration){
+    default void visit(@Nonnull String prefix){
+    }
+    default void traverse(@Nonnull String prefix){
+    }
+    default void endVisit(@Nonnull String prefix){
+    }
+    default void handle(@Nonnull String prefix) throws NullPointerException{
+        Preconditions.checkNotNull(prefix);
+        visit(prefix);
+        traverse(prefix);
+        endVisit(prefix);
     }
 
-    default void handle(Configuration configuration){
+    default void visit(@Nonnull Configuration configuration){
+    }
+    default void traverse(@Nonnull Configuration configuration) throws NullPointerException{
+        Preconditions.checkNotNull(configuration);
+        configuration.accept(this);
+    }
+    default void endVisit(@Nonnull Configuration configuration){
+    }
+    default void handle(@Nonnull Configuration configuration) throws NullPointerException{
+        Preconditions.checkNotNull(configuration);
         visit(configuration);
         traverse(configuration);
         endVisit(configuration);

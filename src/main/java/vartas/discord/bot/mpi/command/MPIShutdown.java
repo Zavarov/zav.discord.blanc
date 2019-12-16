@@ -1,15 +1,16 @@
 package vartas.discord.bot.mpi.command;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.mpi.MPICoreCommands;
-import vartas.discord.bot.mpi.serializable.MPIRankModification;
+import vartas.discord.bot.mpi.serializable.MPIVoid;
 
 import javax.annotation.Nonnull;
 
-public class MPIShutdown extends MPICommand<MPIRankModification> {
+public class MPIShutdown extends MPICommand<MPIVoid> {
     @Override
-    public void visit(@Nonnull Shard shard) throws NullPointerException{
+    public void visit(@NotNull @Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
         //TODO
         //shard.shutdown();

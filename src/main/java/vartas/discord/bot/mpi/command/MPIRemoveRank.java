@@ -1,13 +1,14 @@
 package vartas.discord.bot.mpi.command;
 
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.entities.Rank;
 import vartas.discord.bot.mpi.MPICoreCommands;
 import vartas.discord.bot.mpi.serializable.MPIRankModification;
 
 public class MPIRemoveRank extends MPICommand<MPIRankModification> {
     @Override
-    public void visit(Rank rank){
+    public void visit(@NotNull Rank rank){
         Preconditions.checkNotNull(rank);
         rank.remove(message.getUserId(), message.getRank());
     }

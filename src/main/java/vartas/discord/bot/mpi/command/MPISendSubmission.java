@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.SubmissionMessage;
 import vartas.discord.bot.mpi.MPIAdapter;
@@ -18,7 +19,7 @@ import java.util.NoSuchElementException;
 
 public class MPISendSubmission extends MPICommand<MPISubmission> {
     @Override
-    public void visit(@Nonnull Shard shard) throws NullPointerException, NoSuchElementException {
+    public void visit(@NotNull @Nonnull Shard shard) throws NullPointerException, NoSuchElementException {
         Preconditions.checkNotNull(shard);
         //Handle Discord exceptions
         try {

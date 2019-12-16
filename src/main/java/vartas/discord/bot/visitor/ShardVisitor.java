@@ -17,20 +17,25 @@
 
 package vartas.discord.bot.visitor;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.bot.entities.Shard;
 
-public interface ShardVisitor extends ConfigurationVisitor, RankVisitor, ClusterVisitor {
-    default void visit(Shard shard){}
+import javax.annotation.Nonnull;
 
-    default void traverse(Shard shard){
+public interface ShardVisitor extends ConfigurationVisitor, RankVisitor, ClusterVisitor {
+    default void visit(@Nonnull Shard shard){}
+
+    default void traverse(@Nonnull Shard shard) throws NullPointerException{
+        Preconditions.checkNotNull(shard);
         shard.accept(this);
     }
 
-    default void endVisit(Shard shard){
+    default void endVisit(@Nonnull Shard shard){
 
     }
 
-    default void handle(Shard shard){
+    default void handle(@Nonnull Shard shard) throws NullPointerException{
+        Preconditions.checkNotNull(shard);
         visit(shard);
         traverse(shard);
         endVisit(shard);

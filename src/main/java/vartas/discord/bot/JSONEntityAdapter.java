@@ -93,10 +93,10 @@ public class JSONEntityAdapter implements EntityAdapter{
         Path reference = Paths.get(configurations.toString()+ File.separator +guildId+".gld");
 
         if(Files.notExists(reference))
-            return new Configuration(guildId, shard);
+            return new Configuration(guildId);
 
         JSONObject object = parse(reference);
-        Configuration result = new Configuration(guildId, shard);
+        Configuration result = new Configuration(guildId);
 
         //Prefix
         try{
