@@ -232,6 +232,7 @@ public abstract class Shard extends MPIAdapter {
         guilds.asMap().values().forEach(visitor::handle);
         visitor.handle(rank);
         visitor.handle(credentials);
+        visitor.handle(activity);
     }
 
     protected abstract CommandBuilder createCommandBuilder();

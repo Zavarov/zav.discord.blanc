@@ -22,7 +22,7 @@ import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
 
-public interface ShardVisitor extends ConfigurationVisitor, RankVisitor, ClusterVisitor, CredentialsVisitor {
+public interface ShardVisitor extends ConfigurationVisitor, RankVisitor, ClusterVisitor, CredentialsVisitor, ActivityListenerVisitor {
     default void visit(@Nonnull Shard shard){}
 
     default void traverse(@Nonnull Shard shard) throws NullPointerException{
