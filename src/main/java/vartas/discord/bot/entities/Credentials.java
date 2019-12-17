@@ -59,7 +59,6 @@ public class Credentials {
      * Expected keys for this map are:
      * <p>
      *     <li>{@link Credentials.IntegerType#STATUS_MESSAGE_UPDATE_INTERVAL STATUS_MESSAGE_UPDATE_INTERVAL}</li>
-     *     <li>{@link Credentials.IntegerType#DISCORD_SHARDS DISCORD_SHARDS}</li>
      *     <li>{@link Credentials.IntegerType#INTERACTIVE_MESSAGE_LIFETIME INTERACTIVE_MESSAGE_LIFETIME}</li>
      *     <li>{@link Credentials.IntegerType#ACTIVITY_UPDATE_INTERVAL ACTIVITY_UPDATE_INTERVAL}</li>
      *     <li>{@link Credentials.IntegerType#IMAGE_WIDTH IMAGE_WIDTH}</li>
@@ -105,15 +104,6 @@ public class Credentials {
      */
     public int getStatusMessageUpdateInterval(){
         return intMap.get(IntegerType.STATUS_MESSAGE_UPDATE_INTERVAL);
-    }
-
-    /**
-     * The total number of shards has to be a positive value.<br>
-     * Each individual shard will then be within [0, ({@code shards} - 1)]
-     * @return the number of Discord shards
-     */
-    public int getDiscordShards(){
-        return intMap.get(IntegerType.DISCORD_SHARDS);
     }
 
     /**
@@ -254,11 +244,6 @@ public class Credentials {
          * Has to be positive.
          */
         STATUS_MESSAGE_UPDATE_INTERVAL("StatusMessageUpdateInterval", value -> value > 0),
-        /**
-         * The total number of shards Discord is partitioned in.<br>
-         * Has to be positive.
-         */
-        DISCORD_SHARDS("DiscordShards", value -> value > 0),
         /**
          * The maximum age since the last modification of an interactive message until the
          * bot stops interacting with it.<br>

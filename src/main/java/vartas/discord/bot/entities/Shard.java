@@ -41,6 +41,7 @@ import vartas.discord.bot.visitor.ShardVisitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.security.auth.login.LoginException;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -125,8 +126,11 @@ public abstract class Shard extends MPIAdapter {
      * The shard id is equivalent to the rank of the MPI node.
      * @param args the arguments passed to the executable
      * @throws MPIException if the MPI node couldn't be initialized
+     * @throws NullPointerException if {@code args} is null
+     * @throws LoginException if the provided token is invalid
+     * @throws InterruptedException if the program was interrupted while logging in
      */
-    public Shard(@Nonnull String[] args) throws MPIException, NullPointerException {
+    public Shard(@Nonnull String[] args) throws MPIException, NullPointerException, LoginException, InterruptedException {
         super(args);
         this.adapter = createEntityAdapter();
         this.credentials = adapter.credentials();
@@ -231,7 +235,7 @@ public abstract class Shard extends MPIAdapter {
 
     protected abstract CommandBuilder createCommandBuilder();
     protected abstract EntityAdapter createEntityAdapter();
-    protected abstract JDA createJda(Credentials credentials);
+    protected abstract JDA createJda(Credentials credentials) throws LoginException, InterruptedException;
     protected abstract Cluster createCluster();
 
     @Override
