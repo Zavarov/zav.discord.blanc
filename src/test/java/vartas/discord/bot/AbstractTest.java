@@ -32,6 +32,8 @@ import vartas.discord.bot.entities.offline.OfflineCommandBuilder;
 import vartas.discord.bot.entities.offline.OfflineShard;
 import vartas.discord.bot.visitor.ShardVisitor;
 
+import javax.security.auth.login.LoginException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractTest {
@@ -53,7 +55,7 @@ public abstract class AbstractTest {
             shard = new OfflineShard();
             cluster = new OfflineCluster(shard);
             cluster.shutdown();
-        } catch(MPIException e){
+        } catch(MPIException | LoginException | InterruptedException e){
             throw new RuntimeException(e);
         }
     }

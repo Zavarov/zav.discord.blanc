@@ -62,7 +62,6 @@ public class JSONEntityAdapter implements EntityAdapter{
         result.setType(ACTIVITY_UPDATE_INTERVAL      , object.getInt(ACTIVITY_UPDATE_INTERVAL.getName()));
         result.setType(BOT_NAME                      , object.getString(BOT_NAME.getName()));
         result.setType(GLOBAL_PREFIX                 , object.getString(GLOBAL_PREFIX.getName()));
-        result.setType(DISCORD_SHARDS                , object.getInt(DISCORD_SHARDS.getName()));
         result.setType(IMAGE_WIDTH                   , object.getInt(IMAGE_WIDTH.getName()));
         result.setType(IMAGE_HEIGHT                  , object.getInt(IMAGE_HEIGHT.getName()));
         result.setType(INVITE_SUPPORT_SERVER         , object.getString(INVITE_SUPPORT_SERVER.getName()));

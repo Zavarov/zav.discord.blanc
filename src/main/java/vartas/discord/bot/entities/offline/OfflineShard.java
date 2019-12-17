@@ -34,6 +34,7 @@ import vartas.discord.bot.mpi.MPIAdapter;
 import vartas.discord.bot.mpi.command.MPICommand;
 
 import javax.annotation.Nonnull;
+import javax.security.auth.login.LoginException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class OfflineShard extends Shard {
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
 
-    public OfflineShard() throws MPIException {
+    public OfflineShard() throws MPIException, LoginException, InterruptedException {
         super(new String[]{});
     }
 

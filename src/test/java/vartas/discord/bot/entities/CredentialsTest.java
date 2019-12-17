@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CredentialsTest extends AbstractTest {
     protected static int STATUS_MESSAGE_UPDATE_INTERVAL = 10;
-    protected static int DISCORD_SHARDS = 11;
     protected static int INTERACTIVE_MESSAGE_LIFETIME = 12;
     protected static int ACTIVITY_UPDATE_INTERVAL = 13;
     protected static String INVITE_SUPPORT_SERVER = "INVITE_SUPPORT_SERVER";
@@ -46,7 +45,6 @@ public class CredentialsTest extends AbstractTest {
         configuration = new Credentials();
 
         configuration.setType(Credentials.IntegerType.STATUS_MESSAGE_UPDATE_INTERVAL, STATUS_MESSAGE_UPDATE_INTERVAL);
-        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, DISCORD_SHARDS);
         configuration.setType(Credentials.IntegerType.INTERACTIVE_MESSAGE_LIFETIME, INTERACTIVE_MESSAGE_LIFETIME);
         configuration.setType(Credentials.IntegerType.ACTIVITY_UPDATE_INTERVAL, ACTIVITY_UPDATE_INTERVAL);
         configuration.setType(Credentials.StringType.INVITE_SUPPORT_SERVER, INVITE_SUPPORT_SERVER);
@@ -63,14 +61,14 @@ public class CredentialsTest extends AbstractTest {
 
     @Test(expected=IllegalArgumentException.class)
     public void setMalformedIntegerTest(){
-        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, 0);
+        configuration.setType(Credentials.IntegerType.ACTIVITY_UPDATE_INTERVAL, 0);
     }
 
     @Test
     public void setIntegerTest(){
-        assertThat(configuration.getDiscordShards()).isEqualTo(DISCORD_SHARDS);
-        configuration.setType(Credentials.IntegerType.DISCORD_SHARDS, 4711);
-        assertThat(configuration.getDiscordShards()).isEqualTo(4711);
+        assertThat(configuration.getActivityUpdateInterval()).isEqualTo(ACTIVITY_UPDATE_INTERVAL);
+        configuration.setType(Credentials.IntegerType.ACTIVITY_UPDATE_INTERVAL, 4711);
+        assertThat(configuration.getActivityUpdateInterval()).isEqualTo(4711);
     }
 
     @Test
@@ -83,11 +81,6 @@ public class CredentialsTest extends AbstractTest {
     @Test
     public void getStatusMessageUpdateIntervalTest(){
         assertThat(configuration.getStatusMessageUpdateInterval()).isEqualTo(STATUS_MESSAGE_UPDATE_INTERVAL);
-    }
-
-    @Test
-    public void getDiscordShardsTest(){
-        assertThat(configuration.getDiscordShards()).isEqualTo(DISCORD_SHARDS);
     }
 
     @Test
