@@ -25,12 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StatusTest extends AbstractTest {
     @Test
     public void getTest(){
+        status.add("element");
         assertThat(status.get()).contains("element");
     }
 
     @Test
     public void getEmptyTest(){
-        status.entries.clear();
         assertThat(status.get()).isEmpty();
     }
 }

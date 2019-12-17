@@ -19,6 +19,7 @@ public class MPIUpdateStatusMessageTest extends AbstractTest {
     MPIStatusMessageModification object;
     @Before
     public void setUp(){
+        status.add("element");
         command = new MPIUpdateStatusMessage();
         object = new MPIStatusMessageModification(status.get().orElseThrow());
         observer = new MPIObserver(shard);
