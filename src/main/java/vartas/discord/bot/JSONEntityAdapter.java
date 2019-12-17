@@ -81,7 +81,11 @@ public class JSONEntityAdapter implements EntityAdapter{
 
         Status result = new Status();
 
-        object.getJSONArray("status").toList().stream().map(Object::toString).forEach(result::add);
+        try {
+            object.getJSONArray("status").toList().stream().map(Object::toString).forEach(result::add);
+        }catch(JSONException e){
+            log.debug(e.getMessage());
+        }
 
         return result;
     }

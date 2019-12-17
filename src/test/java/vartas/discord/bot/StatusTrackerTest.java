@@ -12,10 +12,12 @@ public class StatusTrackerTest extends AbstractTest{
     @Before
     public void setUp(){
         tracker = new StatusTracker(shard, status);
+        status.add("element");
     }
 
     @Test
     public void runTest(){
+        assertThat(shard.send).hasSize(0);
         tracker.run();
         assertThat(shard.send).hasSize(1);
     }
