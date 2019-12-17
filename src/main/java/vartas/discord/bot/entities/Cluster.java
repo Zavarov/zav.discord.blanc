@@ -6,8 +6,6 @@ import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.RedditFeed;
 import vartas.discord.bot.StatusTracker;
-import vartas.discord.bot.mpi.command.MPIShutdown;
-import vartas.discord.bot.mpi.serializable.MPIVoid;
 import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.reddit.Client;
 import vartas.reddit.Comment;
@@ -118,7 +116,6 @@ public abstract class Cluster {
     protected abstract Client createPushshiftClient(@Nonnull Credentials credentials) throws NullPointerException;
 
     public void shutdown(){
-        shard.broadcast(new MPIShutdown(), new MPIVoid());
         global.shutdown();
         reddit.logout();
         pushshift.logout();

@@ -29,9 +29,9 @@ import vartas.discord.bot.entities.*;
 public interface EntityAdapter {
     Credentials credentials();
     Status status();
-    Configuration configuration(long guildId, Shard shard);
+    Configuration configuration(Guild guild, Shard shard);
     Rank rank();
-    void store(Configuration configuration, Guild context);
+    void store(Configuration configuration);
     void store(Rank rank);
     void delete(Configuration configuration);
 }

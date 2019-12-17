@@ -1,14 +1,15 @@
 package vartas.discord.bot.mpi.command;
 
 import net.dv8tion.jda.api.entities.Activity;
-import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.mpi.MPICoreCommands;
 import vartas.discord.bot.mpi.serializable.MPIStatusMessageModification;
 
+import javax.annotation.Nonnull;
+
 public class MPIUpdateStatusMessage extends MPICommand<MPIStatusMessageModification> {
     @Override
-    public void visit(@NotNull Shard shard) {
+    public void visit(@Nonnull Shard shard) {
         shard.jda().getPresence().setActivity(Activity.playing(message.getStatusMessage()));
     }
 

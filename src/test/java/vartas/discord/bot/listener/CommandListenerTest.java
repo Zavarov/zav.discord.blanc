@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.Command;
+import vartas.discord.bot.entities.Configuration;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +43,7 @@ public class CommandListenerTest extends AbstractTest {
     TextChannelImpl channel;
     String prefixFreeMessageContent;
 
+    Configuration configuration;
     CommandListener listener;
     MessageReceivedEvent event;
     AtomicBoolean flag;
@@ -55,6 +57,7 @@ public class CommandListenerTest extends AbstractTest {
             @Override
             protected void checkPermission(Permission permission){}
         };
+        configuration = entityAdapter.configuration(guild, shard);
 
         prefixFreeMessageContent = "message";
         listener = new CommandListener(shard, builder, credentials.getGlobalPrefix());

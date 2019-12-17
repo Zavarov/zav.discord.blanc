@@ -50,8 +50,8 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public void store(Configuration configuration, Guild context){
-        stored.add(context.getIdLong());
+    public void store(Configuration configuration){
+        stored.add(configuration.getGuildId());
     }
 
     @Override
@@ -60,8 +60,8 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public void remove(long guildId){
-        removed.add(guildId);
+    public void remove(Guild guild){
+        removed.add(guild.getIdLong());
     }
 
     @Override

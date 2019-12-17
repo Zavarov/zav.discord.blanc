@@ -34,10 +34,11 @@ public class ConfigurationTest extends AbstractTest {
     GuildImpl guild;
     TextChannelImpl channel;
     RoleImpl role;
+    Configuration configuration;
 
     @Before
     public void setUp(){
-        jda = shard.createJda();
+        jda = shard.createJda(credentials);
         guild = new GuildImpl(jda, guildId){
             @Override
             public RoleImpl getRoleById(long id){
@@ -50,6 +51,7 @@ public class ConfigurationTest extends AbstractTest {
         };
         channel = new TextChannelImpl(channelId, null);
         role = new RoleImpl(roleId, null);
+        configuration = entityAdapter.configuration(guild, shard);
     }
 
     @Test

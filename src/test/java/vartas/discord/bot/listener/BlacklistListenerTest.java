@@ -24,6 +24,7 @@ import net.dv8tion.jda.internal.entities.*;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.Configuration;
 
 import javax.annotation.Nonnull;
 
@@ -36,12 +37,14 @@ public class BlacklistListenerTest extends AbstractTest {
     TextChannelImpl channel;
     BlacklistListener listener;
     GuildMessageReceivedEvent event;
+    Configuration configuration;
     @Before
     public void setUp(){
         jda = new JDAImpl(authorization);
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId);
         channel = new TextChannelImpl(channelId, guild);
+        configuration = entityAdapter.configuration(guild, shard);
 
         listener = new BlacklistListener(shard);
         listener.set(configuration);

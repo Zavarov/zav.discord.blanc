@@ -95,7 +95,7 @@ public abstract class Shard extends MPIAdapter {
      * All configuration files of the guilds in this shard.
      */
     @Nonnull
-    private final LoadingCache<Long, Configuration> guilds;
+    private final LoadingCache<Guild, Configuration> guilds;
     /**
      * The adapter for parsing the local data files.
      */
@@ -166,23 +166,17 @@ public abstract class Shard extends MPIAdapter {
      * @return the configuration for the specified guild
      */
     public Configuration guild(Guild guild){
-        return guild(guild.getIdLong());
-    }
-    public Configuration guild(long guildId){
-        return guilds.getUnchecked(guildId);
+        return guilds.getUnchecked(guild);
     }
     public void remove(Guild guild){
-        remove(guild.getIdLong());
-    }
-    public void remove(long guildId){
-        Configuration config = guild(guildId);
+        Configuration config = guild(guild);
         //Delete file
         adapter.delete(config);
         //Remove pattern
-        blacklist.remove(guildId);
+        blacklist.remove(guild.getIdLong());
     }
-    private Configuration create(long guildId){
-        Configuration configuration = adapter.configuration(guildId, this);
+    private Configuration create(Guild guild){
+        Configuration configuration = adapter.configuration(guild, this);
 
         blacklist.set(configuration);
 
@@ -191,8 +185,8 @@ public abstract class Shard extends MPIAdapter {
     public Optional<Cluster> getCluster(){
         return Optional.ofNullable(cluster);
     }
-    public void store(Configuration configuration, Guild context){
-        adapter.store(configuration, context);
+    public void store(Configuration configuration){
+        adapter.store(configuration);
     }
     public void store(Rank rank){
         adapter.store(rank);

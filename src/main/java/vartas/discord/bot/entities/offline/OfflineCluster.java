@@ -9,6 +9,8 @@ import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.entities.Shard;
 import vartas.reddit.Client;
 
+import javax.annotation.Nonnull;
+
 
 public class OfflineCluster extends Cluster {
 
@@ -17,21 +19,21 @@ public class OfflineCluster extends Cluster {
         super(shard);
     }
 
-    @NotNull
+    @Nonnull
     @Override
     protected EntityAdapter createEntityAdapter() {
         return new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
     }
 
-    @NotNull
+    @Nonnull
     @Override
     protected Client createRedditClient(@NotNull Credentials credentials) {
-        return null;
+        return new OfflineClient();
     }
 
-    @NotNull
+    @Nonnull
     @Override
     protected Client createPushshiftClient(@NotNull Credentials credentials) {
-        return null;
+        return new OfflineClient();
     }
 }

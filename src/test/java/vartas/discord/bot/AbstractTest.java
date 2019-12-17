@@ -24,7 +24,6 @@ import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
-import vartas.discord.bot.entities.Configuration;
 import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.entities.Rank;
 import vartas.discord.bot.entities.Status;
@@ -43,8 +42,6 @@ public abstract class AbstractTest {
     protected static long roleId = 2L;
     protected static long channelId = 1L;
     protected static long userId = 3L;
-
-    protected Configuration configuration;
     protected Rank rank;
     protected Status status;
     protected Credentials credentials;
@@ -55,6 +52,7 @@ public abstract class AbstractTest {
         try {
             shard = new OfflineShard();
             cluster = new OfflineCluster(shard);
+            cluster.shutdown();
         } catch(MPIException e){
             throw new RuntimeException(e);
         }
@@ -63,7 +61,6 @@ public abstract class AbstractTest {
     @Before
     public void initJda() {
         entityAdapter = new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
-        configuration = entityAdapter.configuration(guildId, shard);
         rank = entityAdapter.rank();
         status = entityAdapter.status();
         credentials = entityAdapter.credentials();

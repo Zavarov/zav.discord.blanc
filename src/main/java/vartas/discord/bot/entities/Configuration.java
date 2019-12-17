@@ -18,10 +18,7 @@
 package vartas.discord.bot.entities;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -33,7 +30,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class contains all guild-specific configurations of the Discord bot.
@@ -402,6 +401,46 @@ public class Configuration {
 
         if(groups.containsKey(row))
             groups.get(row).remove(column, value);
+    }
+
+    /**
+     * Transforms each id associated with the specified row into a new data type. All values for which the mapper
+     * returns null are ignored. The returned multimap is not a life-view of the configuration.
+     * So any changes in the configuration will not be reflected in hte multimap.<br>
+     * The main purpose of this method is to recreate the text channels, roles or other types from their id.
+     * @param row the type associated with the id
+     * @param mapper a function for transforming the ids
+     * @param <T> the data type the ids are transformed into
+     * @return an immutable multimap of all key-value pairs
+     * @throws NullPointerException if {@code row} or {@code mapper} is null
+     */
+    public synchronized <T> Multimap<String, T> resolve(@Nonnull LongType row, @Nonnull Function<Long, T> mapper) throws NullPointerException{
+        if(!groups.containsKey(row))
+            return Multimaps.unmodifiableMultimap(HashMultimap.create());
+        Multimap<String, T> multimap = HashMultimap.create();
+        for(String column : groups.get(row).keySet())
+            multimap.putAll(column, resolve(row, column, mapper));
+        return Multimaps.unmodifiableMultimap(HashMultimap.create());
+    }
+
+
+    /**
+     * Transforms each id associated with the specified row and column into a new data type.
+     * All values for which the mapper returns null are ignored.
+     * The returned collection is not a life-view of the configuration. So any changes in the configuration will
+     * not be reflected in the multimap.<br>
+     * The main purpose of this method is to recreate the text channels, roles or other types from their id.
+     * @param row the type associated with the id
+     * @param column the group name associated with the id.
+     * @param mapper a function for transforming the ids
+     * @param <T> the data type the ids are transformed into
+     * @return an immutable collection of all transformed entries
+     * @throws NullPointerException if {@code row}, {@code column} or {@code mapper} is null
+     */
+    public synchronized <T> Collection<T> resolve(@Nonnull LongType row, @Nonnull String column, @Nonnull Function<Long, T> mapper) throws NullPointerException{
+        if(!groups.containsKey(row))
+            return Collections.emptyList();
+        return groups.get(row).get(column).stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
     }
 
     /**

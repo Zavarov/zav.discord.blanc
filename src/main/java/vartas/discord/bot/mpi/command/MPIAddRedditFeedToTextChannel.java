@@ -1,13 +1,14 @@
 package vartas.discord.bot.mpi.command;
 
-import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.RedditFeed;
 import vartas.discord.bot.mpi.MPICoreCommands;
 import vartas.discord.bot.mpi.serializable.MPISubredditFeedModification;
 
+import javax.annotation.Nonnull;
+
 public class MPIAddRedditFeedToTextChannel extends MPICommand<MPISubredditFeedModification> {
     @Override
-    public void visit(@NotNull String subreddit, @NotNull RedditFeed.SubredditFeed subredditFeed){
+    public void visit(@Nonnull String subreddit, @Nonnull RedditFeed.SubredditFeed subredditFeed){
         if(subreddit.equals(message.getSubredditName()))
             subredditFeed.add(message.getGuildId(), message.getChannelId());
     }

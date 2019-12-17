@@ -17,9 +17,7 @@
 
 package vartas.discord.bot;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.json.JSONArray;
@@ -89,14 +87,14 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public Configuration configuration(long guildId, Shard shard) {
-        Path reference = Paths.get(configurations.toString()+ File.separator +guildId+".gld");
+    public Configuration configuration(Guild guild, Shard shard) {
+        Path reference = Paths.get(configurations.toString()+ File.separator +guild.getId()+".gld");
 
         if(Files.notExists(reference))
-            return new Configuration(guildId);
+            return new Configuration(guild.getIdLong());
 
         JSONObject object = parse(reference);
-        Configuration result = new Configuration(guildId);
+        Configuration result = new Configuration(guild.getIdLong());
 
         //Prefix
         try{
@@ -114,9 +112,13 @@ public class JSONEntityAdapter implements EntityAdapter{
         try{
             JSONObject group = object.getJSONObject(SELFASSIGNABLE.getName());
 
-            for(String key : group.keySet())
-                for(Object value : group.getJSONArray(key).toList())
-                    result.add(SELFASSIGNABLE, key, Long.parseUnsignedLong(value.toString()));
+            for(String key : group.keySet()) {
+                for (Object value : group.getJSONArray(key).toList()) {
+                    long id = Long.parseUnsignedLong(value.toString());
+                    if(SELFASSIGNABLE.exists(guild, id))
+                        result.add(SELFASSIGNABLE, key, id);
+                }
+            }
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
@@ -124,9 +126,13 @@ public class JSONEntityAdapter implements EntityAdapter{
         try{
             JSONObject group = object.getJSONObject(SUBREDDIT.getName());
 
-            for(String key : group.keySet())
-                for(Object value : group.getJSONArray(key).toList())
-                    result.add(SUBREDDIT, key, Long.parseUnsignedLong(value.toString()));
+            for(String key : group.keySet()) {
+                for (Object value : group.getJSONArray(key).toList()) {
+                    long id = Long.parseUnsignedLong(value.toString());
+                    if(SUBREDDIT.exists(guild, id))
+                        result.add(SUBREDDIT, key, id);
+                }
+            }
         }catch(JSONException e){
             log.debug(e.getMessage());
         }
@@ -151,7 +157,7 @@ public class JSONEntityAdapter implements EntityAdapter{
     }
 
     @Override
-    public void store(Configuration configuration, Guild context) {
+    public void store(Configuration configuration) {
         Path reference = Paths.get(configurations.toString()+ File.separator +configuration.getGuildId()+".gld");
         JSONObject object = new JSONObject();
         Multimap<String, Long> data;
@@ -163,14 +169,12 @@ public class JSONEntityAdapter implements EntityAdapter{
         object.put(SELFASSIGNABLE.getName(), roles);
 
         data = configuration.resolve(SELFASSIGNABLE);
-        data = Multimaps.filterValues(data, value -> SELFASSIGNABLE.exists(context, Preconditions.checkNotNull(value)));
         data.asMap().forEach( (key, values) -> roles.put(key, new JSONArray(values)));
 
         JSONObject subreddits = new JSONObject();
         object.put(SUBREDDIT.getName(), subreddits);
 
         data = configuration.resolve(SUBREDDIT);
-        data = Multimaps.filterValues(data, value -> SUBREDDIT.exists(context, Preconditions.checkNotNull(value)));
         data.asMap().forEach( (key, values) -> subreddits.put(key, new JSONArray(values)));
 
         store(object, reference);
