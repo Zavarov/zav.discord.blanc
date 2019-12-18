@@ -34,7 +34,7 @@ public abstract class MPICommand <T extends Serializable> implements ShardVisito
      * Unless specified otherwise, the tag should be equivalent to {@link #getCode}.
      * @return the MPI tag of the command
      */
-    protected short getTag(){
+    protected int getTag(){
         return getCode();
     }
 
