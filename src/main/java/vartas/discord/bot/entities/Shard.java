@@ -110,7 +110,7 @@ public abstract class Shard extends MPIAdapter {
     /**
      * The cluster instance managing the global functionality.
      * For anyone but the master node, this instance should be null.
-     * The slave nodes have to access the cluster over MPI via {@link #send(int, MPICommand, Serializable)}.
+     * The slave nodes have to access the cluster over MPI via {@link ##send(MPICommand.MPISendCommand, Serializable)}.
      */
     @Nullable
     private final Cluster cluster;
@@ -162,7 +162,6 @@ public abstract class Shard extends MPIAdapter {
     //   Internal                                                                                                     //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Loads the configuration file from the disk that is associated with the specified {@code guild}.
      * If no such file exists, a fresh configuration is returned.
@@ -237,19 +236,21 @@ public abstract class Shard extends MPIAdapter {
     protected abstract EntityAdapter createEntityAdapter();
     protected abstract JDA createJda(Credentials credentials) throws LoginException, InterruptedException;
     protected abstract Cluster createCluster();
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                //
+    //   MPI                                                                                                          //
+    //                                                                                                                //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
-    public <T extends Serializable> void send(int shardId, MPICommand<T> command, T object){
-        mpi.submit(new MPISend<>(shardId, command, object));
+    public <T extends Serializable> void send(MPICommand<T>.MPISendCommand command, T object){
+        mpi.submit(new MPISend<>(command, object));
     }
 
     private class MPISend<T extends Serializable> implements Runnable{
-        private final int shardId;
-        private final MPICommand<T> command;
+        private final MPICommand<T>.MPISendCommand command;
         private final T object;
 
-        private MPISend(int shardId, MPICommand<T> command, T object){
-            this.shardId = shardId;
+        private MPISend(MPICommand<T>.MPISendCommand command, T object){
             this.command = command;
             this.object = object;
         }
@@ -257,11 +258,7 @@ public abstract class Shard extends MPIAdapter {
         @Override
         public void run(){
             try{
-                //Sending to oneself would cause a deadlock
-                if(shardId == myRank)
-                    command.accept(Shard.this, object);
-                else
-                    command.send(shardId, object);
+                command.send(object);
             }catch(MPIException e){
                 e.printStackTrace();
             }

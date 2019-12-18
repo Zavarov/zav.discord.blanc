@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.SubmissionMessage;
-import vartas.discord.bot.mpi.MPIAdapter;
 import vartas.discord.bot.mpi.MPICoreCommands;
 import vartas.discord.bot.mpi.serializable.MPISubmission;
 import vartas.discord.bot.mpi.serializable.MPISubredditFeedModification;
@@ -16,10 +15,11 @@ import vartas.discord.bot.mpi.serializable.MPISubredditFeedModification;
 import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 
-public class MPISendSubmission extends MPICommand<MPISubmission> {
+public class MPISendSubmission extends MPIPointToPointCommand<MPISubmission> {
     @Override
     public void visit(@Nonnull Shard shard) throws NullPointerException, NoSuchElementException {
         Preconditions.checkNotNull(shard);
+        Preconditions.checkNotNull(message);
         //Handle Discord exceptions
         try {
             TextChannel channel = message.getMessageChannel(shard.jda()).orElseThrow();
@@ -39,18 +39,26 @@ public class MPISendSubmission extends MPICommand<MPISubmission> {
 
     private void remove(@Nonnull Shard shard){
         Preconditions.checkNotNull(shard);
+        Preconditions.checkNotNull(message);
         String subreddit = message.getSubreddit();
-        int shardId = MPIAdapter.MPI_MASTER_NODE;
         long guildId = message.getGuildId();
         long channelId = message.getChannelId();
 
-        MPIRemoveRedditFeedFromTextChannel command = new MPIRemoveRedditFeedFromTextChannel();
+        MPIRemoveRedditFeedFromTextChannel.MPISendCommand command = MPIRemoveRedditFeedFromTextChannel.createSendCommand();
         MPISubredditFeedModification object = new MPISubredditFeedModification(subreddit, guildId, channelId);
-        shard.send(shardId, command, object);
+        shard.send(command, object);
     }
 
     @Override
     protected int getCode() {
-        return MPICoreCommands.MPI_ADD_RANK.getCode();
+        return MPICoreCommands.MPI_SEND_SUBMISSION.getCode();
+    }
+
+    public static MPIReceiveCommand createReceiveCommand(){
+        return new MPISendSubmission().new MPIReceiveCommand();
+    }
+
+    public static MPISendCommand createSendCommand(int targetNode){
+        return new MPISendSubmission().new MPIPointToPointSendCommand(targetNode);
     }
 }

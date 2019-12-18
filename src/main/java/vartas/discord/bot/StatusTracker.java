@@ -60,9 +60,8 @@ public class StatusTracker implements Runnable{
         Optional<String> messageOpt = status.get();
 
         messageOpt.ifPresent(message -> {
-            MPIUpdateStatusMessage command = new MPIUpdateStatusMessage();
             MPIStatusMessageModification object = new MPIStatusMessageModification(message);
-            shard.broadcast(command, object);
+            shard.send(MPIUpdateStatusMessage.createSendCommand(), object);
             log.info(String.format("Status message changed to '%s'",message));
         });
     }

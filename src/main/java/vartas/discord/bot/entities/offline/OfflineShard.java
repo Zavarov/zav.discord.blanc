@@ -31,6 +31,7 @@ import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.Main;
 import vartas.discord.bot.entities.*;
 import vartas.discord.bot.mpi.MPIAdapter;
+import vartas.discord.bot.mpi.MPIObserver;
 import vartas.discord.bot.mpi.command.MPICommand;
 
 import javax.annotation.Nonnull;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class OfflineShard extends Shard {
+    private MPIObserver observer = new MPIObserver(this);
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
     public List<? super Object> send = new ArrayList<>();
     public List<? super Object> removed = new ArrayList<>();
@@ -112,13 +114,13 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public <T extends Serializable> void send(int shardId, MPICommand<T> command, T object){
+    public <T extends Serializable> void send(MPICommand<T>.MPISendCommand command, T object){
         try {
-            //Sending to oneself would cause a deadlock
-            if(shardId == myRank)
-                command.accept(this, object);
-            else
-                command.send(shardId, object);
-        }catch(MPIException ignored){}
+            command.send(object);
+            observer.run();
+        }catch(MPIException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }

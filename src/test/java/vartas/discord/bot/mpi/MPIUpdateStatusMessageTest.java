@@ -15,19 +15,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MPIUpdateStatusMessageTest extends AbstractTest {
     MPIObserver observer;
-    MPIUpdateStatusMessage command;
+    MPIUpdateStatusMessage.MPISendCommand command;
     MPIStatusMessageModification object;
     @Before
     public void setUp(){
         status.add("element");
-        command = new MPIUpdateStatusMessage();
+        command = MPIUpdateStatusMessage.createSendCommand();
         object = new MPIStatusMessageModification(status.get().orElseThrow());
         observer = new MPIObserver(shard);
     }
 
     @Test
     public void sendTest(){
-        shard.send(MPIAdapter.MPI_MASTER_NODE, command, object);
+        shard.send(command, object);
         assertThat(shard.send).hasSize(1);
     }
 

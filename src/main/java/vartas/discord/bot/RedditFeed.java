@@ -163,10 +163,10 @@ public class RedditFeed implements Runnable{
 
         private void send(Submission submission, long guildId, long channelId){
             int shardId = shard.getShardId(guildId);
-            MPISendSubmission command = new MPISendSubmission();
+            MPISendSubmission.MPISendCommand command = MPISendSubmission.createSendCommand(shardId);
             MPISubmission object = new MPISubmission(submission, guildId, channelId);
 
-            shard.send(shardId, command, object);
+            shard.send(command, object);
         }
     }
 

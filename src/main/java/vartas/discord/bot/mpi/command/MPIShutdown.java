@@ -9,7 +9,7 @@ import vartas.discord.bot.mpi.serializable.MPIVoid;
 
 import javax.annotation.Nonnull;
 
-public class MPIShutdown extends MPICommand<MPIVoid> {
+public class MPIShutdown extends MPICollectiveCommand<MPIVoid> {
     @Override
     public void visit(@Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
@@ -25,5 +25,13 @@ public class MPIShutdown extends MPICommand<MPIVoid> {
     @Override
     protected int getCode() {
         return MPICoreCommands.MPI_SHUTDOWN.getCode();
+    }
+
+    public static MPIReceiveCommand createReceiveCommand(){
+        return new MPIShutdown().new MPIReceiveCommand();
+    }
+
+    public static MPISendCommand createSendCommand(){
+        return new MPIShutdown().new MPICollectiveSendCommand();
     }
 }

@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.IntStream;
 
 public abstract class MPIAdapter {
     /**
@@ -37,9 +36,5 @@ public abstract class MPIAdapter {
         return (int)((guildId >> 22) % numProcs);
     }
 
-    public <T extends Serializable> void broadcast(MPICommand<T> command, T object){
-        IntStream.range(0, numProcs).forEach(shard -> send(shard, command, object));
-    }
-
-    public abstract <T extends Serializable> void send(int shardId, MPICommand<T> command, T object);
+    public abstract <T extends Serializable> void send(MPICommand<T>.MPISendCommand command, T object);
 }

@@ -43,7 +43,7 @@ public class Rank {
      * The internal multimap that maps the unique id of an {@link User} to all of its {@link Ranks Ranks}.
      */
     @Nonnull
-    protected SetMultimap<Long, Ranks> ranks = Multimaps.synchronizedSetMultimap(LinkedHashMultimap.create());
+    private SetMultimap<Long, Ranks> ranks = Multimaps.synchronizedSetMultimap(LinkedHashMultimap.create());
 
     /**
      * One might think that this method always returns true if the {@code user} has the {@link Ranks#ROOT Root} rank.
@@ -117,6 +117,17 @@ public class Rank {
     @Nonnull
     public Multimap<Long, Ranks> get(){
         return Multimaps.unmodifiableSetMultimap(LinkedHashMultimap.create(ranks));
+    }
+
+    /**
+     * Replaces the content of the rank with the one provided in the specified multimap.
+     * @param newMultimap the new content of the multimap
+     * @throws NullPointerException if {@code newMultimap} is null
+     */
+    public void replace(@Nonnull Multimap<Long, Ranks> newMultimap) throws NullPointerException{
+        Preconditions.checkNotNull(newMultimap);
+        ranks.clear();
+        ranks.putAll(newMultimap);
     }
 
     /**
