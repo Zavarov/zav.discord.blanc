@@ -17,7 +17,7 @@ public class MPIAddRedditFeedToTextChannel extends MPIPointToPointCommand<MPISub
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPI_ADD_REDDIT_FEED_TO_TEXT_CHANNEL.getCode();
     }
 

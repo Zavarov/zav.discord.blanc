@@ -23,7 +23,7 @@ public class MPIShutdown extends MPICollectiveCommand<MPIVoid> {
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPI_SHUTDOWN.getCode();
     }
 

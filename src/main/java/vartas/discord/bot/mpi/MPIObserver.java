@@ -18,7 +18,7 @@ public class MPIObserver implements Runnable{
      * This map associates each code with a command.
      * Every time a message is received, its status code is retrieved and the matching command is executed.
      */
-    private static final Map<Integer, Function<Integer, MPICommand<?>.MPIReceiveCommand>> commands = new HashMap<>();
+    private static final Map<Short, Function<Short, MPICommand<?>.MPIReceiveCommand>> commands = new HashMap<>();
 
     static{
         //P2P Commands
@@ -33,6 +33,10 @@ public class MPIObserver implements Runnable{
 
     public static void registerCommand(MPIStatusCode statusCode, Supplier<MPICommand<?>.MPIReceiveCommand> commandSupplier){
         commands.put(statusCode.getCode(), (i) -> commandSupplier.get());
+    }
+
+    public static void registerCommand(MPIStatusCode statusCode, Function<Short, MPICommand<?>.MPIReceiveCommand> commandFunction){
+        commands.put(statusCode.getCode(), commandFunction);
     }
 
     protected final Shard shard;
@@ -51,7 +55,7 @@ public class MPIObserver implements Runnable{
                 int tag = status.getTag();
                 int code = tag & 0xFFFF;
                 int id = (tag >> 16) & 0xFFFF;
-                commands.get(code).apply(id).accept(shard);
+                commands.get((short)code).apply((short)id).accept(shard);
             }
         }catch(MPIException e){
             //TODO Notify the root

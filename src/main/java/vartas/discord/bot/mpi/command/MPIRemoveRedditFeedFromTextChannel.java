@@ -16,7 +16,7 @@ public class MPIRemoveRedditFeedFromTextChannel extends MPIPointToPointCommand<M
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPI_REMOVE_REDDIT_FEED_FROM_TEXT_CHANNEL.getCode();
     }
 

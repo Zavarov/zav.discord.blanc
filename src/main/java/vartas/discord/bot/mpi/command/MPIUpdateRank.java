@@ -3,7 +3,6 @@ package vartas.discord.bot.mpi.command;
 import com.google.common.base.Preconditions;
 import vartas.discord.bot.entities.Rank;
 import vartas.discord.bot.entities.Shard;
-import vartas.discord.bot.mpi.MPIAdapter;
 import vartas.discord.bot.mpi.MPICoreCommands;
 import vartas.discord.bot.mpi.serializable.MPIRank;
 
@@ -22,15 +21,13 @@ public class MPIUpdateRank extends MPICollectiveCommand<MPIRank> {
 
     @Override
     public void endVisit(@Nonnull Shard shard){
-        if(myRank == MPIAdapter.MPI_MASTER_NODE) {
-            Preconditions.checkNotNull(shard);
-            Preconditions.checkNotNull(rank);
-            shard.store(rank);
-        }
+        Preconditions.checkNotNull(shard);
+        Preconditions.checkNotNull(rank);
+        shard.store(rank);
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPU_UPDATE_RANK.getCode();
     }
 

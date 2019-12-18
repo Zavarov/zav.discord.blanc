@@ -50,7 +50,7 @@ public class MPISendSubmission extends MPIPointToPointCommand<MPISubmission> {
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPI_SEND_SUBMISSION.getCode();
     }
 

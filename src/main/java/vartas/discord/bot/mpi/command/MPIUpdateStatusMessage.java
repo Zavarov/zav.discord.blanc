@@ -17,7 +17,7 @@ public class MPIUpdateStatusMessage extends MPICollectiveCommand<MPIStatusMessag
     }
 
     @Override
-    protected int getCode() {
+    protected short getCode() {
         return MPICoreCommands.MPI_UPDATE_STATUS_MESSAGE.getCode();
     }
 

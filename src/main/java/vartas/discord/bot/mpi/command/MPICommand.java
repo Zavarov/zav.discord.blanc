@@ -24,22 +24,17 @@ public abstract class MPICommand <T extends Serializable> implements ShardVisito
     @Nullable
     protected T message;
     /**
-     * The rank of the node executing the command.
-     * This variable is only set when retrieving a message, since then the rank is unknown.
-     */
-    protected int myRank;
-    /**
      * Each command is reduced to a byte-stream when sending them over MPI. In order to distinguish between those,
      * we need an unique identifier for each command.
      * @return the command id
      */
-    protected abstract int getCode();
+    protected abstract short getCode();
 
     /**
      * Unless specified otherwise, the tag should be equivalent to {@link #getCode}.
      * @return the MPI tag of the command
      */
-    protected int getTag(){
+    protected short getTag(){
         return getCode();
     }
 
@@ -64,7 +59,7 @@ public abstract class MPICommand <T extends Serializable> implements ShardVisito
     /**
      * This sub-class handles all messages the command receives.
      */
-    public class MPIReceiveCommand{
+    public class MPIReceiveCommand {
         /**
          * Receives the incoming message and modifies the state of the shard accordingly.
          * This can be done via a simple {@link Intercomm#recv(Object, int, Datatype, int, int)} in case of a point-to-point
@@ -76,7 +71,7 @@ public abstract class MPICommand <T extends Serializable> implements ShardVisito
          */
         public void accept(@Nonnull Shard shard) throws MPIException, NullPointerException{
             Preconditions.checkNotNull(shard);
-            message = receive(getCode());
+            message = receive(getTag());
             handle(shard);
         }
 
@@ -85,10 +80,10 @@ public abstract class MPICommand <T extends Serializable> implements ShardVisito
          * node the command was from.
          */
         @Nonnull
-        public T receive(int code) throws MPIException {
-            Status status = MPI.COMM_WORLD.probe(MPI.ANY_SOURCE, code);
+        public T receive(int tag) throws MPIException {
+            Status status = MPI.COMM_WORLD.probe(MPI.ANY_SOURCE, tag);
 
-            log.debug(String.format("Message received from %d in node %d", status.getSource(), myRank));
+            log.debug(String.format("Message received from %d in node %d", status.getSource(), MPI.COMM_WORLD.getRank()));
 
             int length = status.getElements(MPI.BYTE);
             byte[] bytes = new byte[length];
