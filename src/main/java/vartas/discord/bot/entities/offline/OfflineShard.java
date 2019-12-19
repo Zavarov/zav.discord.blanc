@@ -50,7 +50,7 @@ public class OfflineShard extends Shard {
     public Cluster cluster = new OfflineCluster();
 
     public OfflineShard() throws LoginException, InterruptedException {
-        super();
+        super(0);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public JDAImpl createJda(Credentials credentials) {
+    public JDAImpl createJda(int shardId, Credentials credentials) {
         return new JDAImpl(authorization){
             @Nonnull
             @Override

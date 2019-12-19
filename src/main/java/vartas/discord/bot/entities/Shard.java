@@ -114,15 +114,16 @@ public abstract class Shard {
 
     /**
      * Initializes a fresh shard.
+     * @param shardId the shard id.
      * @throws NullPointerException if {@code args} is null
      * @throws LoginException if the provided token is invalid
      * @throws InterruptedException if the program was interrupted while logging in
      */
-    public Shard() throws NullPointerException, LoginException, InterruptedException {
+    public Shard(int shardId) throws NullPointerException, LoginException, InterruptedException {
         this.adapter = createEntityAdapter();
         this.credentials = adapter.credentials();
         this.rank = adapter.rank();
-        this.jda = createJda(credentials);
+        this.jda = createJda(shardId, credentials);
         this.cluster = createCluster();
         this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
         this.messages = new InteractiveMessageListener(credentials);
@@ -219,7 +220,7 @@ public abstract class Shard {
 
     protected abstract CommandBuilder createCommandBuilder();
     protected abstract EntityAdapter createEntityAdapter();
-    protected abstract JDA createJda(Credentials credentials) throws LoginException, InterruptedException;
+    protected abstract JDA createJda(int shardId, Credentials credentials) throws LoginException, InterruptedException;
     protected abstract Cluster createCluster();
 
     public JDA jda(){
