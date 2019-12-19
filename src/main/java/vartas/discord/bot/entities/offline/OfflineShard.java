@@ -17,7 +17,6 @@
 
 package vartas.discord.bot.entities.offline;
 
-import mpi.MPIException;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -28,28 +27,30 @@ import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
-import vartas.discord.bot.Main;
 import vartas.discord.bot.entities.*;
-import vartas.discord.bot.mpi.MPIAdapter;
-import vartas.discord.bot.mpi.MPIObserver;
-import vartas.discord.bot.mpi.command.MPICommand;
 
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
-import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class OfflineShard extends Shard {
-    private MPIObserver observer = new MPIObserver(this);
+    public static final Path credentials = Paths.get("src/test/resources/credentials.json");
+    public static final Path status = Paths.get("src/test/resources/status.json");
+    public static final Path rank = Paths.get("src/test/resources/rank.json");
+    public static final Path guilds = Paths.get("src/test/resources/guilds");
+
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
     public List<? super Object> send = new ArrayList<>();
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
+    public Cluster cluster = new OfflineCluster();
 
-    public OfflineShard() throws MPIException, LoginException, InterruptedException {
-        super(new String[]{});
+    public OfflineShard() throws LoginException, InterruptedException {
+        super();
     }
 
     @Override
@@ -74,7 +75,7 @@ public class OfflineShard extends Shard {
 
     @Override
     public EntityAdapter createEntityAdapter() {
-        return new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
+        return new JSONEntityAdapter(credentials, status, rank, guilds);
     }
 
     @Override
@@ -94,11 +95,8 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public Cluster createCluster() {
-        if(myRank == MPIAdapter.MPI_MASTER_NODE)
-            return new OfflineCluster(this);
-        else
-            return null;
+    protected Cluster createCluster() {
+        return cluster;
     }
 
     @Override
@@ -114,13 +112,7 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public <T extends Serializable> void send(MPICommand<T>.MPISendCommand command, T object){
-        try {
-            command.send(object);
-            observer.run();
-        }catch(MPIException e){
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+    public Runnable shutdown(){
+        return () -> {};
     }
 }

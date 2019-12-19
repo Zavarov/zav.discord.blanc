@@ -30,9 +30,6 @@ This project requires at least **Java 11**.
  * **Evo Inflector**
    * Version: **1.2.2**
    * [Github](https://github.com/atteo/evo-inflector)
- * **Open MPI**
-   * Version: **4.0.2**
-   * [Homepage](https://www.open-mpi.org/)
  * **JDA**
    * Version: **4.0.0_70**
    * [Github](https://github.com/DV8FromTheWorld/JDA)
@@ -47,9 +44,6 @@ This project requires at least **Java 11**.
  * **Apache Maven Source Plugin**
    * Version: **3.1.0**
    * [Github](https://github.com/apache/maven-source-plugin)
- * **Apache Maven Surefire Plugin**
-   * Version: **3.0.0-M4**
-   * [Github](https://github.com/apache/maven-surefire)
    ## Test Dependencies:
  * **AssertJ**
    * Version: **3.12.2**

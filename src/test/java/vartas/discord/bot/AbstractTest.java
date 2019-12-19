@@ -17,7 +17,6 @@
 
 package vartas.discord.bot;
 
-import mpi.MPIException;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
@@ -33,10 +32,16 @@ import vartas.discord.bot.entities.offline.OfflineShard;
 import vartas.discord.bot.visitor.ShardVisitor;
 
 import javax.security.auth.login.LoginException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractTest {
+    public static final Path CREDENTIALS = Paths.get("src/test/resources/credentials.json");
+    public static final Path STATUS = Paths.get("src/test/resources/status.json");
+    public static final Path RANK = Paths.get("src/test/resources/rank.json");
+    public static final Path GUILDS = Paths.get("src/test/resources/guilds");
     protected static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
     protected static OfflineShard shard;
     protected static OfflineCluster cluster;
@@ -53,16 +58,17 @@ public abstract class AbstractTest {
     static {
         try {
             shard = new OfflineShard();
-            cluster = new OfflineCluster(shard);
+            cluster = new OfflineCluster();
+            cluster.registerShard(shard);
             cluster.shutdown();
-        } catch(MPIException | LoginException | InterruptedException e){
+        }catch(LoginException | InterruptedException e){
             throw new RuntimeException(e);
         }
     }
 
     @Before
     public void initJda() {
-        entityAdapter = new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
+        entityAdapter = new JSONEntityAdapter(CREDENTIALS, STATUS, RANK, GUILDS);
         rank = entityAdapter.rank();
         status = entityAdapter.status();
         credentials = entityAdapter.credentials();

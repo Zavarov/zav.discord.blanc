@@ -19,36 +19,35 @@ package vartas.discord.bot;
 
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.Shard;
+import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Status;
-import vartas.discord.bot.mpi.command.MPIUpdateStatusMessage;
-import vartas.discord.bot.mpi.serializable.MPIStatusMessageModification;
+import vartas.discord.bot.internal.UpdateStatusMessage;
 
 import java.util.Optional;
 
 /**
  * This runner is responsible for updating the activity of the bot, which is used as a status message.
  */
-public class StatusTracker implements Runnable{
+public class StatusTracker implements Runnable {
     /**
      * The log of this class.
      */
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
-     * The shard of the master node.
+     * The cluster of all shards
      */
-    protected final Shard shard;
+    protected final Cluster cluster;
     /**
      * All status messages.
      */
     protected final Status status;
     /**
      * Initializes the status.
-     * @param shard the shard of the master node
+     * @param cluster the cluster of all shards
      * @param status all valid status messages
      */
-    public StatusTracker(Shard shard, Status status){
-        this.shard = shard;
+    public StatusTracker(Cluster cluster, Status status){
+        this.cluster = cluster;
         this.status = status;
         log.info("Status Tracker started");
     }
@@ -58,11 +57,6 @@ public class StatusTracker implements Runnable{
     @Override
     public void run() {
         Optional<String> messageOpt = status.get();
-
-        messageOpt.ifPresent(message -> {
-            MPIStatusMessageModification object = new MPIStatusMessageModification(message);
-            shard.send(MPIUpdateStatusMessage.createSendCommand(), object);
-            log.info(String.format("Status message changed to '%s'",message));
-        });
+        messageOpt.map(UpdateStatusMessage::new).ifPresent(update -> update.handle(cluster));
     }
 }

@@ -11,7 +11,7 @@ public class StatusTrackerTest extends AbstractTest{
 
     @Before
     public void setUp(){
-        tracker = new StatusTracker(shard, status);
+        tracker = new StatusTracker(cluster, status);
         status.add("element");
     }
 
@@ -24,7 +24,7 @@ public class StatusTrackerTest extends AbstractTest{
 
     @Test
     public void runWithoutStatusTest(){
-        tracker = new StatusTracker(shard, new Status());
+        tracker = new StatusTracker(cluster, new Status());
 
         tracker.run();
         assertThat(shard.send).isEmpty();

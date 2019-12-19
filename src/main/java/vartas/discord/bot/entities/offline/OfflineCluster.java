@@ -3,26 +3,30 @@ package vartas.discord.bot.entities.offline;
 import org.jetbrains.annotations.NotNull;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
-import vartas.discord.bot.Main;
 import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Credentials;
-import vartas.discord.bot.entities.Shard;
 import vartas.reddit.Client;
 
 import javax.annotation.Nonnull;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class OfflineCluster extends Cluster {
+    public static final Path credentials = Paths.get("src/test/resources/credentials.json");
+    public static final Path status = Paths.get("src/test/resources/status.json");
+    public static final Path rank = Paths.get("src/test/resources/rank.json");
+    public static final Path guilds = Paths.get("src/test/resources/guilds");
 
 
-    public OfflineCluster(Shard shard) {
-        super(shard);
+    public OfflineCluster() {
+        super();
     }
 
     @Nonnull
     @Override
     protected EntityAdapter createEntityAdapter() {
-        return new JSONEntityAdapter(Main.credentials, Main.status, Main.rank, Main.guilds);
+        return new JSONEntityAdapter(credentials, status, rank, guilds);
     }
 
     @Nonnull

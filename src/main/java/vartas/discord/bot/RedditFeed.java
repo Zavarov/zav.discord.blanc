@@ -27,9 +27,7 @@ import net.dv8tion.jda.internal.utils.JDALogger;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import vartas.discord.bot.entities.Cluster;
-import vartas.discord.bot.entities.Shard;
-import vartas.discord.bot.mpi.command.MPISendSubmission;
-import vartas.discord.bot.mpi.serializable.MPISubmission;
+import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.discord.bot.visitor.RedditFeedVisitor;
 import vartas.reddit.RedditSnowflake;
 import vartas.reddit.Submission;
@@ -53,12 +51,8 @@ public class RedditFeed implements Runnable{
      * The runtime of the program.
      */
     protected final Cluster cluster;
-    protected final Shard shard;
-    /**
-     * @param shard the runtime of the program.
-     */
-    public RedditFeed(Cluster cluster, Shard shard) throws NoSuchElementException {
-        this.shard = shard;
+
+    public RedditFeed(Cluster cluster) throws NoSuchElementException {
         this.cluster = cluster;
         log.debug("Reddit feeds created.");
     }
@@ -84,7 +78,7 @@ public class RedditFeed implements Runnable{
         subreddits.values().forEach(SubredditFeed::update);
     }
 
-    public class SubredditFeed {
+    public class SubredditFeed implements ClusterVisitor {
         /**
          * The log for this class.
          */
@@ -162,11 +156,8 @@ public class RedditFeed implements Runnable{
         }
 
         private void send(Submission submission, long guildId, long channelId){
-            int shardId = shard.getShardId(guildId);
-            MPISendSubmission.MPISendCommand command = MPISendSubmission.createSendCommand(shardId);
-            MPISubmission object = new MPISubmission(submission, guildId, channelId);
-
-            shard.send(command, object);
+            int shardId = cluster.getShardId(guildId);
+            new vartas.discord.bot.internal.SendSubmission(shardId, guildId, channelId, submission).handle(cluster);
         }
     }
 

@@ -20,8 +20,6 @@ package vartas.discord.bot.entities;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import mpi.MPI;
-import mpi.MPIException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -34,16 +32,10 @@ import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.listener.*;
 import vartas.discord.bot.message.InteractiveMessage;
-import vartas.discord.bot.mpi.MPIAdapter;
-import vartas.discord.bot.mpi.MPIObserver;
-import vartas.discord.bot.mpi.command.MPICommand;
 import vartas.discord.bot.visitor.ShardVisitor;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
-import java.io.Serializable;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +46,7 @@ import java.util.function.Consumer;
  * Each shard represents an isolated program, meaning that one shard is not aware of all other shards.<br>
  * Meaning that if information has to be shared across multiple shards, it has to be done via an external scope.
  */
-public abstract class Shard extends MPIAdapter {
+public abstract class Shard {
     /**
      * The logger for the communicator.
      */
@@ -109,10 +101,9 @@ public abstract class Shard extends MPIAdapter {
     private final Rank rank;
     /**
      * The cluster instance managing the global functionality.
-     * For anyone but the master node, this instance should be null.
-     * The slave nodes have to access the cluster over MPI via {@link ##send(MPICommand.MPISendCommand, Serializable)}.
+     * All nodes share the same cluster.
      */
-    @Nullable
+    @Nonnull
     private final Cluster cluster;
 
     /**
@@ -122,16 +113,12 @@ public abstract class Shard extends MPIAdapter {
     private final Credentials credentials;
 
     /**
-     * Initializes the MPI node, then the JDA on a single shard.<br>
-     * The shard id is equivalent to the rank of the MPI node.
-     * @param args the arguments passed to the executable
-     * @throws MPIException if the MPI node couldn't be initialized
+     * Initializes a fresh shard.
      * @throws NullPointerException if {@code args} is null
      * @throws LoginException if the provided token is invalid
      * @throws InterruptedException if the program was interrupted while logging in
      */
-    public Shard(@Nonnull String[] args) throws MPIException, NullPointerException, LoginException, InterruptedException {
-        super(args);
+    public Shard() throws NullPointerException, LoginException, InterruptedException {
         this.adapter = createEntityAdapter();
         this.credentials = adapter.credentials();
         this.rank = adapter.rank();
@@ -155,7 +142,6 @@ public abstract class Shard extends MPIAdapter {
         jda.addEventListener(new MiscListener(this));
 
         executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
-        mpi.scheduleAtFixedRate(new MPIObserver(this), 0, 1, TimeUnit.SECONDS);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -185,8 +171,9 @@ public abstract class Shard extends MPIAdapter {
 
         return configuration;
     }
-    public Optional<Cluster> getCluster(){
-        return Optional.ofNullable(cluster);
+    @Nonnull
+    public Cluster getCluster(){
+        return cluster;
     }
     public void store(Configuration configuration){
         adapter.store(configuration);
@@ -202,8 +189,7 @@ public abstract class Shard extends MPIAdapter {
     /**
      * @return the task that will await the termination of all threads of this shard.
      */
-    public Runnable shutdown() throws MPIException {
-        MPI.Finalize();
+    public Runnable shutdown() {
         jda.shutdown();
         executor.shutdown();
         log.info("Shutting down shard "+jda.getShardInfo().getShardString()+".");
@@ -225,7 +211,6 @@ public abstract class Shard extends MPIAdapter {
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void accept(ShardVisitor visitor){
-        getCluster().ifPresent(visitor::handle);
         guilds.asMap().values().forEach(visitor::handle);
         visitor.handle(rank);
         visitor.handle(credentials);
@@ -236,34 +221,6 @@ public abstract class Shard extends MPIAdapter {
     protected abstract EntityAdapter createEntityAdapter();
     protected abstract JDA createJda(Credentials credentials) throws LoginException, InterruptedException;
     protected abstract Cluster createCluster();
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                                                                                                //
-    //   MPI                                                                                                          //
-    //                                                                                                                //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public <T extends Serializable> void send(MPICommand<T>.MPISendCommand command, T object){
-        mpi.submit(new MPISend<>(command, object));
-    }
-
-    private class MPISend<T extends Serializable> implements Runnable{
-        private final MPICommand<T>.MPISendCommand command;
-        private final T object;
-
-        private MPISend(MPICommand<T>.MPISendCommand command, T object){
-            this.command = command;
-            this.object = object;
-        }
-
-        @Override
-        public void run(){
-            try{
-                command.send(object);
-            }catch(MPIException e){
-                e.printStackTrace();
-            }
-        }
-    }
 
     public JDA jda(){
         return jda;

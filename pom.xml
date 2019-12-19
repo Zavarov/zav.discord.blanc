@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>vartas.discord</groupId>
     <artifactId>bot</artifactId>
-    <version>4.0</version>
+    <version>3.4.1</version>
 
     <packaging>jar</packaging>
 
@@ -31,7 +31,6 @@
         <evo.inflector.version>1.2.2</evo.inflector.version>
         <chart.version>1.1.9</chart.version>
         <reddit.version>2.4</reddit.version>
-        <mpi.version>4.0.2</mpi.version>
 
         <assertj.version>3.12.2</assertj.version>
         <junit.version>4.12</junit.version>
@@ -40,7 +39,6 @@
 
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.1.0</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
 
 
         <!-- .. Misc .......................................................... -->
@@ -103,13 +101,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>OpenMPI</groupId>
-            <artifactId>MPI</artifactId>
-            <version>${mpi.version}</version>
-            <scope>system</scope>
-            <systemPath>${mpi.path}</systemPath>
-        </dependency>
     </dependencies>
 
 
@@ -144,15 +135,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
-                <configuration>
-                    <argLine>-Djava.library.path="/usr/local/lib/"</argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>

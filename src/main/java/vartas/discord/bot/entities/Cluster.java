@@ -6,6 +6,7 @@ import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.RedditFeed;
 import vartas.discord.bot.StatusTracker;
+import vartas.discord.bot.internal.Shutdown;
 import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.reddit.Client;
 import vartas.reddit.Comment;
@@ -16,6 +17,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -66,29 +68,24 @@ public abstract class Cluster {
     @Nonnull
     private final EntityAdapter adapter;
     /**
-     * The master shard.
+     * All shards of this cluster.
      */
-    private final Shard shard;
+    private final Collection<Shard> shards = new HashSet<>();
+
+    private final Credentials credentials;
 
     /**
      * Initializes an empty cluster over the specified shard.
      * Note that it will not connect to the Reddit API. This has to be done in {@link #createRedditClient(Credentials)}
      * and {@link #createPushshiftClient(Credentials)},  respectively.
-     * @param shard the master shard.
-     * @throws NullPointerException if {@code shard} is null
      */
-    protected Cluster(@Nonnull Shard shard) throws NullPointerException{
-        Preconditions.checkNotNull(shard);
+    protected Cluster() {
         this.adapter = createEntityAdapter();
-        this.shard = shard;
-
-        Credentials credentials = adapter.credentials();
-
+        this.credentials = adapter.credentials();
         this.reddit = createRedditClient(credentials);
         this.pushshift = createPushshiftClient(credentials);
-
-        this.feed = new RedditFeed(this, shard);
-        this.status = new StatusTracker(shard, adapter.status());
+        this.feed = new RedditFeed(this);
+        this.status = new StatusTracker(this, adapter.status());
 
         global.scheduleAtFixedRate(status, 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
         global.scheduleAtFixedRate(feed, 0, 1, TimeUnit.MINUTES);
@@ -115,14 +112,20 @@ public abstract class Cluster {
     @Nonnull
     protected abstract Client createPushshiftClient(@Nonnull Credentials credentials) throws NullPointerException;
 
+    public int getShardId(long guildId){
+        return (int)((guildId >> 22) % credentials.getDiscordShards());
+    }
+
     public void shutdown(){
         global.shutdown();
         reddit.logout();
         pushshift.logout();
+        new Shutdown().handle(this);
     }
 
     public void accept(ClusterVisitor visitor){
-        feed.accept(visitor);
+        visitor.handle(feed);
+        shards.forEach(shard -> visitor.handle(shard.jda().getShardInfo().getShardId(), shard));
     }
     public Optional<Subreddit> subreddit(String subreddit) {
         try {
@@ -153,4 +156,8 @@ public abstract class Cluster {
         }
     }
 
+    public void registerShard(@Nonnull Shard shard) throws NullPointerException{
+        Preconditions.checkNotNull(shard);
+        shards.add(shard);
+    }
 }
