@@ -17,22 +17,13 @@
 
 package vartas.discord.bot;
 
-import net.dv8tion.jda.internal.utils.JDALogger;
-import org.slf4j.Logger;
 import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Status;
-import vartas.discord.bot.internal.UpdateStatusMessage;
-
-import java.util.Optional;
 
 /**
  * This runner is responsible for updating the activity of the bot, which is used as a status message.
  */
-public class StatusTracker implements Runnable {
-    /**
-     * The log of this class.
-     */
-    protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
+public class StatusTracker {
     /**
      * The cluster of all shards
      */
@@ -49,14 +40,5 @@ public class StatusTracker implements Runnable {
     public StatusTracker(Cluster cluster, Status status){
         this.cluster = cluster;
         this.status = status;
-        log.info("Status Tracker started");
-    }
-    /**
-     * Picks a new status message at random and updates
-     */
-    @Override
-    public void run() {
-        Optional<String> messageOpt = status.get();
-        messageOpt.map(UpdateStatusMessage::new).ifPresent(update -> update.handle(cluster));
     }
 }

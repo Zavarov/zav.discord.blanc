@@ -22,7 +22,7 @@ import vartas.discord.bot.AbstractTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StatusTest extends AbstractTest {
+public class StatusVisitorTest extends AbstractTest {
     @Test
     public void getTest(){
         status.add("element");

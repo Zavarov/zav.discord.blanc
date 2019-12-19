@@ -5,8 +5,8 @@ import org.apache.http.client.HttpResponseException;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.RedditFeed;
-import vartas.discord.bot.StatusTracker;
 import vartas.discord.bot.internal.Shutdown;
+import vartas.discord.bot.internal.UpdateStatusMessage;
 import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.reddit.Client;
 import vartas.reddit.Comment;
@@ -58,10 +58,10 @@ public abstract class Cluster {
     @Nonnull
     private final RedditFeed feed;
     /**
-     * The thread updating the status messages.
+     * All possible status messages.
      */
     @Nonnull
-    private final StatusTracker status;
+    private final Status status;
     /**
      * The adapter for reading and writing to the configuration files.
      */
@@ -85,9 +85,9 @@ public abstract class Cluster {
         this.reddit = createRedditClient(credentials);
         this.pushshift = createPushshiftClient(credentials);
         this.feed = new RedditFeed(this);
-        this.status = new StatusTracker(this, adapter.status());
+        this.status = adapter.status();
 
-        global.scheduleAtFixedRate(status, 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
+        global.scheduleAtFixedRate(() -> new UpdateStatusMessage().handle(this), 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
         global.scheduleAtFixedRate(feed, 0, 1, TimeUnit.MINUTES);
     }
 
@@ -124,6 +124,7 @@ public abstract class Cluster {
     }
 
     public void accept(ClusterVisitor visitor){
+        visitor.handle(status);
         visitor.handle(feed);
         shards.forEach(visitor::handle);
     }
