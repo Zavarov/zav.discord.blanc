@@ -125,7 +125,7 @@ public abstract class Cluster {
 
     public void accept(ClusterVisitor visitor){
         visitor.handle(feed);
-        shards.forEach(shard -> visitor.handle(shard.jda().getShardInfo().getShardId(), shard));
+        shards.forEach(visitor::handle);
     }
     public Optional<Subreddit> subreddit(String subreddit) {
         try {

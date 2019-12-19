@@ -34,8 +34,9 @@ public interface ShardVisitor extends ConfigurationVisitor, RankVisitor, Credent
 
     }
 
-    default void handle(int shardId, @Nonnull Shard shard) throws NullPointerException{
+    default void handle(@Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
+        int shardId = shard.jda().getShardInfo().getShardId();
         visit(shardId, shard);
         traverse(shardId, shard);
         endVisit(shardId, shard);
