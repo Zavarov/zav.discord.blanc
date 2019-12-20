@@ -165,8 +165,6 @@ public abstract class Shard {
         new UnloadConfiguration(configuration).handle(getCluster());
     }
     private Configuration create(Guild guild){
-        System.out.println(getCluster());
-        System.out.println(cluster);
         Configuration configuration = adapter.configuration(guild, this);
         new LoadConfiguration(configuration).handle(getCluster());
         return configuration;
