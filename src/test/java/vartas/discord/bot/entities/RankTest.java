@@ -31,7 +31,7 @@ public class RankTest extends AbstractTest {
     UserImpl user;
     @Before
     public void setUp(){
-        jda = shard.createJda(credentials);
+        jda = shard.createJda(0, credentials);
         user = new UserImpl(userId, jda);
     }
 

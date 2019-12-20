@@ -38,7 +38,7 @@ public class ConfigurationTest extends AbstractTest {
 
     @Before
     public void setUp(){
-        jda = shard.createJda(credentials);
+        jda = shard.createJda(0, credentials);
         guild = new GuildImpl(jda, guildId){
             @Override
             public RoleImpl getRoleById(long id){

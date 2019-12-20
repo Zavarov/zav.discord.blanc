@@ -58,7 +58,7 @@ public abstract class AbstractTest {
     static {
         try {
             shard = new OfflineShard();
-            cluster = new OfflineCluster();
+            cluster = OfflineShard.cluster;
             cluster.registerShard(shard);
             cluster.shutdown();
         }catch(LoginException | InterruptedException e){

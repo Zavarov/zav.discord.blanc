@@ -30,6 +30,8 @@ import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
 import vartas.discord.bot.CommandBuilder;
 import vartas.discord.bot.EntityAdapter;
+import vartas.discord.bot.internal.LoadConfiguration;
+import vartas.discord.bot.internal.UnloadConfiguration;
 import vartas.discord.bot.listener.*;
 import vartas.discord.bot.message.InteractiveMessage;
 import vartas.discord.bot.visitor.ShardVisitor;
@@ -159,17 +161,14 @@ public abstract class Shard {
         return guilds.getUnchecked(guild);
     }
     public void remove(Guild guild){
-        Configuration config = guild(guild);
-        //Delete file
-        adapter.delete(config);
-        //Remove pattern
-        blacklist.remove(guild.getIdLong());
+        Configuration configuration = guild(guild);
+        new UnloadConfiguration(configuration).handle(getCluster());
     }
     private Configuration create(Guild guild){
+        System.out.println(getCluster());
+        System.out.println(cluster);
         Configuration configuration = adapter.configuration(guild, this);
-
-        blacklist.set(configuration);
-
+        new LoadConfiguration(configuration).handle(getCluster());
         return configuration;
     }
     @Nonnull
@@ -212,10 +211,11 @@ public abstract class Shard {
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void accept(ShardVisitor visitor){
-        guilds.asMap().values().forEach(visitor::handle);
         visitor.handle(rank);
         visitor.handle(credentials);
         visitor.handle(activity);
+        visitor.handle(blacklist);
+        guilds.asMap().values().forEach(visitor::handle);
     }
 
     protected abstract CommandBuilder createCommandBuilder();

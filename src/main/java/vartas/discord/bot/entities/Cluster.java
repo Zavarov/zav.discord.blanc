@@ -126,6 +126,7 @@ public abstract class Cluster {
     public void accept(ClusterVisitor visitor){
         visitor.handle(status);
         visitor.handle(feed);
+        visitor.handle(adapter);
         shards.forEach(visitor::handle);
     }
     public Optional<Subreddit> subreddit(String subreddit) {

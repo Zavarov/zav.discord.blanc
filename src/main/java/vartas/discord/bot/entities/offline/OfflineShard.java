@@ -42,12 +42,12 @@ public class OfflineShard extends Shard {
     public static final Path status = Paths.get("src/test/resources/status.json");
     public static final Path rank = Paths.get("src/test/resources/rank.json");
     public static final Path guilds = Paths.get("src/test/resources/guilds");
+    public static final OfflineCluster cluster = new OfflineCluster();
 
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
     public List<? super Object> send = new ArrayList<>();
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
-    public Cluster cluster = new OfflineCluster();
 
     public OfflineShard() throws LoginException, InterruptedException {
         super(0);

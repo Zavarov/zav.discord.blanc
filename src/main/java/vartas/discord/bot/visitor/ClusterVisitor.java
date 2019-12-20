@@ -5,7 +5,7 @@ import vartas.discord.bot.entities.Cluster;
 
 import javax.annotation.Nonnull;
 
-public interface ClusterVisitor extends RedditFeedVisitor, StatusVisitor, ShardVisitor {
+public interface ClusterVisitor extends RedditFeedVisitor, StatusVisitor, EntityAdapterVisitor, ShardVisitor {
     default void visit(@Nonnull Cluster cluster){}
 
     default void traverse(@Nonnull Cluster cluster) {
