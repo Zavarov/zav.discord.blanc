@@ -73,4 +73,23 @@ public class Status {
         int index = random.nextInt(entries.size());
         return Optional.of(entries.get(index));
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor{
+        default void visit(@Nonnull Status status){}
+
+        default void traverse(@Nonnull Status status) {}
+
+        default void endVisit(@Nonnull Status status){}
+
+        default void handle(@Nonnull Status status) throws NullPointerException{
+            Preconditions.checkNotNull(status);
+            visit(status);
+            traverse(status);
+            endVisit(status);
+        }
+    }
 }

@@ -10,14 +10,13 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.message.SubmissionMessage;
-import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.reddit.Submission;
 
 import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class SendSubmission implements ClusterVisitor {
+public class SendSubmission implements Cluster.ShardsVisitor {
     private final int shardId;
     private final long guildId;
     private final long channelId;
@@ -33,6 +32,10 @@ public class SendSubmission implements ClusterVisitor {
     @Override
     public void visit(int shardId, @Nonnull Shard shard) throws NullPointerException {
         Preconditions.checkNotNull(shard);
+        //Abort if we're in the wrong shard
+        if(this.shardId != shardId)
+            return;
+
         //Handle Discord exceptions
         try {
             Guild guild = Optional.ofNullable(shard.jda().getGuildById(guildId)).orElseThrow();
@@ -41,18 +44,12 @@ public class SendSubmission implements ClusterVisitor {
             shard.queue(channel.sendMessage(submissionMessage));
         //Impossible to send in this channel
         }catch(InsufficientPermissionException | NoSuchElementException e){
-            remove(shard.getCluster());
+            shard.getCluster().accept(new RemoveSubredditFeed(submission.getSubreddit(), guildId, channelId));
             //TODO Ignore Discord being unavailable
         }catch(ErrorResponseException e){
             ErrorResponse response = e.getErrorResponse();
-            if(response == ErrorResponse.UNKNOWN_GUILD || response == ErrorResponse.UNKNOWN_CHANNEL) {
-                remove(shard.getCluster());
-            }
+            if(response == ErrorResponse.UNKNOWN_GUILD || response == ErrorResponse.UNKNOWN_CHANNEL)
+                shard.getCluster().accept(new RemoveSubredditFeed(submission.getSubreddit(), guildId, channelId));
         }
-    }
-
-    private void remove(@Nonnull Cluster cluster){
-        Preconditions.checkNotNull(cluster);
-        new RemoveRedditFeedFromTextChannel(submission.getSubreddit(), guildId, channelId).handle(cluster);
     }
 }

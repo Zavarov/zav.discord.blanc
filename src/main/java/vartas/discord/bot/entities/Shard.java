@@ -17,6 +17,7 @@
 
 package vartas.discord.bot.entities;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -34,7 +35,6 @@ import vartas.discord.bot.internal.LoadConfiguration;
 import vartas.discord.bot.internal.UnloadConfiguration;
 import vartas.discord.bot.listener.*;
 import vartas.discord.bot.message.InteractiveMessage;
-import vartas.discord.bot.visitor.ShardVisitor;
 
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
@@ -48,7 +48,11 @@ import java.util.function.Consumer;
  * Each shard represents an isolated program, meaning that one shard is not aware of all other shards.<br>
  * Meaning that if information has to be shared across multiple shards, it has to be done via an external scope.
  */
-public abstract class Shard {
+public abstract class Shard implements Cluster.ClusterVisitor{
+    /**
+     * The id associated with this shard.
+     */
+    private final int shardId;
     /**
      * The logger for the communicator.
      */
@@ -61,90 +65,49 @@ public abstract class Shard {
     @Nonnull
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     /**
+     * All configuration files of the guilds in this shard.
+     */
+    @Nonnull
+    private final LoadingCache<Guild, Configuration> guilds = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build(CacheLoader.from(this::create));
+    /**
      * The listener responsible for reacting to interactive messages and deleting them, when they haven't been
      * used for a arbitrary but fixed amount of time.
      */
-    @Nonnull
-    private final InteractiveMessageListener messages;
+    private InteractiveMessageListener messages;
     /**
      * The activity tracker for all message.
      */
-    @Nonnull
-    private final ActivityListener activity;
+    private ActivityListener activity;
     /**
      * The listener responsible for filtering all blacklisted words.
      */
-    @Nonnull
     private BlacklistListener blacklist;
     /**
      * The listener responsible for parsing and scheduling the bot commands.
      */
-    @Nonnull
     private CommandListener command;
+    /**
+     * The listener for all miscellaneous events.
+     */
+    private MiscListener misc;
     /**
      * The JDA over the current shard.
      */
-    @Nonnull
-    private final JDA jda;
-    /**
-     * All configuration files of the guilds in this shard.
-     */
-    @Nonnull
-    private final LoadingCache<Guild, Configuration> guilds;
-    /**
-     * The adapter for parsing the local data files.
-     */
-    @Nonnull
-    private final EntityAdapter adapter;
-    /**
-     * A reference to all user ranks.
-     */
-    @Nonnull
-    private final Rank rank;
+    private JDA jda;
     /**
      * The cluster instance managing the global functionality.
      * All nodes share the same cluster.
      */
-    @Nonnull
-    private final Cluster cluster;
+    private Cluster cluster;
 
-    /**
-     * The credentials containing all login-information, as well as some constants.
-     */
-    @Nonnull
-    private final Credentials credentials;
+    private EntityAdapter adapter;
 
     /**
      * Initializes a fresh shard.
      * @param shardId the shard id.
-     * @throws NullPointerException if {@code args} is null
-     * @throws LoginException if the provided token is invalid
-     * @throws InterruptedException if the program was interrupted while logging in
      */
-    public Shard(int shardId) throws NullPointerException, LoginException, InterruptedException {
-        this.adapter = createEntityAdapter();
-        this.credentials = adapter.credentials();
-        this.rank = adapter.rank();
-        this.jda = createJda(shardId, credentials);
-        this.cluster = createCluster();
-        this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
-        this.messages = new InteractiveMessageListener(credentials);
-        this.blacklist = new BlacklistListener(this);
-        this.command = new CommandListener(this, createCommandBuilder(), credentials.getGlobalPrefix());
-
-        //
-        this.guilds = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build(CacheLoader.from(this::create));
-
-        //Load the configuration for each guild
-        jda.getGuilds().forEach(this::guild);
-
-        jda.addEventListener(activity);
-        jda.addEventListener(messages);
-        jda.addEventListener(blacklist);
-        jda.addEventListener(command);
-        jda.addEventListener(new MiscListener(this));
-
-        executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
+    public Shard(int shardId){
+        this.shardId = shardId;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -162,22 +125,16 @@ public abstract class Shard {
     }
     public void remove(Guild guild){
         Configuration configuration = guild(guild);
-        new UnloadConfiguration(configuration).handle(getCluster());
+        getCluster().accept(new UnloadConfiguration(configuration));
     }
     private Configuration create(Guild guild){
         Configuration configuration = adapter.configuration(guild, this);
-        new LoadConfiguration(configuration).handle(getCluster());
+        getCluster().accept(new LoadConfiguration(configuration));
         return configuration;
     }
     @Nonnull
     public Cluster getCluster(){
         return cluster;
-    }
-    public void store(Configuration configuration){
-        adapter.store(configuration);
-    }
-    public void store(Rank rank){
-        adapter.store(rank);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -208,18 +165,8 @@ public abstract class Shard {
     //   Discord                                                                                                      //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public void accept(ShardVisitor visitor){
-        visitor.handle(rank);
-        visitor.handle(credentials);
-        visitor.handle(activity);
-        visitor.handle(blacklist);
-        guilds.asMap().values().forEach(visitor::handle);
-    }
-
     protected abstract CommandBuilder createCommandBuilder();
-    protected abstract EntityAdapter createEntityAdapter();
     protected abstract JDA createJda(int shardId, Credentials credentials) throws LoginException, InterruptedException;
-    protected abstract Cluster createCluster();
 
     public JDA jda(){
         return jda;
@@ -245,5 +192,91 @@ public abstract class Shard {
             queue(received.addReaction(InteractiveMessage.ARROW_RIGHT));
         };
         queue(channel.sendMessage(message), onSuccess);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                //
+    //   Initialization                                                                                               //
+    //                                                                                                                //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public void visit(@Nonnull Cluster cluster){
+        this.cluster = cluster;
+    }
+
+    @Override
+    public void endVisit(@Nonnull Cluster cluster){
+        cluster.accept(misc);
+    }
+
+    @Override
+    public void visit(@Nonnull EntityAdapter adapter){
+        this.adapter = adapter;
+    }
+
+    @Override
+    public void visit(@Nonnull Credentials credentials){
+        try {
+            this.jda = createJda(shardId, credentials);
+            this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
+            this.messages = new InteractiveMessageListener(credentials);
+            this.blacklist = new BlacklistListener(this);
+            this.command = new CommandListener(this, createCommandBuilder(), credentials.getGlobalPrefix());
+            this.misc = new MiscListener(this);
+
+            //Load the configuration for each guild
+            jda.getGuilds().forEach(this::guild);
+
+            jda.addEventListener(activity);
+            jda.addEventListener(messages);
+            jda.addEventListener(blacklist);
+            jda.addEventListener(command);
+            jda.addEventListener(misc);
+
+            executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
+        }catch(LoginException | InterruptedException e){
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                //
+    //   Visitor                                                                                                      //
+    //                                                                                                                //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor extends
+            ActivityListener.Visitor,
+            BlacklistListener.Visitor,
+            CommandListener.Visitor,
+            InteractiveMessageListener.Visitor,
+            MiscListener.Visitor,
+            Configuration.Visitor{
+
+        default void visit(int shardId, @Nonnull Shard shard){}
+
+        default void traverse(int shardId, @Nonnull Shard shard) throws NullPointerException{
+            Preconditions.checkNotNull(shard);
+            shard.activity.accept(this);
+            shard.blacklist.accept(this);
+            shard.command.accept(this);
+            shard.messages.accept(this);
+            shard.misc.accept(this);
+            //Force-load every configuration
+            shard.jda().getGuilds().stream().map(shard::guild).forEach(configuration -> configuration.accept(this));
+        }
+
+        default void endVisit(int shardId, @Nonnull Shard shard){}
+
+        default void handle(@Nonnull Shard shard) throws NullPointerException{
+            Preconditions.checkNotNull(shard);
+            int shardId = shard.jda().getShardInfo().getShardId();
+            visit(shardId, shard);
+            traverse(shardId, shard);
+            endVisit(shardId, shard);
+        }
     }
 }

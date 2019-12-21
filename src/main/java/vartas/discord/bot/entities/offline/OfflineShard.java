@@ -25,23 +25,15 @@ import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.managers.PresenceImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import vartas.discord.bot.CommandBuilder;
-import vartas.discord.bot.EntityAdapter;
-import vartas.discord.bot.JSONEntityAdapter;
-import vartas.discord.bot.entities.*;
+import vartas.discord.bot.entities.Credentials;
+import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
-import javax.security.auth.login.LoginException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class OfflineShard extends Shard {
-    public static final Path credentials = Paths.get("src/test/resources/credentials.json");
-    public static final Path status = Paths.get("src/test/resources/status.json");
-    public static final Path rank = Paths.get("src/test/resources/rank.json");
-    public static final Path guilds = Paths.get("src/test/resources/guilds");
     public static final OfflineCluster cluster = new OfflineCluster();
 
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
@@ -49,18 +41,8 @@ public class OfflineShard extends Shard {
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
 
-    public OfflineShard() throws LoginException, InterruptedException {
+    public OfflineShard() {
         super(0);
-    }
-
-    @Override
-    public void store(Configuration configuration){
-        stored.add(configuration.getGuildId());
-    }
-
-    @Override
-    public void store(Rank rank){
-        stored.add(rank);
     }
 
     @Override
@@ -71,11 +53,6 @@ public class OfflineShard extends Shard {
     @Override
     public CommandBuilder createCommandBuilder() {
         return new OfflineCommandBuilder();
-    }
-
-    @Override
-    public EntityAdapter createEntityAdapter() {
-        return new JSONEntityAdapter(credentials, status, rank, guilds);
     }
 
     @Override
@@ -92,11 +69,6 @@ public class OfflineShard extends Shard {
                 };
             }
         };
-    }
-
-    @Override
-    protected Cluster createCluster() {
-        return cluster;
     }
 
     @Override

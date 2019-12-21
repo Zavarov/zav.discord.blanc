@@ -375,4 +375,23 @@ public class Credentials {
             return name;
         }
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull Credentials credentials){}
+
+        default void traverse(@Nonnull Credentials credentials) {}
+
+        default void endVisit(@Nonnull Credentials credentials){}
+
+        default void handle(@Nonnull Credentials credentials) throws NullPointerException{
+            Preconditions.checkNotNull(credentials);
+            visit(credentials);
+            traverse(credentials);
+            endVisit(credentials);
+        }
+    }
 }

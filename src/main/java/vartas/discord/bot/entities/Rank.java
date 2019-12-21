@@ -177,4 +177,24 @@ public class Rank {
             return name;
         }
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull Rank rank){}
+
+        default void traverse(@Nonnull Rank rank){}
+
+        default void endVisit(@Nonnull Rank rank){}
+
+        default void handle(@Nonnull Rank rank) throws NullPointerException{
+            Preconditions.checkNotNull(rank);
+            visit(rank);
+            traverse(rank);
+            endVisit(rank);
+        }
+    }
+
 }

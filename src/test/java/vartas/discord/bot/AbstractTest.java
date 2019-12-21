@@ -23,15 +23,14 @@ import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
+import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.entities.Rank;
 import vartas.discord.bot.entities.Status;
 import vartas.discord.bot.entities.offline.OfflineCluster;
 import vartas.discord.bot.entities.offline.OfflineCommandBuilder;
 import vartas.discord.bot.entities.offline.OfflineShard;
-import vartas.discord.bot.visitor.ShardVisitor;
 
-import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -56,14 +55,10 @@ public abstract class AbstractTest {
     protected OfflineCommandBuilder builder;
 
     static {
-        try {
-            shard = new OfflineShard();
-            cluster = OfflineShard.cluster;
-            cluster.registerShard(shard);
-            cluster.shutdown();
-        }catch(LoginException | InterruptedException e){
-            throw new RuntimeException(e);
-        }
+        shard = new OfflineShard();
+        cluster = OfflineShard.cluster;
+        cluster.registerShard(shard);
+        cluster.shutdown();
     }
 
     @Before
@@ -84,7 +79,7 @@ public abstract class AbstractTest {
     }
 
     protected void addRank(UserImpl user, Rank.Ranks ranks){
-        shard.accept(new ShardVisitor() {
+        cluster.accept(new Cluster.ClusterVisitor() {
             @Override
             public void visit(@NotNull Rank rank) {
                 rank.add(user, ranks);
@@ -93,7 +88,7 @@ public abstract class AbstractTest {
     }
 
     protected void removeRank(UserImpl user, Rank.Ranks ranks){
-        shard.accept(new ShardVisitor() {
+        cluster.accept(new Cluster.ClusterVisitor() {
             @Override
             public void visit(@NotNull Rank rank) {
                 rank.remove(user, ranks);
@@ -102,7 +97,7 @@ public abstract class AbstractTest {
     }
 
     protected void checkRank(UserImpl user, Rank.Ranks ranks, boolean expected){
-        shard.accept(new ShardVisitor() {
+        cluster.accept(new Cluster.ClusterVisitor() {
             @Override
             public void visit(@NotNull Rank rank) {
                 assertThat(rank.resolve(user, ranks)).isEqualTo(expected);

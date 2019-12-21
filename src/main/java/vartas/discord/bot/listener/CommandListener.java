@@ -203,4 +203,23 @@ public class CommandListener extends ListenerAdapter {
             }
         }
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull CommandListener commandListener){}
+
+        default void traverse(@Nonnull CommandListener commandListener) {}
+
+        default void endVisit(@Nonnull CommandListener commandListener){}
+
+        default void handle(@Nonnull CommandListener commandListener) throws NullPointerException{
+            Preconditions.checkNotNull(commandListener);
+            visit(commandListener);
+            traverse(commandListener);
+            endVisit(commandListener);
+        }
+    }
 }

@@ -23,8 +23,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import vartas.discord.bot.RedditFeed;
-import vartas.discord.bot.RedditFeed.SubredditFeed;
-import vartas.discord.bot.visitor.ConfigurationVisitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -371,7 +369,7 @@ public class Configuration {
     /**
      * Associates an id with the specified {@code row} and {@code value}.
      * This method is necessary when modifying a subreddit feed over a specific text channel
-     * in the {@link SubredditFeed}, which needs to be reflected in the respective guild configurations as well.
+     * in the {@link RedditFeed}, which needs to be reflected in the respective guild configurations as well.
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param id the id associated with the type and group name
@@ -389,7 +387,7 @@ public class Configuration {
     /**
      * Removes the {@code value} associated with the specified {@code row} and {@code column}.
      * This method is necessary when modifying a subreddit feed over a specific text channel
-     * in the {@link SubredditFeed}, which needs to be reflected in the respective guild configurations as well.
+     * in the {@link RedditFeed}, which needs to be reflected in the respective guild configurations as well.
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param value the value associated with the type and group name
@@ -507,9 +505,61 @@ public class Configuration {
      * Applies the visitor pattern on all entries in this configuration.
      * @param visitor the specified visitor.
      */
-    public void accept(ConfigurationVisitor visitor){
-        getPattern().ifPresent(visitor::handle);
-        getPrefix().ifPresent(visitor::handle);
-        groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> visitor.handle(type, key, values)));
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+        default void traverse(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+        default void endVisit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+        default void handle(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values) throws NullPointerException{
+            Preconditions.checkNotNull(type);
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(values);
+            visit(type, key, values);
+            traverse(type, key, values);
+            endVisit(type, key, values);
+        }
+
+        default void visit(@Nonnull Pattern pattern){}
+        default void traverse(@Nonnull Pattern pattern){}
+        default void endVisit(@Nonnull Pattern pattern){}
+        default void handle(@Nonnull Pattern pattern) throws NullPointerException{
+            Preconditions.checkNotNull(pattern);
+            visit(pattern);
+            traverse(pattern);
+            endVisit(pattern);
+        }
+
+        default void visit(@Nonnull String prefix){}
+        default void traverse(@Nonnull String prefix){}
+        default void endVisit(@Nonnull String prefix){}
+        default void handle(@Nonnull String prefix) throws NullPointerException{
+            Preconditions.checkNotNull(prefix);
+            visit(prefix);
+            traverse(prefix);
+            endVisit(prefix);
+        }
+
+        default void visit(@Nonnull Configuration configuration){}
+        default void traverse(@Nonnull Configuration configuration) throws NullPointerException{
+            Preconditions.checkNotNull(configuration);
+
+
+            configuration.getPattern().ifPresent(this::handle);
+            configuration.getPrefix().ifPresent(this::handle);
+            configuration.groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> this.handle(type, key, values)));
+
+
+            configuration.accept(this);
+        }
+        default void endVisit(@Nonnull Configuration configuration){}
+        default void handle(@Nonnull Configuration configuration) throws NullPointerException{
+            Preconditions.checkNotNull(configuration);
+            visit(configuration);
+            traverse(configuration);
+            endVisit(configuration);
+        }
     }
 }

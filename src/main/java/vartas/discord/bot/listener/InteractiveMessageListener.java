@@ -90,4 +90,23 @@ public class InteractiveMessageListener extends ListenerAdapter {
                 message.update(event.getUser(), event.getChannel(), event.getMessageId(), event.getReactionEmote().getName());
         });
     }
+
+    public void accept(InteractiveMessageListener.Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull InteractiveMessageListener interactiveMessageListener){}
+
+        default void traverse(@Nonnull InteractiveMessageListener interactiveMessageListener) {}
+
+        default void endVisit(@Nonnull InteractiveMessageListener interactiveMessageListener){}
+
+        default void handle(@Nonnull InteractiveMessageListener interactiveMessageListener) throws NullPointerException{
+            Preconditions.checkNotNull(interactiveMessageListener);
+            visit(interactiveMessageListener);
+            traverse(interactiveMessageListener);
+            endVisit(interactiveMessageListener);
+        }
+    }
 }

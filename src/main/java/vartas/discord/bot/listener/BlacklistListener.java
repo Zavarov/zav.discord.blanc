@@ -111,4 +111,23 @@ public class BlacklistListener extends ListenerAdapter {
                 shard.queue(message.delete());
         });
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull BlacklistListener blacklistListener){}
+
+        default void traverse(@Nonnull BlacklistListener blacklistListener) {}
+
+        default void endVisit(@Nonnull BlacklistListener blacklistListener){}
+
+        default void handle(@Nonnull BlacklistListener blacklistListener) throws NullPointerException{
+            Preconditions.checkNotNull(blacklistListener);
+            visit(blacklistListener);
+            traverse(blacklistListener);
+            endVisit(blacklistListener);
+        }
+    }
 }

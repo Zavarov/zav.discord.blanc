@@ -2,13 +2,14 @@ package vartas.discord.bot.internal;
 
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.RedditFeed;
+import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.listener.BlacklistListener;
-import vartas.discord.bot.visitor.ClusterVisitor;
 
 import javax.annotation.Nonnull;
 
-public class UnloadConfiguration implements ClusterVisitor {
+public class UnloadConfiguration implements Cluster.ClusterVisitor, Shard.Visitor {
     private final Configuration configuration;
 
     public UnloadConfiguration(@Nonnull Configuration configuration){
@@ -26,7 +27,7 @@ public class UnloadConfiguration implements ClusterVisitor {
     }
 
     @Override
-    public void visit(@Nonnull String subreddit, @Nonnull RedditFeed.SubredditFeed feed){
-        configuration.resolve(Configuration.LongType.SUBREDDIT).get(subreddit).forEach(channelId -> feed.remove(configuration.getGuildId(), channelId));
+    public void visit(@Nonnull RedditFeed feed){
+        configuration.resolve(Configuration.LongType.SUBREDDIT).forEach((subredditName, channelId) -> feed.remove(subredditName, configuration.getGuildId()));
     }
 }

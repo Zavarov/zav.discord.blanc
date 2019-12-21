@@ -20,6 +20,7 @@ package vartas.discord.bot.listener;
 import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import vartas.discord.bot.entities.Cluster;
 import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
@@ -28,13 +29,14 @@ import javax.annotation.Nonnull;
  * This listener keeps track of all activities that aren't covered by the remaining listeners
  */
 @Nonnull
-public class MiscListener extends ListenerAdapter {
+public class MiscListener extends ListenerAdapter implements Cluster.ClusterVisitor{
     /**
      * The shard is necessary for the I/O access. More specifically, we at least need it when removing configurations
      * and their corresponding files.
      */
     @Nonnull
     protected Shard shard;
+    private Cluster cluster;
 
     /**
      * Creates a fresh listener
@@ -55,5 +57,24 @@ public class MiscListener extends ListenerAdapter {
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) throws NullPointerException{
         Preconditions.checkNotNull(event);
         shard.remove(event.getGuild());
+    }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull MiscListener miscListener){}
+
+        default void traverse(@Nonnull MiscListener miscListener) {}
+
+        default void endVisit(@Nonnull MiscListener miscListener){}
+
+        default void handle(@Nonnull MiscListener miscListener) throws NullPointerException{
+            Preconditions.checkNotNull(miscListener);
+            visit(miscListener);
+            traverse(miscListener);
+            endVisit(miscListener);
+        }
     }
 }

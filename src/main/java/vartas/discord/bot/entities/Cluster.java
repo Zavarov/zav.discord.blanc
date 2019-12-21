@@ -5,9 +5,7 @@ import org.apache.http.client.HttpResponseException;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
 import vartas.discord.bot.RedditFeed;
-import vartas.discord.bot.internal.Shutdown;
 import vartas.discord.bot.internal.UpdateStatusMessage;
-import vartas.discord.bot.visitor.ClusterVisitor;
 import vartas.reddit.Client;
 import vartas.reddit.Comment;
 import vartas.reddit.Submission;
@@ -74,6 +72,8 @@ public abstract class Cluster {
 
     private final Credentials credentials;
 
+    private final Rank rank;
+
     /**
      * Initializes an empty cluster over the specified shard.
      * Note that it will not connect to the Reddit API. This has to be done in {@link #createRedditClient(Credentials)}
@@ -81,13 +81,14 @@ public abstract class Cluster {
      */
     protected Cluster() {
         this.adapter = createEntityAdapter();
+        this.rank = adapter.rank();
         this.credentials = adapter.credentials();
         this.reddit = createRedditClient(credentials);
         this.pushshift = createPushshiftClient(credentials);
         this.feed = new RedditFeed(this);
         this.status = adapter.status();
 
-        global.scheduleAtFixedRate(() -> new UpdateStatusMessage().handle(this), 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
+        global.scheduleAtFixedRate(() -> this.accept(new UpdateStatusMessage()), 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
         global.scheduleAtFixedRate(feed, 0, 1, TimeUnit.MINUTES);
     }
 
@@ -120,14 +121,6 @@ public abstract class Cluster {
         global.shutdown();
         reddit.logout();
         pushshift.logout();
-        new Shutdown().handle(this);
-    }
-
-    public void accept(ClusterVisitor visitor){
-        visitor.handle(status);
-        visitor.handle(feed);
-        visitor.handle(adapter);
-        shards.forEach(visitor::handle);
     }
     public Optional<Subreddit> subreddit(String subreddit) {
         try {
@@ -161,5 +154,43 @@ public abstract class Cluster {
     public void registerShard(@Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
         shards.add(shard);
+        accept(shard);
+    }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull Cluster cluster){}
+
+        void traverse(@Nonnull Cluster cluster);
+
+        default void endVisit(@Nonnull Cluster cluster){}
+
+        default void handle(@Nonnull Cluster cluster) throws NullPointerException{
+            Preconditions.checkNotNull(cluster);
+            visit(cluster);
+            traverse(cluster);
+            endVisit(cluster);
+        }
+
+    }
+
+    public interface ClusterVisitor extends Visitor, Credentials.Visitor, EntityAdapter.Visitor, Rank.Visitor, Status.Visitor, RedditFeed.Visitor{
+        default void traverse(@Nonnull Cluster cluster) {
+            cluster.credentials.accept(this);
+            cluster.adapter.accept(this);
+            cluster.rank.accept(this);
+            cluster.status.accept(this);
+            cluster.feed.accept(this);
+            cluster.adapter.accept(this);
+        }
+    }
+
+    public interface ShardsVisitor extends Visitor, Shard.Visitor{
+        default void traverse(@Nonnull Cluster cluster) {
+            cluster.shards.forEach(shard -> shard.accept(this));
+        }
     }
 }

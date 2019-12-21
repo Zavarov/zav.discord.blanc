@@ -207,4 +207,23 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
         chart.set(AllChannels, created, Collections.singleton(allChannels + 1));
         chart.set(channelName, created, Collections.singleton(channel + 1));
     }
+
+    public void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    public interface Visitor {
+        default void visit(@Nonnull ActivityListener activityListener){}
+
+        default void traverse(@Nonnull ActivityListener activityListener) {}
+
+        default void endVisit(@Nonnull ActivityListener activityListener){}
+
+        default void handle(@Nonnull ActivityListener activityListener) throws NullPointerException{
+            Preconditions.checkNotNull(activityListener);
+            visit(activityListener);
+            traverse(activityListener);
+            endVisit(activityListener);
+        }
+    }
 }

@@ -17,8 +17,11 @@
 
 package vartas.discord.bot;
 
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.entities.Guild;
 import vartas.discord.bot.entities.*;
+
+import javax.annotation.Nonnull;
 
 /**
  * This class implements the interface for loading and storing
@@ -34,4 +37,24 @@ public interface EntityAdapter {
     void store(Configuration configuration);
     void store(Rank rank);
     void delete(Configuration configuration);
+
+    default void accept(Visitor visitor){
+        visitor.handle(this);
+    }
+
+    interface Visitor{
+        default void visit(@Nonnull EntityAdapter entityAdapter){}
+
+        default void traverse(@Nonnull EntityAdapter entityAdapter) {
+        }
+
+        default void endVisit(@Nonnull EntityAdapter entityAdapter){}
+
+        default void handle(@Nonnull EntityAdapter entityAdapter) throws NullPointerException {
+            Preconditions.checkNotNull(entityAdapter);
+            visit(entityAdapter);
+            traverse(entityAdapter);
+            endVisit(entityAdapter);
+        }
+    }
 }
