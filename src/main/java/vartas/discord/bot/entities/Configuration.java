@@ -545,14 +545,9 @@ public class Configuration {
         default void visit(@Nonnull Configuration configuration){}
         default void traverse(@Nonnull Configuration configuration) throws NullPointerException{
             Preconditions.checkNotNull(configuration);
-
-
             configuration.getPattern().ifPresent(this::handle);
             configuration.getPrefix().ifPresent(this::handle);
             configuration.groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> this.handle(type, key, values)));
-
-
-            configuration.accept(this);
         }
         default void endVisit(@Nonnull Configuration configuration){}
         default void handle(@Nonnull Configuration configuration) throws NullPointerException{

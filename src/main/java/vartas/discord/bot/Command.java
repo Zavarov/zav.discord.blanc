@@ -17,5 +17,9 @@
 
 package vartas.discord.bot;
 
-public interface Command extends Runnable{
+import net.dv8tion.jda.api.entities.Message;
+import vartas.discord.bot.entities.Shard;
+
+public interface Command {
+    void accept(Message message, Shard shard);
 }

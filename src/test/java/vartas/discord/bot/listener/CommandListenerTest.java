@@ -99,7 +99,7 @@ public class CommandListenerTest extends AbstractTest {
 
     @Test
     public void onMessageReceivedErrorInParserTest(){
-        event = createEvent(credentials.getGlobalPrefix(), () -> {
+        event = createEvent(credentials.getGlobalPrefix(), (message, content) -> {
             throw new NullPointerException();
         });
 
@@ -109,7 +109,7 @@ public class CommandListenerTest extends AbstractTest {
     }
 
     private MessageReceivedEvent createEvent(String prefix){
-        return createEvent(prefix, () -> flag.set(true));
+        return createEvent(prefix, (message, content) -> flag.set(true));
     }
 
     private MessageReceivedEvent createEvent(String prefix, Command command){

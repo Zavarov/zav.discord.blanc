@@ -147,7 +147,7 @@ public class CommandListener extends ListenerAdapter {
         MessageChannel channel = message.getChannel();
         try {
             Command command = builder.build(prefixFreeContent, message);
-            shard.schedule(new CommandWrapper(command, channel));
+            shard.schedule(() -> new CommandWrapper(command, channel).accept(message, shard));
             log.info("Executed "+command.getClass().getSimpleName());
         }catch(RuntimeException e){
             e.printStackTrace();
@@ -164,7 +164,7 @@ public class CommandListener extends ListenerAdapter {
      * then the error is rethrown.
      */
     @Nonnull
-    private class CommandWrapper implements Runnable{
+    private static class CommandWrapper {
         /**
          * The parsed command.
          */
@@ -191,10 +191,9 @@ public class CommandListener extends ListenerAdapter {
          * Attempts to execute the command.
          * Upon failure, the error message is sent to the target channel instead, then the error is rethrown.
          */
-        @Override
-        public void run(){
+        public void accept(Message message, Shard shard){
             try{
-                command.run();
+                command.accept(message, shard);
             }catch(Throwable e){
                 e.printStackTrace();
                 String errorMessage = e.toString();

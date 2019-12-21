@@ -184,7 +184,6 @@ public abstract class Cluster {
             cluster.rank.accept(this);
             cluster.status.accept(this);
             cluster.feed.accept(this);
-            cluster.adapter.accept(this);
         }
     }
 
