@@ -22,31 +22,45 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.managers.PresenceImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import vartas.discord.bot.CommandBuilder;
+import vartas.discord.bot.entities.Configuration;
 import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class OfflineShard extends Shard {
-    public static final OfflineCluster cluster = new OfflineCluster();
-
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
+    public Map<Long, GuildImpl> guilds = new HashMap<>();
+    public Map<Guild, Configuration> configurations = new HashMap<>();
     public List<? super Object> send = new ArrayList<>();
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
 
-    public OfflineShard() {
-        super(0);
+    public OfflineShard(OfflineCluster cluster) throws LoginException, InterruptedException {
+        super(0, OfflineCluster.Adapter.credentials(), OfflineCluster.Adapter, cluster);
+    }
+
+    public static OfflineShard create(OfflineCluster cluster){
+        try{
+            return new OfflineShard(cluster);
+        }catch(LoginException | InterruptedException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void remove(Guild guild){
+    public void remove(@Nonnull Guild guild){
         removed.add(guild.getIdLong());
     }
 
@@ -56,8 +70,21 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public JDAImpl createJda(int shardId, Credentials credentials) {
+    public JDAImpl createJda(int shardId, @Nullable Credentials credentials) {
         return new JDAImpl(authorization){
+            @Nonnull
+            @Override
+            public List<Guild> getGuilds(){
+                return List.copyOf(guilds.values());
+            }
+            @Override
+            public GuildImpl getGuildById(@Nonnull String id){
+                return getGuildById(Long.parseUnsignedLong(id));
+            }
+            @Override
+            public GuildImpl getGuildById(long id){
+                return guilds.get(id);
+            }
             @Nonnull
             @Override
             public PresenceImpl getPresence(){
@@ -86,5 +113,12 @@ public class OfflineShard extends Shard {
     @Override
     public Runnable shutdown(){
         return () -> {};
+    }
+
+    @Nonnull
+    @Override
+    public Configuration guild(@Nonnull Guild guild){
+        configurations.putIfAbsent(guild, new Configuration(guild.getIdLong()));
+        return configurations.get(guild);
     }
 }

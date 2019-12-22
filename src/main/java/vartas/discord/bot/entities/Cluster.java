@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.apache.http.client.HttpResponseException;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
-import vartas.discord.bot.RedditFeed;
+import vartas.discord.bot.SubredditFeed;
 import vartas.discord.bot.internal.UpdateStatusMessage;
 import vartas.reddit.Client;
 import vartas.reddit.Comment;
@@ -12,7 +12,6 @@ import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * All shards will have a reference to a local cluster, but for everyone but the master shard,
  * this will be {@code null}.
  */
-@Nullable
+@Nonnull
 public abstract class Cluster {
     /**
      * The maximum amount of times a Reddit request will be repeated when unsuccessful until we give up.
@@ -54,7 +53,7 @@ public abstract class Cluster {
      * The thread for requesting and posting the latest subreddit submissions.
      */
     @Nonnull
-    private final RedditFeed feed;
+    private final SubredditFeed feed;
     /**
      * All possible status messages.
      */
@@ -69,9 +68,13 @@ public abstract class Cluster {
      * All shards of this cluster.
      */
     private final Collection<Shard> shards = new HashSet<>();
-
+    /**
+     * The credentials for the different servers and
+     */
     private final Credentials credentials;
-
+    /**
+     * The internal ranks for all registered users.
+     */
     private final Rank rank;
 
     /**
@@ -85,7 +88,7 @@ public abstract class Cluster {
         this.credentials = adapter.credentials();
         this.reddit = createRedditClient(credentials);
         this.pushshift = createPushshiftClient(credentials);
-        this.feed = new RedditFeed(this);
+        this.feed = new SubredditFeed(this);
         this.status = adapter.status();
 
         global.scheduleAtFixedRate(() -> this.accept(new UpdateStatusMessage()), 0, credentials.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
@@ -122,6 +125,7 @@ public abstract class Cluster {
         reddit.logout();
         pushshift.logout();
     }
+
     public Optional<Subreddit> subreddit(String subreddit) {
         try {
             return reddit.requestSubreddit(subreddit, MAX_RETRIES);
@@ -154,17 +158,77 @@ public abstract class Cluster {
     public void registerShard(@Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
         shards.add(shard);
-        accept(shard);
     }
 
     public void accept(Visitor visitor){
         visitor.handle(this);
     }
 
-    public interface Visitor {
+    public abstract static class VisitorDelegator extends Shard.VisitorDelegator implements Visitor {
+        private ClusterVisitor clusterVisitor;
+        private ShardVisitor shardVisitor;
+        private Visitor realThis = this;
+
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+            if(clusterVisitor != null && clusterVisitor != getRealThis())
+                clusterVisitor.setRealThis(realThis);
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.setRealThis(realThis);
+        }
+
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
+
+        public void setClusterVisitor(ClusterVisitor clusterVisitor){
+            this.clusterVisitor = clusterVisitor;
+            this.clusterVisitor.setRealThis(getRealThis());
+        }
+
+        public void setShardVisitor(ShardVisitor shardVisitor){
+            this.shardVisitor = shardVisitor;
+            this.shardVisitor.setRealThis(getRealThis());
+        }
+
+        @Override
+        public void visit(@Nonnull Cluster cluster){
+            if(clusterVisitor != null && clusterVisitor != getRealThis())
+                clusterVisitor.visit(cluster);
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.visit(cluster);
+        }
+
+        @Override
+        public void traverse(@Nonnull Cluster cluster){
+            if(clusterVisitor != null && clusterVisitor != getRealThis())
+                clusterVisitor.traverse(cluster);
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.traverse(cluster);
+        }
+
+        @Override
+        public void endVisit(@Nonnull Cluster cluster){
+            if(clusterVisitor != null && clusterVisitor != getRealThis())
+                clusterVisitor.endVisit(cluster);
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.endVisit(cluster);
+        }
+    }
+
+    public interface Visitor extends Credentials.Visitor, EntityAdapter.Visitor, Rank.Visitor, Status.Visitor, SubredditFeed.Visitor, Shard.Visitor{
+        default void setRealThis(Visitor realThis){
+            throw new UnsupportedOperationException();
+        }
+        default Visitor getRealThis(){
+            throw new UnsupportedOperationException();
+        }
+
         default void visit(@Nonnull Cluster cluster){}
 
-        void traverse(@Nonnull Cluster cluster);
+        default void traverse(@Nonnull Cluster cluster){}
 
         default void endVisit(@Nonnull Cluster cluster){}
 
@@ -174,22 +238,39 @@ public abstract class Cluster {
             traverse(cluster);
             endVisit(cluster);
         }
-
     }
-
-    public interface ClusterVisitor extends Visitor, Credentials.Visitor, EntityAdapter.Visitor, Rank.Visitor, Status.Visitor, RedditFeed.Visitor{
-        default void traverse(@Nonnull Cluster cluster) {
-            cluster.credentials.accept(this);
-            cluster.adapter.accept(this);
-            cluster.rank.accept(this);
-            cluster.status.accept(this);
-            cluster.feed.accept(this);
+    public static class ClusterVisitor implements Visitor{
+        private Visitor realThis = this;
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+        }
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
+        @Override
+        public void traverse(@Nonnull Cluster cluster) {
+            cluster.credentials.accept(getRealThis());
+            cluster.adapter.accept(getRealThis());
+            cluster.rank.accept(getRealThis());
+            cluster.status.accept(getRealThis());
+            cluster.feed.accept(getRealThis());
         }
     }
-
-    public interface ShardsVisitor extends Visitor, Shard.Visitor{
-        default void traverse(@Nonnull Cluster cluster) {
-            cluster.shards.forEach(shard -> shard.accept(this));
+    public static class ShardVisitor implements Visitor{
+        private Visitor realThis = this;
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+        }
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
+        @Override
+        public void traverse(@Nonnull Cluster cluster) {
+            cluster.shards.forEach(shard -> shard.accept(getRealThis()));
         }
     }
 }

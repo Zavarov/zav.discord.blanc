@@ -30,6 +30,8 @@ import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.Command;
 import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.offline.OfflineCommandBuilder;
+import vartas.discord.bot.entities.offline.OfflineShard;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,6 +39,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommandListenerTest extends AbstractTest {
+    static String GLOBAL_PREFIX = "global";
+    static String GUILD_PREFIX = "local";
+    OfflineShard shard;
+    OfflineCommandBuilder builder;
     JDAImpl jda;
     UserImpl user;
     GuildImpl guild;
@@ -50,18 +56,22 @@ public class CommandListenerTest extends AbstractTest {
 
     @Before
     public void setUp(){
-        jda = new JDAImpl(authorization);
+        shard = OfflineShard.create(null);
+        configuration = new Configuration(guildId);
+        builder = new OfflineCommandBuilder();
+        jda = new JDAImpl(Authorization);
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId);
         channel = new TextChannelImpl(channelId, guild){
             @Override
             protected void checkPermission(Permission permission){}
         };
-        configuration = entityAdapter.configuration(guild, shard);
 
+        configuration.setPrefix(GUILD_PREFIX);
+        shard.configurations.put(guild, configuration);
         prefixFreeMessageContent = "message";
-        listener = new CommandListener(shard, builder, credentials.getGlobalPrefix());
-        event = createEvent(credentials.getGlobalPrefix());
+        listener = new CommandListener(shard, builder, GLOBAL_PREFIX);
+        event = createEvent(GLOBAL_PREFIX);
         flag = new AtomicBoolean(false);
     }
 
@@ -99,7 +109,7 @@ public class CommandListenerTest extends AbstractTest {
 
     @Test
     public void onMessageReceivedErrorInParserTest(){
-        event = createEvent(credentials.getGlobalPrefix(), (message, content) -> {
+        event = createEvent(GLOBAL_PREFIX, (message, content) -> {
             throw new NullPointerException();
         });
 

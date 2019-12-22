@@ -13,20 +13,24 @@ import java.nio.file.Paths;
 
 
 public class OfflineCluster extends Cluster {
-    public static final Path credentials = Paths.get("src/test/resources/credentials.json");
-    public static final Path status = Paths.get("src/test/resources/status.json");
-    public static final Path rank = Paths.get("src/test/resources/rank.json");
-    public static final Path guilds = Paths.get("src/test/resources/guilds");
-
+    public static final Path Credentials = Paths.get("src/test/resources/credentials.json");
+    public static final Path Status = Paths.get("src/test/resources/status.json");
+    public static final Path Rank = Paths.get("src/test/resources/rank.json");
+    public static final Path Guilds = Paths.get("src/test/resources/guilds");
+    public static final EntityAdapter Adapter = new JSONEntityAdapter(Credentials, Status, Rank, Guilds);
 
     public OfflineCluster() {
         super();
     }
 
+    public static OfflineCluster create(){
+        return new OfflineCluster();
+    }
+
     @Nonnull
     @Override
     protected EntityAdapter createEntityAdapter() {
-        return new JSONEntityAdapter(credentials, status, rank, guilds);
+        return Adapter;
     }
 
     @Nonnull

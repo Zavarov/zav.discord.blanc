@@ -17,6 +17,8 @@
 
 package vartas.discord.bot.entities;
 
+import com.google.common.collect.Multimap;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.RoleImpl;
@@ -24,12 +26,16 @@ import net.dv8tion.jda.internal.entities.TextChannelImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.offline.OfflineShard;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigurationTest extends AbstractTest {
+    OfflineShard shard;
     JDAImpl jda;
     GuildImpl guild;
     TextChannelImpl channel;
@@ -38,7 +44,8 @@ public class ConfigurationTest extends AbstractTest {
 
     @Before
     public void setUp(){
-        jda = shard.createJda(0, credentials);
+        shard = OfflineShard.create(null);
+        jda = shard.createJda(0, null);
         guild = new GuildImpl(jda, guildId){
             @Override
             public RoleImpl getRoleById(long id){
@@ -49,9 +56,14 @@ public class ConfigurationTest extends AbstractTest {
                 return id == channelId ? channel : null;
             }
         };
-        channel = new TextChannelImpl(channelId, null);
-        role = new RoleImpl(roleId, null);
-        configuration = entityAdapter.configuration(guild, shard);
+        channel = new TextChannelImpl(channelId, guild);
+        role = new RoleImpl(roleId, guild);
+
+        configuration = new Configuration(guildId);
+        configuration.add("role",role);
+        configuration.add("channel",channel);
+        configuration.setPattern(Pattern.compile("pattern"));
+        configuration.setPrefix("prefix");
     }
 
     @Test
@@ -102,6 +114,21 @@ public class ConfigurationTest extends AbstractTest {
         assertThat(configuration.resolve(role)).contains("role");
         assertThat(configuration.resolve("role",role)).isTrue();
         assertThat(configuration.resolve("test",role)).isFalse();
+    }
+
+    @Test
+    public void resolveAndMapTest(){
+        Multimap<String, Role> multimap = configuration.resolve(Configuration.LongType.SELFASSIGNABLE, guild::getRoleById);
+        assertThat(multimap.size()).isEqualTo(1);
+        assertThat(multimap.containsEntry("role", role)).isTrue();
+
+        configuration.groups.clear();
+
+        multimap = configuration.resolve(Configuration.LongType.SELFASSIGNABLE, guild::getRoleById);
+        assertThat(multimap.isEmpty()).isTrue();
+
+        Collection<Role> collection = configuration.resolve(Configuration.LongType.SELFASSIGNABLE, "channel", guild::getRoleById);
+        assertThat(collection).isEmpty();
     }
 
     @Test
@@ -166,5 +193,80 @@ public class ConfigurationTest extends AbstractTest {
         assertThat(Configuration.LongType.SELFASSIGNABLE.exists(guild, channelId)).isFalse();
         assertThat(Configuration.LongType.SUBREDDIT.exists(guild, channelId)).isTrue();
         assertThat(Configuration.LongType.SUBREDDIT.exists(guild, roleId)).isFalse();
+    }
+
+    @Test
+    public void visitorTest(){
+        Configuration.Visitor visitor = new Visitor();
+        configuration.accept(visitor);
+        visitor = new EmptyVisitor();
+        configuration.accept(visitor);
+    }
+
+    private static class EmptyVisitor implements Configuration.Visitor{}
+
+    private class Visitor implements Configuration.Visitor{
+        @Override
+        public void visit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+            if(type == Configuration.LongType.SELFASSIGNABLE){
+                assertThat(key).isEqualTo("role");
+                assertThat(values).containsExactly(roleId);
+            }else{
+                assertThat(key).isEqualTo("channel");
+                assertThat(values).containsExactly(channelId);
+            }
+        }
+        @Override
+        public void traverse(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+            if(type == Configuration.LongType.SELFASSIGNABLE){
+                assertThat(key).isEqualTo("role");
+                assertThat(values).containsExactly(roleId);
+            }else{
+                assertThat(key).isEqualTo("channel");
+                assertThat(values).containsExactly(channelId);
+            }
+        }
+        @Override
+        public void endVisit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
+            if(type == Configuration.LongType.SELFASSIGNABLE){
+                assertThat(key).isEqualTo("role");
+                assertThat(values).containsExactly(roleId);
+            }else{
+                assertThat(key).isEqualTo("channel");
+                assertThat(values).containsExactly(channelId);
+            }
+        }
+        @Override
+        public void visit(@Nonnull Pattern pattern){
+            assertThat(pattern.pattern()).isEqualTo("pattern");
+        }
+        @Override
+        public void traverse(@Nonnull Pattern pattern){
+            assertThat(pattern.pattern()).isEqualTo("pattern");
+        }
+        @Override
+        public void endVisit(@Nonnull Pattern pattern){
+            assertThat(pattern.pattern()).isEqualTo("pattern");
+        }
+        @Override
+        public void visit(@Nonnull String prefix){
+            assertThat(prefix).isEqualTo("prefix");
+        }
+        @Override
+        public void traverse(@Nonnull String prefix){
+            assertThat(prefix).isEqualTo("prefix");
+        }
+        @Override
+        public void endVisit(@Nonnull String prefix){
+            assertThat(prefix).isEqualTo("prefix");
+        }
+        @Override
+        public void visit(@Nonnull Configuration configuration){
+            assertThat(configuration).isEqualTo(ConfigurationTest.this.configuration);
+        }
+        @Override
+        public void endVisit(@Nonnull Configuration configuration){
+            assertThat(configuration).isEqualTo(ConfigurationTest.this.configuration);
+        }
     }
 }

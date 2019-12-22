@@ -120,19 +120,9 @@ public class Rank {
     }
 
     /**
-     * Replaces the content of the rank with the one provided in the specified multimap.
-     * @param newMultimap the new content of the multimap
-     * @throws NullPointerException if {@code newMultimap} is null
-     */
-    public void replace(@Nonnull Multimap<Long, Ranks> newMultimap) throws NullPointerException{
-        Preconditions.checkNotNull(newMultimap);
-        ranks.clear();
-        ranks.putAll(newMultimap);
-    }
-
-    /**
      * A collection of all possible ranks.
      */
+    @Nonnull
     public enum Ranks {
         /**
          * The root rank overwrites all other permissions. {@link User Users} with this rank should automatically have
@@ -178,19 +168,16 @@ public class Rank {
         }
     }
 
-    public void accept(Visitor visitor){
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    @Nonnull
     public interface Visitor {
         default void visit(@Nonnull Rank rank){}
-
         default void traverse(@Nonnull Rank rank){}
-
         default void endVisit(@Nonnull Rank rank){}
-
-        default void handle(@Nonnull Rank rank) throws NullPointerException{
-            Preconditions.checkNotNull(rank);
+        default void handle(@Nonnull Rank rank) {
             visit(rank);
             traverse(rank);
             endVisit(rank);

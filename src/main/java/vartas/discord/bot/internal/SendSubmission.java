@@ -16,24 +16,29 @@ import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class SendSubmission implements Cluster.ShardsVisitor {
-    private final int shardId;
+public class SendSubmission extends Cluster.VisitorDelegator{
     private final long guildId;
     private final long channelId;
     private final Submission submission;
+    private int shardId = -1;
 
-    public SendSubmission(int shardId, long guildId, long channelId, Submission submission){
-        this.shardId = shardId;
+    public SendSubmission(long guildId, long channelId, Submission submission){
+        setShardVisitor(new Cluster.ShardVisitor());
         this.guildId = guildId;
         this.channelId = channelId;
         this.submission = submission;
     }
 
     @Override
-    public void visit(int shardId, @Nonnull Shard shard) throws NullPointerException {
-        Preconditions.checkNotNull(shard);
+    public void visit(@Nonnull Cluster cluster){
+        shardId = cluster.getShardId(guildId);
+    }
+
+    @Override
+    public void visit(@Nonnull Shard shard) {
+        Preconditions.checkArgument(shardId >= 0);
         //Abort if we're in the wrong shard
-        if(this.shardId != shardId)
+        if(this.shardId != shard.jda().getShardInfo().getShardId())
             return;
 
         //Handle Discord exceptions

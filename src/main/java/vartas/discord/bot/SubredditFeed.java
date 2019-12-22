@@ -17,7 +17,6 @@
 
 package vartas.discord.bot;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.HashBasedTable;
@@ -43,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * This class deals with receiving new submissions from subreddits and posting
  * them in the specified channels.
  */
-public class RedditFeed implements Runnable{
+public class SubredditFeed implements Runnable{
     /**
      * A table containing all registered subreddit feeds.<br>
      * The {@code rows} are all registered <b>subreddits</b>, the {@code columns} are the <b>caches</b> associated
@@ -60,7 +59,7 @@ public class RedditFeed implements Runnable{
      */
     protected final Cluster cluster;
 
-    public RedditFeed(Cluster cluster) throws NoSuchElementException {
+    public SubredditFeed(Cluster cluster) throws NoSuchElementException {
         this.cluster = cluster;
         log.debug("Reddit feeds created.");
     }
@@ -100,17 +99,24 @@ public class RedditFeed implements Runnable{
     }
 
     public interface Visitor{
-        default void visit(@Nonnull RedditFeed redditFeed){}
+        default void visit(@Nonnull String subredditName, long guildId, long channelId){}
+        default void traverse(@Nonnull String subredditName, long guildId, long channelId){}
+        default void endVisit(@Nonnull String subredditName, long guildId, long channelId){}
+        default void handle(@Nonnull String subredditName, long guildId, long channelId){
+            visit(subredditName, guildId, channelId);
+            traverse(subredditName, guildId, channelId);
+            endVisit(subredditName, guildId, channelId);
+        }
 
-        default void traverse(@Nonnull RedditFeed redditFeed) {}
-
-        default void endVisit(@Nonnull RedditFeed redditFeed){}
-
-        default void handle(@Nonnull RedditFeed redditFeed) throws NullPointerException{
-            Preconditions.checkNotNull(redditFeed);
-            visit(redditFeed);
-            traverse(redditFeed);
-            endVisit(redditFeed);
+        default void visit(@Nonnull SubredditFeed subredditFeed){}
+        default void traverse(@Nonnull SubredditFeed subredditFeed){
+            subredditFeed.subreddits.columnMap().values().forEach(map -> map.forEach((subredditName, values) -> values.forEach((channelId, guildId) -> handle(subredditName, guildId, channelId))));
+        }
+        default void endVisit(@Nonnull SubredditFeed subredditFeed){}
+        default void handle(@Nonnull SubredditFeed subredditFeed){
+            visit(subredditFeed);
+            traverse(subredditFeed);
+            endVisit(subredditFeed);
         }
     }
 
@@ -178,8 +184,7 @@ public class RedditFeed implements Runnable{
      * @param guildId the guild id associated with the channel id
      */
     private void send(Submission submission, long channelId, long guildId){
-        int shardId = cluster.getShardId(guildId);
-        cluster.accept(new SendSubmission(shardId, guildId, channelId, submission));
+        cluster.accept(new SendSubmission(guildId, channelId, submission));
     }
 
     /**

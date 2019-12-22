@@ -23,16 +23,26 @@ import net.dv8tion.jda.internal.entities.UserImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.offline.OfflineShard;
+
+import javax.annotation.Nonnull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RankTest extends AbstractTest {
+    OfflineShard shard;
+    Rank rank;
     JDAImpl jda;
     UserImpl user;
     @Before
     public void setUp(){
-        jda = shard.createJda(0, credentials);
+        shard = OfflineShard.create(null);
+        jda = shard.createJda(0, null);
         user = new UserImpl(userId, jda);
+
+        rank = new Rank();
+        rank.add(user, Rank.Ranks.DEVELOPER);
+        rank.add(user, Rank.Ranks.REDDIT);
     }
 
     @Test
@@ -70,5 +80,30 @@ public class RankTest extends AbstractTest {
         assertThat(Rank.Ranks.DEVELOPER.getName()).isEqualTo("Developer");
         assertThat(Rank.Ranks.REDDIT.getName()).isEqualTo("Reddit");
         assertThat(Rank.Ranks.ROOT.getName()).isEqualTo("Root");
+    }
+
+    @Test
+    public void visitorTest(){
+        Rank.Visitor visitor = new Visitor();
+        rank.accept(visitor);
+        visitor = new EmptyVisitor();
+        rank.accept(visitor);
+    }
+
+    private static class EmptyVisitor implements Rank.Visitor{}
+
+    private class Visitor implements Rank.Visitor{
+        @Override
+        public void visit(@Nonnull Rank rank){
+            assertThat(rank).isEqualTo(RankTest.this.rank);
+        }
+        @Override
+        public void traverse(@Nonnull Rank rank){
+            assertThat(rank).isEqualTo(RankTest.this.rank);
+        }
+        @Override
+        public void endVisit(@Nonnull Rank rank){
+            assertThat(rank).isEqualTo(RankTest.this.rank);
+        }
     }
 }

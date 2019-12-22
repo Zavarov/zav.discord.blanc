@@ -17,7 +17,6 @@
 
 package vartas.discord.bot.entities;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -46,13 +45,12 @@ import java.util.function.Consumer;
 /**
  * This class represents the instance of this bot on a single shard.<br>
  * Each shard represents an isolated program, meaning that one shard is not aware of all other shards.<br>
- * Meaning that if information has to be shared across multiple shards, it has to be done via an external scope.
+ * Meaning that if information has to be shared across multiple shards, it has to be done via an external scope.<br>
+ * Note that the constructor does not load any configuration. This has be done separately via visitors.
+ * The separation of construction and initialization was taken in order to make it easier adapting to custom changes
+ * to the shard. Rather than several methods, we only need a single visitor to load all elements.
  */
-public abstract class Shard implements Cluster.ClusterVisitor{
-    /**
-     * The id associated with this shard.
-     */
-    private final int shardId;
+public abstract class Shard {
     /**
      * The logger for the communicator.
      */
@@ -99,15 +97,32 @@ public abstract class Shard implements Cluster.ClusterVisitor{
      * All nodes share the same cluster.
      */
     private Cluster cluster;
-
+    /**
+     * The adapter for loading the guild configurations
+     */
     private EntityAdapter adapter;
 
     /**
      * Initializes a fresh shard.
      * @param shardId the shard id.
      */
-    public Shard(int shardId){
-        this.shardId = shardId;
+    public Shard(int shardId, Credentials credentials, EntityAdapter adapter, Cluster cluster) throws LoginException, InterruptedException {
+        this.adapter = adapter;
+        this.cluster = cluster;
+        this.jda = createJda(shardId, credentials);
+        this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
+        this.messages = new InteractiveMessageListener(credentials.getInteractiveMessageLifetime());
+        this.blacklist = new BlacklistListener(this);
+        this.command = new CommandListener(this, createCommandBuilder(), credentials.getGlobalPrefix());
+        this.misc = new MiscListener(this);
+
+        jda.addEventListener(activity);
+        jda.addEventListener(messages);
+        jda.addEventListener(blacklist);
+        jda.addEventListener(command);
+        jda.addEventListener(misc);
+
+        executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -120,21 +135,21 @@ public abstract class Shard implements Cluster.ClusterVisitor{
      * @param guild the guild associated with the configuration file.
      * @return the configuration for the specified guild
      */
-    public Configuration guild(Guild guild){
+    public Configuration guild(@Nonnull Guild guild){
         return guilds.getUnchecked(guild);
     }
-    public void remove(Guild guild){
+    public void remove(@Nonnull Guild guild){
         Configuration configuration = guild(guild);
-        getCluster().accept(new UnloadConfiguration(configuration));
-    }
-    private Configuration create(Guild guild){
-        Configuration configuration = adapter.configuration(guild, this);
-        getCluster().accept(new LoadConfiguration(configuration));
-        return configuration;
+        getCluster().accept(new UnloadConfiguration(this, configuration));
     }
     @Nonnull
     public Cluster getCluster(){
         return cluster;
+    }
+    private Configuration create(@Nonnull Guild guild){
+        Configuration configuration = adapter.configuration(guild, this);
+        getCluster().accept(new LoadConfiguration(this, configuration));
+        return configuration;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
@@ -195,51 +210,6 @@ public abstract class Shard implements Cluster.ClusterVisitor{
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
-    //   Initialization                                                                                               //
-    //                                                                                                                //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public void visit(@Nonnull Cluster cluster){
-        this.cluster = cluster;
-    }
-
-    @Override
-    public void endVisit(@Nonnull Cluster cluster){
-        cluster.accept(misc);
-    }
-
-    @Override
-    public void visit(@Nonnull EntityAdapter adapter){
-        this.adapter = adapter;
-    }
-
-    @Override
-    public void visit(@Nonnull Credentials credentials){
-        try {
-            this.jda = createJda(shardId, credentials);
-            this.activity = new ActivityListener(jda, credentials.getActivityUpdateInterval());
-            this.messages = new InteractiveMessageListener(credentials);
-            this.blacklist = new BlacklistListener(this);
-            this.command = new CommandListener(this, createCommandBuilder(), credentials.getGlobalPrefix());
-            this.misc = new MiscListener(this);
-
-            //Load the configuration for each guild
-            jda.getGuilds().forEach(this::guild);
-
-            jda.addEventListener(activity);
-            jda.addEventListener(messages);
-            jda.addEventListener(blacklist);
-            jda.addEventListener(command);
-            jda.addEventListener(misc);
-
-            executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
-        }catch(LoginException | InterruptedException e){
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                                                                                                //
     //   Visitor                                                                                                      //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,35 +218,122 @@ public abstract class Shard implements Cluster.ClusterVisitor{
         visitor.handle(this);
     }
 
-    public interface Visitor extends
-            ActivityListener.Visitor,
-            BlacklistListener.Visitor,
-            CommandListener.Visitor,
-            InteractiveMessageListener.Visitor,
-            MiscListener.Visitor,
-            Configuration.Visitor{
-
-        default void visit(int shardId, @Nonnull Shard shard){}
-
-        default void traverse(int shardId, @Nonnull Shard shard) throws NullPointerException{
-            Preconditions.checkNotNull(shard);
-            shard.activity.accept(this);
-            shard.blacklist.accept(this);
-            shard.command.accept(this);
-            shard.messages.accept(this);
-            shard.misc.accept(this);
+    public static class ConfigurationVisitor implements Visitor{
+        private Visitor realThis = this;
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+        }
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
+        @Override
+        public void traverse(@Nonnull Shard shard){
             //Force-load every configuration
-            shard.jda().getGuilds().stream().map(shard::guild).forEach(configuration -> configuration.accept(this));
+            shard.jda.getGuilds().stream().map(shard::guild).forEach(configuration -> configuration.accept(getRealThis()));
+        }
+    }
+
+    public static class ShardVisitor implements Visitor{
+        private Visitor realThis = this;
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+        }
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
+        @Override
+        public void traverse(@Nonnull Shard shard){
+            getRealThis().handle(shard.jda);
+            shard.activity.accept(getRealThis());
+            shard.blacklist.accept(getRealThis());
+            shard.command.accept(getRealThis());
+            shard.messages.accept(getRealThis());
+            shard.misc.accept(getRealThis());
+        }
+    }
+
+    public abstract static class VisitorDelegator implements Visitor{
+        private ShardVisitor shardVisitor;
+        private ConfigurationVisitor configurationVisitor;
+        private Visitor realThis = this;
+
+        @Override
+        public void setRealThis(Visitor realThis){
+            this.realThis = realThis;
+            if(configurationVisitor != null && configurationVisitor != getRealThis())
+                configurationVisitor.setRealThis(realThis);
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.setRealThis(realThis);
         }
 
-        default void endVisit(int shardId, @Nonnull Shard shard){}
+        @Override
+        public Visitor getRealThis(){
+            return realThis;
+        }
 
-        default void handle(@Nonnull Shard shard) throws NullPointerException{
-            Preconditions.checkNotNull(shard);
-            int shardId = shard.jda().getShardInfo().getShardId();
-            visit(shardId, shard);
-            traverse(shardId, shard);
-            endVisit(shardId, shard);
+        public void setShardVisitor(ShardVisitor shardVisitor){
+            this.shardVisitor = shardVisitor;
+            this.shardVisitor.setRealThis(getRealThis());
+        }
+
+        public void setConfigurationVisitor(ConfigurationVisitor configurationVisitor){
+            this.configurationVisitor = configurationVisitor;
+            this.configurationVisitor.setRealThis(getRealThis());
+        }
+
+        public void visit(@Nonnull Shard shard){
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.visit(shard);
+            if(configurationVisitor != null && configurationVisitor != getRealThis())
+                configurationVisitor.visit(shard);
+        }
+
+        public void traverse(@Nonnull Shard shard){
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.traverse(shard);
+            if(configurationVisitor != null && configurationVisitor != getRealThis())
+                configurationVisitor.traverse(shard);
+        }
+
+        public void endVisit(@Nonnull Shard shard){
+            if(shardVisitor != null && shardVisitor != getRealThis())
+                shardVisitor.endVisit(shard);
+            if(configurationVisitor != null && configurationVisitor != getRealThis())
+                configurationVisitor.endVisit(shard);
+        }
+    }
+
+    /**
+     * The frame of the shard visitor. By default, this visitor will only visit the shard and not its entries.<br>
+     */
+    public interface Visitor extends ActivityListener.Visitor, BlacklistListener.Visitor, CommandListener.Visitor, InteractiveMessageListener.Visitor, MiscListener.Visitor, Configuration.Visitor{
+        default void setRealThis(Visitor realThis){
+            throw new UnsupportedOperationException();
+        }
+        default Visitor getRealThis(){
+            throw new UnsupportedOperationException();
+        }
+
+        default void visit(@Nonnull JDA jda){}
+        default void traverse(@Nonnull JDA jda){}
+        default void endVisit(@Nonnull JDA jda){}
+        default void handle(@Nonnull JDA jda) {
+            visit(jda);
+            traverse(jda);
+            endVisit(jda);
+        }
+
+        default void visit(@Nonnull Shard shard){}
+        default void traverse(@Nonnull Shard shard){}
+        default void endVisit(@Nonnull Shard shard){}
+        default void handle(@Nonnull Shard shard) {
+            visit(shard);
+            traverse(shard);
+            endVisit(shard);
         }
     }
 }

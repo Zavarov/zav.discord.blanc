@@ -22,7 +22,7 @@ import com.google.common.collect.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import vartas.discord.bot.RedditFeed;
+import vartas.discord.bot.SubredditFeed;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -95,7 +95,6 @@ public class Configuration {
     //   Blacklist                                                                                                    //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Sets the pattern of this guild. All messages whose content is matched by this pattern
      * are automatically deleted.<br>
@@ -129,7 +128,6 @@ public class Configuration {
     //   Prefix                                                                                                       //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Sets the guild prefix. All commands in this guild either have to start
      * with the global prefix or the guild prefix.<br>
@@ -158,13 +156,11 @@ public class Configuration {
     public Optional<String> getPrefix(){
         return Optional.ofNullable(prefix);
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
     //   Role Group                                                                                                   //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Checks if the role exists in the specified group.
      * @param column the group name the role is associated with
@@ -241,7 +237,6 @@ public class Configuration {
     //   Subreddits                                                                                                   //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Checks if the text channel exists in the specified group.
      * @param column the group name the role is associated with
@@ -306,7 +301,6 @@ public class Configuration {
     //   All groups                                                                                                   //
     //                                                                                                                //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * If the configuration file doesn't have an entry for the specified {@code row}, an empty {@link Multimap}
      * is returned.
@@ -352,7 +346,7 @@ public class Configuration {
 
     /**
      * Removes all values associated with the specified {@code row} and {@code column}.
-     * This method is necessary when modifying the available subreddits in the {@link RedditFeed}, which needs
+     * This method is necessary when modifying the available subreddits in the {@link SubredditFeed}, which needs
      * to be reflected in all guild configurations that share the associated subreddit.
      * @param row the specified row
      * @param column the specified column
@@ -369,7 +363,7 @@ public class Configuration {
     /**
      * Associates an id with the specified {@code row} and {@code value}.
      * This method is necessary when modifying a subreddit feed over a specific text channel
-     * in the {@link RedditFeed}, which needs to be reflected in the respective guild configurations as well.
+     * in the {@link SubredditFeed}, which needs to be reflected in the respective guild configurations as well.
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param id the id associated with the type and group name
@@ -387,7 +381,7 @@ public class Configuration {
     /**
      * Removes the {@code value} associated with the specified {@code row} and {@code column}.
      * This method is necessary when modifying a subreddit feed over a specific text channel
-     * in the {@link RedditFeed}, which needs to be reflected in the respective guild configurations as well.
+     * in the {@link SubredditFeed}, which needs to be reflected in the respective guild configurations as well.
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param value the value associated with the type and group name
@@ -412,13 +406,16 @@ public class Configuration {
      * @return an immutable multimap of all key-value pairs
      * @throws NullPointerException if {@code row} or {@code mapper} is null
      */
+    @Nonnull
     public synchronized <T> Multimap<String, T> resolve(@Nonnull LongType row, @Nonnull Function<Long, T> mapper) throws NullPointerException{
+        Preconditions.checkNotNull(row);
+        Preconditions.checkNotNull(mapper);
         if(!groups.containsKey(row))
             return Multimaps.unmodifiableMultimap(HashMultimap.create());
         Multimap<String, T> multimap = HashMultimap.create();
         for(String column : groups.get(row).keySet())
             multimap.putAll(column, resolve(row, column, mapper));
-        return Multimaps.unmodifiableMultimap(HashMultimap.create());
+        return Multimaps.unmodifiableMultimap(multimap);
     }
 
 
@@ -435,7 +432,11 @@ public class Configuration {
      * @return an immutable collection of all transformed entries
      * @throws NullPointerException if {@code row}, {@code column} or {@code mapper} is null
      */
+    @Nonnull
     public synchronized <T> Collection<T> resolve(@Nonnull LongType row, @Nonnull String column, @Nonnull Function<Long, T> mapper) throws NullPointerException{
+        Preconditions.checkNotNull(row);
+        Preconditions.checkNotNull(column);
+        Preconditions.checkNotNull(mapper);
         if(!groups.containsKey(row))
             return Collections.emptyList();
         return groups.get(row).get(column).stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
@@ -444,6 +445,7 @@ public class Configuration {
     /**
      * A collection containing all valid row elements in the table.
      */
+    @Nonnull
     public enum LongType{
         /**
          * This entry is used for all self-assignable roles.<br>
@@ -505,18 +507,19 @@ public class Configuration {
      * Applies the visitor pattern on all entries in this configuration.
      * @param visitor the specified visitor.
      */
-    public void accept(Visitor visitor){
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The visitor for all entries in the configuration.
+     */
+    @Nonnull
     public interface Visitor {
         default void visit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
         default void traverse(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
         default void endVisit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
-        default void handle(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values) throws NullPointerException{
-            Preconditions.checkNotNull(type);
-            Preconditions.checkNotNull(key);
-            Preconditions.checkNotNull(values);
+        default void handle(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
             visit(type, key, values);
             traverse(type, key, values);
             endVisit(type, key, values);
@@ -525,8 +528,7 @@ public class Configuration {
         default void visit(@Nonnull Pattern pattern){}
         default void traverse(@Nonnull Pattern pattern){}
         default void endVisit(@Nonnull Pattern pattern){}
-        default void handle(@Nonnull Pattern pattern) throws NullPointerException{
-            Preconditions.checkNotNull(pattern);
+        default void handle(@Nonnull Pattern pattern){
             visit(pattern);
             traverse(pattern);
             endVisit(pattern);
@@ -535,23 +537,20 @@ public class Configuration {
         default void visit(@Nonnull String prefix){}
         default void traverse(@Nonnull String prefix){}
         default void endVisit(@Nonnull String prefix){}
-        default void handle(@Nonnull String prefix) throws NullPointerException{
-            Preconditions.checkNotNull(prefix);
+        default void handle(@Nonnull String prefix){
             visit(prefix);
             traverse(prefix);
             endVisit(prefix);
         }
 
         default void visit(@Nonnull Configuration configuration){}
-        default void traverse(@Nonnull Configuration configuration) throws NullPointerException{
-            Preconditions.checkNotNull(configuration);
+        default void traverse(@Nonnull Configuration configuration){
             configuration.getPattern().ifPresent(this::handle);
             configuration.getPrefix().ifPresent(this::handle);
             configuration.groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> this.handle(type, key, values)));
         }
         default void endVisit(@Nonnull Configuration configuration){}
-        default void handle(@Nonnull Configuration configuration) throws NullPointerException{
-            Preconditions.checkNotNull(configuration);
+        default void handle(@Nonnull Configuration configuration){
             visit(configuration);
             traverse(configuration);
             endVisit(configuration);

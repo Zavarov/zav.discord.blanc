@@ -214,8 +214,7 @@ public class CommandListener extends ListenerAdapter {
 
         default void endVisit(@Nonnull CommandListener commandListener){}
 
-        default void handle(@Nonnull CommandListener commandListener) throws NullPointerException{
-            Preconditions.checkNotNull(commandListener);
+        default void handle(@Nonnull CommandListener commandListener) {
             visit(commandListener);
             traverse(commandListener);
             endVisit(commandListener);

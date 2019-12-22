@@ -186,11 +186,9 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      * As a little side effect, it will happen that
      * that the plot for the messages is ahead of the member plot, due to the latter one not updating in real time.
      * @param event the triggered event.
-     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) throws NullPointerException{
-        Preconditions.checkNotNull(event);
+    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
         //Ignore bot messages
         if(event.getAuthor().isBot())
             return;
@@ -219,8 +217,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
 
         default void endVisit(@Nonnull ActivityListener activityListener){}
 
-        default void handle(@Nonnull ActivityListener activityListener) throws NullPointerException{
-            Preconditions.checkNotNull(activityListener);
+        default void handle(@Nonnull ActivityListener activityListener) {
             visit(activityListener);
             traverse(activityListener);
             endVisit(activityListener);

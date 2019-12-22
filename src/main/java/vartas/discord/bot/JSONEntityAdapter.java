@@ -40,11 +40,12 @@ import static vartas.discord.bot.entities.Credentials.IntegerType.*;
 import static vartas.discord.bot.entities.Credentials.StringType.*;
 
 public class JSONEntityAdapter implements EntityAdapter{
-    protected Logger log = JDALogger.getLog(this.getClass().getSimpleName());
-    protected Path credentials;
-    protected Path status;
-    protected Path rank;
-    protected Path configurations;
+    private final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
+    private final Path credentials;
+    private final Path status;
+    private final Path rank;
+    private final Path configurations;
+
     public JSONEntityAdapter(Path credentials, Path status, Path rank, Path configurations){
         this.credentials = credentials;
         this.rank = rank;
@@ -60,6 +61,7 @@ public class JSONEntityAdapter implements EntityAdapter{
         result.setType(STATUS_MESSAGE_UPDATE_INTERVAL, object.getInt(STATUS_MESSAGE_UPDATE_INTERVAL.getName()));
         result.setType(INTERACTIVE_MESSAGE_LIFETIME  , object.getInt(INTERACTIVE_MESSAGE_LIFETIME.getName()));
         result.setType(ACTIVITY_UPDATE_INTERVAL      , object.getInt(ACTIVITY_UPDATE_INTERVAL.getName()));
+        result.setType(DISCORD_SHARDS                , object.getInt(DISCORD_SHARDS.getName()));
         result.setType(BOT_NAME                      , object.getString(BOT_NAME.getName()));
         result.setType(GLOBAL_PREFIX                 , object.getString(GLOBAL_PREFIX.getName()));
         result.setType(IMAGE_WIDTH                   , object.getInt(IMAGE_WIDTH.getName()));

@@ -229,6 +229,7 @@ public class Credentials {
      * A wrapper interface to combine the keys from {@link IntegerType} and {@link StringType}.<br>
      * @param <T> the type of values this key can accept.
      */
+    @Nonnull
     public interface Type <T>{
         /**
          * @return the name of the key in the credentials file.
@@ -247,6 +248,7 @@ public class Credentials {
     /**
      * A collection of all keys that are associated with {@link Integer integers}.
      */
+    @Nonnull
     public enum IntegerType implements Type<Integer>{
         /**
          * Indicates the interval in minutes with which the status message of the bots in
@@ -322,6 +324,7 @@ public class Credentials {
     /**
      * A collection of all keys that are associated with {@link String strings}.
      */
+    @Nonnull
     public enum StringType implements Type<String>{
         /**
          * The invite link to the support server.
@@ -376,19 +379,16 @@ public class Credentials {
         }
     }
 
-    public void accept(Visitor visitor){
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    @Nonnull
     public interface Visitor {
         default void visit(@Nonnull Credentials credentials){}
-
         default void traverse(@Nonnull Credentials credentials) {}
-
         default void endVisit(@Nonnull Credentials credentials){}
-
-        default void handle(@Nonnull Credentials credentials) throws NullPointerException{
-            Preconditions.checkNotNull(credentials);
+        default void handle(@Nonnull Credentials credentials) {
             visit(credentials);
             traverse(credentials);
             endVisit(credentials);

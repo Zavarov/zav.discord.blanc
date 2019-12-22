@@ -49,7 +49,7 @@ public class ActivityListenerTest extends AbstractTest {
 
     @Before
     public void setUp() {
-        jda = new JDAImpl(authorization){
+        jda = new JDAImpl(Authorization){
             @Nonnull
             @Override
             public List<Guild> getGuilds(){

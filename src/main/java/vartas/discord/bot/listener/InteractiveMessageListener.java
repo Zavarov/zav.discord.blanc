@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
-import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.message.InteractiveMessage;
 
 import javax.annotation.Nonnull;
@@ -48,14 +47,12 @@ public class InteractiveMessageListener extends ListenerAdapter {
 
     /**
      * Initializes an empty tracker
-     * @param config the configuration file containing the lifetime of the messages.
-     * @throws NullPointerException if {@code config} is null
+     * @param lifetime the maximum time since the last modification before the program stops reacting to the message
      */
-    public InteractiveMessageListener(@Nonnull Credentials config) throws NullPointerException{
-        Preconditions.checkNotNull(config);
+    public InteractiveMessageListener(int lifetime) throws NullPointerException{
         cache = CacheBuilder
                 .newBuilder()
-                .expireAfterAccess(config.getInteractiveMessageLifetime(), TimeUnit.MINUTES)
+                .expireAfterAccess(lifetime, TimeUnit.MINUTES)
                 .build();
 
         Logger log = JDALogger.getLog(this.getClass());
@@ -102,8 +99,7 @@ public class InteractiveMessageListener extends ListenerAdapter {
 
         default void endVisit(@Nonnull InteractiveMessageListener interactiveMessageListener){}
 
-        default void handle(@Nonnull InteractiveMessageListener interactiveMessageListener) throws NullPointerException{
-            Preconditions.checkNotNull(interactiveMessageListener);
+        default void handle(@Nonnull InteractiveMessageListener interactiveMessageListener) {
             visit(interactiveMessageListener);
             traverse(interactiveMessageListener);
             endVisit(interactiveMessageListener);

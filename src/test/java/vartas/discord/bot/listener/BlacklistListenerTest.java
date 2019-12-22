@@ -25,12 +25,15 @@ import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.offline.OfflineShard;
 
 import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BlacklistListenerTest extends AbstractTest {
+    OfflineShard shard;
     JDAImpl jda;
     SelfUserImpl user;
     GuildImpl guild;
@@ -40,14 +43,17 @@ public class BlacklistListenerTest extends AbstractTest {
     Configuration configuration;
     @Before
     public void setUp(){
-        jda = new JDAImpl(authorization);
+        shard = OfflineShard.create(null);
+        jda = new JDAImpl(Authorization);
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId);
         channel = new TextChannelImpl(channelId, guild);
-        configuration = entityAdapter.configuration(guild, shard);
+        configuration = new Configuration(guildId);
+
+        shard.configurations.put(guild, configuration);
+        configuration.setPattern(Pattern.compile("pattern"));
 
         listener = new BlacklistListener(shard);
-        listener.set(configuration);
         event = new GuildMessageReceivedEvent(jda, 54321L, createMessage("pattern"));
         jda.setSelfUser(new SelfUserImpl(50, jda));
     }
@@ -79,8 +85,7 @@ public class BlacklistListenerTest extends AbstractTest {
 
     @Test
     public void onGuildMessageReceivedNoPatternTest(){
-        listener.remove(guildId);
-
+        configuration.removePattern();
         assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
         assertThat(shard.send).isEmpty();

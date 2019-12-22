@@ -20,17 +20,48 @@ package vartas.discord.bot.entities;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 
+import javax.annotation.Nonnull;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StatusVisitorTest extends AbstractTest {
+public class StatusTest extends AbstractTest {
+    Status status;
     @Test
     public void getTest(){
+        status = new Status();
         status.add("element");
         assertThat(status.get()).contains("element");
     }
 
     @Test
     public void getEmptyTest(){
+        status = new Status();
         assertThat(status.get()).isEmpty();
+    }
+
+    @Test
+    public void visitorTest(){
+        status = new Status();
+        Status.Visitor visitor = new Visitor();
+        status.accept(visitor);
+        visitor = new EmptyVisitor();
+        status.accept(visitor);
+    }
+
+    private static class EmptyVisitor implements Status.Visitor{}
+
+    private class Visitor implements Status.Visitor{
+        @Override
+        public void visit(@Nonnull Status status){
+            assertThat(status).isEqualTo(StatusTest.this.status);
+        }
+        @Override
+        public void traverse(@Nonnull Status status){
+            assertThat(status).isEqualTo(StatusTest.this.status);
+        }
+        @Override
+        public void endVisit(@Nonnull Status status){
+            assertThat(status).isEqualTo(StatusTest.this.status);
+        }
     }
 }

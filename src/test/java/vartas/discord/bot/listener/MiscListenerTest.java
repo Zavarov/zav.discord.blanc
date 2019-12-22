@@ -23,10 +23,12 @@ import net.dv8tion.jda.internal.entities.GuildImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.offline.OfflineShard;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MiscListenerTest extends AbstractTest {
+    OfflineShard shard;
     JDAImpl jda;
     GuildImpl guild;
 
@@ -34,7 +36,8 @@ public class MiscListenerTest extends AbstractTest {
     GuildLeaveEvent event;
     @Before
     public void setUp(){
-        jda = new JDAImpl(authorization);
+        shard = OfflineShard.create(null);
+        jda = new JDAImpl(Authorization);
         guild = new GuildImpl(jda, guildId);
         listener = new MiscListener(shard);
         event = new GuildLeaveEvent(jda, 12345L, guild);

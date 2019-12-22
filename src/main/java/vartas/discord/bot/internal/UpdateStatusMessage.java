@@ -1,6 +1,7 @@
 package vartas.discord.bot.internal;
 
 import com.google.common.base.Preconditions;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.internal.utils.JDALogger;
 import org.slf4j.Logger;
@@ -11,9 +12,14 @@ import vartas.discord.bot.entities.Status;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class UpdateStatusMessage implements Cluster.ShardsVisitor, Cluster.ClusterVisitor {
+public class UpdateStatusMessage extends Cluster.VisitorDelegator{
     private final Logger log = JDALogger.getLog(this.getClass());
     private String statusMessage;
+
+    public UpdateStatusMessage(){
+        setShardVisitor(new Cluster.ShardVisitor());
+        setShardVisitor(new Shard.ShardVisitor());
+    }
 
     @Override
     public void visit(@Nonnull Status status){
@@ -21,16 +27,10 @@ public class UpdateStatusMessage implements Cluster.ShardsVisitor, Cluster.Clust
         messageOpt.ifPresent(message -> statusMessage = message);
     }
 
-    //Don't traverse all subnodes to minimize the overhead
     @Override
-    public void traverse(int shardId, @Nonnull Shard shard){
+    public void visit(@Nonnull JDA jda){
         Preconditions.checkNotNull(statusMessage);
-        shard.jda().getPresence().setActivity(Activity.playing(statusMessage));
+        jda.getPresence().setActivity(Activity.playing(statusMessage));
         log.info(String.format("Status message updated to '%s'", statusMessage));
-    }
-    @Override
-    public void traverse(@Nonnull Cluster cluster){
-        Cluster.ClusterVisitor.super.traverse(cluster);
-        Cluster.ShardsVisitor.super.traverse(cluster);
     }
 }

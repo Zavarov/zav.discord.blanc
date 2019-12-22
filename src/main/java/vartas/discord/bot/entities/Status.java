@@ -74,19 +74,23 @@ public class Status {
         return Optional.of(entries.get(index));
     }
 
-    public void accept(Visitor visitor){
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through the status
+     */
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The status visitor.
+     */
+    @Nonnull
     public interface Visitor{
         default void visit(@Nonnull Status status){}
-
         default void traverse(@Nonnull Status status) {}
-
         default void endVisit(@Nonnull Status status){}
-
-        default void handle(@Nonnull Status status) throws NullPointerException{
-            Preconditions.checkNotNull(status);
+        default void handle(@Nonnull Status status) {
             visit(status);
             traverse(status);
             endVisit(status);

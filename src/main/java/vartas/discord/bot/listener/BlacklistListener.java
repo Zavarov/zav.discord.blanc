@@ -18,7 +18,6 @@
 package vartas.discord.bot.listener;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -29,7 +28,6 @@ import vartas.discord.bot.entities.Configuration;
 import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -40,12 +38,6 @@ import java.util.regex.Pattern;
  */
 @Nonnull
 public class BlacklistListener extends ListenerAdapter {
-    /**
-     * A mapping of each guild id and its corresponding configuration.
-     * The configuration file contains the pattern for the guild.
-     */
-    @Nonnull
-    private final Map<Long, Configuration> blacklist = Maps.newConcurrentMap();
     /**
      * The shard associated with the listener.
      * It is required for scheduling the removal.
@@ -61,27 +53,6 @@ public class BlacklistListener extends ListenerAdapter {
     public BlacklistListener(@Nonnull Shard shard) throws NullPointerException{
         Preconditions.checkNotNull(shard);
         this.shard = shard;
-    }
-
-    /**
-     * Adds the configuration to the internal mapping. The key for the instance is provided
-     * by its guild id.
-     * From now on, every message from this guild that matches the expression
-     * defined in the configuration will be deleted, if possible.
-     * @param configuration the guild configuration
-     * @throws NullPointerException if {@code configuration} is null
-     */
-    public void set(@Nonnull Configuration configuration) throws NullPointerException{
-        Preconditions.checkNotNull(configuration);
-        blacklist.put(configuration.getGuildId(), configuration);
-    }
-
-    /**
-     * Removes the mapping for the guild. Now all messages from the guild will be accepted.
-     * @param guildId the guild id
-     */
-    public void remove(long guildId){
-        blacklist.remove(guildId);
     }
 
     /**
@@ -103,8 +74,8 @@ public class BlacklistListener extends ListenerAdapter {
         if(self.equals(author))
             return;
 
-        Optional<Pattern> patternOpt;
-        patternOpt = blacklist.containsKey(guildId) ? blacklist.get(guildId).getPattern() : Optional.empty();
+        Configuration configuration = shard.guild(event.getGuild());
+        Optional<Pattern> patternOpt = configuration.getPattern();
         //Delete the message on a match
         patternOpt.ifPresent(pattern -> {
             if(pattern.matcher(message.getContentRaw()).matches())

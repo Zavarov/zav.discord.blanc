@@ -25,6 +25,7 @@ import net.dv8tion.jda.internal.entities.*;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.offline.OfflineShard;
 import vartas.discord.bot.message.InteractiveMessage;
 import vartas.discord.bot.message.builder.InteractiveMessageBuilder;
 
@@ -33,6 +34,8 @@ import javax.annotation.Nonnull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InteractiveMessageListenerTest extends AbstractTest {
+    static int LIFETIME = 12;
+    OfflineShard shard;
     JDAImpl jda;
     SelfUserImpl user;
     RoleImpl role;
@@ -48,7 +51,8 @@ public class InteractiveMessageListenerTest extends AbstractTest {
     MessageEmbed firstPage;
     @Before
     public void setUp(){
-        jda = new JDAImpl(authorization);
+        shard = OfflineShard.create(null);
+        jda = new JDAImpl(Authorization);
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId){
             @Override
@@ -69,7 +73,7 @@ public class InteractiveMessageListenerTest extends AbstractTest {
         guild.setOwner(member);
         guild.setPublicRole(role);
 
-        listener = new InteractiveMessageListener(credentials);
+        listener = new InteractiveMessageListener(LIFETIME);
         interactiveMessage = new InteractiveMessageBuilder(user, shard).nextPage().nextPage().build();
         firstPage = interactiveMessage.build();
         event = createEvent(message, textChannel);

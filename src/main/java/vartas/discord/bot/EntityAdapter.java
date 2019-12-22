@@ -17,7 +17,6 @@
 
 package vartas.discord.bot;
 
-import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.entities.Guild;
 import vartas.discord.bot.entities.*;
 
@@ -45,13 +44,11 @@ public interface EntityAdapter {
     interface Visitor{
         default void visit(@Nonnull EntityAdapter entityAdapter){}
 
-        default void traverse(@Nonnull EntityAdapter entityAdapter) {
-        }
+        default void traverse(@Nonnull EntityAdapter entityAdapter){}
 
         default void endVisit(@Nonnull EntityAdapter entityAdapter){}
 
-        default void handle(@Nonnull EntityAdapter entityAdapter) throws NullPointerException {
-            Preconditions.checkNotNull(entityAdapter);
+        default void handle(@Nonnull EntityAdapter entityAdapter) {
             visit(entityAdapter);
             traverse(entityAdapter);
             endVisit(entityAdapter);
