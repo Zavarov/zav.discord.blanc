@@ -67,14 +67,17 @@ public abstract class Cluster {
     /**
      * All shards of this cluster.
      */
+    @Nonnull
     private final Collection<Shard> shards = new HashSet<>();
     /**
      * The credentials for the different servers and
      */
+    @Nonnull
     private final Credentials credentials;
     /**
      * The internal ranks for all registered users.
      */
+    @Nonnull
     private final Rank rank;
 
     /**
@@ -113,41 +116,61 @@ public abstract class Cluster {
      */
     @Nonnull
     protected abstract Client createRedditClient(@Nonnull Credentials credentials) throws NullPointerException;
+
+    /**
+     * Creates a new client for communicating with the Pushshift API
+     * @param credentials the credentials containing the information for logging in
+     * @return the interface for communicating with the Pushshift API
+     * @throws NullPointerException if {@code credentials} is null
+     */
     @Nonnull
     protected abstract Client createPushshiftClient(@Nonnull Credentials credentials) throws NullPointerException;
 
+    /**
+     * The formula for getting the shard for the respective guild id is <b>id >> 22 mod #shards</b>
+     * {@see  <a href="https://discordapp.com/developers/docs/topics/gateway">https://discordapp.com/developers/docs/topics/gateway</a>}
+     * @param guildId the guild id
+     * @return the shard the guild with the respective id is in
+     */
     public int getShardId(long guildId){
         return (int)((guildId >> 22) % credentials.getDiscordShards());
     }
 
+    /**
+     * Terminates all running tasks and cuts all connections to the connected servers.<br>
+     * The program has to be restarted after using this command.
+     */
     public void shutdown(){
         global.shutdown();
         reddit.logout();
         pushshift.logout();
     }
-
-    public Optional<Subreddit> subreddit(String subreddit) {
+    @Nonnull
+    public Optional<Subreddit> subreddit(@Nonnull String subreddit) throws IllegalArgumentException{
         try {
             return reddit.requestSubreddit(subreddit, MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<? extends Collection<Comment>> comment(Submission submission) {
+    @Nonnull
+    public Optional<? extends Collection<Comment>> comment(@Nonnull Submission submission) throws IllegalArgumentException{
         try {
             return reddit.requestComment(submission.getId(), MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<? extends Collection<Submission>> pushshift(String subreddit, LocalDateTime start, LocalDateTime end) {
+    @Nonnull
+    public Optional<? extends Collection<Submission>> pushshift(@Nonnull String subreddit, @Nonnull LocalDateTime start, @Nonnull LocalDateTime end) throws IllegalArgumentException{
         try {
             return pushshift.requestSubmission(subreddit, start, end, MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }
     }
-    public Optional<? extends Collection<Submission>> submission(String subreddit, LocalDateTime start, LocalDateTime end) {
+    @Nonnull
+    public Optional<? extends Collection<Submission>> submission(@Nonnull String subreddit, @Nonnull LocalDateTime start, @Nonnull LocalDateTime end) throws IllegalArgumentException{
         try {
             return reddit.requestSubmission(subreddit, start, end, MAX_RETRIES);
         }catch(HttpResponseException e){
@@ -155,122 +178,32 @@ public abstract class Cluster {
         }
     }
 
-    public void registerShard(@Nonnull Shard shard) throws NullPointerException{
-        Preconditions.checkNotNull(shard);
+    public void registerShard(@Nonnull Shard shard) {
         shards.add(shard);
     }
 
-    public void accept(Visitor visitor){
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
-    public abstract static class VisitorDelegator extends Shard.VisitorDelegator implements Visitor {
-        private ClusterVisitor clusterVisitor;
-        private ShardVisitor shardVisitor;
-        private Visitor realThis = this;
-
-        @Override
-        public void setRealThis(Visitor realThis){
-            this.realThis = realThis;
-            if(clusterVisitor != null && clusterVisitor != getRealThis())
-                clusterVisitor.setRealThis(realThis);
-            if(shardVisitor != null && shardVisitor != getRealThis())
-                shardVisitor.setRealThis(realThis);
-        }
-
-        @Override
-        public Visitor getRealThis(){
-            return realThis;
-        }
-
-        public void setClusterVisitor(ClusterVisitor clusterVisitor){
-            this.clusterVisitor = clusterVisitor;
-            this.clusterVisitor.setRealThis(getRealThis());
-        }
-
-        public void setShardVisitor(ShardVisitor shardVisitor){
-            this.shardVisitor = shardVisitor;
-            this.shardVisitor.setRealThis(getRealThis());
-        }
-
-        @Override
-        public void visit(@Nonnull Cluster cluster){
-            if(clusterVisitor != null && clusterVisitor != getRealThis())
-                clusterVisitor.visit(cluster);
-            if(shardVisitor != null && shardVisitor != getRealThis())
-                shardVisitor.visit(cluster);
-        }
-
-        @Override
-        public void traverse(@Nonnull Cluster cluster){
-            if(clusterVisitor != null && clusterVisitor != getRealThis())
-                clusterVisitor.traverse(cluster);
-            if(shardVisitor != null && shardVisitor != getRealThis())
-                shardVisitor.traverse(cluster);
-        }
-
-        @Override
-        public void endVisit(@Nonnull Cluster cluster){
-            if(clusterVisitor != null && clusterVisitor != getRealThis())
-                clusterVisitor.endVisit(cluster);
-            if(shardVisitor != null && shardVisitor != getRealThis())
-                shardVisitor.endVisit(cluster);
-        }
-    }
-
     public interface Visitor extends Credentials.Visitor, EntityAdapter.Visitor, Rank.Visitor, Status.Visitor, SubredditFeed.Visitor, Shard.Visitor{
-        default void setRealThis(Visitor realThis){
-            throw new UnsupportedOperationException();
-        }
-        default Visitor getRealThis(){
-            throw new UnsupportedOperationException();
-        }
-
         default void visit(@Nonnull Cluster cluster){}
-
-        default void traverse(@Nonnull Cluster cluster){}
-
         default void endVisit(@Nonnull Cluster cluster){}
+
+        default void traverse(@Nonnull Cluster cluster){
+            cluster.credentials.accept(this);
+            cluster.adapter.accept(this);
+            cluster.rank.accept(this);
+            cluster.status.accept(this);
+            cluster.feed.accept(this);
+            cluster.shards.forEach(shard -> shard.accept(this));
+        }
 
         default void handle(@Nonnull Cluster cluster) throws NullPointerException{
             Preconditions.checkNotNull(cluster);
             visit(cluster);
             traverse(cluster);
             endVisit(cluster);
-        }
-    }
-    public static class ClusterVisitor implements Visitor{
-        private Visitor realThis = this;
-        @Override
-        public void setRealThis(Visitor realThis){
-            this.realThis = realThis;
-        }
-        @Override
-        public Visitor getRealThis(){
-            return realThis;
-        }
-        @Override
-        public void traverse(@Nonnull Cluster cluster) {
-            cluster.credentials.accept(getRealThis());
-            cluster.adapter.accept(getRealThis());
-            cluster.rank.accept(getRealThis());
-            cluster.status.accept(getRealThis());
-            cluster.feed.accept(getRealThis());
-        }
-    }
-    public static class ShardVisitor implements Visitor{
-        private Visitor realThis = this;
-        @Override
-        public void setRealThis(Visitor realThis){
-            this.realThis = realThis;
-        }
-        @Override
-        public Visitor getRealThis(){
-            return realThis;
-        }
-        @Override
-        public void traverse(@Nonnull Cluster cluster) {
-            cluster.shards.forEach(shard -> shard.accept(getRealThis()));
         }
     }
 }

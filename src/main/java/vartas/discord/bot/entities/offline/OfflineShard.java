@@ -47,7 +47,7 @@ public class OfflineShard extends Shard {
     public List<? super Object> removed = new ArrayList<>();
     public List<? super Object> stored = new ArrayList<>();
 
-    public OfflineShard(OfflineCluster cluster) throws LoginException, InterruptedException {
+    public OfflineShard(@Nonnull OfflineCluster cluster) throws LoginException, InterruptedException {
         super(0, OfflineCluster.Adapter.credentials(), OfflineCluster.Adapter, cluster);
     }
 
@@ -57,11 +57,6 @@ public class OfflineShard extends Shard {
         }catch(LoginException | InterruptedException e){
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void remove(@Nonnull Guild guild){
-        removed.add(guild.getIdLong());
     }
 
     @Override

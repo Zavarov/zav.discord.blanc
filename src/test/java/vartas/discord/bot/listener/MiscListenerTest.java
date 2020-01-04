@@ -23,11 +23,11 @@ import net.dv8tion.jda.internal.entities.GuildImpl;
 import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
+import vartas.discord.bot.entities.offline.OfflineCluster;
 import vartas.discord.bot.entities.offline.OfflineShard;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class MiscListenerTest extends AbstractTest {
+    OfflineCluster cluster;
     OfflineShard shard;
     JDAImpl jda;
     GuildImpl guild;
@@ -36,16 +36,21 @@ public class MiscListenerTest extends AbstractTest {
     GuildLeaveEvent event;
     @Before
     public void setUp(){
-        shard = OfflineShard.create(null);
+        cluster = OfflineCluster.create();
+        shard = OfflineShard.create(cluster);
         jda = new JDAImpl(Authorization);
         guild = new GuildImpl(jda, guildId);
         listener = new MiscListener(shard);
         event = new GuildLeaveEvent(jda, 12345L, guild);
+
+        cluster.registerShard(shard);
+        shard.guilds.put(guildId, guild);
     }
 
     @Test
     public void onGuildLeaveTest(){
         listener.onGuildLeave(event);
-        assertThat(shard.removed).containsExactly(guildId);
+        //TODO
+        //assertThat(cluster.Adapter.removed).containsExactly(guildId);
     }
 }

@@ -5,10 +5,7 @@ import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
 
-public class Shutdown extends Cluster.VisitorDelegator {
-    public Shutdown(){
-        setShardVisitor(new Cluster.ShardVisitor());
-    }
+public class Shutdown implements Cluster.Visitor {
     @Override
     public void visit(@Nonnull Shard shard){
         Thread thread = new Thread(shard.shutdown());

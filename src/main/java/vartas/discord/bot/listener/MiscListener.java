@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.bot.entities.Shard;
+import vartas.discord.bot.internal.DeleteConfigurationFile;
 
 import javax.annotation.Nonnull;
 
@@ -54,7 +55,7 @@ public class MiscListener extends ListenerAdapter{
     @Override
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) throws NullPointerException{
         Preconditions.checkNotNull(event);
-        shard.remove(event.getGuild());
+        shard.getCluster().accept(new DeleteConfigurationFile(event.getGuild().getIdLong()));
     }
 
     public void accept(Visitor visitor){

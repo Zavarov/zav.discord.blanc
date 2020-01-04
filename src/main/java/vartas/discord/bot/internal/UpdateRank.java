@@ -6,10 +6,9 @@ import vartas.discord.bot.entities.Rank;
 
 import javax.annotation.Nonnull;
 
-public class UpdateRank extends Cluster.VisitorDelegator{
+public class UpdateRank implements Cluster.Visitor{
     private final Rank rank;
     public UpdateRank(Rank rank){
-        setClusterVisitor(new Cluster.ClusterVisitor());
         this.rank = rank;
     }
 
