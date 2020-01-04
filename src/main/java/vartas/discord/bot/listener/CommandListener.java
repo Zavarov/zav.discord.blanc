@@ -33,7 +33,6 @@ import vartas.discord.bot.entities.Configuration;
 import vartas.discord.bot.entities.Shard;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 /**
  * This listener is responsible for parsing the received messages and transforming them into commands,
@@ -125,13 +124,11 @@ public class CommandListener extends ListenerAdapter {
         Preconditions.checkNotNull(message);
         Guild guild = message.getGuild();
         Configuration configuration = shard.guild(guild);
-        Optional<String> prefixOpt = configuration.getPrefix();
+        String prefix = configuration.getPrefix().orElse(null);
         String content = message.getContentRaw();
 
-        if(prefixOpt.isPresent()){
-            String prefix = prefixOpt.get();
+        if(prefix != null && content.startsWith(prefix))
             parse(StringUtils.removeStart(content, prefix), message);
-        }
     }
 
     /**
