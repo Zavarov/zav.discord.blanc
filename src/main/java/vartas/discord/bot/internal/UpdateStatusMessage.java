@@ -17,6 +17,7 @@ public class UpdateStatusMessage extends Cluster.VisitorDelegator{
     private String statusMessage;
 
     public UpdateStatusMessage(){
+        setClusterVisitor(new Cluster.ClusterVisitor());
         setShardVisitor(new Cluster.ShardVisitor());
         setShardVisitor(new Shard.ShardVisitor());
     }
