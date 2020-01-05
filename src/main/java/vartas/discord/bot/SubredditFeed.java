@@ -63,7 +63,7 @@ public class SubredditFeed implements Runnable{
 
     @Override
     public void run() {
-        log.info(String.format("Visiting %d %s.", cache.size(), English.plural("subreddit", (int)cache.size())));
+        log.info(String.format("%d %s cached.", cache.size(), English.plural("subreddit", (int)cache.size())));
         cluster.accept(new Update());
     }
 
