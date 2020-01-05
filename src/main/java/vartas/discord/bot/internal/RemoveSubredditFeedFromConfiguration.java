@@ -5,11 +5,13 @@ import vartas.discord.bot.entities.Configuration;
 
 import javax.annotation.Nonnull;
 
+@Nonnull
 public class RemoveSubredditFeedFromConfiguration implements Cluster.Visitor{
+    @Nonnull
     private final String subredditName;
     private final long guildId;
     private final long channelId;
-    public RemoveSubredditFeedFromConfiguration(String subredditName, long guildId, long channelId){
+    public RemoveSubredditFeedFromConfiguration(@Nonnull String subredditName, long guildId, long channelId){
         this.subredditName = subredditName;
         this.guildId = guildId;
         this.channelId = channelId;

@@ -17,7 +17,6 @@
 
 package vartas.discord.bot.entities;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -52,11 +51,8 @@ public class Rank {
      * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the {@link User}
      * @return true, if there is a {@link User} with the given {@link Ranks Rank}.
-     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
-    public boolean resolve(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(value);
+    public boolean resolve(@Nonnull User key, @Nonnull Ranks value){
         return ranks.containsEntry(key.getIdLong(), value);
     }
 
@@ -64,10 +60,8 @@ public class Rank {
      * Associates a {@link User} with a {@link Ranks Rank}.
      * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the {@link User}
-     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
-    public void add(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
-        Preconditions.checkNotNull(key);
+    public void add(@Nonnull User key, @Nonnull Ranks value){
         add(key.getIdLong(), value);
     }
 
@@ -77,10 +71,8 @@ public class Rank {
      * {@link User} instances.
      * @param key the unique user id associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the unique user id
-     * @throws NullPointerException if ${code value} is null
      */
-    public void add(long key, @Nonnull Ranks value) throws NullPointerException{
-        Preconditions.checkNotNull(value);
+    public void add(long key, @Nonnull Ranks value){
         ranks.put(key, value);
     }
 
@@ -88,10 +80,8 @@ public class Rank {
      * Removes the mapping for a key-value pair in the underlying multimap.
      * @param key the {@link User} associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the unique user id
-     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
-    public void remove(@Nonnull User key, @Nonnull Ranks value) throws NullPointerException{
-        Preconditions.checkNotNull(key);
+    public void remove(@Nonnull User key, @Nonnull Ranks value){
         remove(key.getIdLong(), value);
     }
 
@@ -100,10 +90,8 @@ public class Rank {
      * This method is necessary when modifying the file via an MPI command.
      * @param key the unique user id associated with the {@link Ranks Rank}
      * @param value the {@link Ranks Rank} associated with the unique user id
-     * @throws NullPointerException if either {@code key} or ${code value} is null
      */
-    public void remove(long key, @Nonnull Ranks value) throws NullPointerException{
-        Preconditions.checkNotNull(value);
+    public void remove(long key, @Nonnull Ranks value){
         ranks.remove(key, value);
     }
 
@@ -155,8 +143,7 @@ public class Rank {
          * @param name the name identifying this rank in the rank file
          * @throws NullPointerException if {@code name} is null
          */
-        Ranks(@Nonnull String name) throws NullPointerException{
-            Preconditions.checkNotNull(name);
+        Ranks(@Nonnull String name){
             this.name = name;
         }
         /**
@@ -168,15 +155,47 @@ public class Rank {
         }
     }
 
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through the rank
+     */
     public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The rank visitor.
+     */
     @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param rank the corresponding rank
+         */
         default void visit(@Nonnull Rank rank){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param rank the corresponding rank
+         */
         default void traverse(@Nonnull Rank rank){}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param rank the corresponding rank
+         */
         default void endVisit(@Nonnull Rank rank){}
+
+        /**
+         * The top method of the rank visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param rank the corresponding rank
+         */
         default void handle(@Nonnull Rank rank) {
             visit(rank);
             traverse(rank);

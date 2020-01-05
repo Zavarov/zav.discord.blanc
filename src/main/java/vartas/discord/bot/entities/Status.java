@@ -87,9 +87,34 @@ public class Status {
      */
     @Nonnull
     public interface Visitor{
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param status the corresponding status
+         */
         default void visit(@Nonnull Status status){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param status the corresponding status
+         */
         default void traverse(@Nonnull Status status) {}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param status the corresponding status
+         */
         default void endVisit(@Nonnull Status status){}
+
+        /**
+         * The top method of the status visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param status the corresponding status
+         */
         default void handle(@Nonnull Status status) {
             visit(status);
             traverse(status);

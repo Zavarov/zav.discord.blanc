@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.entities.offline.OfflineShard;
 
 import javax.annotation.Nonnull;
@@ -38,9 +39,8 @@ public class BlacklistListenerTest extends AbstractTest {
     SelfUserImpl user;
     GuildImpl guild;
     TextChannelImpl channel;
-    BlacklistListener listener;
+    Shard.BlacklistListener listener;
     GuildMessageReceivedEvent event;
-    Configuration configuration;
     @Before
     public void setUp(){
         shard = OfflineShard.create(null);
@@ -48,12 +48,11 @@ public class BlacklistListenerTest extends AbstractTest {
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId);
         channel = new TextChannelImpl(channelId, guild);
-        configuration = new Configuration(guildId);
 
-        shard.configurations.put(guild, configuration);
-        configuration.setPattern(Pattern.compile("pattern"));
+        shard.guilds.put(guildId, guild);
+        shard.accept(new Adder());
 
-        listener = new BlacklistListener(shard);
+        listener = shard.new BlacklistListener();
         event = new GuildMessageReceivedEvent(jda, 54321L, createMessage("pattern"));
         jda.setSelfUser(new SelfUserImpl(50, jda));
     }
@@ -85,10 +84,25 @@ public class BlacklistListenerTest extends AbstractTest {
 
     @Test
     public void onGuildMessageReceivedNoPatternTest(){
-        configuration.removePattern();
+        shard.accept(new Remover());
+
         assertThat(shard.send).isEmpty();
         listener.onGuildMessageReceived(event);
         assertThat(shard.send).isEmpty();
+    }
+
+    private static class Adder implements Shard.Visitor{
+        @Override
+        public void visit(@Nonnull Configuration configuration){
+            configuration.setPattern(Pattern.compile("pattern"));
+        }
+    }
+
+    private static class Remover implements Shard.Visitor{
+        @Override
+        public void visit(@Nonnull Configuration configuration){
+            configuration.removePattern();
+        }
     }
 
     private DataMessage createMessage(String content){

@@ -33,7 +33,7 @@ public class DeleteConfigurationFile implements Cluster.Visitor{
     }
 
     @Override
-    public void endVisit(@Nonnull Cluster cluster){
+    public void endVisit(@Nonnull Cluster cluster) throws NullPointerException{
         Preconditions.checkNotNull(adapter);
         Preconditions.checkNotNull(configuration);
         adapter.delete(configuration);

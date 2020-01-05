@@ -17,7 +17,6 @@
 
 package vartas.discord.bot.listener;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -49,7 +48,7 @@ public class InteractiveMessageListener extends ListenerAdapter {
      * Initializes an empty tracker
      * @param lifetime the maximum time since the last modification before the program stops reacting to the message
      */
-    public InteractiveMessageListener(int lifetime) throws NullPointerException{
+    public InteractiveMessageListener(int lifetime){
         cache = CacheBuilder
                 .newBuilder()
                 .expireAfterAccess(lifetime, TimeUnit.MINUTES)
@@ -62,21 +61,16 @@ public class InteractiveMessageListener extends ListenerAdapter {
     /**
      * Adds the given message to the cache.
      * @param message the corresponding instance.
-     * @throws NullPointerException if {@code source} or {@code message} is null
      */
-    public void add(@Nonnull Message source, @Nonnull InteractiveMessage message) throws NullPointerException{
-        Preconditions.checkNotNull(source);
-        Preconditions.checkNotNull(message);
+    public void add(@Nonnull Message source, @Nonnull InteractiveMessage message){
         cache.put(source.getId(), message);
     }
     /**
      * An reaction was added to a message.
      * @param event the corresponding event.
-     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) throws NullPointerException{
-        Preconditions.checkNotNull(event);
+    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event){
         if(Optional.ofNullable(event.getUser()).map(User::isBot).orElse(true))
             return;
 
@@ -88,17 +82,47 @@ public class InteractiveMessageListener extends ListenerAdapter {
         });
     }
 
-    public void accept(InteractiveMessageListener.Visitor visitor){
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through this listener
+     */
+    public void accept(Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The visitor pattern for this listener.
+     */
+    @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param interactiveMessageListener the corresponding listener
+         */
         default void visit(@Nonnull InteractiveMessageListener interactiveMessageListener){}
 
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param interactiveMessageListener the corresponding listener
+         */
         default void traverse(@Nonnull InteractiveMessageListener interactiveMessageListener) {}
 
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param interactiveMessageListener the corresponding listener
+         */
         default void endVisit(@Nonnull InteractiveMessageListener interactiveMessageListener){}
 
+        /**
+         * The top method of the listener visitor, calling the remaining visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param interactiveMessageListener the corresponding listener
+         */
         default void handle(@Nonnull InteractiveMessageListener interactiveMessageListener) {
             visit(interactiveMessageListener);
             traverse(interactiveMessageListener);

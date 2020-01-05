@@ -100,10 +100,8 @@ public class Configuration {
      * are automatically deleted.<br>
      * If this guild already has a pattern, it is replaced by the new one.
      * @param pattern the new pattern for this guild
-     * @throws NullPointerException if {@code pattern} is null
      */
-    public void setPattern(@Nonnull Pattern pattern) throws NullPointerException{
-        Preconditions.checkNotNull(pattern);
+    public void setPattern(@Nonnull Pattern pattern){
         this.pattern = pattern;
     }
 
@@ -133,10 +131,8 @@ public class Configuration {
      * with the global prefix or the guild prefix.<br>
      * If this guild already has a prefix, it is replaced by the new one.
      * @param prefix the new guild prefix
-     * @throws NullPointerException if {@code prefix} is null
      */
-    public void setPrefix(@Nonnull String prefix) throws NullPointerException{
-        Preconditions.checkNotNull(prefix);
+    public void setPrefix(@Nonnull String prefix){
         this.prefix = prefix;
     }
 
@@ -166,11 +162,8 @@ public class Configuration {
      * @param column the group name the role is associated with
      * @param value the role associated with the group name
      * @return true if there exists a role in the specified group
-     * @throws NullPointerException if {@code column} or {@code value} is null
      */
-    public synchronized boolean resolve(@Nonnull String column, @Nonnull Role value) throws NullPointerException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
+    public synchronized boolean resolve(@Nonnull String column, @Nonnull Role value){
         return resolve(LongType.SELFASSIGNABLE, column, value.getIdLong());
     }
 
@@ -179,12 +172,10 @@ public class Configuration {
      * @param role the specified role
      * @return an {@link Optional} with the group name associated with the role.
      *         If no such association exists, {@link Optional#empty()} is returned.
-     * @throws NullPointerException {@code role} is null
      * @throws IllegalStateException if {@code role} exists in more than one group
      */
     @Nonnull
-    public synchronized Optional<String> resolve(@Nonnull Role role) throws NullPointerException, IllegalStateException{
-        Preconditions.checkNotNull(role);
+    public synchronized Optional<String> resolve(@Nonnull Role role) throws IllegalStateException{
         Set<String> keys = resolve(LongType.SELFASSIGNABLE, role.getIdLong());
 
         //A role is in at most one group
@@ -196,10 +187,8 @@ public class Configuration {
     /**
      * Removes the mapping for an entry in the underlying table.
      * @param role the role associated with a group name
-     * @throws NullPointerException if {@code role} is null
      */
-    public synchronized void remove(@Nonnull Role role) throws NullPointerException{
-        Preconditions.checkNotNull(role);
+    public synchronized void remove(@Nonnull Role role){
         resolve(role).ifPresent(column -> this.remove(LongType.SELFASSIGNABLE, column));
     }
 
@@ -208,13 +197,9 @@ public class Configuration {
      * Note that we only allow for a role to be associated with at most one group.
      * @param column the specified group name
      * @param value the specified role
-     * @throws NullPointerException if {@code column} or {@code value} is null
      * @throws IllegalArgumentException if the role is already in another group
      */
-    public synchronized void add(@Nonnull String column, @Nonnull Role value) throws NullPointerException, IllegalArgumentException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
-
+    public synchronized void add(@Nonnull String column, @Nonnull Role value) throws IllegalArgumentException{
         if(resolve(value).isPresent())
             throw new IllegalArgumentException();
         else
@@ -225,11 +210,8 @@ public class Configuration {
      * Removes the mapping for an entry in the underlying table.
      * @param column the specified group name
      * @param value the role associated with a group name
-     * @throws NullPointerException if {@code column} or {@code value} is null
      */
-    public synchronized void remove(@Nonnull String column, @Nonnull Role value) throws NullPointerException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
+    public synchronized void remove(@Nonnull String column, @Nonnull Role value) {
         remove(LongType.SELFASSIGNABLE, column, value.getIdLong());
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,11 +224,8 @@ public class Configuration {
      * @param column the group name the role is associated with
      * @param value the channel associated with the group name
      * @return true if there exists a channel in the specified group
-     * @throws NullPointerException if {@code column} or {@code value} is null
      */
-    public synchronized boolean resolve(@Nonnull String column, @Nonnull TextChannel value) throws NullPointerException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
+    public synchronized boolean resolve(@Nonnull String column, @Nonnull TextChannel value){
         return resolve(LongType.SUBREDDIT, column, value.getIdLong());
     }
 
@@ -255,21 +234,17 @@ public class Configuration {
      * @param channel the specified channel
      * @return an {@link Optional} with the group name associated with the channel.
      *         If no such association exists, {@link Optional#empty()} is returned.
-     * @throws NullPointerException {@code channel} is null
      */
     @Nonnull
-    public synchronized Set<String> resolve(@Nonnull TextChannel channel) throws NullPointerException{
-        Preconditions.checkNotNull(channel);
+    public synchronized Set<String> resolve(@Nonnull TextChannel channel){
         return resolve(LongType.SUBREDDIT, channel.getIdLong());
     }
 
     /**
      * Removes the mapping for an entry in the underlying table.
      * @param channel the channel associated with a group name
-     * @throws NullPointerException if {@code channel} is null
      */
-    public synchronized void remove(@Nonnull TextChannel channel) throws NullPointerException{
-        Preconditions.checkNotNull(channel);
+    public synchronized void remove(@Nonnull TextChannel channel){
         resolve(channel).forEach(column -> this.remove(LongType.SUBREDDIT, column));
     }
 
@@ -277,11 +252,8 @@ public class Configuration {
      * Associates the specified group name with the role in the underlying table.
      * @param column the specified group name
      * @param value the specified channel
-     * @throws NullPointerException if {@code column} or {@code value} is null
      */
-    public synchronized void add(@Nonnull String column, @Nonnull TextChannel value) throws NullPointerException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
+    public synchronized void add(@Nonnull String column, @Nonnull TextChannel value){
         add(LongType.SUBREDDIT, column, value.getIdLong());
     }
 
@@ -289,11 +261,8 @@ public class Configuration {
      * Removes the mapping for an entry in the underlying table.
      * @param column the specified group name
      * @param value the specified channel
-     * @throws NullPointerException if {@code column} or {@code value} is null
      */
-    public synchronized void remove(@Nonnull String column, @Nonnull TextChannel value) throws NullPointerException{
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(value);
+    public synchronized void remove(@Nonnull String column, @Nonnull TextChannel value){
         remove(LongType.SUBREDDIT, column, value.getIdLong());
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,11 +277,9 @@ public class Configuration {
      * of the internal state at the time the {@link Multimap} was created.
      * @param row the row associated with its entries
      * @return an unmodifiable copy of all entries associated with the specified {@code row}
-     * @throws NullPointerException if {@code row} is null
      */
     @Nonnull
-    public synchronized Multimap<String, Long> resolve(@Nonnull LongType row) throws NullPointerException{
-        Preconditions.checkNotNull(row);
+    public synchronized Multimap<String, Long> resolve(@Nonnull LongType row){
         return Multimaps.unmodifiableMultimap(groups.computeIfAbsent(row, x -> LinkedHashMultimap.create()));
     }
     /**
@@ -322,11 +289,8 @@ public class Configuration {
      * @param value the id associated with a type and name
      * @return true if there exists an entry at the specified
      *         {@code row} and {@code column} that matches the {@code value}
-     * @throws NullPointerException if the {@code row} or {@code column} is null
      */
-    public synchronized boolean resolve(@Nonnull LongType row, @Nonnull String column, long value) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(column);
+    public synchronized boolean resolve(@Nonnull LongType row, @Nonnull String column, long value){
         return resolve(row).containsEntry(column, value);
     }
 
@@ -335,11 +299,9 @@ public class Configuration {
      * @param id the specified id
      * @return an {@link Optional} with the group name associated with the id.
      *         If no such association exists, {@link Optional#empty()} is returned.
-     * @throws NullPointerException {@code row} is null
      */
     @Nonnull
-    public synchronized Set<String> resolve(@Nonnull LongType row, long id) throws NullPointerException{
-        Preconditions.checkNotNull(row);
+    public synchronized Set<String> resolve(@Nonnull LongType row, long id){
         //Get all keys that have 'id' as a value
         return Multimaps.filterValues(resolve(row), value -> Objects.equals(value, id)).keySet();
     }
@@ -350,12 +312,8 @@ public class Configuration {
      * to be reflected in all guild configurations that share the associated subreddit.
      * @param row the specified row
      * @param column the specified column
-     * @throws NullPointerException if {@code row} or {@code column} is null
      */
-    public synchronized void remove(@Nonnull LongType row, @Nonnull String column) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(column);
-
+    public synchronized void remove(@Nonnull LongType row, @Nonnull String column){
         if(groups.containsKey(row))
             groups.get(row).removeAll(column);
     }
@@ -367,12 +325,8 @@ public class Configuration {
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param id the id associated with the type and group name
-     * @throws NullPointerException if {@code row} or {@code column} is null
      */
-    public synchronized void add(@Nonnull LongType row, @Nonnull String column, long id) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(column);
-
+    public synchronized void add(@Nonnull LongType row, @Nonnull String column, long id){
         if(!groups.containsKey(row))
             groups.put(row, LinkedHashMultimap.create());
         groups.get(row).put(column, id);
@@ -385,12 +339,8 @@ public class Configuration {
      * @param row the type associated with the id
      * @param column the group name associated with the id.
      * @param value the value associated with the type and group name
-     * @throws NullPointerException if {@code row} or {@code column} is null
      */
-    public synchronized void remove(@Nonnull LongType row, @Nonnull String column, long value) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(column);
-
+    public synchronized void remove(@Nonnull LongType row, @Nonnull String column, long value){
         if(groups.containsKey(row))
             groups.get(row).remove(column, value);
     }
@@ -404,12 +354,9 @@ public class Configuration {
      * @param mapper a function for transforming the ids
      * @param <T> the data type the ids are transformed into
      * @return an immutable multimap of all key-value pairs
-     * @throws NullPointerException if {@code row} or {@code mapper} is null
      */
     @Nonnull
-    public synchronized <T> Multimap<String, T> resolve(@Nonnull LongType row, @Nonnull Function<Long, T> mapper) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(mapper);
+    public synchronized <T> Multimap<String, T> resolve(@Nonnull LongType row, @Nonnull Function<Long, T> mapper) {
         if(!groups.containsKey(row))
             return Multimaps.unmodifiableMultimap(HashMultimap.create());
         Multimap<String, T> multimap = HashMultimap.create();
@@ -430,13 +377,9 @@ public class Configuration {
      * @param mapper a function for transforming the ids
      * @param <T> the data type the ids are transformed into
      * @return an immutable collection of all transformed entries
-     * @throws NullPointerException if {@code row}, {@code column} or {@code mapper} is null
      */
     @Nonnull
-    public synchronized <T> Collection<T> resolve(@Nonnull LongType row, @Nonnull String column, @Nonnull Function<Long, T> mapper) throws NullPointerException{
-        Preconditions.checkNotNull(row);
-        Preconditions.checkNotNull(column);
-        Preconditions.checkNotNull(mapper);
+    public synchronized <T> Collection<T> resolve(@Nonnull LongType row, @Nonnull String column, @Nonnull Function<Long, T> mapper) {
         if(!groups.containsKey(row))
             return Collections.emptyList();
         return groups.get(row).get(column).stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
@@ -472,11 +415,8 @@ public class Configuration {
         /**
          * @param name the name of the row in the configuration file
          * @param checker the function checking if the entity associated with the id still exists
-         * @throws NullPointerException if {@code name} or {@code checker} is null
          */
-        LongType(@Nonnull String name, @Nonnull BiFunction<Guild, Long, Boolean> checker) throws NullPointerException{
-            Preconditions.checkNotNull(name);
-            Preconditions.checkNotNull(checker);
+        LongType(@Nonnull String name, @Nonnull BiFunction<Guild, Long, Boolean> checker) {
             this.name = name;
             this.checker = checker;
         }
@@ -495,61 +435,167 @@ public class Configuration {
          * @param guild the guild associated with this configuration file
          * @param id the id associated with an entity
          * @return true, if the entity still exists
-         * @throws NullPointerException if {@code guild} is null
          */
-        public boolean exists(@Nonnull Guild guild, long id) throws NullPointerException{
-            Preconditions.checkNotNull(guild);
+        public boolean exists(@Nonnull Guild guild, long id) {
             return checker.apply(guild, id);
         }
     }
 
     /**
-     * Applies the visitor pattern on all entries in this configuration.
-     * @param visitor the specified visitor.
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through the credentials
      */
     public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
     /**
-     * The visitor for all entries in the configuration.
+     * The configuration visitor.
      */
     @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param type the type associated with the individual values
+         * @param key the label of the group
+         * @param values the ids of the associated type
+         */
         default void visit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param type the type associated with the individual values
+         * @param key the label of the group
+         * @param values the ids of the associated type
+         */
         default void traverse(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param type the type associated with the individual values
+         * @param key the label of the group
+         * @param values the ids of the associated type
+         */
         default void endVisit(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){}
+
+        /**
+         * The top method of the group visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param type the type associated with the individual values
+         * @param key the label of the group
+         * @param values the ids of the associated type
+         */
         default void handle(@Nonnull Configuration.LongType type, @Nonnull String key, @Nonnull Collection<Long> values){
             visit(type, key, values);
             traverse(type, key, values);
             endVisit(type, key, values);
         }
 
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param pattern the corresponding pattern
+         */
         default void visit(@Nonnull Pattern pattern){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param pattern the corresponding pattern
+         */
         default void traverse(@Nonnull Pattern pattern){}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param pattern the corresponding pattern
+         */
         default void endVisit(@Nonnull Pattern pattern){}
+
+        /**
+         * The top method of the pattern visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param pattern the corresponding pattern
+         */
         default void handle(@Nonnull Pattern pattern){
             visit(pattern);
             traverse(pattern);
             endVisit(pattern);
         }
 
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param prefix the corresponding prefix
+         */
         default void visit(@Nonnull String prefix){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param prefix the corresponding prefix
+         */
         default void traverse(@Nonnull String prefix){}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param prefix the corresponding prefix
+         */
         default void endVisit(@Nonnull String prefix){}
+
+        /**
+         * The top method of the prefix visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param prefix the corresponding prefix
+         */
         default void handle(@Nonnull String prefix){
             visit(prefix);
             traverse(prefix);
             endVisit(prefix);
         }
 
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param configuration the corresponding configuration
+         */
         default void visit(@Nonnull Configuration configuration){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param configuration the corresponding configuration
+         */
         default void traverse(@Nonnull Configuration configuration){
             configuration.getPattern().ifPresent(this::handle);
             configuration.getPrefix().ifPresent(this::handle);
             configuration.groups.forEach((type, multimap) -> multimap.asMap().forEach((key, values) -> this.handle(type, key, values)));
         }
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param configuration the corresponding configuration
+         */
         default void endVisit(@Nonnull Configuration configuration){}
+
+        /**
+         * The top method of the configuration visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param configuration the corresponding configuration
+         */
         default void handle(@Nonnull Configuration configuration){
             visit(configuration);
             traverse(configuration);

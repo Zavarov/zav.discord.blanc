@@ -209,17 +209,47 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
         chart.set(channelName, created, Collections.singleton(channel + 1));
     }
 
-    public void accept(Visitor visitor){
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through this listener
+     */
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The visitor pattern for this listener.
+     */
+    @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param activityListener the corresponding listener
+         */
         default void visit(@Nonnull ActivityListener activityListener){}
 
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param activityListener the corresponding subreddit feed
+         */
         default void traverse(@Nonnull ActivityListener activityListener) {}
 
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param activityListener the corresponding subreddit feed
+         */
         default void endVisit(@Nonnull ActivityListener activityListener){}
 
+        /**
+         * The top method of the listener visitor, calling the remaining visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param activityListener the corresponding subreddit feed
+         */
         default void handle(@Nonnull ActivityListener activityListener) {
             visit(activityListener);
             traverse(activityListener);

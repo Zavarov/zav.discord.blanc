@@ -44,37 +44,89 @@ import java.util.concurrent.TimeUnit;
  * This class deals with receiving new submissions from subreddits and posting
  * them in the specified channels.
  */
+@Nonnull
 public class SubredditFeed implements Runnable{
+    /**
+     * The cache containing all registered subreddit feeds.
+     * In order to avoid having to manually update the feed when a subreddit is removed in the guild configurations,
+     * we use a lazy cache. Meaning that after the subreddit hasn't been used for an hour, it will be removed
+     * from the cache, since that indicates that it isn't present in any configuration.
+     */
+    @Nonnull
     private final LoadingCache<String, SubmissionCache> cache;
     /**
      * The log for this class.
      */
+    @Nonnull
     protected final Logger log = JDALogger.getLog(this.getClass().getSimpleName());
     /**
      * The runtime of the program.
      */
+    @Nonnull
     protected final Cluster cluster;
-
-    public SubredditFeed(Cluster cluster) throws NoSuchElementException {
+    /**
+     * Initializes a fresh subreddit feed.
+     * @param cluster the cluster associated with the feed
+     */
+    public SubredditFeed(@Nonnull Cluster cluster) {
         this.cache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build(CacheLoader.from(SubmissionCache::new));
         this.cluster = cluster;
         log.debug("Reddit feeds created.");
     }
 
+    /**
+     * Executes a single cycle of the feed.
+     * The program traverses through the cluster and every time it visits a configuration, it will check for submissions
+     * for all registered subreddits. If it is the first time in this cycle, that a specific subreddit is visited, the
+     * submissions are requested via the Reddit API, otherwise the cached submissions are reused.
+     */
     @Override
     public void run() {
         log.info(String.format("%d %s cached.", cache.size(), English.plural("subreddit", (int)cache.size())));
         cluster.accept(new Update());
     }
 
-    public void accept(Visitor visitor){
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through this feed
+     */
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The visitor pattern for the subreddit feed.
+     */
+    @Nonnull
     public interface Visitor{
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param subredditFeed the corresponding subreddit feed
+         */
         default void visit(@Nonnull SubredditFeed subredditFeed){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param subredditFeed the corresponding subreddit feed
+         */
         default void traverse(@Nonnull SubredditFeed subredditFeed){}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param subredditFeed the corresponding subreddit feed
+         */
         default void endVisit(@Nonnull SubredditFeed subredditFeed){}
+
+        /**
+         * The top method of the subreddit feed visitor, calling the remaining visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param subredditFeed the corresponding subreddit feed
+         */
         default void handle(@Nonnull SubredditFeed subredditFeed){
             visit(subredditFeed);
             traverse(subredditFeed);

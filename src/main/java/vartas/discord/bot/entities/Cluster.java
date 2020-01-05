@@ -1,6 +1,5 @@
 package vartas.discord.bot.entities;
 
-import com.google.common.base.Preconditions;
 import org.apache.http.client.HttpResponseException;
 import vartas.discord.bot.EntityAdapter;
 import vartas.discord.bot.JSONEntityAdapter;
@@ -138,6 +137,7 @@ public abstract class Cluster {
     /**
      * Requests the subreddit with the specified name from the Reddit API.
      * In case the subreddit doesn't exist or is inaccessible, {@link Optional#empty()} is returned.
+     * @see Client#requestSubreddit(String)
      * @param subredditName the name of the specified subreddit
      * @return an {@link Optional} with the specified subreddit name.
      * @throws IllegalArgumentException if the Reddit API returned an unresolvable error
@@ -150,6 +150,14 @@ public abstract class Cluster {
             throw new IllegalArgumentException(e);
         }
     }
+
+    /**
+     * Requests all comments that belong to the specified submission.
+     * @see Client#requestComment(String)
+     * @param submission the specified submission
+     * @return an {@link Optional} containing the requested comments
+     * @throws IllegalArgumentException if the Reddit API returned an unresolvable error
+     */
     @Nonnull
     public Optional<? extends Collection<Comment>> comment(@Nonnull Submission submission) throws IllegalArgumentException{
         try {
@@ -158,6 +166,18 @@ public abstract class Cluster {
             throw new IllegalArgumentException(e);
         }
     }
+
+    /**
+     * Requests all submissions within the specified interval.
+     * This method is slower than {@link #submission(String, LocalDateTime, LocalDateTime)}, but can bypass the
+     * 1000 submission-limit.
+     * @see Client#requestSubmission(String, LocalDateTime, LocalDateTime)
+     * @param subreddit the subreddit name.
+     * @param start the (inclusive) age of the oldest submissions.
+     * @param end the (exclusive) age of the newest submissions.
+     * @return an {@link Optional} containing the requested submissions
+     * @throws IllegalArgumentException if the Reddit API returned an unresolvable error
+     */
     @Nonnull
     public Optional<? extends Collection<Submission>> pushshift(@Nonnull String subreddit, @Nonnull LocalDateTime start, @Nonnull LocalDateTime end) throws IllegalArgumentException{
         try {
@@ -166,6 +186,16 @@ public abstract class Cluster {
             throw new IllegalArgumentException(e);
         }
     }
+
+    /**
+     * Requests all submissions within the specified interval.
+     * @see Client#requestSubmission(String, LocalDateTime, LocalDateTime)
+     * @param subreddit the subreddit name.
+     * @param start the (inclusive) age of the oldest submissions.
+     * @param end the (exclusive) age of the newest submissions.
+     * @return an {@link Optional} containing the requested submissions
+     * @throws IllegalArgumentException if the Reddit API returned an unresolvable error
+     */
     @Nonnull
     public Optional<? extends Collection<Submission>> submission(@Nonnull String subreddit, @Nonnull LocalDateTime start, @Nonnull LocalDateTime end) throws IllegalArgumentException{
         try {
@@ -175,18 +205,48 @@ public abstract class Cluster {
         }
     }
 
+    /**
+     * Adds the shard to the cluster.
+     * @param shard the shard associated with this cluster
+     * @deprecated This method is used for the time being until the shards are registered during initialization.
+     */
+    @Deprecated
     public void registerShard(@Nonnull Shard shard) {
         shards.add(shard);
     }
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                //
+    //   Visitor                                                                                                      //
+    //                                                                                                                //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through the status
+     */
     public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The cluster visitor.
+     */
     public interface Visitor extends Credentials.Visitor, EntityAdapter.Visitor, Rank.Visitor, Status.Visitor, SubredditFeed.Visitor, Shard.Visitor{
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param cluster the corresponding cluster
+         */
         default void visit(@Nonnull Cluster cluster){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param cluster the corresponding cluster
+         */
         default void endVisit(@Nonnull Cluster cluster){}
 
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param cluster the corresponding cluster
+         */
         default void traverse(@Nonnull Cluster cluster){
             cluster.credentials.accept(this);
             cluster.adapter.accept(this);
@@ -196,8 +256,17 @@ public abstract class Cluster {
             cluster.shards.forEach(shard -> shard.accept(this));
         }
 
-        default void handle(@Nonnull Cluster cluster) throws NullPointerException{
-            Preconditions.checkNotNull(cluster);
+        /**
+         * The top method of the cluster visitor, calling the remaining visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param cluster the corresponding cluster
+         */
+        default void handle(@Nonnull Cluster cluster){
             visit(cluster);
             traverse(cluster);
             endVisit(cluster);

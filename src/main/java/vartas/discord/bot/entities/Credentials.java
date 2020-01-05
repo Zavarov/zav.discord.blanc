@@ -234,15 +234,15 @@ public class Credentials {
         /**
          * @return the name of the key in the credentials file.
          */
+        @Nonnull
         String getName();
 
         /**
-         * Checks if the argument is well formed. This can mean that it is not null, or a more specific restriction for
-         * the individual types it can be.
+         * Checks if the argument is well formed.
          * @param argument the value associated with this key.
          * @throws IllegalArgumentException if the argument is malformed.
          */
-        default void check(T argument) throws IllegalArgumentException{}
+        default void check(@Nonnull T argument) throws IllegalArgumentException{}
     }
 
     /**
@@ -311,10 +311,10 @@ public class Credentials {
         }
 
         /**
-         * @throws NullPointerException if {@code argument} is null
+         * @throws IllegalArgumentException if the argument is outside of the valid bounds
          */
         @Override
-        public void check(Integer argument) throws IllegalArgumentException {
+        public void check(@Nonnull Integer argument) throws IllegalArgumentException {
             Preconditions.checkNotNull(argument);
             if(!checker.test(argument))
                 throw new IllegalArgumentException(Integer.toString(argument));
@@ -365,10 +365,8 @@ public class Credentials {
         /**
          * Initializes the key with its name.
          * @param name the name of the key.
-         * @throws NullPointerException if {@code name} is null
          */
-        StringType(String name) throws NullPointerException{
-            Preconditions.checkNotNull(name);
+        StringType(@Nonnull String name){
             this.name = name;
         }
 
@@ -379,15 +377,47 @@ public class Credentials {
         }
     }
 
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through the credentials
+     */
     public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The credentials visitor.
+     */
     @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param credentials the corresponding credentials
+         */
         default void visit(@Nonnull Credentials credentials){}
+
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param credentials the corresponding credentials
+         */
         default void traverse(@Nonnull Credentials credentials) {}
+
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param credentials the corresponding credentials
+         */
         default void endVisit(@Nonnull Credentials credentials){}
+
+        /**
+         * The top method of the credentials visitor, calling the visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param credentials the corresponding credentials
+         */
         default void handle(@Nonnull Credentials credentials) {
             visit(credentials);
             traverse(credentials);

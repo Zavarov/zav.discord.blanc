@@ -26,7 +26,6 @@ import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.managers.PresenceImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import vartas.discord.bot.CommandBuilder;
-import vartas.discord.bot.entities.Configuration;
 import vartas.discord.bot.entities.Credentials;
 import vartas.discord.bot.entities.Shard;
 
@@ -42,10 +41,8 @@ import java.util.function.Consumer;
 public class OfflineShard extends Shard {
     private final static AuthorizationConfig authorization = new AuthorizationConfig(AccountType.BOT, "12345");
     public Map<Long, GuildImpl> guilds = new HashMap<>();
-    public Map<Guild, Configuration> configurations = new HashMap<>();
     public List<? super Object> send = new ArrayList<>();
-    public List<? super Object> removed = new ArrayList<>();
-    public List<? super Object> stored = new ArrayList<>();
+    public OfflineCommandBuilder Builder = new OfflineCommandBuilder();
 
     public OfflineShard(@Nonnull OfflineCluster cluster) throws LoginException, InterruptedException {
         super(0, OfflineCluster.Adapter.credentials(), OfflineCluster.Adapter, cluster);
@@ -59,11 +56,13 @@ public class OfflineShard extends Shard {
         }
     }
 
+    @Nonnull
     @Override
     public CommandBuilder createCommandBuilder() {
-        return new OfflineCommandBuilder();
+        return Builder;
     }
 
+    @Nonnull
     @Override
     public JDAImpl createJda(int shardId, @Nullable Credentials credentials) {
         return new JDAImpl(authorization){
@@ -94,26 +93,20 @@ public class OfflineShard extends Shard {
     }
 
     @Override
-    public <T> void queue(RestAction<T> action, Consumer<? super T> success, Consumer<? super Throwable> failure){
+    public <T> void queue(@Nonnull RestAction<T> action, @Nullable Consumer<? super T> success, @Nullable Consumer<? super Throwable> failure){
         send.add(action);
     }
 
     @Override
-    public void schedule(Runnable runnable){
+    public void schedule(@Nonnull Runnable runnable){
         try {
             runnable.run();
         }catch(RuntimeException ignored){}
     }
 
+    @Nonnull
     @Override
     public Runnable shutdown(){
         return () -> {};
-    }
-
-    @Nonnull
-    @Override
-    public Configuration guild(@Nonnull Guild guild){
-        configurations.putIfAbsent(guild, new Configuration(guild.getIdLong()));
-        return configurations.get(guild);
     }
 }

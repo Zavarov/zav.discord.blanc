@@ -17,7 +17,6 @@
 
 package vartas.discord.bot.listener;
 
-import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.bot.entities.Shard;
@@ -35,40 +34,66 @@ public class MiscListener extends ListenerAdapter{
      * and their corresponding files.
      */
     @Nonnull
-    protected Shard shard;
+    private final Shard shard;
 
     /**
      * Creates a fresh listener
      * @param shard the shard associated with this listener.
-     * @throws NullPointerException if {@code shard} is null
      */
-    public MiscListener(@Nonnull Shard shard) throws NullPointerException{
-        Preconditions.checkNotNull(shard);
+    public MiscListener(@Nonnull Shard shard){
         this.shard = shard;
     }
 
     /**
      * This bot left a guild. Meaning that we can safely delete its configuration.
      * @param event the corresponding event.
-     * @throws NullPointerException if {@code event} is null
      */
     @Override
-    public void onGuildLeave(@Nonnull GuildLeaveEvent event) throws NullPointerException{
-        Preconditions.checkNotNull(event);
+    public void onGuildLeave(@Nonnull GuildLeaveEvent event){
         shard.getCluster().accept(new DeleteConfigurationFile(event.getGuild().getIdLong()));
     }
 
-    public void accept(Visitor visitor){
+    /**
+     * The hook point for the visitor pattern.
+     * @param visitor the visitor traversing through this listener
+     */
+    public void accept(@Nonnull Visitor visitor){
         visitor.handle(this);
     }
 
+    /**
+     * The visitor pattern for this listener.
+     */
+    @Nonnull
     public interface Visitor {
+        /**
+         * The method that is invoked before the sub-nodes are handled.
+         * @param miscListener the corresponding listener
+         */
         default void visit(@Nonnull MiscListener miscListener){}
 
+        /**
+         * The method that is invoked to handle all sub-nodes.
+         * @param miscListener the corresponding listener
+         */
         default void traverse(@Nonnull MiscListener miscListener) {}
 
+        /**
+         * The method that is invoked after the sub-nodes have been handled.
+         * @param miscListener the corresponding listener
+         */
         default void endVisit(@Nonnull MiscListener miscListener){}
 
+        /**
+         * The top method of the listener visitor, calling the remaining visitor methods.
+         * The order in which the methods are called is
+         * <ul>
+         *      <li>visit</li>
+         *      <li>traverse</li>
+         *      <li>endvisit</li>
+         * </ul>
+         * @param miscListener the corresponding listener
+         */
         default void handle(@Nonnull MiscListener miscListener) {
             visit(miscListener);
             traverse(miscListener);

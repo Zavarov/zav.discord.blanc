@@ -30,6 +30,7 @@ import org.junit.Test;
 import vartas.discord.bot.AbstractTest;
 import vartas.discord.bot.Command;
 import vartas.discord.bot.entities.Configuration;
+import vartas.discord.bot.entities.Shard;
 import vartas.discord.bot.entities.offline.OfflineCommandBuilder;
 import vartas.discord.bot.entities.offline.OfflineShard;
 
@@ -49,16 +50,14 @@ public class CommandListenerTest extends AbstractTest {
     TextChannelImpl channel;
     String prefixFreeMessageContent;
 
-    Configuration configuration;
-    CommandListener listener;
+    Shard.CommandListener listener;
     MessageReceivedEvent event;
     AtomicBoolean flag;
 
     @Before
     public void setUp(){
         shard = OfflineShard.create(null);
-        configuration = new Configuration(guildId);
-        builder = new OfflineCommandBuilder();
+        builder = shard.Builder;
         jda = new JDAImpl(Authorization);
         user = new SelfUserImpl(userId, jda);
         guild = new GuildImpl(jda, guildId);
@@ -67,10 +66,11 @@ public class CommandListenerTest extends AbstractTest {
             protected void checkPermission(Permission permission){}
         };
 
-        configuration.setPrefix(GUILD_PREFIX);
-        shard.configurations.put(guild, configuration);
+        shard.guilds.put(guildId, guild);
+        shard.accept(new Adder());
+
         prefixFreeMessageContent = "message";
-        listener = new CommandListener(shard, builder, GLOBAL_PREFIX);
+        listener = shard.new CommandListener(GLOBAL_PREFIX);
         event = createEvent(GLOBAL_PREFIX);
         flag = new AtomicBoolean(false);
     }
@@ -83,7 +83,7 @@ public class CommandListenerTest extends AbstractTest {
 
     @Test
     public void onGuildMessageReceivedTest(){
-        String prefix = configuration.getPrefix().orElseThrow();
+        String prefix = GUILD_PREFIX;
         event = createEvent(prefix);
 
         listener.onMessageReceived(event);
@@ -116,6 +116,20 @@ public class CommandListenerTest extends AbstractTest {
         listener.onMessageReceived(event);
         assertThat(flag).isFalse();
         assertThat(shard.send).hasSize(1);
+    }
+
+    private static class Adder implements Shard.Visitor{
+        @Override
+        public void visit(@Nonnull Configuration configuration){
+            configuration.setPrefix(GUILD_PREFIX);
+        }
+    }
+
+    private static class Remover implements Shard.Visitor{
+        @Override
+        public void visit(@Nonnull Configuration configuration){
+            configuration.removePrefix();
+        }
     }
 
     private MessageReceivedEvent createEvent(String prefix){
