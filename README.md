@@ -1,4 +1,4 @@
-#Bot
+# Bot
 
 This project provides the core functionality of a Discord bot. The main features are:
  * **Configuration files** for every guild the bot is in. This is done to retain the setup for each guild, even after the program has been restarted. It is possible to customize:
