@@ -41,10 +41,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This listener keeps track of the activity in all guilds in the respective shard.
@@ -68,6 +65,11 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
      */
     @Nonnull
     private static final String MembersOnline = "Members Online";
+    /**
+     * All lines that are treated as singletons, meaning that we don't need to take the average.
+     */
+    @Nonnull
+    private static final Set<String> Singletons = Set.of(AllChannels, AllMembers, MembersOnline);
     /**
      * The log for this class.
      */
@@ -101,7 +103,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
 
             chart = new DelegatingLineChart<>(
                     //Take the average per minute
-                    (values) -> values.stream().mapToLong(l -> l).sum() / stepSize,
+                    (label, values) -> Singletons.contains(label) ? values.stream().mapToLong(l -> l).findAny().orElse(0L) : values.stream().mapToLong(l -> l).sum() / stepSize,
                     Duration.ofDays(7)
             );
 
@@ -202,6 +204,7 @@ public class ActivityListener extends ListenerAdapter implements Runnable{
         long allChannels = chart.get(AllChannels, created).stream().mapToLong(l -> l).findAny().orElse(0L);
         long channel = chart.get(channelName, created).stream().mapToLong(l -> l).findAny().orElse(0L);
 
+        //Update the count by one
         chart.set(AllChannels, created, Collections.singleton(allChannels + 1));
         chart.set(channelName, created, Collections.singleton(channel + 1));
     }
