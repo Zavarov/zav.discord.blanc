@@ -125,17 +125,6 @@ public abstract class Cluster {
      */
     @Nonnull
     protected abstract Client createPushshiftClient(@Nonnull Credentials credentials) throws NullPointerException;
-
-    /**
-     * The formula for getting the shard for the respective guild id is <b>id >> 22 mod #shards</b>
-     * {@see  <a href="https://discordapp.com/developers/docs/topics/gateway">https://discordapp.com/developers/docs/topics/gateway</a>}
-     * @param guildId the guild id
-     * @return the shard the guild with the respective id is in
-     */
-    public int getShardId(long guildId){
-        return (int)((guildId >> 22) % credentials.getDiscordShards());
-    }
-
     /**
      * Terminates all running tasks and cuts all connections to the connected servers.<br>
      * The program has to be restarted after using this command.
@@ -145,10 +134,18 @@ public abstract class Cluster {
         reddit.logout();
         pushshift.logout();
     }
+
+    /**
+     * Requests the subreddit with the specified name from the Reddit API.
+     * In case the subreddit doesn't exist or is inaccessible, {@link Optional#empty()} is returned.
+     * @param subredditName the name of the specified subreddit
+     * @return an {@link Optional} with the specified subreddit name.
+     * @throws IllegalArgumentException if the Reddit API returned an unresolvable error
+     */
     @Nonnull
-    public Optional<Subreddit> subreddit(@Nonnull String subreddit) throws IllegalArgumentException{
+    public Optional<Subreddit> subreddit(@Nonnull String subredditName) throws IllegalArgumentException{
         try {
-            return reddit.requestSubreddit(subreddit, MAX_RETRIES);
+            return reddit.requestSubreddit(subredditName, MAX_RETRIES);
         }catch(HttpResponseException e){
             throw new IllegalArgumentException(e);
         }

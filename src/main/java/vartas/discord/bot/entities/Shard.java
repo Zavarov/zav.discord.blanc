@@ -120,7 +120,7 @@ public abstract class Shard {
         jda.addEventListener(command);
         jda.addEventListener(misc);
 
-        executor.schedule(activity, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
+        executor.scheduleAtFixedRate(activity, 0, credentials.getActivityUpdateInterval(), TimeUnit.MINUTES);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                //
