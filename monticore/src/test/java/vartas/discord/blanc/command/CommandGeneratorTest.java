@@ -28,6 +28,6 @@ public class CommandGeneratorTest extends BasicCommandTest {
 
     @Test
     public void testGenerate(){
-        //CommandGenerator.generate(CLASSES_PATH, TEMPLATES_PATH, SOURCES_PATH, OUTPUT_PATH, cmdArtifact);
+        CommandGenerator.generate(CLASSES_PATH, TEMPLATES_PATH, SOURCES_PATH, OUTPUT_PATH, cmdArtifact);
     }
 }
