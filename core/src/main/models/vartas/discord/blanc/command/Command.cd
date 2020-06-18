@@ -1,0 +1,40 @@
+package vartas.discord.blanc.command;
+
+import java.lang.Runnable.Runnable;
+import java.util.List.List;
+import java.util.Optional.Optional;
+import vartas.discord.blanc.Architecture.Guild;
+import vartas.discord.blanc.Architecture.Member;
+import vartas.discord.blanc.Architecture.Message;
+import vartas.discord.blanc.Architecture.MessageChannel;
+import vartas.discord.blanc.Architecture.MessageEmbed;
+import vartas.discord.blanc.Architecture.Role;
+import vartas.discord.blanc.Architecture.ServerHookPoint;
+import vartas.discord.blanc.Architecture.TextChannel;
+import vartas.discord.blanc.Architecture.User;
+import vartas.discord.blanc.parser.Parser.Argument;
+
+public classdiagram Command {
+    public abstract class Command implements Runnable {
+        - ServerHookPoint serverHookPoint;
+
+        public abstract void validate();
+    }
+
+    public abstract class MessageCommand extends Command {
+        - User $Author;
+        - MessageChannel $MessageChannel;
+    }
+
+    public abstract class GuildCommand extends Command {
+        - Member $Author;
+        - TextChannel $TextChannel;
+        - Guild $Guild;
+    }
+
+    public abstract class CommandBuilder {
+        protected abstract Optional<Command> build(String name, List<? extends Argument> arguments);
+        public abstract Optional<Command> build(Message message);
+        public abstract Optional<Command> build(Message message, Guild guild);
+    }
+}

@@ -1,0 +1,32 @@
+package vartas.discord.blanc.parser;
+
+import java.math.BigDecimal.BigDecimal;
+import java.util.List.List;
+import java.util.Optional.Optional;
+import vartas.discord.blanc.Architecture.Message;
+
+public classdiagram Parser {
+    public interface Parser {
+        abstract Optional<? extends IntermediateCommand> parse(Message message);
+    }
+
+    public interface IntermediateCommand {
+        abstract Optional<String> getPrefix();
+        abstract String getName();
+        abstract List<? extends Argument> getArguments();
+    }
+
+    public interface Argument{}
+
+    public interface ExpressionArgument extends Argument{
+        abstract BigDecimal getValue();
+    }
+
+    public interface StringArgument extends Argument{
+        abstract String getValue();
+    }
+
+    public interface MentionArgument extends Argument{
+        abstract Number getNumber();
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "thumbnail": "thumbnail",
+  "id": "id",
+  "created": "2020-01-01T00:00:00Z",
+  "author": {
+    "name": "author",
+    "postKarma": 1,
+    "commentKarma": 2,
+    "created": "2020-01-01T00:00:00Z"
+  },
+  "content": "content",
+  "title": "title",
+  "score": 3,
+  "nsfw": true,
+  "spoiler": true,
+  "comments": [{
+    "id": "id",
+    "created": "2020-01-01T00:00:00Z",
+    "author": {
+      "name": "author",
+      "postKarma": 4,
+      "commentKarma": 5,
+      "created": "2020-01-01T00:00:00Z"
+    },
+    "content": "content",
+    "score": 6
+  }]
+}

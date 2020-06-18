@@ -1,0 +1,154 @@
+package vartas.discord.blanc;
+
+import com.google.common.cache.Cache.Cache;
+import java.lang.Object.Object;
+import java.nio.file.Path.Path;
+import java.time.Instant.Instant;
+import java.util.List.List;
+import java.util.Optional.Optional;
+import vartas.reddit.Submission.Submission;
+
+public classdiagram Architecture {
+    public class Client {
+        - List<Shard> shards;
+    }
+
+    public class Shard {
+        - int id;
+        - Cache<Long, Guild> guilds;
+        - Cache<Long, User> users;
+    }
+
+    public abstract class Snowflake {
+        - long id;
+        - String name;
+    }
+
+    public class Guild extends Snowflake {
+        - Optional<String> prefix;
+        - Cache<Long, Member> members;
+        - Cache<Long, TextChannel> channels;
+        - Cache<Long, Role> roles;
+    }
+
+    public class Role extends Snowflake {
+        - Optional<String> group;
+    }
+
+    public class Member extends User{
+        - List<Role> roles;
+    }
+
+    public class User extends Snowflake {
+        - Optional<PrivateChannel> channel;
+        - Rank rank;
+    }
+
+    public class TextChannel extends MessageChannel{
+        - List<String> subreddits;
+    }
+
+    public class PrivateChannel extends MessageChannel{
+    }
+
+    public abstract class MessageChannel extends Snowflake{
+        <<initialized="P1D">>
+        - Cache<Long, Message> messages;
+    }
+
+    public class Message {
+        - long id;
+        - Instant created;
+        - User author;
+        - Optional<String> content;
+        - Optional<MessageEmbed> messageEmbed;
+    }
+
+    public class MessageEmbed {
+        - Optional<String> thumbnail;
+        - Optional<String> title;
+        - Optional<String> content;
+        - Optional<Instant> timestamp;
+        - List<Field> fields;
+    }
+
+    public class Field {
+        - String title;
+        - Object content;
+    }
+
+    /**
+     * This interface connects the program to the Discord API.
+     * Any communication has to be done through this interface.
+     */
+    public interface ServerHookPoint{
+        abstract void send(MessageChannel messageChannel, Message message);
+        abstract void send(MessageChannel messageChannel, MessageEmbed messageEmbed);
+        abstract void send(MessageChannel messageChannel, Submission submission);
+        abstract void send(MessageChannel messageChannel, byte[] bytes, String qualifiedName);
+        abstract void send(MessageChannel messageChannel, Role role);
+        abstract void send(MessageChannel messageChannel, Member member);
+        abstract void send(MessageChannel messageChannel, Guild guild);
+        abstract void send(MessageChannel messageChannel, Object object);
+        abstract User getSelfUser();
+    }
+
+    /**
+     * This enumeration contains all possible ranks for the individual users.
+     * Unless specified otherwise, every user has the USER rank, by default.
+     */
+    public enum Rank {
+        /**
+         * The default rank of every user. Those are not able to access the internal functions of the program.
+         */
+        USER,
+        /**
+         * Users with this rank are able to access the internal functions of the program, but are not able to interact
+         * with anything that would interfere with the guilds the program is associated with.
+         */
+        DEVELOPER,
+        /**
+         * Users with this rank are able to access the whole functionality of the bot. Every internal permission check
+         * will be ignored, meaning that this rank should be exclusive to trusted users.
+         */
+        ROOT;
+    }
+
+    /**
+     * A (possibly incomplete) collection of all permissions according to
+     * https://discordapp.com/developers/docs/topics/permissions
+     */
+    public enum Permission{
+        CREATE_INSTANT_INVITE,
+        KICK_MEMBERS,
+        BAN_MEMBERS,
+        ADMINISTRATOR,
+        MANAGE_CHANNELS,
+        MANAGE_GUILD,
+        ADD_REACTIONS,
+        VIEW_AUDIT_LOG,
+        VIEW_CHANNEL,
+        SEND_MESSAGES,
+        SEND_TTS_MESSAGES,
+        MANAGE_MESSAGES,
+        EMBED_LINKS,
+        ATTACH_FILES,
+        READ_MESSAGE_HISTORY,
+        MENTION_EVERYONE,
+        USE_EXTERNAL_EMOJIS,
+        VIEW_GUILD_INSIGHTS,
+        CONNECT,
+        SPEAK,
+        MUTE_MEMBERS,
+        DEAFEN_MEMBERS,
+        MOVE_MEMBERS,
+        USE_VAD,
+        PRIORITY_SPEAKER,
+        STREAM,
+        CHANGE_NICKNAME,
+        MANAGE_NICKNAMES,
+        MANAGE_ROLES,
+        MANAGE_WEBHOOKS,
+        MANAGE_EMOJIS;
+    }
+}

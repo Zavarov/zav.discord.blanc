@@ -1,0 +1,36 @@
+package vartas.discord.blanc.io;
+
+import java.nio.file.Path.Path;
+import java.util.List.List;
+import vartas.discord.blanc.Architecture.User;
+
+public classdiagram IO {
+    public class Credentials {
+        - int statusMessageUpdateInterval = 5;
+        - int interactiveMessageLifetime = 10;
+        - int activityUpdateInterval = 60;
+
+        - String botName;
+        - String globalPrefix;
+        - int shardCount = 2;
+        - int imageWidth = 1024;
+        - int imageHeight = 768;
+
+        - String inviteSupportServer;
+        - String wikiUrl;
+        - String discordToken;
+        - String redditAccount;
+        - String redditId;
+        - String redditSecret;
+
+        - Path guildDirectory;
+    }
+
+    public class Ranks {
+        - List<User> ranks;
+    }
+
+    public class StatusMessages {
+        - List<String> statusMessages;
+    }
+}

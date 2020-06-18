@@ -1,0 +1,19 @@
+{
+  "id": 1,
+  "created": "2020-01-01T00:00:00Z",
+  "author": {
+    "id": 2,
+    "rank": "USER"
+  },
+  "content": "content",
+  "messageEmbed": {
+    "thumbnail": "thumbnail",
+    "title": "title",
+    "content": "content",
+    "timestamp": "2020-01-01T00:00:00Z",
+    "fields": [{
+      "title": "key",
+      "content": "value"
+    }]
+  }
+}

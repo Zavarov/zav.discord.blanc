@@ -1,0 +1,12 @@
+{
+  "id" : 1,
+  "channels" : [{
+    "id" : 2,
+    "name" : "TextChannel",
+    "subreddits" : []
+  }],
+  "roles": [{
+    "id" : 3,
+    "group" : ""
+  }]
+}
