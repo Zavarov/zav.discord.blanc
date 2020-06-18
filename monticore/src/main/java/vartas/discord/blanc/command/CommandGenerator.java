@@ -118,6 +118,9 @@ public class CommandGenerator {
         if(TEMPLATES_PATH.toFile().exists())
             templatePaths.add(TEMPLATES_PATH.toFile());
 
+        System.out.println(TEMPLATES_PATH);
+        System.out.println(TEMPLATES_PATH.toAbsolutePath());
+
         GENERATOR_SETUP = new GeneratorSetup();
         GENERATOR_SETUP.setAdditionalTemplatePaths(templatePaths);
         GENERATOR_SETUP.setDefaultFileExtension(CDGeneratorHelper.DEFAULT_FILE_EXTENSION);
@@ -150,7 +153,7 @@ public class CommandGenerator {
         ASTCDCompilationUnit ast = transformer.decorate(MODEL);
 
         CDDefinitionSymbol cdDefinitionSymbol = ast.getCDDefinition().getSymbol();
-        
+
         FACTORY_GENERATOR.generate(cdDefinitionSymbol);
         DECORATOR_GENERATOR.generate(cdDefinitionSymbol);
     }

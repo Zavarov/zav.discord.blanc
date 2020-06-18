@@ -25,8 +25,10 @@ import vartas.discord.blanc.command._symboltable.CommandLanguage;
 import vartas.monticore.cd4analysis._symboltable.CD4CodeGlobalScope;
 import vartas.monticore.cd4analysis._symboltable.CD4CodeLanguage;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 public abstract class BasicCommandTest {
     protected static final Path MODELS_PATH = Paths.get("src","test","resources");
