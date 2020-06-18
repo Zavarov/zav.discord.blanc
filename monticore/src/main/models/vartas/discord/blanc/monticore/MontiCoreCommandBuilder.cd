@@ -1,0 +1,18 @@
+package vartas.discord.blanc.command;
+
+import java.util.List.List;
+import java.util.Optional.Optional;
+import java.util.function.Function.Function;
+import vartas.discord.blanc.Command.CommandBuilder;
+import vartas.discord.blanc.Parser.Argument;
+import vartas.discord.blanc.Parser.Parser;
+
+public classdiagram MontiCoreCommandBuilder {
+    public class MontiCoreCommandBuilder extends CommandBuilder {
+        - Map<String, Function<List<? extends Argument>, Command>> commands;
+
+        + MontiCoreCommandBuilder(Parser parser, String globalPrefix);
+
+        # Optional<Command> build(String name, List<? extends Argument> arguments);
+    }
+}
