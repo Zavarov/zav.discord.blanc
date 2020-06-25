@@ -18,13 +18,10 @@
 package vartas.discord.blanc.command.creator;
 
 import de.monticore.cd.cd4analysis._ast.*;
-import de.monticore.cd.cd4analysis._symboltable.CDTypeSymbolLoader;
-import de.monticore.cd.cd4code._symboltable.CD4CodeGlobalScope;
 import de.monticore.cd.facade.CDModifier;
 import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
-import de.se_rwth.commons.Names;
 import vartas.discord.blanc.command.GuildCommand;
 import vartas.discord.blanc.command.MessageCommand;
 import vartas.discord.blanc.command._ast.*;

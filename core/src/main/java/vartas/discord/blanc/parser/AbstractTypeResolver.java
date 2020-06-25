@@ -17,13 +17,11 @@
 
 package vartas.discord.blanc.parser;
 
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.User;
+import vartas.discord.blanc.*;
 import vartas.discord.blanc.command.Command;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +37,21 @@ import java.util.NoSuchElementException;
  * @see ExpressionArgument
  */
 @Nonnull
-public abstract class AbstractTypeResolver {
+public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
+    @Nullable
+    protected Guild guild;
+    @Nullable
+    protected TextChannel textChannel;
+
+    public AbstractTypeResolver(@Nullable Guild guild, @Nullable TextChannel textChannel){
+        this.guild = guild;
+        this.textChannel = textChannel;
+    }
+
+    public AbstractTypeResolver(){
+        this(null, null);
+    }
+
     /**
      * Attempts to transform the provided {@link Argument} into a {@link String}.<br>
      * This is done by using the interval value of the {@link StringArgument}.
@@ -47,6 +59,7 @@ public abstract class AbstractTypeResolver {
      * @return the {@link String} associated with the {@link Argument}.
      * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link String}.
      */
+    @Override
     @Nonnull
     public String resolveString(@Nonnull Argument argument) throws NoSuchElementException {
         return new StringResolver().apply(argument).orElseThrow();
@@ -60,6 +73,7 @@ public abstract class AbstractTypeResolver {
      * @return the {@link LocalDate} associated with the {@link Argument}.
      * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link LocalDate}.
      */
+    @Override
     @Nonnull
     public LocalDate resolveLocalDate(@Nonnull Argument argument) throws NoSuchElementException{
         return new LocalDateResolver().apply(argument).orElseThrow();
@@ -71,45 +85,21 @@ public abstract class AbstractTypeResolver {
      * @return the {@link BigDecimal} associated with the {@link Argument}.
      * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link BigDecimal}.
      */
+    @Override
     @Nonnull
     public BigDecimal resolveBigDecimal(@Nonnull Argument argument) throws NoSuchElementException{
         return new BigDecimalResolver().apply(argument).orElseThrow();
     }
-
     /**
-     * Attempts to transform the provided {@link Argument} into a {@link Guild}.<br>
-     * @param argument the {@link Argument} associated with the {@link Guild}.
-     * @return the {@link Guild} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link Guild}.
+     * Attempts to transform the provided {@link Argument} into a {@link GuildModule}.<br>
+     * This is done by using the interval value of the {@link ExpressionArgument}.
+     * @param argument the {@link Argument} associated with the {@link GuildModule}.
+     * @return the {@link GuildModule} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link GuildModule}.
      */
+    @Override
     @Nonnull
-    public abstract Guild resolveGuild(@Nonnull Argument argument) throws NoSuchElementException;
-    /**
-     * Attempts to transform the provided {@link Argument} into a {@link User}.<br>
-     * @param argument the {@link Argument} associated with the {@link User}.
-     * @return the {@link User} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link User}.
-     */
-    @Nonnull
-    public abstract User resolveUser(@Nonnull Argument argument) throws NoSuchElementException;
-
-    /**
-     * Attempts to transform the provided {@link Argument} into a {@link TextChannel}.<br>
-     * @param guild the {@link Guild} associated with the {@link TextChannel}.
-     * @param argument the {@link Argument} associated with the {@link TextChannel}.
-     * @return the {@link TextChannel} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link TextChannel}.
-     */
-    @Nonnull
-    public abstract TextChannel resolveTextChannel(@Nonnull Guild guild, @Nonnull Argument argument) throws NoSuchElementException;
-
-    /**
-     * Attempts to transform the provided {@link Argument} into a {@link Role}.<br>
-     * @param guild the {@link Guild} associated with the {@link TextChannel}.
-     * @param argument the {@link Argument} associated with the {@link Role}.
-     * @return the {@link Role} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link Role}.
-     */
-    @Nonnull
-    public abstract Role resolveRole(@Nonnull Guild guild, @Nonnull Argument argument) throws NoSuchElementException;
+    public GuildModule resolveGuildModule(@Nonnull Argument argument) throws NoSuchElementException{
+        return new GuildModuleResolver().apply(argument).orElseThrow();
+    }
 }

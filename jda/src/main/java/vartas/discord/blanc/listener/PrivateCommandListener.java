@@ -17,19 +17,18 @@
 
 package vartas.discord.blanc.listener;
 
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.blanc.JDAMessage;
 import vartas.discord.blanc.Message;
+import vartas.discord.blanc.PrivateChannel;
 import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PrivateCommandListener extends ListenerAdapter {
-    @Nonnull
-    private final ExecutorService executor = Executors.newWorkStealingPool();
+public class PrivateCommandListener extends CommandListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 
@@ -38,9 +37,13 @@ public class PrivateCommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event){
-        Message message = JDAMessage.create(event.getMessage());
+    public void onPrivateMessageReceived(@Nonnull PrivateMessageReceivedEvent event){
+        if(event.getAuthor().isBot())
+            return;
 
-        commandBuilder.build(message).ifPresent(executor::submit);
+        Message message = JDAMessage.create(event.getMessage());
+        PrivateChannel channel = message.getAuthor().getChannel().orElseThrow();
+
+        submit(channel, () -> commandBuilder.build(message, channel));
     }
 }

@@ -20,8 +20,8 @@ package vartas.discord.blanc.parser;
 import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Shard;
+import org.w3c.dom.Text;
+import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +39,8 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
     protected U snowflake;
     @Nullable
     protected net.dv8tion.jda.api.entities.Guild guild;
+    @Nullable
+    protected net.dv8tion.jda.api.entities.TextChannel textChannel;
 
     public AbstractJDAGuildResolver(@Nonnull Shard shard, @Nonnull JDA jda) {
         this.shard = shard;
@@ -46,11 +48,39 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
     }
 
     @Override
-    public Optional<V> apply(Guild guild, Argument argument) {
-        this.guild = jda.getGuildById(guild.getId());
+    public Optional<V> apply(@Nullable Guild guild, @Nullable TextChannel textChannel, @Nonnull Argument argument) {
+        this.guild = guild == null ? null : jda.getGuildById(guild.getId());
+        this.textChannel = (this.guild == null || textChannel == null) ? null : this.guild.getTextChannelById(textChannel.getId());
         this.snowflake = null;
         argument.accept(this);
-        return Optional.ofNullable(snowflake).flatMap(snowflake -> map(guild, snowflake));
+        return Optional.ofNullable(snowflake).flatMap(snowflake -> map(guild, textChannel, snowflake));
+    }
+
+    @Override
+    public void visit(StringArgument argument){
+        Collection<U> snowflakes;
+
+        snowflakes = resolveByName(argument.getValue());
+
+        if(snowflakes.size() == 0){
+            //TODO Error message
+            log.error(argument.getValue(), TypeResolverException.of(Errors.UNKNOWN_ENTITY));
+        }else if(snowflakes.size() > 1){
+            //TODO Error message
+            log.error(argument.getValue(), TypeResolverException.of(Errors.MULTIPLE_ENTITIES_BY_NAME));
+        }else{
+            snowflake = snowflakes.iterator().next();
+        }
+    }
+
+    @Override
+    public void visit(MentionArgument argument){
+        snowflake = resolveByNumber(argument.getNumber());
+    }
+
+    @Override
+    public void visit(ExpressionArgument argument){
+        snowflake = resolveByNumber(argument.getValue().longValue());
     }
 
     @Nonnull
@@ -60,5 +90,5 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
     protected abstract U resolveByNumber(Number number);
 
     @Nonnull
-    protected abstract Optional<V> map(Guild guild, U snowflake);
+    protected abstract Optional<V> map(Guild guild, TextChannel textChannel, U snowflake);
 }

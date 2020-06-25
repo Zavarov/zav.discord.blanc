@@ -17,15 +17,19 @@
 
 package vartas.discord.blanc.command;
 
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Message;
-import vartas.discord.blanc.MessageChannel;
-import vartas.discord.blanc.TextChannel;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.*;
+import vartas.discord.blanc.command.visitor.CommandVisitor;
+import vartas.discord.blanc.parser.AbstractTypeResolver;
 import vartas.discord.blanc.parser.IntermediateCommand;
 import vartas.discord.blanc.parser.Parser;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * This class is responsible for transforming received text {@link Message Messages}
@@ -42,6 +46,11 @@ import java.util.Optional;
 @Nonnull
 public abstract class CommandBuilder extends CommandBuilderTOP {
     /**
+     * This class' logger.
+     */
+    @Nonnull
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    /**
      * Responsible for creating the {@link IntermediateCommand}
      */
     @Nonnull
@@ -51,15 +60,30 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
      */
     @Nonnull
     private final String globalPrefix;
+    /**
+     * Provides the type resolver for the command arguments. The type resolver is guild-sensitive, so for each
+     * command, an individual resolver has to be created.
+     */
+    @Nonnull
+    private final BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction;
 
     /**
      * Initializes the builder.
      * @param parser the {@link Parser} used for processing the messages.
      * @param globalPrefix the global command prefix.
      */
-    public CommandBuilder(@Nonnull Parser parser, @Nonnull String globalPrefix){
+    public CommandBuilder(
+            @Nonnull BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction,
+            @Nonnull Shard shard,
+            @Nonnull Parser parser,
+            @Nonnull String globalPrefix
+    )
+    {
+        super(typeResolverFunction, shard);
         this.parser = parser;
         this.globalPrefix = globalPrefix;
+        this.typeResolverFunction = typeResolverFunction;
+        super.shard = shard;
     }
 
     /**
@@ -68,11 +92,12 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
      * or isn't associated with one, {@link Optional#empty()} is returned. Otherwise an {@link Optional} containing
      * the associated command is returned.
      * @param message the received {@link Message}.
+     * @param channel the {@link MessageChannel} from which the {@link Message} was received.
      * @return the {@link Command} instance associated with the {@link Message}.
      */
     @Nonnull
     @Override
-    public Optional<Command> build(@Nonnull Message message){
+    public Optional<Command> build(@Nonnull Message message, @Nonnull MessageChannel channel){
         Optional<? extends IntermediateCommand> commandOpt = parser.parse(message);
 
         //Message is not a command
@@ -81,8 +106,13 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
         IntermediateCommand command = commandOpt.get();
 
+        log.info("Received command {} : {} {}", command.getPrefix(), command.getName(), command.getArguments());
+
+        typeResolver = typeResolverFunction.apply(null, null);
+
         if(comparePrefix(command))
-            return build(command.getName(), command.getArguments());
+            return build(command.getName(), command.getArguments())
+                    .map(c -> provideContext(c, message, channel));
         else
             return Optional.empty();
     }
@@ -94,12 +124,13 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
      * doesn't describe a {@link Command} or isn't associated with one, {@link Optional#empty()} is returned.
      * Otherwise an {@link Optional} containing the associated command is returned.
      * @param message the received {@link Message}.
-     * @param guild the {@link Guild} associated with the {@link TextChannel} from which the message was received.
+     * @param guild the {@link Guild} associated with the {@link TextChannel} from which the {@link Message} was received.
+     * @param textChannel the {@link TextChannel} from which the {@link Message} was received.
      * @return the {@link Command} instance associated with the {@link Message}.
      */
     @Nonnull
     @Override
-    public Optional<Command> build(@Nonnull Message message, @Nonnull Guild guild){
+    public Optional<Command> build(@Nonnull Message message, @Nonnull Guild guild, @Nonnull TextChannel textChannel){
         Optional<? extends IntermediateCommand> commandOpt = parser.parse(message);
 
         //Message is not a command
@@ -108,8 +139,13 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
         IntermediateCommand command = commandOpt.get();
 
+        log.info("Received command {} : {} {}", command.getPrefix(), command.getName(), command.getArguments());
+
+        typeResolver = typeResolverFunction.apply(guild, textChannel);
+
         if(comparePrefix(command) || comparePrefix(command, guild))
-            return build(command.getName(), command.getArguments());
+            return build(command.getName(), command.getArguments())
+                    .map(c -> provideContext(c, message, guild, textChannel));
         else
             return Optional.empty();
     }
@@ -131,5 +167,65 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
      */
     private boolean comparePrefix(@Nonnull IntermediateCommand command){
         return command.getPrefix().map(globalPrefix::equals).orElse(false);
+    }
+
+    @Nonnull
+    private Command provideContext
+            (
+                    @Nonnull Command command,
+                    @Nonnull Message message,
+                    @Nullable Guild guild,
+                    @Nonnull MessageChannel messageChannel
+            )
+    {
+        command.accept(new ContextProvider(message, guild, messageChannel));
+        return command;
+    }
+
+    private Command provideContext
+            (
+                    @Nonnull Command command,
+                    @Nonnull Message message,
+                    @Nonnull MessageChannel messageChannel
+            )
+    {
+        return provideContext(command, message, null, messageChannel);
+    }
+
+    private class ContextProvider implements CommandVisitor{
+        @Nullable
+        private final Guild guild;
+        @Nonnull
+        private final MessageChannel messageChannel;
+        @Nonnull
+        private final User author;
+        @Nonnull
+        private final Message message;
+
+        public ContextProvider(@Nonnull Message message, @Nullable Guild guild, @Nonnull MessageChannel messageChannel){
+            this.message = message;
+            this.author = message.getAuthor();
+            this.guild = guild;
+            this.messageChannel = messageChannel;
+        }
+
+        @Override
+        public void visit(MessageCommand command){
+            command.set$Author(author);
+            command.set$MessageChannel(messageChannel);
+            command.set$Shard(shard);
+            command.set$Message(message);
+        }
+
+        @Override
+        public void visit(GuildCommandTOP command){
+            Preconditions.checkNotNull(guild);
+
+            command.set$Author(guild.getUncheckedMembers(author.getId()));
+            command.set$TextChannel(guild.getUncheckedChannels(messageChannel.getId()));
+            command.set$Guild(guild);
+            command.set$Shard(shard);
+            command.set$Message(message);
+        }
     }
 }

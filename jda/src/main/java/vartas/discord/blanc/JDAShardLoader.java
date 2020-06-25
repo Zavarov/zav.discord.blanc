@@ -18,14 +18,19 @@
 package vartas.discord.blanc;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.RateLimiter;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.command.CommandBuilder;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.io.Credentials;
+import vartas.discord.blanc.json.JSONGuild;
 import vartas.discord.blanc.listener.GuildCommandListener;
 import vartas.discord.blanc.listener.GuildMessageListener;
 import vartas.discord.blanc.listener.PrivateCommandListener;
@@ -33,47 +38,63 @@ import vartas.discord.blanc.visitor.RedditVisitor;
 import vartas.reddit.Client;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 public class JDAShardLoader extends ShardLoader{
     /**
-     * The minimum amount of time between connecting multiple JDA instances.
+     * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
+     * We use an additional second as buffer, bringing the time up to 6 seconds.
      */
     @Nonnull
-    private final TimedSemaphore rateLimiter = new TimedSemaphore(5, TimeUnit.SECONDS, 1);
+    private static final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
     /**
      * The builder for creating one JDA instance for each shard.
      */
     @Nonnull
-    private final JDABuilder jdaBuilder;
-    /**
-     * Responsible for communicating with the Reddit API. All shards share the same client, to utilize make the most out
-     * of caching requested submissions.
-     */
-    @Nonnull
-    private final Client redditClient;
+    private final ShardManager jdaBuilder;
     /**
      * The builder for transforming the received messages into executable commands.
      */
     @Nonnull
-    private final CommandBuilder commandBuilder;
+    private final BiFunction<Shard, JDA, CommandBuilder> commandBuilderFunction;
     /**
-     * The total number of shards. This variable is required to determine which guilds belong to this shard.
+     * The JDA instance of the currently visited shard.
      */
-    private final int shardCount;
+    @Nullable
+    private JDA currentJda;
 
-    public JDAShardLoader(@Nonnull Credentials credentials, @Nonnull CommandBuilder commandBuilder) {
+    @Nonnull
+    private final RedditVisitor redditVisitor;
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+    public JDAShardLoader(@Nonnull Credentials credentials, @Nonnull BiFunction<Shard, JDA, CommandBuilder> commandBuilderFunction) {
         super(credentials);
-        this.shardCount = credentials.getShardCount();
-        this.jdaBuilder = new JDABuilder(credentials.getDiscordToken()).setStatus(OnlineStatus.ONLINE);
-        this.commandBuilder = commandBuilder;
-        this.redditClient = new vartas.reddit.JrawClient(
+        this.commandBuilderFunction = commandBuilderFunction;
+        try {
+            this.jdaBuilder = new DefaultShardManagerBuilder()
+                    .setToken(credentials.getDiscordToken())
+                    .setStatus(OnlineStatus.ONLINE)
+                    .setShardsTotal(credentials.getShardCount())
+                    .build();
+        } catch(LoginException e) {
+            //TODO Error Messages;
+            throw new RuntimeException();
+        }
+        Client redditClient = new vartas.reddit.JrawClient(
                 credentials.getRedditAccount(),
                 credentials.getVersion(),
                 credentials.getRedditId(),
                 credentials.getRedditSecret()
         );
+        this.redditVisitor = new RedditVisitor(redditClient);
     }
 
     @Override
@@ -81,22 +102,54 @@ public class JDAShardLoader extends ShardLoader{
         try {
             rateLimiter.acquire();
 
-            JDA jda = jdaBuilder.useSharding(shardId, shardCount).build();
-            RedditVisitor redditVisitor = createRedditVisitor(jda);
-            Shard shard = ShardFactory.create(() -> new JDAShard(redditVisitor, jda), shardId);
+            currentJda = Preconditions.checkNotNull(jdaBuilder.getShardById(shardId)).awaitReady();
 
-            setGuildFunction(jda);
+            Shard shard;
+            SelfUser selfUser = JDASelfUser.create(currentJda.getSelfUser());
+            //Only the master shard has to modify the status messages
+            if(shardId == 0) {
+                StatusMessageRunnable statusMessageRunnable = createStatusMessageRunnable(selfUser);
+                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, statusMessageRunnable, currentJda), shardId, selfUser);
+            }else{
+                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, currentJda), shardId, selfUser);
+            }
+
+            setGuildFunction(currentJda);
             shard.accept(this);
 
             //Load listeners
-            jda.addEventListener(new GuildCommandListener(commandBuilder, shard));
-            jda.addEventListener(new PrivateCommandListener(commandBuilder));
-            jda.addEventListener(new GuildMessageListener(shard));
+            CommandBuilder commandBuilder = commandBuilderFunction.apply(shard, currentJda);
+            currentJda.addEventListener(new GuildCommandListener(commandBuilder, shard));
+            currentJda.addEventListener(new PrivateCommandListener(commandBuilder));
+            currentJda.addEventListener(new GuildMessageListener(shard));
 
             return shard;
-        } catch(LoginException | InterruptedException e) {
+        } catch( InterruptedException e) {
             //TODO Error Messages;
             throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public Optional<Guild> load(@Nonnull Path guildPath) {
+        try{
+            log.info("Loading guild {}.", guildPath);
+            JSONObject jsonGuild = new JSONObject(Files.readString(guildPath));
+            long guildId = jsonGuild.getLong(JSONGuild.ID);
+
+            if(currentJda != null) {
+                net.dv8tion.jda.api.entities.Guild jdaGuild = currentJda.getGuildById(guildId);
+                if (jdaGuild != null)
+                    return Optional.of(JDAGuild.create(jdaGuild, jsonGuild));
+            }
+
+            return Optional.empty();
+        }catch(IOException e){
+            log.error(Errors.INVALID_FILE.toString());
+            return Optional.empty();
+        }catch(JSONException e){
+            log.error(Errors.INVALID_JSON_FILE.toString());
+            return Optional.empty();
         }
     }
 
@@ -104,15 +157,12 @@ public class JDAShardLoader extends ShardLoader{
         super.defaultGuild = (guildId) -> {
             //TODO Error Messages
             net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(guildId);
-            System.out.println(jda.getGuilds());
-            System.out.println(guildId);
             Preconditions.checkNotNull(guild, new NullPointerException(Long.toUnsignedString(guildId)));
             return JDAGuild.create(guild);
         };
     }
 
-    private RedditVisitor createRedditVisitor(JDA jda){
-        ServerHookPoint discordHook = new JDAServerHookPoint(jda);
-        return new RedditVisitor(discordHook, redditClient);
+    private StatusMessageRunnable createStatusMessageRunnable(SelfUser selfUser){
+        return new StatusMessageRunnable(selfUser);
     }
 }

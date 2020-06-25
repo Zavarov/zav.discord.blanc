@@ -21,6 +21,8 @@ import net.dv8tion.jda.api.JDA;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.NoSuchElementException;
 
 @Nonnull
 public class JDATypeResolver extends AbstractTypeResolver{
@@ -30,27 +32,77 @@ public class JDATypeResolver extends AbstractTypeResolver{
     private final JDA jda;
 
     public JDATypeResolver(@Nonnull Shard shard, @Nonnull JDA jda){
+        this(shard, jda, null, null);
+    }
+
+    public JDATypeResolver(@Nonnull Shard shard, @Nonnull JDA jda, @Nullable Guild guild, @Nullable TextChannel textChannel){
+        super(guild, textChannel);
         this.shard = shard;
         this.jda = jda;
     }
 
+    /**
+     * Attempts to transform the provided {@link Argument} into a {@link Guild}.<br>
+     * @param argument the {@link Argument} associated with the {@link Guild}.
+     * @return the {@link Guild} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link Guild}.
+     */
+    @Nonnull
     @Override
-    public Guild resolveGuild(Argument argument) {
+    public Guild resolveGuild(@Nonnull Argument argument) throws NoSuchElementException {
         return new JDAGuildResolver(shard, jda).apply(argument).orElseThrow();
     }
 
+    /**
+     * Attempts to transform the provided {@link Argument} into a {@link TextChannel}.<br>
+     * @param argument the {@link Argument} associated with the {@link TextChannel}.
+     * @return the {@link TextChannel} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link TextChannel}.
+     */
+    @Nonnull
     @Override
-    public TextChannel resolveTextChannel(Guild guild, Argument argument) {
-        return null;
+    public TextChannel resolveTextChannel(@Nonnull Argument argument) throws NoSuchElementException{
+        return new JDATextChannelResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow();
     }
 
+    /**
+     * Attempts to transform the provided {@link Argument} into an {@link User}.<br>
+     * @param argument the {@link Argument} associated with the {@link User}.
+     * @return the {@link User} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link User}.
+     */
+    @Nonnull
     @Override
-    public User resolveUser(Argument argument) {
+    public User resolveUser(@Nonnull Argument argument) throws NoSuchElementException{
         return new JDAUserResolver(shard, jda).apply(argument).orElseThrow();
     }
 
+    /**
+     * Attempts to transform the provided {@link Argument} into a {@link Role}.<br>
+     * @param argument the {@link Argument} associated with the {@link Role}.
+     * @return the {@link Role} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link Role}.
+     */
+    @Nonnull
     @Override
-    public Role resolveRole(Guild guild, Argument argument) {
-        return null;
+    public Role resolveRole(@Nonnull Argument argument) throws NoSuchElementException{
+        return new JDARoleResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow();
+    }
+
+    /**
+     * Attempts to transform the provided {@link Argument} into a {@link Member}.<br>
+     * @param argument the {@link Argument} associated with the {@link Member}.
+     * @return the {@link Member} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link Member}.
+     */
+    @Nonnull
+    @Override
+    public Member resolveMember(@Nonnull Argument argument) throws NoSuchElementException{
+        return new JDAMemberResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow();
+    }
+
+    @Override
+    public Message resolveMessage(Argument argument) throws NoSuchElementException {
+        return new JDAMessageResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow();
     }
 }

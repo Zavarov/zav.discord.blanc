@@ -12,6 +12,7 @@
     <artifactId>monticore</artifactId>
 
     <properties>
+        <generator.models.path>${project.basedir}/src/main/models</generator.models.path>
         <generator.resources.path>${project.basedir}/src/main/resources/templates</generator.resources.path>
         <generator.classes.path>${project.build.directory}/classes-resources</generator.classes.path>
         <generator.templates.path>${project.build.directory}/templates-resources</generator.templates.path>
@@ -78,6 +79,21 @@
                             <resources>
                                 <resource>
                                     <directory>${generator.resources.path}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-models</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${generator.models.path}</directory>
                                 </resource>
                             </resources>
                         </configuration>

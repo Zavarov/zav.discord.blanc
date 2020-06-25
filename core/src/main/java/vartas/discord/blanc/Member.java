@@ -17,14 +17,18 @@
 
 package vartas.discord.blanc;
 
+import vartas.discord.blanc.factory.MessageEmbedFactory;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
 import java.util.List;
 
 /**
  * The internal representation of a {@link Guild} member.
  */
 @Nonnull
-public class Member extends MemberTOP{
+public abstract class Member extends MemberTOP implements Printable{
     /**
      * Retrieves all effective permissions this {@link Member} has in the given {@link TextChannel}.
      * To avoid redundancy, this task is delegated to the underlying Discord library.
@@ -32,7 +36,16 @@ public class Member extends MemberTOP{
      * @return A list of all permissions this member has in the given text channel.
      */
     @Nonnull
-    public List<Permission> getPermissions(@Nonnull TextChannel textChannel){
-        throw new UnsupportedOperationException();
+    public abstract List<Permission> getPermissions(@Nonnull TextChannel textChannel);
+
+    @Override
+    public MessageEmbed toMessageEmbed() {
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        messageEmbed.setTitle(getName());
+        messageEmbed.addFields("ID", getId());
+        messageEmbed.addFields("Rank", getRanks());
+
+        return messageEmbed;
     }
 }

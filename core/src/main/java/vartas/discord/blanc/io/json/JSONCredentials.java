@@ -1,6 +1,7 @@
 package vartas.discord.blanc.io.json;
 
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.io.Credentials;
 
 import java.io.IOException;
@@ -10,6 +11,17 @@ import java.nio.file.Paths;
 
 //TODO Generate
 public class JSONCredentials extends Credentials {
+    public static JSONCredentials CREDENTIALS;
+
+    static{
+        try{
+            CREDENTIALS = JSONCredentials.of(Paths.get("credentials.json"));
+        }catch(IOException e){
+            LoggerFactory.getLogger(JSONCredentials.class.getSimpleName()).error(e.toString());
+            CREDENTIALS = new JSONCredentials();
+        }
+    }
+
     public static JSONCredentials of(Path guildPath) throws IOException {
         return of(Files.readString(guildPath));
     }

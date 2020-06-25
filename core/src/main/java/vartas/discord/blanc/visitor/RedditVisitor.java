@@ -1,14 +1,18 @@
 package vartas.discord.blanc.visitor;
 
+import org.apache.http.client.HttpResponseException;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.*;
+import vartas.discord.blanc.io.json.JSONCredentials;
+import vartas.discord.blanc.json.JSONGuild;
 import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
 import vartas.reddit.UnsuccessfulRequestException;
 
 import javax.annotation.Nonnull;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -32,11 +36,6 @@ public class RedditVisitor implements ArchitectureVisitor {
     @Nonnull
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
-     * The hook point for submitting new {@link Submission submissions}.
-     */
-    @Nonnull
-    private final ServerHookPoint discordHookPoint;
-    /**
      * The hook point for receiving new {@link Submission submissions}.
      */
     @Nonnull
@@ -53,22 +52,25 @@ public class RedditVisitor implements ArchitectureVisitor {
     private Instant exclusiveTo = inclusiveFrom;
 
     /**
+     * Indicates that the guild file was modified by the visitor and the corresponding JSON
+     * file needs to be updated.
+     */
+    private boolean requiresUpdate;
+
+    /**
      * Initializes the visitor.
-     * @param discordHookPoint the hook point for submitting new {@link Submission submissions}
      * @param redditClient the hook point for receiving new {@link Submission submissions}
      */
     public RedditVisitor
             (
-                    @Nonnull ServerHookPoint discordHookPoint,
                     @Nonnull vartas.reddit.Client redditClient
             )
     {
-        this.discordHookPoint = discordHookPoint;
         this.redditClient = redditClient;
     }
 
     /**
-     * Update {@link #exclusiveTo} with the current time, to indicate the start of a new cycle.
+     * Update {@link #exclusiveTo} with the current time, and {@link #inclusiveFrom} with the end of the last cycle.
      * @param shard the current {@link Shard}.
      */
     @Override
@@ -77,20 +79,11 @@ public class RedditVisitor implements ArchitectureVisitor {
 
         //Keep the dates synchronized between multiple shards.
         if(shard.getId() == 0) {
+            //Take the timestamp from the last cycle
+            inclusiveFrom = exclusiveTo;
             //Submissions need to be at least one minute old
             exclusiveTo = Instant.now().minus(1, ChronoUnit.MINUTES);
         }
-    }
-
-    /**
-     * Update {@link #inclusiveFrom} to avoid requesting submissions multiple times.
-     * @param shard the current {@link Shard}.
-     */
-    @Override
-    public void endVisit(@Nonnull ShardTOP shard){
-        //Keep the dates synchronized between multiple shards.
-        if(shard.getId() == 0)
-            inclusiveFrom = exclusiveTo;
     }
 
     /**
@@ -100,6 +93,7 @@ public class RedditVisitor implements ArchitectureVisitor {
     @Override
     public void visit(@Nonnull GuildTOP guild){
         log.info("Visiting guild {}", guild.getName());
+        requiresUpdate = false;
     }
 
     /**
@@ -110,13 +104,12 @@ public class RedditVisitor implements ArchitectureVisitor {
     @Override
     public void visit(@Nonnull TextChannel textChannel){
         log.info("Visiting text channel {}", textChannel.getName());
-        Iterator<String> iterator = textChannel.iteratorSubreddits();
         List<Submission> submissions;
         Subreddit subreddit;
 
-        while(iterator.hasNext()){
+        for(String name : textChannel.getSubreddits()){
             try {
-                subreddit = redditClient.getSubreddits(iterator.next());
+                subreddit = redditClient.getSubreddits(name);
 
                 submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
@@ -129,18 +122,27 @@ public class RedditVisitor implements ArchitectureVisitor {
 
                 //Post the individual submissions
                 for (Submission submission : submissions)
-                    discordHookPoint.send(textChannel, submission);
+                    textChannel.send(submission);
             //Reddit Exceptions
             } catch( UnsuccessfulRequestException e) {
                 log.warn(Errors.UNSUCCESSFUL_REDDIT_REQUEST.toString(), e);
             } catch(vartas.reddit.TimeoutException e) {
                 log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
-            //Catch unknown Exception to continue with the Thread, even after an a failure.
-            //This also includes a possible HTTP exception, indicating an unresolvable request
-            } catch(Exception e){
-                log.warn(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
-                iterator.remove();
+            //Caused by either Reddit or Discord
+            } catch(HttpResponseException | PermissionException e) {
+                log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
+                //Works inside the loop due to CopyOnWriteArrayList
+                requiresUpdate |= textChannel.removeSubreddits(name);
+            } catch(Exception e) {
+                //TODO
+                log.warn(e.toString());
             }
         }
+    }
+
+    @Override
+    public void endVisit(@Nonnull GuildTOP guild){
+        if(requiresUpdate)
+            Shard.write(JSONGuild.of(guild), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 }

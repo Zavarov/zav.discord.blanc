@@ -10,10 +10,11 @@ import java.nio.file.Paths;
 
 public abstract class AbstractTest {
     public static Path RESOURCES = Paths.get("src","test","resources");
-    public static Credentials credentials;
+    public static JSONCredentials credentials;
 
     @BeforeAll
     public static void setUpAll() throws IOException {
         credentials = JSONCredentials.of(RESOURCES.resolve("credentials.json"));
+        JSONCredentials.CREDENTIALS = credentials;
     }
 }

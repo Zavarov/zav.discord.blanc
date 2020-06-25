@@ -1,15 +1,28 @@
 package vartas.discord.blanc.io.json;
 
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.io.StatusMessages;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 //TODO Generate
 public class JSONStatusMessages extends StatusMessages {
+    public static JSONStatusMessages STATUS_MESSAGES;
+
+    static{
+        try{
+            STATUS_MESSAGES = JSONStatusMessages.of(Paths.get("status.json"));
+        }catch(IOException e){
+            LoggerFactory.getLogger(JSONStatusMessages.class.getSimpleName()).error(e.toString());
+            STATUS_MESSAGES = new JSONStatusMessages();
+        }
+    }
+
     public static JSONStatusMessages of(Path guildPath) throws IOException {
         return of(Files.readString(guildPath));
     }

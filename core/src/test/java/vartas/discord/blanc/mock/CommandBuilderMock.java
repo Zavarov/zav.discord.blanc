@@ -32,7 +32,7 @@ public class CommandBuilderMock extends CommandBuilder {
     public Table<String, List<? extends Argument>, Command> commandTable = HashBasedTable.create();
 
     public CommandBuilderMock(@Nonnull Parser parser, @Nonnull String globalPrefix) {
-        super(parser, globalPrefix);
+        super((x,y) -> null, null, parser, globalPrefix);
     }
 
     @Override

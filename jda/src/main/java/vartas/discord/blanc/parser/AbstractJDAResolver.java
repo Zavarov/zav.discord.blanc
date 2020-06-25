@@ -73,6 +73,11 @@ public abstract class AbstractJDAResolver<U, V> extends TypeResolver<V> {
         snowflake = resolveByNumber(argument.getNumber());
     }
 
+    @Override
+    public void visit(ExpressionArgument argument){
+        snowflake = resolveByNumber(argument.getValue().longValue());
+    }
+
     @Nonnull
     protected abstract Collection<U> resolveByName(String name);
 

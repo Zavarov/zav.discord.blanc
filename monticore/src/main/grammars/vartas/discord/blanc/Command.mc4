@@ -41,10 +41,7 @@ grammar Command extends
          * that it requires additional data, which is provided via
          * an attachment.
          */
-        enum Restriction =
-            GUILD      : "Guild"      |
-            ATTACHMENT : "Attachment"
-        ;
+        Restriction = Name&;
 
         /*=========================================================*/
         /*=== Attribute                                         ===*/

@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 
 public class GuildMessageListener extends ListenerAdapter {
     @Nonnull
-    private Shard shard;
+    private final Shard shard;
 
     public GuildMessageListener(@Nonnull Shard shard){
         this.shard = shard;

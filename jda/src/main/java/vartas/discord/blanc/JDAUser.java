@@ -18,18 +18,32 @@
 package vartas.discord.blanc;
 
 import vartas.discord.blanc.factory.UserFactory;
+import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public class JDAUser extends User{
     @Nonnull
+    private final net.dv8tion.jda.api.entities.User user;
+
+    public JDAUser(@Nonnull net.dv8tion.jda.api.entities.User user){
+        this.user = user;
+    }
+
+    @Nonnull
     public static User create(net.dv8tion.jda.api.entities.User user){
-        //Users are of rank USER by default, unless they've been loaded from the JSON file
         return UserFactory.create(
-                JDAUser::new,
-                Rank.USER,
+                () -> new JDAUser(user),
+                Optional.empty(),                           //Private Channel
+                JSONRanks.RANKS.getRanks().get(user.getIdLong()),
                 user.getIdLong(),
                 user.getName()
         );
+    }
+
+    @Override
+    public Optional<PrivateChannel> getChannel(){
+        return Optional.of(JDAPrivateChannel.create(user.openPrivateChannel().complete()));
     }
 }

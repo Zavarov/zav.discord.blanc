@@ -20,11 +20,11 @@ package vartas.discord.blanc.callable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.Message;
-import vartas.discord.blanc.Rank;
 import vartas.discord.blanc.User;
 import vartas.discord.blanc.callable._ast.*;
 import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.factory.UserFactory;
+import vartas.discord.blanc.mock.UserMock;
 import vartas.discord.blanc.parser.*;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class MontiCoreCommandParserTest {
     public void setUp(){
         parser = new MontiCoreCommandParser();
 
-        author = UserFactory.create(Rank.USER, 0, "User");
+        author = UserFactory.create(UserMock::new, 0, "User");
         message = MessageFactory.create(0, Instant.now(), author);
     }
 

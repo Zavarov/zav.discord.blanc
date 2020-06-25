@@ -26,6 +26,7 @@ import vartas.discord.blanc.TypeResolverException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 public class JDATextChannelResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.api.entities.TextChannel, TextChannel> {
@@ -36,27 +37,31 @@ public class JDATextChannelResolver extends AbstractJDAGuildResolver<net.dv8tion
     @Nonnull
     @Override
     protected Collection<net.dv8tion.jda.api.entities.TextChannel> resolveByName(String name) {
-        return jda.getTextChannelsByName(name, true);
+        if(guild == null) return Collections.emptyList();
+
+        return guild.getTextChannelsByName(name, true);
     }
 
     @Nullable
     @Override
     protected net.dv8tion.jda.api.entities.TextChannel resolveByNumber(Number number) {
-        return jda.getTextChannelById(number.longValue());
+        if(guild == null) return null;
+
+        return guild.getTextChannelById(number.longValue());
     }
 
     @Nonnull
     @Override
-    protected Optional<TextChannel> map(Guild guild, net.dv8tion.jda.api.entities.TextChannel snowflake) {
-        TextChannel textChannel = null;
+    protected Optional<TextChannel> map(Guild guild, TextChannel textChannel, net.dv8tion.jda.api.entities.TextChannel snowflake) {
+        TextChannel channel = null;
 
         try {
-            textChannel = guild.getUncheckedChannels(snowflake.getIdLong());
+            channel = guild.getUncheckedChannels(snowflake.getIdLong());
         } catch(TypeResolverException e){
             //TODO Error message
             log.error(snowflake.getId(), e);
         }
 
-        return Optional.ofNullable(textChannel);
+        return Optional.ofNullable(channel);
     }
 }

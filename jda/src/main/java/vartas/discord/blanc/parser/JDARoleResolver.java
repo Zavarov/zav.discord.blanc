@@ -18,14 +18,12 @@
 package vartas.discord.blanc.parser;
 
 import net.dv8tion.jda.api.JDA;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.TypeResolverException;
+import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 public class JDARoleResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.api.entities.Role, Role> {
@@ -36,18 +34,22 @@ public class JDARoleResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.ap
     @Nonnull
     @Override
     protected Collection<net.dv8tion.jda.api.entities.Role> resolveByName(String name) {
-        return jda.getRolesByName(name, true);
+        if(guild == null) return Collections.emptyList();
+
+        return guild.getRolesByName(name, true);
     }
 
     @Nullable
     @Override
     protected net.dv8tion.jda.api.entities.Role resolveByNumber(Number number) {
-        return jda.getRoleById(number.longValue());
+        if(guild == null) return null;
+
+        return guild.getRoleById(number.longValue());
     }
 
     @Nonnull
     @Override
-    protected Optional<Role> map(Guild guild, net.dv8tion.jda.api.entities.Role snowflake) {
+    protected Optional<Role> map(Guild guild, TextChannel textChannel, net.dv8tion.jda.api.entities.Role snowflake) {
         Role role = null;
 
         try {

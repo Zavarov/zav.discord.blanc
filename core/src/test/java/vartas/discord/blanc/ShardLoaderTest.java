@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.json.JSONGuild;
+import vartas.discord.blanc.mock.SelfMemberMock;
+import vartas.discord.blanc.mock.ShardLoaderMock;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,7 +25,7 @@ public class ShardLoaderTest extends AbstractTest {
     public Path notAGuild;
     @BeforeEach
     public void setUp() throws IOException {
-        shardLoader = new ShardLoader(credentials);
+        shardLoader = new ShardLoaderMock(credentials);
         shard = shardLoader.load(0);
         guilds = shard.getGuilds();
         guild = JSONGuild.of(credentials.getGuildDirectory().resolve("guild.json"));

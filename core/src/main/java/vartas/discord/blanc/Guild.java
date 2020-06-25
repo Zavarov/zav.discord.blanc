@@ -17,21 +17,49 @@
 
 package vartas.discord.blanc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.factory.FieldFactory;
+import vartas.discord.blanc.factory.MessageEmbedFactory;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * The internal representation of a Discord guild.
  */
 @Nonnull
-public class Guild extends GuildTOP {
-    /**
-     * Considering that the program needs to be in the {@link Guild} in order to register
-     * a command, this value can always assumed to be defined.
-     * @return the {@link Member} instance of this program in this {@link Guild}.
-     */
+public abstract class Guild extends GuildTOP implements Printable{
     @Nonnull
-    public Member getSelfMember(){
-        throw new UnsupportedOperationException();
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    @Nullable
+    private Pattern pattern;
+    @Nonnull
+    public Optional<Pattern> getPattern(){
+        return Optional.ofNullable(pattern);
+    }
+
+    /**
+     * Generates a pattern based on the blacklisted words. The pattern will accept any word that is accepted
+     * by at least one blacklisted expression. In other words, any text sequence that is matched by the pattern
+     * should be removed.<br>
+     * Choosing this approach instead of matching the word with each expression one by one will drastically
+     * reduce the overhead of the operation.
+     */
+    public void compilePattern() {
+        try {
+            if (isEmptyBlacklist()) {
+                pattern = null;
+            } else {
+                pattern = Pattern.compile(getBlacklist().stream().reduce((u, v) -> u + "+" + v).orElseThrow());
+            }
+        } catch (PatternSyntaxException e) {
+            //TODO
+            log.error(e.toString());
+        }
     }
 
     /**
@@ -44,9 +72,7 @@ public class Guild extends GuildTOP {
      * @param role the {@link Role} associated with the {@link Member}.
      * @return true if the {@link Member} can interact with the {@link Role}.
      */
-    public boolean canInteract(@Nonnull Member member, @Nonnull Role role) {
-        throw new UnsupportedOperationException();
-    }
+    public abstract boolean canInteract(@Nonnull Member member, @Nonnull Role role);
 
     /**
      * Checks whether the specified {@link Member} can interact with the specified {@link TextChannel}.<br>
@@ -59,7 +85,18 @@ public class Guild extends GuildTOP {
      * @param textChannel the {@link TextChannel} associated with the {@link Member}.
      * @return true if the {@link Member} can interact with the {@link TextChannel}.
      */
-    public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel) {
-        throw new UnsupportedOperationException();
+    public abstract boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel);
+
+    @Nonnull
+    @Override
+    public MessageEmbed toMessageEmbed(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        messageEmbed.setTitle(getName());
+        messageEmbed.addFields("#TextChannels", getChannels().size());
+        messageEmbed.addFields("#Roles", getRoles().size());
+        messageEmbed.addFields("#Members", getMembers().size());
+
+        return messageEmbed;
     }
 }

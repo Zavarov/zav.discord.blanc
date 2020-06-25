@@ -1,0 +1,10 @@
+{
+    "channels": [{
+        "subreddits": [],
+        "name": "TextChannel",
+        "id": 2
+    }],
+    "roles": [],
+    "blacklist": [],
+    "id": 1
+}

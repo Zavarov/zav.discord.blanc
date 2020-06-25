@@ -22,26 +22,45 @@ import net.dv8tion.jda.api.JDA;
 import vartas.discord.blanc.visitor.RedditVisitor;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ExecutionException;
 
 public class JDAShard extends Shard {
     private final JDA jda;
 
     public JDAShard
-    (
-            @Nonnull RedditVisitor redditVisitor,
-            @Nonnull JDA jda
-    )
+            (
+                    @Nonnull RedditVisitor redditVisitor,
+                    @Nonnull JDA jda
+            )
     {
         super(redditVisitor);
+        this.jda = jda;
+    }
+
+    public JDAShard
+        (
+            @Nonnull RedditVisitor redditVisitor,
+            @Nonnull StatusMessageRunnable statusMessageRunnable,
+            @Nonnull JDA jda
+        )
+    {
+        super(redditVisitor, statusMessageRunnable);
         this.jda = jda;
     }
 
     @Override
     @Nonnull
     public Guild getGuilds(@Nonnull Long key){
-        net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(key);
-        //TODO Internal Error
-        Preconditions.checkNotNull(guild);
-        return JDAGuild.create(guild);
+        try{
+            return getGuilds(key, () -> {
+                net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(key);
+                //TODO Internal Error
+                Preconditions.checkNotNull(guild);
+                return JDAGuild.create(guild);
+            });
+        }catch(ExecutionException e){
+            //TODO Internal error
+            throw new RuntimeException("Internal error: " + e.getMessage());
+        }
     }
 }

@@ -18,6 +18,7 @@
 package vartas.discord.blanc.parser;
 
 import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.parser.visitor.ParserVisitor;
 
 import javax.annotation.Nonnull;
@@ -29,5 +30,6 @@ import java.util.function.BiFunction;
  * @param <T> the resolved type.
  */
 @Nonnull
-public interface GuildTypeResolver  <T> extends BiFunction<Guild, Argument, Optional<T>>, ParserVisitor {
+public interface GuildTypeResolver  <T> extends ParserVisitor {
+    Optional<T> apply(Guild guild, TextChannel textChannel, Argument argument);
 }

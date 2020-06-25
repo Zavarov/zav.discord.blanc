@@ -17,12 +17,21 @@
 
 package vartas.discord.blanc.command;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
+import java.util.*;
 
 @Nonnull
 public abstract class Command extends CommandTOP {
+    private static final Multimap<Rank, Rank> RANKS_ALIAS = HashMultimap.create();
+
+    static{
+        RANKS_ALIAS.putAll(Rank.ROOT, EnumSet.allOf(Rank.class));
+    }
+
     /**
      * Checks if the specified {@link User} has the given {@link Rank}.<br>
      * This check is transitive, meaning if the {@link User} has a specific {@link Rank}, they
@@ -34,8 +43,20 @@ public abstract class Command extends CommandTOP {
      * @throws PermissionException if the user doesn't have the given rank.
      */
     protected void checkRank(@Nonnull User user, @Nonnull Rank rank) throws PermissionException{
-        //Higher number -> Higher rank
-        if(user.getRank().ordinal() < rank.ordinal())
+        if(!getEffectiveRanks(user).contains(rank))
             throw PermissionException.of(Errors.INSUFFICIENT_RANK);
+    }
+
+    @Nonnull
+    protected Set<Rank> getEffectiveRanks(@Nonnull User user){
+        Set<Rank> effectiveRanks = new HashSet<>();
+
+        //Every user has the USER rank by default
+        effectiveRanks.add(Rank.USER);
+        effectiveRanks.addAll(user.getRanks());
+        for(Rank rank : user.getRanks())
+            effectiveRanks.addAll(RANKS_ALIAS.get(rank));
+
+        return effectiveRanks;
     }
 }

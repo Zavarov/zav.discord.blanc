@@ -23,6 +23,8 @@ import vartas.discord.blanc.*;
 import vartas.discord.blanc.factory.PrivateChannelFactory;
 import vartas.discord.blanc.factory.UserFactory;
 import vartas.discord.blanc.mock.MessageCommandMock;
+import vartas.discord.blanc.mock.PrivateChannelMock;
+import vartas.discord.blanc.mock.UserMock;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,14 +35,14 @@ public class CommandTest extends AbstractTest {
     Command command;
     @BeforeEach
     public void setUp(){
-        author = UserFactory.create(Rank.USER, 0, "User");
-        messageChannel = PrivateChannelFactory.create(0, "PrivateChannel");
+        author = UserFactory.create(UserMock::new, 0, "User");
+        messageChannel = PrivateChannelFactory.create(PrivateChannelMock::new, 0, "PrivateChannel");
         command = new MessageCommandMock(author, messageChannel);
     }
 
     @Test
     public void testRoot(){
-        author.setRank(Rank.ROOT);
+        author.addRanks(Rank.ROOT);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
         assertDoesNotThrow(() -> command.checkRank(author, Rank.ROOT));
@@ -48,7 +50,7 @@ public class CommandTest extends AbstractTest {
 
     @Test
     public void testDeveloper(){
-        author.setRank(Rank.DEVELOPER);
+        author.addRanks(Rank.DEVELOPER);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
         assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.ROOT));
@@ -56,7 +58,7 @@ public class CommandTest extends AbstractTest {
 
     @Test
     public void testUser(){
-        author.setRank(Rank.USER);
+        author.addRanks(Rank.USER);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.DEVELOPER));
         assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.ROOT));

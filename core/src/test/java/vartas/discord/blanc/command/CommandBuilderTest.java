@@ -46,11 +46,11 @@ public class CommandBuilderTest extends AbstractTest {
         parser = new ParserMock();
         commandBuilder = new CommandBuilderMock(parser, "!!");
 
-        author = MemberFactory.create(Rank.USER, 0, "User");
-        guild = GuildFactory.create(0, "Guild");
+        author = MemberFactory.create(MemberMock::new, 0, "User");
+        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 0, "Guild");
 
-        privateChannel = PrivateChannelFactory.create(0, "PrivateChannel");
-        textChannel = TextChannelFactory.create(0, "TextChannel");
+        privateChannel = PrivateChannelFactory.create(PrivateChannelMock::new, 0, "PrivateChannel");
+        textChannel = TextChannelFactory.create(TextChannelMock::new, 0, "TextChannel");
 
         guildMessage = MessageFactory.create(0, Instant.now(), author);
         privateMessage = MessageFactory.create(1, Instant.now(), author);
@@ -70,42 +70,42 @@ public class CommandBuilderTest extends AbstractTest {
     @Test
     public void testBuildInvalidGuildCommand(){
         parser.commandMap.remove(guildMessage);
-        assertThat(commandBuilder.build(guildMessage, guild)).isEmpty();
+        assertThat(commandBuilder.build(guildMessage, guild, textChannel)).isEmpty();
 
     }
 
     @Test
     public void testBuildGuildCommand(){
-        assertThat(commandBuilder.build(guildMessage, guild)).contains(guildCommand);
+        assertThat(commandBuilder.build(guildMessage, guild, textChannel)).contains(guildCommand);
     }
 
     @Test
     public void testBuildGuildCommandWithGuildPrefix(){
         guild.setPrefix("*");
         guildIntermediateCommand.setPrefix("*");
-        assertThat(commandBuilder.build(guildMessage, guild)).contains(guildCommand);
+        assertThat(commandBuilder.build(guildMessage, guild, textChannel)).contains(guildCommand);
     }
 
     @Test
     public void testBuildGuildCommandWithoutPrefix(){
         guildIntermediateCommand.setPrefix(null);
-        assertThat(commandBuilder.build(guildMessage, guild)).isEmpty();
+        assertThat(commandBuilder.build(guildMessage, guild, textChannel)).isEmpty();
     }
 
     @Test
     public void testBuildInvalidPrivateCommand(){
         parser.commandMap.remove(privateMessage);
-        assertThat(commandBuilder.build(privateMessage)).isEmpty();
+        assertThat(commandBuilder.build(privateMessage, privateChannel)).isEmpty();
     }
 
     @Test
     public void testBuildPrivateCommand(){
-        assertThat(commandBuilder.build(privateMessage)).contains(privateCommand);
+        assertThat(commandBuilder.build(privateMessage, privateChannel)).contains(privateCommand);
     }
 
     @Test
     public void testBuildPrivateCommandWithoutPrefix(){
         privateIntermediateCommand.setPrefix(null);
-        assertThat(commandBuilder.build(privateMessage)).isEmpty();
+        assertThat(commandBuilder.build(privateMessage, privateChannel)).isEmpty();
     }
 }

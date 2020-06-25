@@ -1,10 +1,13 @@
 package vartas.discord.blanc;
 
 import com.google.common.cache.Cache.Cache;
+import java.awt.Color.Color;
+import java.io.InputStream.InputStream;
 import java.lang.Object.Object;
 import java.nio.file.Path.Path;
 import java.time.Instant.Instant;
 import java.util.List.List;
+import java.util.Collection.Collection;
 import java.util.Optional.Optional;
 import vartas.reddit.Submission.Submission;
 
@@ -17,6 +20,7 @@ public classdiagram Architecture {
         - int id;
         - Cache<Long, Guild> guilds;
         - Cache<Long, User> users;
+        - SelfUser selfUser;
     }
 
     public abstract class Snowflake {
@@ -24,37 +28,38 @@ public classdiagram Architecture {
         - String name;
     }
 
-    public class Guild extends Snowflake {
-        - Optional<String> prefix;
-        - Cache<Long, Member> members;
-        - Cache<Long, TextChannel> channels;
-        - Cache<Long, Role> roles;
-    }
-
-    public class Role extends Snowflake {
-        - Optional<String> group;
-    }
-
-    public class Member extends User{
-        - List<Role> roles;
-    }
-
-    public class User extends Snowflake {
+    public abstract class User extends Snowflake {
         - Optional<PrivateChannel> channel;
-        - Rank rank;
+        - Collection<Rank> ranks;
     }
 
-    public class TextChannel extends MessageChannel{
-        - List<String> subreddits;
-    }
-
-    public class PrivateChannel extends MessageChannel{
+    public interface SelfUser{
+        void modifyStatusMessage(String statusMessage);
+        void modifyAvatar(InputStream avatar);
     }
 
     public abstract class MessageChannel extends Snowflake{
         <<initialized="P1D">>
         - Cache<Long, Message> messages;
+
+        + abstract void send(Message message);
+        + abstract void send(MessageEmbed messageEmbed);
+        + abstract void send(Submission submission);
+        + abstract void send(byte[] bytes, String qualifiedName);
+        + abstract void send(Role role);
+        + abstract void send(Member member);
+        + abstract void send(Guild guild);
+        + abstract void send(Object object);
     }
+
+    public abstract class PrivateChannel extends MessageChannel{
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Message
+    //
+    //------------------------------------------------------------------------------------------------------------------
 
     public class Message {
         - long id;
@@ -62,35 +67,95 @@ public classdiagram Architecture {
         - User author;
         - Optional<String> content;
         - Optional<MessageEmbed> messageEmbed;
+        - List<Attachment> attachments;
     }
 
     public class MessageEmbed {
+        - Optional<Color> color;
         - Optional<String> thumbnail;
-        - Optional<String> title;
+        - Optional<Title> title;
         - Optional<String> content;
         - Optional<Instant> timestamp;
+        - Optional<Author> author;
         - List<Field> fields;
+    }
+
+    public class Author {
+        - String name;
+        - Optional<String> url;
+    }
+
+    public class Title {
+        - String name;
+        - Optional<String> url;
     }
 
     public class Field {
         - String title;
         - Object content;
+        - boolean inline;
+    }
+
+    public class Attachment{
+        - Optional<InputStream> content;
+        + void download();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Guild
+    //
+    //------------------------------------------------------------------------------------------------------------------
+    public abstract class Guild extends Snowflake {
+        - Optional<String> prefix;
+        - Cache<Long, Member> members;
+        - Cache<Long, TextChannel> channels;
+        - Cache<Long, Role> roles;
+        - List<String> blacklist;
+        - SelfMember selfMember;
+
+        + abstract void leave();
+    }
+
+    public abstract class Role extends Snowflake {
+        - Optional<String> group;
+    }
+
+    public abstract class Member extends User{
+        - List<Role> roles;
+        - Optional<String> nickname;
+    }
+
+    public interface SelfMember{
+        void modifyNickname(String nickname);
+    }
+
+    public abstract class TextChannel extends MessageChannel{
+        - List<String> subreddits;
     }
 
     /**
-     * This interface connects the program to the Discord API.
-     * Any communication has to be done through this interface.
+     * This enumeration contains the different modules of a guild.
      */
-    public interface ServerHookPoint{
-        abstract void send(MessageChannel messageChannel, Message message);
-        abstract void send(MessageChannel messageChannel, MessageEmbed messageEmbed);
-        abstract void send(MessageChannel messageChannel, Submission submission);
-        abstract void send(MessageChannel messageChannel, byte[] bytes, String qualifiedName);
-        abstract void send(MessageChannel messageChannel, Role role);
-        abstract void send(MessageChannel messageChannel, Member member);
-        abstract void send(MessageChannel messageChannel, Guild guild);
-        abstract void send(MessageChannel messageChannel, Object object);
-        abstract User getSelfUser();
+    public enum GuildModule {
+        /**
+         * Each guild can have a custom prefix. This is to avoid collisions with other bots.
+         */
+        PREFIX,
+        /**
+         * Each guild can ban usage of certain expressions, such as invitation links or profanity.
+         */
+        BLACKLIST,
+        /**
+         * Self-assignable roles can be grouped together. For each group, a member can have at most
+         * one of its roles assigned at a time.
+         */
+        GROUP,
+        /**
+         * Each text channel can be linked to one or more subreddits. Any new submission will then be posted
+         * in that channel.
+         */
+        SUBREDDIT;
     }
 
     /**
@@ -98,6 +163,10 @@ public classdiagram Architecture {
      * Unless specified otherwise, every user has the USER rank, by default.
      */
     public enum Rank {
+        /**
+         * An additional rank required for communicating with the Reddit API.
+         */
+        REDDIT,
         /**
          * The default rank of every user. Those are not able to access the internal functions of the program.
          */
@@ -127,6 +196,8 @@ public classdiagram Architecture {
         MANAGE_GUILD,
         ADD_REACTIONS,
         VIEW_AUDIT_LOG,
+        PRIORITY_SPEAKER,
+        STREAM,
         VIEW_CHANNEL,
         SEND_MESSAGES,
         SEND_TTS_MESSAGES,
@@ -143,8 +214,6 @@ public classdiagram Architecture {
         DEAFEN_MEMBERS,
         MOVE_MEMBERS,
         USE_VAD,
-        PRIORITY_SPEAKER,
-        STREAM,
         CHANGE_NICKNAME,
         MANAGE_NICKNAMES,
         MANAGE_ROLES,

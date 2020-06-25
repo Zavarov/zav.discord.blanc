@@ -4,12 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
 import vartas.discord.blanc.factory.GuildFactory;
+import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
-import vartas.discord.blanc.json.JSONMessage;
-import vartas.discord.blanc.mock.DiscordServerHookPointMock;
-import vartas.discord.blanc.mock.RedditClientMock;
-import vartas.discord.blanc.mock.SubredditMock;
+import vartas.discord.blanc.mock.*;
 import vartas.reddit.Submission;
 import vartas.reddit.factory.SubmissionFactory;
 import vartas.reddit.factory.SubredditFactory;
@@ -20,11 +18,9 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RedditVisitorTest extends AbstractTest {
-    DiscordServerHookPointMock discordHook;
     Shard shard;
     Guild guild;
-    TextChannel textChannel;
-    Message message;
+    TextChannelMock textChannel;
 
     RedditClientMock redditHook;
     RedditVisitor redditVisitor;
@@ -34,7 +30,7 @@ public class RedditVisitorTest extends AbstractTest {
     public void setUp() throws IOException {
         initRedditHook();
         initDiscordHook();
-        redditVisitor = new RedditVisitor(discordHook, redditHook);
+        redditVisitor = new RedditVisitor(redditHook);
     }
 
     private void initRedditHook(){
@@ -49,6 +45,7 @@ public class RedditVisitorTest extends AbstractTest {
         );
         //TODO From JSON
         submission = SubmissionFactory.create(
+                SubmissionMock::new,
                 "author",
                 "title",
                 0,
@@ -64,18 +61,15 @@ public class RedditVisitorTest extends AbstractTest {
     }
 
     private void initDiscordHook() throws IOException {
-        message = JSONMessage.of(RESOURCES.resolve("message.json"));
 
-        textChannel = TextChannelFactory.create(2, "TextChannel");
+        textChannel = (TextChannelMock) TextChannelFactory.create(TextChannelMock::new, 2, "TextChannel");
         textChannel.addSubreddits(subreddit.getName());
 
-        guild = GuildFactory.create(1, "Guild");
+        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 1, "Guild");
         guild.putChannels(textChannel.getId(), textChannel);
 
-        shard = ShardFactory.create(0);
+        shard = ShardFactory.create(0, new SelfUserMock());
         shard.putGuilds(guild.getId(), guild);
-
-        discordHook = new DiscordServerHookPointMock();
 
     }
 
@@ -86,7 +80,7 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(discordHook.sent).isEmpty();
+        assertThat(textChannel.sent).isEmpty();
     }
 
     @Test
@@ -96,7 +90,7 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.isEmptySubreddits()).isTrue();
-        assertThat(discordHook.sent).isEmpty();
+        assertThat(textChannel.sent).isEmpty();
     }
 
     @Test
@@ -106,13 +100,13 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(discordHook.sent).isEmpty();
+        assertThat(textChannel.sent).isEmpty();
     }
 
     @Test
     public void testSuccess(){
         shard.accept(redditVisitor);
 
-        assertThat(discordHook.sent).isNotEmpty();
+        assertThat(textChannel.sent).isNotEmpty();
     }
 }

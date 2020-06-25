@@ -1,8 +1,10 @@
 package vartas.discord.blanc.io;
 
+import com.google.common.collect.Multimap.Multimap;
 import java.nio.file.Path.Path;
 import java.util.List.List;
 import vartas.discord.blanc.Architecture.User;
+import vartas.discord.blanc.Architecture.Rank;
 
 public classdiagram IO {
     public class Credentials {
@@ -27,7 +29,7 @@ public classdiagram IO {
     }
 
     public class Ranks {
-        - List<User> ranks;
+        - Multimap<Long, Rank> ranks;
     }
 
     public class StatusMessages {

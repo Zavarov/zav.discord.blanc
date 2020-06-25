@@ -19,10 +19,7 @@ package vartas.discord.blanc.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.JDAMessage;
-import vartas.discord.blanc.Message;
-import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.*;
 import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
@@ -30,10 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Nonnull
-public class GuildCommandListener extends ListenerAdapter {
-    @Nonnull
-    private final ExecutorService executor = Executors.newWorkStealingPool();
-    @Nonnull
+public class GuildCommandListener extends CommandListener {
     private final CommandBuilder commandBuilder;
     @Nonnull
     private final Shard shard;
@@ -45,9 +39,13 @@ public class GuildCommandListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event){
+        if(event.getAuthor().isBot())
+            return;
+
         Message message = JDAMessage.create(event.getMessage());
         Guild guild = shard.getUncheckedGuilds(event.getGuild().getIdLong());
+        TextChannel textChannel = guild.getUncheckedChannels(event.getChannel().getIdLong());
 
-        commandBuilder.build(message, guild).ifPresent(executor::submit);
+        submit(textChannel, () -> commandBuilder.build(message, guild, textChannel));
     }
 }

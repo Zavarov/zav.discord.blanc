@@ -9,6 +9,10 @@ import vartas.discord.blanc.factory.GuildFactory;
 import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
 import vartas.discord.blanc.factory.UserFactory;
+import vartas.discord.blanc.mock.GuildMock;
+import vartas.discord.blanc.mock.SelfMemberMock;
+import vartas.discord.blanc.mock.TextChannelMock;
+import vartas.discord.blanc.mock.UserMock;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -22,10 +26,10 @@ public class ActivityVisitorTest extends AbstractTest {
     Guild guild;
     @BeforeEach
     public void setUp(){
-        author = UserFactory.create(Rank.USER, 0, "user");
+        author = UserFactory.create(UserMock::new, 0, "user");
         message = MessageFactory.create(0, Instant.now(), author);
-        textChannel = TextChannelFactory.create(0, "TextChannel");
-        guild =  GuildFactory.create(0, "Guild");
+        textChannel = TextChannelFactory.create(TextChannelMock::new, 0, "TextChannel");
+        guild =  GuildFactory.create(GuildMock::new, new SelfMemberMock(), 0, "Guild");
 
         textChannel.putMessages(message.getId(), message);
     }
