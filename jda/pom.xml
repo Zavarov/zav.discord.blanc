@@ -36,6 +36,13 @@
         </dependency>
 
         <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>${webhook.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>vartas.discord.blanc</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>

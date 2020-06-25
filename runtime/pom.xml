@@ -40,6 +40,7 @@
         <base.cmd>vartas.discord.blanc.command.base.Base</base.cmd>
         <developer.cmd>vartas.discord.blanc.command.developer.Developer</developer.cmd>
         <mod.cmd>vartas.discord.blanc.command.mod.Mod</mod.cmd>
+        <legacy.cmd>vartas.discord.blanc.command.legacy.Legacy</legacy.cmd>
     </properties>
 
     <dependencies>
@@ -188,6 +189,7 @@
                                 <argument>${base.cmd}</argument>
                                 <argument>${developer.cmd}</argument>
                                 <argument>${mod.cmd}</argument>
+                                <argument>${legacy.cmd}</argument>
                             </arguments>
                         </configuration>
                     </execution>

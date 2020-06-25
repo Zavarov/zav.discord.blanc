@@ -4,11 +4,13 @@ import com.google.common.cache.Cache.Cache;
 import java.awt.Color.Color;
 import java.io.InputStream.InputStream;
 import java.lang.Object.Object;
+import java.lang.RuntimeException.RuntimeException;
 import java.nio.file.Path.Path;
 import java.time.Instant.Instant;
-import java.util.List.List;
 import java.util.Collection.Collection;
+import java.util.List.List;
 import java.util.Optional.Optional;
+import java.util.Set.Set;
 import vartas.reddit.Submission.Submission;
 
 public classdiagram Architecture {
@@ -131,8 +133,13 @@ public classdiagram Architecture {
     }
 
     public abstract class TextChannel extends MessageChannel{
-        - List<String> subreddits;
+        - Set<String> subreddits;
+        - Cache<String, Webhook> webhooks;
     }
+
+    public abstract class Webhook extends MessageChannel {}
+
+    public class WebhookException extends RuntimeException{}
 
     /**
      * This enumeration contains the different modules of a guild.

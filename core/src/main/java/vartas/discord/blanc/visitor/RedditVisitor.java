@@ -17,6 +17,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * This visitor class is responsible for requesting the latest submissions
@@ -104,45 +106,46 @@ public class RedditVisitor implements ArchitectureVisitor {
     @Override
     public void visit(@Nonnull TextChannel textChannel){
         log.info("Visiting text channel {}", textChannel.getName());
-        List<Submission> submissions;
-        Subreddit subreddit;
-
-        for(String name : textChannel.getSubreddits()){
-            try {
-                subreddit = redditClient.getSubreddits(name);
-
-                submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
-
-                log.info("{} new {} between {} and {}",
-                        submissions.size(),
-                        English.plural("submission", submissions.size()),
-                        inclusiveFrom,
-                        exclusiveTo
-                );
-
-                //Post the individual submissions
-                for (Submission submission : submissions)
-                    textChannel.send(submission);
-            //Reddit Exceptions
-            } catch( UnsuccessfulRequestException e) {
-                log.warn(Errors.UNSUCCESSFUL_REDDIT_REQUEST.toString(), e);
-            } catch(vartas.reddit.TimeoutException e) {
-                log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
-            //Caused by either Reddit or Discord
-            } catch(HttpResponseException | PermissionException e) {
-                log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
-                //Works inside the loop due to CopyOnWriteArrayList
-                requiresUpdate |= textChannel.removeSubreddits(name);
-            } catch(Exception e) {
-                //TODO
-                log.warn(e.toString());
-            }
-        }
+        for(String subreddit : textChannel.getSubreddits())
+            request(subreddit, textChannel::send, textChannel::removeSubreddits);
+        for(Map.Entry<String, Webhook> webhook : textChannel.asMapWebhooks().entrySet())
+            request(webhook.getKey(), webhook.getValue()::send, textChannel::invalidateWebhooks);
     }
 
     @Override
     public void endVisit(@Nonnull GuildTOP guild){
         if(requiresUpdate)
             Shard.write(JSONGuild.of(guild), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
+    }
+
+    private void request(String name, Consumer<Submission> onSuccess, Consumer<String> onFailure){
+        try {
+            Subreddit subreddit = redditClient.getSubreddits(name);
+            List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
+
+            log.info("{} new {} between {} and {}",
+                    submissions.size(),
+                    English.plural("submission", submissions.size()),
+                    inclusiveFrom,
+                    exclusiveTo
+            );
+
+            //Post the individual submissions
+            for (Submission submission : submissions)
+                onSuccess.accept(submission);
+            //Reddit Exceptions
+        } catch( UnsuccessfulRequestException e) {
+            log.warn(Errors.UNSUCCESSFUL_REDDIT_REQUEST.toString(), e);
+        } catch(vartas.reddit.TimeoutException e) {
+            log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
+            //Caused by either Reddit or Discord
+        } catch(HttpResponseException | PermissionException | WebhookException e) {
+            log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
+            onFailure.accept(name);
+            requiresUpdate = true;
+        } catch(Exception e) {
+            //TODO
+            log.warn(e.toString());
+        }
     }
 }

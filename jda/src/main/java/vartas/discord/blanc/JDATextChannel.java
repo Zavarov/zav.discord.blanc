@@ -17,23 +17,52 @@
 
 package vartas.discord.blanc;
 
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
 import vartas.discord.blanc.json.JSONTextChannel;
+import vartas.discord.blanc.json.JSONWebhook;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class JDATextChannel extends TextChannel{
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     @Nonnull
     private final net.dv8tion.jda.api.entities.TextChannel textChannel;
     @Nonnull
     private JDATextChannel(@Nonnull net.dv8tion.jda.api.entities.TextChannel textChannel){
         this.textChannel = textChannel;
+    }
+
+    @Override
+    public Webhook getWebhooks(String key){
+        try {
+            return getWebhooks(key, () -> {
+                List<net.dv8tion.jda.api.entities.Webhook> webhooks = textChannel.retrieveWebhooks().complete();
+                return JDAWebhook.create(
+                        webhooks.stream()
+                                .filter(w -> w.getName().equals(key))
+                                .findAny()
+                                .orElse(textChannel.createWebhook(key).complete())
+                );
+            });
+        } catch(net.dv8tion.jda.api.exceptions.PermissionException e){
+            log.error(Errors.INSUFFICIENT_PERMISSION.toString(), e);
+            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
+        }catch(ExecutionException e){
+            //TODO Internal error
+            throw new RuntimeException("Internal error: " + e.getMessage());
+        }
     }
 
     public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel, @Nullable JSONObject jsonObject){
@@ -44,9 +73,30 @@ public class JDATextChannel extends TextChannel{
         );
 
         if(jsonObject != null){
-            JSONArray jsonSubreddits = jsonObject.getJSONArray(JSONTextChannel.SUBREDDITS);
-            for(int i = 0 ; i < jsonSubreddits.length() ; ++i)
-                textChannel.addSubreddits(jsonSubreddits.getString(i));
+            JSONArray jsonSubreddits = jsonObject.optJSONArray(JSONTextChannel.SUBREDDITS);
+            if(jsonSubreddits != null)
+                for(int i = 0 ; i < jsonSubreddits.length() ; ++i)
+                    textChannel.addSubreddits(jsonSubreddits.getString(i));
+
+
+            JSONObject jsonWebhooks = jsonObject.optJSONObject(JSONTextChannel.WEBHOOKS);
+            if(jsonWebhooks != null) {
+                //Group available webhooks by name
+                Map<String, net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel
+                        .retrieveWebhooks()
+                        .complete()
+                        .stream()
+                        .collect(Collectors.toMap(net.dv8tion.jda.api.entities.Webhook::getName, Function.identity()));
+
+                for (String subreddit : jsonWebhooks.keySet()) {
+                    JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));
+                    //Try to recover the webhook
+                    net.dv8tion.jda.api.entities.Webhook jdaWebhook = jdaWebhooks.getOrDefault(jsonWebhook.getName(), null);
+
+                    if (jdaWebhook != null)
+                        textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook));
+                }
+            }
         }
 
         return textChannel;
