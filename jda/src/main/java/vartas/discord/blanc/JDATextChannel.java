@@ -49,6 +49,9 @@ public class JDATextChannel extends TextChannel{
         try {
             return getWebhooks(key, () -> {
                 List<net.dv8tion.jda.api.entities.Webhook> webhooks = textChannel.retrieveWebhooks().complete();
+
+                webhooks.stream().forEach(x -> System.out.println(x.getName()));
+
                 return JDAWebhook.create(
                         webhooks.stream()
                                 .filter(w -> w.getName().equals(key))
@@ -72,7 +75,7 @@ public class JDATextChannel extends TextChannel{
                 jdaTextChannel.getName()
         );
 
-        if(jsonObject != null){
+        if(jsonObject != null && jdaTextChannel.canTalk()){
             JSONArray jsonSubreddits = jsonObject.optJSONArray(JSONTextChannel.SUBREDDITS);
             if(jsonSubreddits != null)
                 for(int i = 0 ; i < jsonSubreddits.length() ; ++i)
@@ -81,20 +84,24 @@ public class JDATextChannel extends TextChannel{
 
             JSONObject jsonWebhooks = jsonObject.optJSONObject(JSONTextChannel.WEBHOOKS);
             if(jsonWebhooks != null) {
-                //Group available webhooks by name
-                Map<String, net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel
-                        .retrieveWebhooks()
-                        .complete()
-                        .stream()
-                        .collect(Collectors.toMap(net.dv8tion.jda.api.entities.Webhook::getName, Function.identity()));
+                try {
+                    //Group available webhooks by name
+                    Map<String, net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel
+                            .retrieveWebhooks()
+                            .complete()
+                            .stream()
+                            .collect(Collectors.toMap(net.dv8tion.jda.api.entities.Webhook::getName, Function.identity()));
 
-                for (String subreddit : jsonWebhooks.keySet()) {
-                    JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));
-                    //Try to recover the webhook
-                    net.dv8tion.jda.api.entities.Webhook jdaWebhook = jdaWebhooks.getOrDefault(jsonWebhook.getName(), null);
+                    for (String subreddit : jsonWebhooks.keySet()) {
+                        JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));
+                        //Try to recover the webhook
+                        net.dv8tion.jda.api.entities.Webhook jdaWebhook = jdaWebhooks.getOrDefault(jsonWebhook.getName(), null);
 
-                    if (jdaWebhook != null)
-                        textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook));
+                        if (jdaWebhook != null)
+                            textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook));
+                    }
+                }catch(InsufficientPermissionException e){
+                    LoggerFactory.getLogger(JDATextChannel.class.getSimpleName()).warn("Couldn't retrieve webhooks.", e);
                 }
             }
         }

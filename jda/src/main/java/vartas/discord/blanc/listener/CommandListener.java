@@ -18,6 +18,8 @@
 package vartas.discord.blanc.listener;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.MessageChannel;
 import vartas.discord.blanc.command.Command;
 
@@ -28,17 +30,21 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 public abstract class CommandListener extends ListenerAdapter {
+    private Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     private ExecutorService executor = Executors.newWorkStealingPool();
 
     protected void submit(@Nonnull MessageChannel messageChannel, @Nonnull Supplier<Optional<? extends Command>> commandSupplier){
-        try{
+        executor.submit(() -> {
             Optional<? extends Command> commandOpt = commandSupplier.get();
             commandOpt.ifPresent(command -> {
-                command.validate();
-                executor.submit(command);
+                try{
+                    command.validate();
+                    command.run();
+                }catch(Exception e){
+                    log.error(e.toString(), e);
+                    messageChannel.send(e);
+                }
             });
-        }catch(Exception e){
-            messageChannel.send(e);
-        }
+        });
     }
 }

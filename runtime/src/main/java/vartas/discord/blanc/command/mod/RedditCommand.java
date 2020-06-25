@@ -29,11 +29,11 @@ public class RedditCommand extends RedditCommandTOP {
     public void run(){
         if(!get$Guild().canInteract(get$Guild().getSelfMember(), getTextChannel())){
             get$TextChannel().send("I can't interact with "+getTextChannel().getName());
-        }else if(getTextChannel().containsSubreddits(getSubreddit())){
-            getTextChannel().removeSubreddits(getSubreddit());
+        }else if(getTextChannel().asMapWebhooks().containsKey(getSubreddit())){
+            getTextChannel().invalidateWebhooks(getSubreddit());
             get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+getTextChannel().getName()+".");
         }else{
-            getTextChannel().addSubreddits(getSubreddit());
+            getTextChannel().getUncheckedWebhooks(getSubreddit());
             get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+getTextChannel().getName()+".");
         }
         Shard.write(get$Guild());
