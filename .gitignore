@@ -89,3 +89,4 @@ fabric.properties
 **/*.iml
 
 src/test/resources/credentials.json
+/old_core/src/test/resources/credentials.json
