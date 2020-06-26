@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc;
 
-import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,6 +41,16 @@ public class JDATextChannel extends TextChannel{
     @Nonnull
     private JDATextChannel(@Nonnull net.dv8tion.jda.api.entities.TextChannel textChannel){
         this.textChannel = textChannel;
+    }
+
+    @Override
+    public Message getMessages(Long key){
+        try{
+            return getMessages(key, () -> JDAMessage.create(textChannel.retrieveMessageById(key).complete()));
+        }catch(ExecutionException e){
+            //TODO Internal error
+            throw new RuntimeException("Internal error: " + e.getMessage());
+        }
     }
 
     @Override

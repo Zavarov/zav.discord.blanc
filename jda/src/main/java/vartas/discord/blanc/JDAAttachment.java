@@ -41,4 +41,9 @@ public class JDAAttachment extends Attachment{
             LoggerFactory.getLogger(this.getClass().getSimpleName()).error(e.toString());
         }
     }
+
+    @Override
+    public boolean isImage() {
+        return attachment.isImage();
+    }
 }

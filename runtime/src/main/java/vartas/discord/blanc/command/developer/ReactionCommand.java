@@ -23,7 +23,6 @@ package vartas.discord.blanc.command.developer;
 public class ReactionCommand extends ReactionCommandTOP{
     @Override
     public void run(){
-        //#TODO
-        throw new UnsupportedOperationException();
+        getMessage().react(getReaction());
     }
 }

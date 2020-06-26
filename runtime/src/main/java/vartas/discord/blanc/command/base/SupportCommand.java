@@ -17,6 +17,8 @@
 
 package vartas.discord.blanc.command.base;
 
+import vartas.discord.blanc.io.json.JSONCredentials;
+
 /**
  * This command prints an invitation link to the support server.
  */
@@ -25,7 +27,7 @@ public class SupportCommand extends SupportCommandTOP{
     public void run(){
         StringBuilder stringBuilder = new StringBuilder()
                 .append("Use this link if you want to join the support server for this bot:\n")
-                .append("https://discord.gg/YEfrcM5");
+                .append(JSONCredentials.CREDENTIALS.getInviteSupportServer());
         get$MessageChannel().send(stringBuilder);
     }
 }

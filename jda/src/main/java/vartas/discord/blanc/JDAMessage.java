@@ -28,16 +28,33 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JDAMessage extends Message {
+    private final net.dv8tion.jda.api.entities.Message jdaMessage;
+
+    private JDAMessage(net.dv8tion.jda.api.entities.Message jdaMessage){
+        this.jdaMessage = jdaMessage;
+    }
+
     @Nonnull
     public static Message create(net.dv8tion.jda.api.entities.Message message){
-        long id = message.getIdLong();
-        Instant created = message.getTimeCreated().toInstant();
-        User author = JDAUser.create(message.getAuthor());
-        Optional<String> content = message.getContentRaw().isEmpty() ? Optional.empty() : Optional.of(message.getContentRaw());
-        //TODO
-        Optional<MessageEmbed> messageEmbed = Optional.empty();
-        List<Attachment> attachments = message.getAttachments().stream().map(JDAAttachment::create).collect(Collectors.toList());
+        return MessageFactory.create(
+                () -> new JDAMessage(message),
+                message.getIdLong(),
+                message.getTimeCreated().toInstant(),
+                JDAUser.create(message.getAuthor()),
+                message.getContentRaw().isEmpty() ? Optional.empty() : Optional.of(message.getContentRaw()),
+                //TODO Integrate embeds
+                Optional.empty(),
+                message.getAttachments().stream().map(JDAAttachment::create).collect(Collectors.toList())
+        );
+    }
 
-        return MessageFactory.create(JDAMessage::new, id, created, author, content, messageEmbed, attachments);
+    @Override
+    public void delete(){
+        jdaMessage.delete().complete();
+    }
+
+    @Override
+    public void react(String emote){
+        jdaMessage.addReaction(emote).complete();
     }
 }

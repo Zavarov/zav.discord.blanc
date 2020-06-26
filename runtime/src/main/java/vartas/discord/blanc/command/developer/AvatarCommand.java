@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.SelfUser;
+import vartas.discord.blanc.Attachment;
 
 import javax.annotation.Nonnull;
 
@@ -32,17 +33,12 @@ import javax.annotation.Nonnull;
 public class AvatarCommand extends AvatarCommandTOP{
     @Override
     public void run(){
-        //TODO
-        throw new UnsupportedOperationException();
-        /*
-        Message.Attachment attachment = message.getAttachments().get(0);
+        Attachment attachment = get$Message().getAttachments(0);
         if(attachment.isImage()){
-            Icon avatar = attachment.retrieveAsIcon().join();
-            shard.queue(selfUser.getManager().setAvatar(avatar));
-            shard.queue(channel.sendMessage("Avatar updated."));
+            attachment.getContent().ifPresent(get$Shard().getSelfUser()::modifyAvatar);
+            get$MessageChannel().send("Avatar updated.");
         }else{
-            shard.queue(channel.sendMessage("Please make sure that you've attached an image."));
+            get$MessageChannel().send("Please make sure that you've attached an image.");
         }
-         */
     }
 }

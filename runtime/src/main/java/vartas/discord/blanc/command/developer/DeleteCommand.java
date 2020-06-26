@@ -23,15 +23,10 @@ package vartas.discord.blanc.command.developer;
 public class DeleteCommand extends DeleteCommandTOP{
     @Override
     public void run() {
-        //TODO
-        throw new UnsupportedOperationException();
-        /*
-        if(message.getAuthor().equals(selfUser)){
-            shard.queue(message.delete());
+        if(getMessage().getAuthor().getId() == get$Shard().getSelfUser().getId()){
+            getMessage().delete();
         }else{
-            shard.queue(channel.sendMessage("The command is only able to delete messages from this bot."));
+            get$TextChannel().send("I can only delete my own messages.");
         }
-
-         */
     }
 }
