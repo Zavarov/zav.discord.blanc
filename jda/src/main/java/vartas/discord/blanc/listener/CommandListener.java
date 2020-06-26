@@ -20,7 +20,9 @@ package vartas.discord.blanc.listener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.Killable;
 import vartas.discord.blanc.MessageChannel;
+import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.command.Command;
 
 import javax.annotation.Nonnull;
@@ -30,11 +32,17 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 public abstract class CommandListener extends ListenerAdapter {
-    private Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
-    private ExecutorService executor = Executors.newWorkStealingPool();
+    @Nonnull
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    @Nonnull
+    protected final Shard shard;
+
+    protected CommandListener(@Nonnull Shard shard){
+        this.shard = shard;
+    }
 
     protected void submit(@Nonnull MessageChannel messageChannel, @Nonnull Supplier<Optional<? extends Command>> commandSupplier){
-        executor.submit(() -> {
+        shard.submit(() -> {
             Optional<? extends Command> commandOpt = commandSupplier.get();
             commandOpt.ifPresent(command -> {
                 try{

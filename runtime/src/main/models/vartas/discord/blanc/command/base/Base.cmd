@@ -4,6 +4,10 @@ import java.math.BigDecimal.BigDecimal;
 import java.util.List.List;
 
 group base {
+    command role requires Guild{
+             class : SelfAssignableRoleCommand
+         parameter : Role role
+    }
     command activity requires Guild{
              class : ActivityCommand
     }

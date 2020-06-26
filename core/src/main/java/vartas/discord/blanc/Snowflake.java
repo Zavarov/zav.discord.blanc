@@ -15,18 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.command.developer;
+package vartas.discord.blanc;
 
-/**
- * This commands allows to delete messages made by the bot.
- */
-public class DeleteCommand extends DeleteCommandTOP{
+import java.util.Objects;
+
+public abstract class Snowflake extends SnowflakeTOP{
     @Override
-    public void run() {
-        if(getMessage().getAuthor().equals(get$Shard().getSelfUser())){
-            getMessage().delete();
+    public int hashCode(){
+        return Objects.hashCode(getId());
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof Snowflake){
+            return ((Snowflake)o).getId() == getId();
         }else{
-            get$TextChannel().send("I can only delete my own messages.");
+            return false;
         }
     }
 }

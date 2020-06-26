@@ -120,7 +120,7 @@ public class JDAShardLoader extends ShardLoader{
             //Load listeners
             CommandBuilder commandBuilder = commandBuilderFunction.apply(shard, currentJda);
             currentJda.addEventListener(new GuildCommandListener(commandBuilder, shard));
-            currentJda.addEventListener(new PrivateCommandListener(commandBuilder));
+            currentJda.addEventListener(new PrivateCommandListener(commandBuilder, shard));
             currentJda.addEventListener(new GuildMessageListener(shard));
 
             return shard;

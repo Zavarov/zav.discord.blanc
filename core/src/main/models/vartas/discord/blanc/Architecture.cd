@@ -18,16 +18,20 @@ public classdiagram Architecture {
         - List<Shard> shards;
     }
 
-    public class Shard {
+    public class Shard implements Killable{
         - int id;
         - Cache<Long, Guild> guilds;
         - Cache<Long, User> users;
         - SelfUser selfUser;
     }
 
-    public abstract class Snowflake {
+    public abstract class Snowflake implements Killable{
         - long id;
         - String name;
+    }
+
+    public interface Killable {
+        void shutdown();
     }
 
     public abstract class User extends Snowflake {
@@ -70,6 +74,9 @@ public classdiagram Architecture {
         - Optional<String> content;
         - Optional<MessageEmbed> messageEmbed;
         - List<Attachment> attachments;
+
+        + void delete();
+        + void react(String emote);
     }
 
     public class MessageEmbed {
@@ -98,9 +105,10 @@ public classdiagram Architecture {
         - boolean inline;
     }
 
-    public class Attachment{
+    public abstract class Attachment{
         - Optional<InputStream> content;
-        + void download();
+        + abstract void download();
+        + abstract boolean isImage();
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -124,8 +132,9 @@ public classdiagram Architecture {
     }
 
     public abstract class Member extends User{
-        - List<Role> roles;
-        - Optional<String> nickname;
+        + abstract Optional<String> retrieveNickname();
+        + abstract List<Role> retrieveRoles();
+        + abstract void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove);
     }
 
     public interface SelfMember{

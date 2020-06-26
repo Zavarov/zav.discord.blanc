@@ -21,9 +21,7 @@ import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JDASelfMember extends SelfMember{
@@ -38,7 +36,6 @@ public class JDASelfMember extends SelfMember{
     public static SelfMember create(net.dv8tion.jda.api.entities.Member member){
         JDASelfMember selfMember = new JDASelfMember(member);
 
-        selfMember.setNickname(member.getNickname());
         selfMember.setRanks(JSONRanks.RANKS.getRanks().get(member.getIdLong()));
         selfMember.setId(member.getIdLong());
         selfMember.setName(member.getUser().getName());
@@ -65,6 +62,32 @@ public class JDASelfMember extends SelfMember{
     @Override
     public void modifyNickname(@Nullable String nickname){
         member.modifyNickname(nickname).complete();
-        setNickname(Optional.ofNullable(nickname));
+    }
+
+    @Override
+    public List<Role> retrieveRoles(){
+        return member.getRoles().stream().map(JDARole::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
+        List<net.dv8tion.jda.api.entities.Role> jdaRolesToAdd = rolesToAdd.stream()
+                .map(Snowflake::getId)
+                .map(member.getGuild()::getRoleById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<net.dv8tion.jda.api.entities.Role> jdaRolesToRemove = rolesToRemove.stream()
+                .map(Snowflake::getId)
+                .map(member.getGuild()::getRoleById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        member.getGuild().modifyMemberRoles(member, jdaRolesToAdd, jdaRolesToRemove).complete();
+    }
+
+    @Override
+    public Optional<String> retrieveNickname(){
+        return Optional.ofNullable(member.getNickname());
     }
 }

@@ -17,13 +17,28 @@
 
 package vartas.discord.blanc.command.developer;
 
+import vartas.discord.blanc.KillableTOP;
+import vartas.discord.blanc.Main;
+import vartas.discord.blanc.visitor.ArchitectureInheritanceVisitor;
+
 /**
  * This command terminates the whole instance by halting all threads.
  */
-public class KillCommand extends KillCommandTOP {
+public class KillCommand extends KillCommandTOP implements ArchitectureInheritanceVisitor {
     @Override
     public void run(){
-        //#TODO
-        throw new UnsupportedOperationException();
+        Main.CLIENT.accept(this);
+
+        //Give commands time to finish
+        try{
+            Thread.sleep(5000);
+        }catch(InterruptedException ignored){}
+
+        System.exit(0);
+    }
+
+    @Override
+    public void visit(KillableTOP node){
+        node.shutdown();
     }
 }

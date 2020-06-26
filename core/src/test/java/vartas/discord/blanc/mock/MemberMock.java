@@ -19,12 +19,12 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Member;
 import vartas.discord.blanc.Permission;
+import vartas.discord.blanc.Role;
 import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MemberMock extends Member {
     public List<Permission> permissions = new ArrayList<>();
@@ -33,5 +33,20 @@ public class MemberMock extends Member {
     @Override
     public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
         return  permissions;
+    }
+
+    @Override
+    public Optional<String> retrieveNickname() {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Role> retrieveRoles() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
+        throw new UnsupportedOperationException();
     }
 }

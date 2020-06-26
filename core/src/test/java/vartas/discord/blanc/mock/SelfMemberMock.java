@@ -18,16 +18,35 @@
 package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Permission;
+import vartas.discord.blanc.Role;
 import vartas.discord.blanc.SelfMember;
 import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class SelfMemberMock extends SelfMember {
     @Nonnull
     @Override
     public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<String> retrieveNickname() {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Role> retrieveRoles() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
         throw new UnsupportedOperationException();
     }
 }

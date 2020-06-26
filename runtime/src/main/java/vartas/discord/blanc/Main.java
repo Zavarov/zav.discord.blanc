@@ -31,6 +31,8 @@ import java.nio.file.Paths;
 
 public class Main {
     @Nonnull
+    public static final Client CLIENT = new Client();
+    @Nonnull
     private static final Parser parser = new MontiCoreCommandParser();
 
     static{
@@ -41,9 +43,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Credentials credentials = JSONCredentials.of(Paths.get("credentials.json"));
         ShardLoader shardLoader = createShardLoader(credentials);
-        Client client = new Client();
         for(int i = 0 ; i < credentials.getShardCount() ; ++i)
-            client.addShards(loadShard(shardLoader, i));
+            CLIENT.addShards(loadShard(shardLoader, i));
     }
 
     private static ShardLoader createShardLoader(Credentials credentials){

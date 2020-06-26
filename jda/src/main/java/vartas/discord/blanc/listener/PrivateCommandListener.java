@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.blanc.JDAMessage;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.PrivateChannel;
+import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
@@ -32,7 +33,8 @@ public class PrivateCommandListener extends CommandListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 
-    public PrivateCommandListener(@Nonnull CommandBuilder commandBuilder){
+    public PrivateCommandListener(@Nonnull CommandBuilder commandBuilder, @Nonnull Shard shard){
+        super(shard);
         this.commandBuilder = commandBuilder;
     }
 

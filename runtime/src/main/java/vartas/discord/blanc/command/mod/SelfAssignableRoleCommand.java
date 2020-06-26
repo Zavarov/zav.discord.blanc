@@ -28,13 +28,13 @@ import java.util.Optional;
 public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
     @Override
     public void run(){
-        //The role is grouped under this tag -> Untag
+        //The role is in this group -> Ungroup
         if(getRole().getGroup().map(group -> group.equals(getGroup())).orElse(false)){
             getRole().setGroup(Optional.empty());
-            get$TextChannel().send("Untagged "+role.getName()+".");
-        //The role is grouped under a different tag
+            get$TextChannel().send("Ungrouped "+role.getName()+".");
+        //The role is in a different group
         }else if(getRole().isPresentGroup()){
-            get$TextChannel().send("The role is already tagged under "+getRole().getGroup().get()+".");
+            get$TextChannel().send("The role is already grouped under "+getRole().getGroup().get()+".");
         //The person executing this command can't interact with the role
         }else if(!get$Guild().canInteract(get$Author(), getRole())){
             get$TextChannel().send("You need to be able to interact with roles you want to be self-assignable.");

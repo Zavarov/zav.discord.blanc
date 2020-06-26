@@ -90,4 +90,8 @@ public abstract class MessageChannel extends MessageChannelTOP{
 
         send(message);
     }
+
+    public void send(@Nonnull String format, @Nonnull Object... arguments){
+        send(String.format(format, arguments));
+    }
 }

@@ -25,12 +25,11 @@ import vartas.discord.blanc.factory.MessageEmbedFactory;
 import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -56,8 +55,6 @@ public class JDAMember extends Member{
         //TODO Member should have the user rank
         return MemberFactory.create(
                 () -> new JDAMember(member),
-                Collections.emptyList(),                    //Roles
-                Optional.ofNullable(member.getNickname()),
                 Optional.empty(),                           //Private Channel
                 JSONRanks.RANKS.getRanks().get(member.getIdLong()),
                 member.getIdLong(),
@@ -79,6 +76,33 @@ public class JDAMember extends Member{
     @Override
     public Optional<PrivateChannel> getChannel(){
         return Optional.of(JDAPrivateChannel.create(member.getUser().openPrivateChannel().complete()));
+    }
+
+    @Override
+    public List<Role> retrieveRoles(){
+        return member.getRoles().stream().map(JDARole::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
+        List<net.dv8tion.jda.api.entities.Role> jdaRolesToAdd = rolesToAdd.stream()
+                .map(Snowflake::getId)
+                .map(member.getGuild()::getRoleById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<net.dv8tion.jda.api.entities.Role> jdaRolesToRemove = rolesToRemove.stream()
+                .map(Snowflake::getId)
+                .map(member.getGuild()::getRoleById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        member.getGuild().modifyMemberRoles(member, jdaRolesToAdd, jdaRolesToRemove).complete();
+    }
+
+    @Override
+    public Optional<String> retrieveNickname(){
+        return Optional.ofNullable(member.getNickname());
     }
 
     //------------------------------------------------------------------------------------------------------------------

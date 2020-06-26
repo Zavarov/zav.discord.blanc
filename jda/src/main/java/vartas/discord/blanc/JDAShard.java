@@ -63,4 +63,10 @@ public class JDAShard extends Shard {
             throw new RuntimeException("Internal error: " + e.getMessage());
         }
     }
+
+    @Override
+    public void shutdown(){
+        jda.shutdownNow();
+        super.shutdown();
+    }
 }

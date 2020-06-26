@@ -28,13 +28,12 @@ import java.util.concurrent.Executors;
 
 @Nonnull
 public class GuildCommandListener extends CommandListener {
-    private final CommandBuilder commandBuilder;
     @Nonnull
-    private final Shard shard;
+    private final CommandBuilder commandBuilder;
 
     public GuildCommandListener(@Nonnull CommandBuilder commandBuilder, @Nonnull Shard shard){
+        super(shard);
         this.commandBuilder = commandBuilder;
-        this.shard = shard;
     }
 
     @Override

@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.io.json.JSONCredentials;
@@ -28,17 +29,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Shard extends ShardTOP{
     @Nonnull
     protected final ScheduledExecutorService executor;
 
     public Shard(){
-        this.executor = Executors.newScheduledThreadPool(1);
+        this.executor = Executors.newScheduledThreadPool(
+                1,
+                new ThreadFactoryBuilder().setNameFormat("Shard#%d").build()
+        );
     }
 
     public Shard(@Nonnull RedditVisitor redditVisitor){
@@ -65,5 +66,14 @@ public class Shard extends ShardTOP{
     public static void write(Guild guild){
         JSONObject jsonGuild = JSONGuild.of(guild);
         write(jsonGuild, JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
+    }
+
+    public void submit(Runnable runnable){
+        executor.execute(runnable);
+    }
+
+    @Override
+    public void shutdown() {
+        executor.shutdown();
     }
 }

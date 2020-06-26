@@ -15,18 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.command.developer;
+package vartas.discord.blanc;
 
-/**
- * This commands allows to delete messages made by the bot.
- */
-public class DeleteCommand extends DeleteCommandTOP{
+public interface Killable extends KillableTOP{
     @Override
-    public void run() {
-        if(getMessage().getAuthor().equals(get$Shard().getSelfUser())){
-            getMessage().delete();
-        }else{
-            get$TextChannel().send("I can only delete my own messages.");
-        }
-    }
+    default void shutdown(){}
 }

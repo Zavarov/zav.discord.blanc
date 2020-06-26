@@ -19,6 +19,7 @@ package vartas.discord.blanc;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.json.JSONObject;
 import vartas.discord.blanc.factory.WebhookFactory;
 
@@ -26,10 +27,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class JDAWebhook extends Webhook{
     @Nonnull
-    public static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newScheduledThreadPool(0);
+    public static final ScheduledExecutorService EXECUTOR_SERVICE = Executors.newScheduledThreadPool(
+            0,
+            new ThreadFactoryBuilder().setNameFormat("Webhook#%d").build()
+    );
     @Nonnull
     private final net.dv8tion.jda.api.entities.Webhook jdaWebhook;
     @Nonnull
@@ -60,5 +65,10 @@ public class JDAWebhook extends Webhook{
     @Override
     public void send(byte[] bytes, String qualifiedName) {
         webhookClient.send(bytes, qualifiedName);
+    }
+
+    @Override
+    public void shutdown(){
+        EXECUTOR_SERVICE.shutdown();
     }
 }
