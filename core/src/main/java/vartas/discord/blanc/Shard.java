@@ -34,6 +34,8 @@ import java.util.concurrent.*;
 public class Shard extends ShardTOP{
     @Nonnull
     protected final ScheduledExecutorService executor;
+    @Nonnull
+    protected final static Semaphore MUTEX = new Semaphore(1);
 
     public Shard(){
         this.executor = Executors.newScheduledThreadPool(
@@ -53,13 +55,16 @@ public class Shard extends ShardTOP{
         this.executor.scheduleAtFixedRate(statusMessageRunnable, 0, JSONCredentials.CREDENTIALS.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
     }
 
-    public static synchronized void write(JSONObject jsonObject, Path target){
+    public static void write(JSONObject jsonObject, Path target){
         try{
+            MUTEX.acquireUninterruptibly();
             FileWriter writer = new FileWriter(target.toFile());
             jsonObject.write(writer, 4, 0);
             writer.close();
         }catch(IOException e){
             LoggerFactory.getLogger(Shard.class.getSimpleName()).error(e.toString());
+        }finally {
+            MUTEX.release();
         }
     }
 
@@ -74,6 +79,9 @@ public class Shard extends ShardTOP{
 
     @Override
     public void shutdown() {
+        //Prevents any further IO operations to avoid data corruption
+        //Even if the threads block, they'll be terminated by System.exit()
+        MUTEX.acquireUninterruptibly();
         executor.shutdown();
     }
 }
