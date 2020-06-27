@@ -16,7 +16,7 @@ grammar Command extends
         CommandArtifact =
             ("package" package:(Name& || ".")+ ";" )?
             import:MCImportStatement*
-            "group" group:MCQualifiedName
+            ("group" group:MCQualifiedName)?
             "{"
                 Command*
             "}"

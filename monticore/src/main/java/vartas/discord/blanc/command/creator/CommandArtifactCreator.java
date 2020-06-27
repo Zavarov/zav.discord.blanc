@@ -71,7 +71,7 @@ public class CommandArtifactCreator extends AbstractCreator<ASTCommandArtifact, 
 
     private ASTCDDefinitionBuilder createCDDefinitionBuilder(ASTCommandArtifact ast){
         return CD4AnalysisMill.cDDefinitionBuilder()
-                .setName(ast.getGroup().getQName());
+                .setName(ast.isPresentGroup() ? ast.getGroup().getQName() : "");
     }
 
     private void createSymbolTable(ASTCommandArtifact ast, ASTCDCompilationUnit cdCompilationUnit){

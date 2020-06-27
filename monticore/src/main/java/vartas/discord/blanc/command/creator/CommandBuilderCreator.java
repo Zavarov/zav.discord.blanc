@@ -27,6 +27,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
+import de.monticore.utils.Names;
 import de.se_rwth.commons.Joiners;
 import net.sourceforge.plantuml.StringUtils;
 import vartas.discord.blanc.command._ast.*;
@@ -167,12 +168,12 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
         @Override
         public void visit(ASTCommandArtifact ast){
             commandPackage = Joiners.DOT.join(ast.getPackageList());
-            commandGroup = ast.getGroup().getQName();
+            commandGroup = ast.isPresentGroup() ? ast.getGroup().getQName() : "";
         }
 
         @Override
         public void visit(ASTCommand ast){
-            command = Joiners.DOT.join(commandGroup, ast.getName());
+            command = commandGroup.isEmpty() ? ast.getName() : Joiners.DOT.join(commandGroup, ast.getName());
             requiresGuild = ast.getRestrictionList().contains(ASTRestriction.GUILD);
             argumentTypes = new ArrayList<>();
         }
