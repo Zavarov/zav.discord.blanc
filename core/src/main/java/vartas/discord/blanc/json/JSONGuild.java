@@ -63,6 +63,7 @@ public class JSONGuild extends Guild {
         for(int i = 0 ; i < jsonBlacklist.length() ; ++i){
             jsonGuild.addBlacklist(jsonBlacklist.getString(i));
         }
+        jsonGuild.compilePattern();
 
         return jsonGuild;
     }
