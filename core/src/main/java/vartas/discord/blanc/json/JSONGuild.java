@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Function;
 
 //TODO Generate
@@ -43,6 +44,8 @@ public class JSONGuild extends Guild {
         Guild jsonGuild = guildFunction.apply(jsonObject.getLong(ID));
 
         jsonGuild.setId(jsonObject.getLong(ID));
+
+        jsonGuild.setPrefix(Optional.ofNullable(jsonObject.optString(PREFIX)));
 
         JSONArray jsonChannels = jsonObject.getJSONArray(CHANNELS);
         for(int i = 0 ; i < jsonChannels.length() ; ++i){
