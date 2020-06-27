@@ -31,13 +31,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-public abstract class CommandListener extends ListenerAdapter {
+public abstract class ShardListener extends ListenerAdapter {
     @Nonnull
     private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     @Nonnull
     protected final Shard shard;
 
-    protected CommandListener(@Nonnull Shard shard){
+    protected ShardListener(@Nonnull Shard shard){
         this.shard = shard;
     }
 

@@ -18,16 +18,13 @@
 package vartas.discord.blanc.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.blanc.*;
 import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Nonnull
-public class GuildCommandListener extends CommandListener {
+public class GuildCommandListener extends ShardListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 

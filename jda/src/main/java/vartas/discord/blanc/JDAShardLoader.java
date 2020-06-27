@@ -31,6 +31,7 @@ import vartas.discord.blanc.command.CommandBuilder;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.io.Credentials;
 import vartas.discord.blanc.json.JSONGuild;
+import vartas.discord.blanc.listener.BlacklistListener;
 import vartas.discord.blanc.listener.GuildCommandListener;
 import vartas.discord.blanc.listener.GuildMessageListener;
 import vartas.discord.blanc.listener.PrivateCommandListener;
@@ -122,6 +123,7 @@ public class JDAShardLoader extends ShardLoader{
             currentJda.addEventListener(new GuildCommandListener(commandBuilder, shard));
             currentJda.addEventListener(new PrivateCommandListener(commandBuilder, shard));
             currentJda.addEventListener(new GuildMessageListener(shard));
+            currentJda.addEventListener(new BlacklistListener(shard));
 
             return shard;
         } catch( InterruptedException e) {

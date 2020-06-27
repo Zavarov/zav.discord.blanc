@@ -18,7 +18,6 @@
 package vartas.discord.blanc.listener;
 
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.blanc.JDAMessage;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.PrivateChannel;
@@ -26,10 +25,8 @@ import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class PrivateCommandListener extends CommandListener {
+public class PrivateCommandListener extends ShardListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 
