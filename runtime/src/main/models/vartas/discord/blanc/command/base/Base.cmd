@@ -3,8 +3,8 @@ package vartas.discord.blanc.command.base;
 import java.math.BigDecimal.BigDecimal;
 import java.util.List.List;
 
-group base {
-    command role requires Guild{
+{
+    command assign requires Guild{
              class : SelfAssignableRoleCommand
          parameter : Role role
     }
