@@ -39,10 +39,14 @@ public abstract class MessageChannel extends MessageChannelTOP{
 
         messageEmbed.setTitle(submission.getQualifiedTitle(), submission.getPermaLink());
         messageEmbed.setAuthor("source", submission.getUrl());
-        messageEmbed.setContent(String.format("[%s](%s)", submission.getQualifiedTitle(), submission.getPermaLink()));
         messageEmbed.setTimestamp(Optional.of(submission.getCreated()));
-        messageEmbed.setColor(new Color(submission.getAuthor().hashCode()));
-        if(!submission.getNsfw() && !submission.getSpoiler()) {
+
+        if(submission.getNsfw()) {
+            messageEmbed.setColor(Color.RED);
+        }else if(submission.getSpoiler()) {
+            messageEmbed.setColor(Color.BLACK);
+        }else {
+            messageEmbed.setColor(new Color(submission.getAuthor().hashCode()));
             messageEmbed.setThumbnail(submission.getThumbnail());
             messageEmbed.setContent(submission.getContent());
         }
