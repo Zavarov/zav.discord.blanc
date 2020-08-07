@@ -49,4 +49,8 @@ public class MemberMock extends Member {
     public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
         throw new UnsupportedOperationException();
     }
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -41,6 +41,6 @@ public class StatusMessageRunnable implements Runnable{
         int index = random.nextInt(JSONStatusMessages.STATUS_MESSAGES.sizeStatusMessages());
         String statusMessage = JSONStatusMessages.STATUS_MESSAGES.getStatusMessages(index);
         selfUser.modifyStatusMessage(statusMessage);
-        log.info("Changing status message to '{}'.", statusMessage);
+        log.debug("Changing status message to '{}'.", statusMessage);
     }
 }

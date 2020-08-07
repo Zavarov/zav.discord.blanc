@@ -42,4 +42,9 @@ public class JSONRole extends Role {
 
         return jsonRole;
     }
+
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
 }

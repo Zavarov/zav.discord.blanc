@@ -59,6 +59,11 @@ public class JDARole extends Role{
         return create(role, null);
     }
 
+    @Override
+    public String getAsMention(){
+        return role.getAsMention();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
     //
     //      Printable

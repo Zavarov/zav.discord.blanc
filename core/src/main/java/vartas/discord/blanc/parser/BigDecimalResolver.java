@@ -21,11 +21,11 @@ import java.math.BigDecimal;
 
 public class BigDecimalResolver extends TypeResolver<BigDecimal> {
     /**
-     * Extracts the result when evaluation the {@link ExpressionArgument}.
+     * Extracts the result when evaluation the {@link ArithmeticArgument}.
      * @param argument the {@link Argument} associated with the {@link BigDecimal}.
      */
     @Override
-    public void visit(ExpressionArgument  argument){
+    public void visit(ArithmeticArgument  argument){
         this.type = argument.getValue();
     }
 }

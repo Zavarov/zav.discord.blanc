@@ -21,7 +21,7 @@ import vartas.discord.blanc.parser.StringArgument;
 
 public class ASTStringArgument extends ASTStringArgumentTOP implements StringArgument {
     @Override
-    public String getValue() {
-        return super.getStringLiteral().getValue();
+    public String getContent() {
+        return getStringLiteral().getValue();
     }
 }

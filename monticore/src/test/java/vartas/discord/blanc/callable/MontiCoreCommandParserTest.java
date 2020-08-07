@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.callable;
 
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.Message;
@@ -55,12 +56,12 @@ public class MontiCoreCommandParserTest {
         IntermediateCommand command = parser.parse(message).orElseThrow();
 
         assertThat(command.getArguments()).hasSize(1);
-        assertThat(command.getArguments().get(0)).isInstanceOf(ASTNameArgument.class);
+        assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
         assertThat(command.getName()).isEqualTo("command");
         assertThat(command.getPrefix()).contains("b");
 
-        StringArgument argument = (ASTNameArgument)command.getArguments().get(0);
-        assertThat(argument.getValue()).isEqualTo("Argument");
+        StringArgument argument = (ASTExpressionArgument)command.getArguments().get(0);
+        assertThat(argument.getContent()).isEqualTo("Argument");
     }
 
     @Test
@@ -74,7 +75,7 @@ public class MontiCoreCommandParserTest {
         assertThat(command.getPrefix()).contains("b");
 
         StringArgument argument = (ASTStringArgument)command.getArguments().get(0);
-        assertThat(argument.getValue()).isEqualTo("12345");
+        assertThat(argument.getContent()).isEqualTo("12345");
     }
 
     @Test
@@ -129,7 +130,21 @@ public class MontiCoreCommandParserTest {
         assertThat(command.getName()).isEqualTo("command");
         assertThat(command.getPrefix()).contains("b");
 
-        ExpressionArgument argument = (ASTExpressionArgument)command.getArguments().get(0);
+        ArithmeticArgument argument = (ASTExpressionArgument)command.getArguments().get(0);
         assertThat(argument.getValue().intValueExact()).isEqualTo(8);
+    }
+
+    @Test
+    public void testParseMathFunction(){
+        message.setContent("b: command sqrt(5)");
+        IntermediateCommand command = parser.parse(message).orElseThrow();
+
+        assertThat(command.getArguments()).hasSize(1);
+        assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
+        assertThat(command.getName()).isEqualTo("command");
+        assertThat(command.getPrefix()).contains("b");
+
+        ArithmeticArgument argument = (ASTExpressionArgument)command.getArguments().get(0);
+        assertThat(argument.getValue().doubleValue()).isCloseTo(Math.sqrt(5), Percentage.withPercentage(0.1));
     }
 }

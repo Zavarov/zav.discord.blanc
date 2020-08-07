@@ -70,4 +70,9 @@ public class JSONTextChannel extends TextChannel {
     public void send(byte[] bytes, String qualifiedName) {
         throw new UnsupportedOperationException("Not supported for JSON instances");
     }
+
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -19,4 +19,9 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.User;
 
-public class UserMock extends User {}
+public class UserMock extends User {
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
+}

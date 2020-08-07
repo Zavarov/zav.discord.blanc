@@ -90,4 +90,9 @@ public class JDASelfMember extends SelfMember{
     public Optional<String> retrieveNickname(){
         return Optional.ofNullable(member.getNickname());
     }
+
+    @Override
+    public String getAsMention(){
+        return member.getAsMention();
+    }
 }

@@ -18,6 +18,8 @@
 package vartas.discord.blanc;
 
 import de.se_rwth.commons.logging.Log;
+import de.se_rwth.commons.logging.Slf4jLog;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.callable.MontiCoreCommandParser;
 import vartas.discord.blanc.io.Credentials;
 import vartas.discord.blanc.io.json.JSONCredentials;

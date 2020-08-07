@@ -283,7 +283,7 @@ public class SubredditFeed implements Runnable{
             LocalDateTime cacheEnd = now.minusMinutes(1);
             //Go back 2 minutes instead of 1 since we can't assume the interval to be exact
             LocalDateTime cacheStart = now.minusMinutes(3);
-            log.info("Request submissions from r/"+subredditName+" over ["+cacheStart + "," + cacheEnd + "]");
+            log.debug("Request submissions from r/"+subredditName+" over ["+cacheStart + "," + cacheEnd + "]");
             return cache.getUnchecked(subredditName).request(cacheStart, cacheEnd);
         }
 

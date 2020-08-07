@@ -26,12 +26,12 @@ public classdiagram Parser {
 
     public interface Argument{}
 
-    public interface ExpressionArgument extends Argument{
+    public interface ArithmeticArgument extends Argument{
         abstract BigDecimal getValue();
     }
 
     public interface StringArgument extends Argument{
-        abstract String getValue();
+        abstract String getContent();
     }
 
     public interface MentionArgument extends Argument{

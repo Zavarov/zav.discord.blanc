@@ -64,20 +64,16 @@ grammar Callable extends
 
     /**
      * A text sequence wrapped around quotation marks.
+     * The string argument should have precedence so that we're able to escape the quotation marks.
      */
-    StringArgument implements Argument =
+    StringArgument implements Argument <500> =
         StringLiteral
     ;
 
     /**
-     * A raw text sequence.
-     */
-    NameArgument implements Argument =
-        Name&
-    ;
-
-    /**
-     * Use Expressions.mc4 for expressions
+     * Use Expressions.mc4 for expressions.
+     * Expressions can be both arithmetic expressions as well as raw text.
+     * It is up to the application to interpret the data.
      */
      ExpressionArgument implements Argument =
         Expression

@@ -60,14 +60,14 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
     public void visit(StringArgument argument){
         Collection<U> snowflakes;
 
-        snowflakes = resolveByName(argument.getValue());
+        snowflakes = resolveByName(argument.getContent());
 
         if(snowflakes.size() == 0){
             //TODO Error message
-            log.error(argument.getValue(), TypeResolverException.of(Errors.UNKNOWN_ENTITY));
+            log.error(argument.getContent(), TypeResolverException.of(Errors.UNKNOWN_ENTITY));
         }else if(snowflakes.size() > 1){
             //TODO Error message
-            log.error(argument.getValue(), TypeResolverException.of(Errors.MULTIPLE_ENTITIES_BY_NAME));
+            log.error(argument.getContent(), TypeResolverException.of(Errors.MULTIPLE_ENTITIES_BY_NAME));
         }else{
             snowflake = snowflakes.iterator().next();
         }
@@ -79,7 +79,7 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
     }
 
     @Override
-    public void visit(ExpressionArgument argument){
+    public void visit(ArithmeticArgument argument){
         snowflake = resolveByNumber(argument.getValue().longValue());
     }
 

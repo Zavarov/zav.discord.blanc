@@ -30,7 +30,7 @@ public class GuildModuleResolver extends TypeResolver<GuildModule>{
     @Override
     public void visit(@Nonnull StringArgument argument) {
         try {
-            this.type = GuildModule.valueOf(argument.getValue().toUpperCase(Locale.ENGLISH));
+            this.type = GuildModule.valueOf(argument.getContent().toUpperCase(Locale.ENGLISH));
         }catch(IllegalArgumentException ignored){
             //Is thrown when no matching module exists.
         }

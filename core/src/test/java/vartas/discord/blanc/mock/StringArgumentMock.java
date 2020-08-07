@@ -27,7 +27,7 @@ public class StringArgumentMock implements StringArgument {
     }
 
     @Override
-    public String getValue() {
+    public String getContent() {
         return value;
     }
 }

@@ -18,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -77,7 +78,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull ShardTOP shard){
-        log.info("Visiting shard {}.", shard.getId());
+        log.debug("Visiting shard {}.", shard.getId());
 
         //Keep the dates synchronized between multiple shards.
         if(shard.getId() == 0) {
@@ -94,7 +95,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull GuildTOP guild){
-        log.info("Visiting guild {}", guild.getName());
+        log.debug("Visiting guild {}", guild.getName());
         requiresUpdate = false;
     }
 
@@ -105,7 +106,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull TextChannel textChannel){
-        log.info("Visiting text channel {}", textChannel.getName());
+        log.debug("Visiting text channel {}", textChannel.getName());
         for(String subreddit : textChannel.getSubreddits())
             request(subreddit, textChannel::send, textChannel::removeSubreddits);
         for(Map.Entry<String, Webhook> webhook : textChannel.asMapWebhooks().entrySet())
@@ -118,12 +119,12 @@ public class RedditVisitor implements ArchitectureVisitor {
             Shard.write(JSONGuild.of(guild), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 
-    private void request(String name, Consumer<Submission> onSuccess, Consumer<String> onFailure){
+    private void request(String name, BiConsumer<Subreddit, Submission> onSuccess, Consumer<String> onFailure){
         try {
             Subreddit subreddit = redditClient.getSubreddits(name);
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
-            log.info("{} new {} between {} and {}",
+            log.debug("{} new {} between {} and {}",
                     submissions.size(),
                     English.plural("submission", submissions.size()),
                     inclusiveFrom,
@@ -132,7 +133,7 @@ public class RedditVisitor implements ArchitectureVisitor {
 
             //Post the individual submissions
             for (Submission submission : submissions)
-                onSuccess.accept(submission);
+                onSuccess.accept(subreddit, submission);
             //Reddit Exceptions
         } catch( UnsuccessfulRequestException e) {
             log.warn(Errors.UNSUCCESSFUL_REDDIT_REQUEST.toString(), e);
@@ -140,6 +141,7 @@ public class RedditVisitor implements ArchitectureVisitor {
             log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
             //Caused by either Reddit or Discord
         } catch(HttpResponseException | PermissionException | WebhookException e) {
+            e.printStackTrace();
             log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
             onFailure.accept(name);
             requiresUpdate = true;

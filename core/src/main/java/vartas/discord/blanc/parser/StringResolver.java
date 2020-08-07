@@ -30,6 +30,6 @@ public class StringResolver extends TypeResolver<String> {
      */
     @Override
     public void visit(@Nonnull StringArgument argument){
-        this.type = argument.getValue();
+        this.type = argument.getContent();
     }
 }

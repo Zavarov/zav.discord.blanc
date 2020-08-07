@@ -19,10 +19,9 @@ package vartas.discord.blanc.resolver;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.mock.ExpressionArgumentMock;
+import vartas.discord.blanc.mock.ArithmeticArgumentMock;
 import vartas.discord.blanc.parser.Argument;
 import vartas.discord.blanc.parser.BigDecimalResolver;
-import vartas.discord.blanc.parser.StringResolver;
 
 import java.math.BigDecimal;
 
@@ -36,7 +35,7 @@ public class BigDecimalResolverTest {
     public void setUp(){
         resolver = new BigDecimalResolver();
         value = BigDecimal.valueOf(12345);
-        numberArgument = new ExpressionArgumentMock(value);
+        numberArgument = new ArithmeticArgumentMock(value);
     }
     @Test
     public void testResolve(){

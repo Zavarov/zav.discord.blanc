@@ -105,6 +105,11 @@ public class JDAMember extends Member{
         return Optional.ofNullable(member.getNickname());
     }
 
+    @Override
+    public String getAsMention(){
+        return member.getAsMention();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
     //
     //      Printable

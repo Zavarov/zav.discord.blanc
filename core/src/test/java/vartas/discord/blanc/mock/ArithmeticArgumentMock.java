@@ -17,13 +17,13 @@
 
 package vartas.discord.blanc.mock;
 
-import vartas.discord.blanc.parser.ExpressionArgument;
+import vartas.discord.blanc.parser.ArithmeticArgument;
 
 import java.math.BigDecimal;
 
-public class ExpressionArgumentMock implements ExpressionArgument {
+public class ArithmeticArgumentMock implements ArithmeticArgument {
     public BigDecimal value;
-    public ExpressionArgumentMock(BigDecimal value){
+    public ArithmeticArgumentMock(BigDecimal value){
         this.value = value;
     }
 

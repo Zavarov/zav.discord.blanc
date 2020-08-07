@@ -54,7 +54,7 @@ public abstract class Guild extends GuildTOP implements Printable{
             if (isEmptyBlacklist()) {
                 pattern = null;
             } else {
-                pattern = Pattern.compile(getBlacklist().stream().reduce((u, v) -> u + "+" + v).orElseThrow());
+                pattern = Pattern.compile(getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElseThrow());
             }
         } catch (PatternSyntaxException e) {
             //TODO

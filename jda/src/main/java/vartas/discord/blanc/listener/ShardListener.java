@@ -43,16 +43,25 @@ public abstract class ShardListener extends ListenerAdapter {
 
     protected void submit(@Nonnull MessageChannel messageChannel, @Nonnull Supplier<Optional<? extends Command>> commandSupplier){
         shard.submit(() -> {
-            Optional<? extends Command> commandOpt = commandSupplier.get();
-            commandOpt.ifPresent(command -> {
-                try{
-                    command.validate();
-                    command.run();
-                }catch(Exception e){
-                    log.error(e.toString(), e);
-                    messageChannel.send(e);
-                }
-            });
+            try {
+                Optional<? extends Command> commandOpt = commandSupplier.get();
+                commandOpt.ifPresent(command -> {
+                    try {
+                        command.validate();
+                        command.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        //Thrown upon errors within the command
+                        log.error(e.toString(), e);
+                        messageChannel.send(e);
+                    }
+                });
+            }catch(Exception e){
+                e.printStackTrace();
+                //Thrown upon invalid parameters
+                log.error(e.toString(), e);
+                messageChannel.send(e);
+            }
         });
     }
 }

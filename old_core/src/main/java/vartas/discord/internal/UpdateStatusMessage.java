@@ -21,7 +21,7 @@ public class UpdateStatusMessage implements Cluster.Visitor{
     public void visit(@Nonnull Status status){
         status.get().ifPresent(message -> {
             statusMessage = message;
-            log.info(String.format("Status message updated to '%s'", message));
+            log.debug(String.format("Status message updated to '%s'", message));
         });
     }
 

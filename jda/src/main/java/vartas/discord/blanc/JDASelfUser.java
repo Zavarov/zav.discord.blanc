@@ -65,4 +65,9 @@ public class JDASelfUser extends SelfUser{
             LoggerFactory.getLogger(this.getClass().getSimpleName()).error(e.toString());
         }
     }
+
+    @Override
+    public String getAsMention(){
+        return selfUser.getAsMention();
+    }
 }

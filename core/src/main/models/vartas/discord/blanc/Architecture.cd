@@ -12,6 +12,7 @@ import java.util.List.List;
 import java.util.Optional.Optional;
 import java.util.Set.Set;
 import vartas.reddit.Submission.Submission;
+import vartas.reddit.Subreddit.Subreddit;
 
 public classdiagram Architecture {
     public class Client {
@@ -37,6 +38,7 @@ public classdiagram Architecture {
     public abstract class User extends Snowflake {
         - Optional<PrivateChannel> channel;
         - Collection<Rank> ranks;
+        + abstract String getAsMention();
     }
 
     public interface SelfUser{
@@ -50,7 +52,7 @@ public classdiagram Architecture {
 
         + abstract void send(Message message);
         + abstract void send(MessageEmbed messageEmbed);
-        + abstract void send(Submission submission);
+        + abstract void send(Subreddit subreddit, Submission submission);
         + abstract void send(byte[] bytes, String qualifiedName);
         + abstract void send(Role role);
         + abstract void send(Member member);
@@ -129,6 +131,7 @@ public classdiagram Architecture {
 
     public abstract class Role extends Snowflake {
         - Optional<String> group;
+        + abstract String getAsMention();
     }
 
     public abstract class Member extends User{
@@ -144,6 +147,7 @@ public classdiagram Architecture {
     public abstract class TextChannel extends MessageChannel{
         - Set<String> subreddits;
         - Cache<String, Webhook> webhooks;
+        + abstract String getAsMention();
     }
 
     public abstract class Webhook extends MessageChannel {}

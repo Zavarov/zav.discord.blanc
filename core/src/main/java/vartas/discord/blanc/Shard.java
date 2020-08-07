@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.*;
 
 public class Shard extends ShardTOP{
@@ -36,6 +35,7 @@ public class Shard extends ShardTOP{
     protected final ScheduledExecutorService executor;
     @Nonnull
     protected final static Semaphore MUTEX = new Semaphore(1);
+    protected static boolean MODIFIES_FILE = false;
 
     public Shard(){
         this.executor = Executors.newScheduledThreadPool(
@@ -58,12 +58,14 @@ public class Shard extends ShardTOP{
     public static void write(JSONObject jsonObject, Path target){
         try{
             MUTEX.acquireUninterruptibly();
+            MODIFIES_FILE = true;
             FileWriter writer = new FileWriter(target.toFile());
             jsonObject.write(writer, 4, 0);
             writer.close();
         }catch(IOException e){
             LoggerFactory.getLogger(Shard.class.getSimpleName()).error(e.toString());
         }finally {
+            MODIFIES_FILE = false;
             MUTEX.release();
         }
     }
@@ -81,7 +83,8 @@ public class Shard extends ShardTOP{
     public void shutdown() {
         //Prevents any further IO operations to avoid data corruption
         //Even if the threads block, they'll be terminated by System.exit()
-        MUTEX.acquireUninterruptibly();
+        if(MODIFIES_FILE || MUTEX.availablePermits() > 0)
+            MUTEX.acquireUninterruptibly();
         executor.shutdown();
     }
 }

@@ -59,8 +59,6 @@ public class JDATextChannel extends TextChannel{
             return getWebhooks(key, () -> {
                 List<net.dv8tion.jda.api.entities.Webhook> webhooks = textChannel.retrieveWebhooks().complete();
 
-                webhooks.stream().forEach(x -> System.out.println(x.getName()));
-
                 return JDAWebhook.create(
                         webhooks.stream()
                                 .filter(w -> w.getName().equals(key))
@@ -94,20 +92,16 @@ public class JDATextChannel extends TextChannel{
             JSONObject jsonWebhooks = jsonObject.optJSONObject(JSONTextChannel.WEBHOOKS);
             if(jsonWebhooks != null) {
                 try {
-                    //Group available webhooks by name
-                    Map<String, net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel
-                            .retrieveWebhooks()
-                            .complete()
-                            .stream()
-                            .collect(Collectors.toMap(net.dv8tion.jda.api.entities.Webhook::getName, Function.identity()));
+                    List<net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel.retrieveWebhooks().complete();;
 
                     for (String subreddit : jsonWebhooks.keySet()) {
                         JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));
-                        //Try to recover the webhook
-                        net.dv8tion.jda.api.entities.Webhook jdaWebhook = jdaWebhooks.getOrDefault(jsonWebhook.getName(), null);
 
-                        if (jdaWebhook != null)
-                            textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook));
+                        //Try to recover the webhook
+                        jdaWebhooks.stream()
+                                .filter(webhook -> webhook.getName().equals(jsonWebhook.getName()))
+                                .findAny()
+                                .ifPresent(jdaWebhook -> textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook)));
                     }
                 }catch(InsufficientPermissionException e){
                     LoggerFactory.getLogger(JDATextChannel.class.getSimpleName()).warn("Couldn't retrieve webhooks.", e);
@@ -138,5 +132,10 @@ public class JDATextChannel extends TextChannel{
         } catch(InsufficientPermissionException e){
             throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
         }
+    }
+
+    @Override
+    public String getAsMention(){
+        return textChannel.getAsMention();
     }
 }

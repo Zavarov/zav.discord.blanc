@@ -21,6 +21,7 @@ import vartas.discord.blanc.factory.MessageEmbedFactory;
 import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.factory.TitleFactory;
 import vartas.reddit.Submission;
+import vartas.reddit.Subreddit;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -34,7 +35,7 @@ public abstract class MessageChannel extends MessageChannelTOP{
      * @param submission the content of the submitted {@link Message}
      */
     @Override
-    public void send(@Nonnull Submission submission) {
+    public void send(@Nonnull Subreddit subreddit, @Nonnull Submission submission) {
         MessageEmbed messageEmbed = MessageEmbedFactory.create();
 
         messageEmbed.setTitle(submission.getQualifiedTitle(), submission.getPermaLink());
@@ -53,7 +54,7 @@ public abstract class MessageChannel extends MessageChannelTOP{
 
         Message message = MessageFactory.create(0, Instant.now(), null);
         message.setMessageEmbed(messageEmbed);
-        message.setContent(String.format("New submission from %s:\n\n<%s>", submission.getAuthor(), submission.getShortLink()));
+        message.setContent(String.format("New submission from %s in `r/%s`:\n\n<%s>", submission.getAuthor(), subreddit.getName(), submission.getShortLink()));
 
         send(message);
     }

@@ -46,4 +46,9 @@ public class JDAUser extends User{
     public Optional<PrivateChannel> getChannel(){
         return Optional.of(JDAPrivateChannel.create(user.openPrivateChannel().complete()));
     }
+
+    @Override
+    public String getAsMention(){
+        return user.getAsMention();
+    }
 }

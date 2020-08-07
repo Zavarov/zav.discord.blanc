@@ -1,59 +1,73 @@
 package vartas.discord.blanc.command.mod;
 
-import com.google.common.base.Preconditions;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import vartas.discord.blanc.MessageEmbed;
+import vartas.discord.blanc.Role;
+import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.factory.MessageEmbedFactory;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.Locale;
 
 public class ConfigurationCommand extends ConfigurationCommandTOP{
     @Override
     public void run() {
-        //TODO
-        throw new UnsupportedOperationException();
-        /*
-        builder = new InteractiveMessageBuilder(author.getUser(), shard);
-        printBlacklist();
-        printPrefix();
-        builder.nextPage();
-        printRedditFeeds();
-        printSelfassignableRoles();
-        shard.queue(channel, builder.build());
-
-         */
+        switch(getModule().toLowerCase(Locale.ENGLISH)){
+            case "blacklist":
+                showBlacklist();
+                break;
+            case "prefix":
+                showPrefix();
+                break;
+            case "reddit":
+                showSubredditFeeds();
+                break;
+            case "selfassignable":
+                showSelfassignableRoles();
+                break;
+            default:
+                get$TextChannel().send("Unknown module: %s", getModule());
+        }
     }
 
-    /*
-    private void printBlacklist(){
-        String pattern = configuration.getPattern().map(Pattern::pattern).orElse("");
-        builder.addField("Blacklist", pattern);
+    private void showBlacklist(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        String value = get$Guild().getBlacklist().stream().reduce((u,v) -> u + "\n" + v).orElse("");
+        messageEmbed.addFields("Blacklist", value);
+
+        get$TextChannel().send(messageEmbed);
     }
 
-    private void printPrefix(){
-        String prefix = configuration.getPrefix().orElse("");
-        builder.addField("Prefix", prefix);
+    private void showPrefix(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        String value = get$Guild().getPrefix().orElse("");
+        messageEmbed.addFields("Prefix", value);
+
+        get$TextChannel().send(messageEmbed);
     }
 
-    private void printRedditFeeds(){
-        Map<String, Collection<TextChannel>> map = configuration.resolve(Configuration.LongType.SUBREDDIT, guild::getTextChannelById).asMap();
-        map.forEach((subreddit, channels) -> {
-            builder.addDescription(subreddit);
-            channels.stream().map(IMentionable::getAsMention).forEach(builder::addLine);
-            builder.nextPage();
-        });
+    private void showSubredditFeeds(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
 
+        for(TextChannel textChannel : get$Guild().valuesChannels()){
+            String value = textChannel.getSubreddits().stream().reduce((u,v) -> u + "\n" + v).orElse("");
+            //Only print channels that link to at least one subreddit
+            if(!value.isBlank())
+                messageEmbed.addFields(textChannel.getName(), value);
+        }
+
+        get$TextChannel().send(messageEmbed);
     }
 
-    private void printSelfassignableRoles(){
-        Map<String, Collection<Role>> map = configuration.resolve(Configuration.LongType.SELFASSIGNABLE, guild::getRoleById).asMap();
-        map.forEach((tag, roles) -> {
-            builder.addDescription(tag);
-            roles.stream().map(IMentionable::getAsMention).forEach(builder::addLine);
-            builder.nextPage();
-        });
+    private void showSelfassignableRoles(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        for(Role role : get$Guild().valuesRoles()){
+            if(role.isPresentGroup()){
+                messageEmbed.addFields(role.getName(), role.getGroup().orElseThrow());
+            }
+        }
+
+        get$TextChannel().send(messageEmbed);
     }
-     */
 }

@@ -45,7 +45,7 @@ public class LocalDateResolver extends TypeResolver<LocalDate>{
     @Override
     public void visit(StringArgument argument){
         try {
-            this.type = LocalDate.parse(argument.getValue());
+            this.type = LocalDate.parse(argument.getContent());
         } catch(DateTimeParseException e) {
             log.error(Errors.UNKNOWN_ENTITY.toString(), e);
         }

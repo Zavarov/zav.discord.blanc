@@ -17,14 +17,30 @@
 
 package vartas.discord.blanc.callable._ast;
 
-import vartas.discord.blanc.parser.ExpressionArgument;
+import de.monticore.prettyprint.IndentPrinter;
+import vartas.discord.blanc.parser.ArithmeticArgument;
+import vartas.discord.blanc.parser.StringArgument;
+import vartas.discord.blanc.parser.visitor.ParserVisitor;
 import vartas.monticore.arithmeticexpressions.calculator.ArithmeticExpressionsValueCalculator;
+import vartas.monticore.arithmeticexpressions.prettyprint.ArithmeticExpressionsPrettyPrinter;
 
 import java.math.BigDecimal;
 
-public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements ExpressionArgument {
+public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements ArithmeticArgument, StringArgument {
+    private static final ArithmeticExpressionsPrettyPrinter prettyPrinter = new ArithmeticExpressionsPrettyPrinter(new IndentPrinter());
     @Override
     public BigDecimal getValue() {
         return ArithmeticExpressionsValueCalculator.valueOf(getExpression()).orElseThrow();
+    }
+
+    @Override
+    public String getContent() {
+        return prettyPrinter.prettyprint(getExpression());
+    }
+
+    @Override
+    public void accept(ParserVisitor visitor) {
+        visitor.handle((ArithmeticArgument)this);
+        visitor.handle((StringArgument) this);
     }
 }

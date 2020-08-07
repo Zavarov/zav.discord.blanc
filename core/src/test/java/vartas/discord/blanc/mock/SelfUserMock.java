@@ -20,4 +20,8 @@ package vartas.discord.blanc.mock;
 import vartas.discord.blanc.SelfUser;
 
 public class SelfUserMock extends SelfUser {
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
 }

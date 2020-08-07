@@ -35,4 +35,9 @@ public class TextChannelMock extends TextChannel {
     public void send(byte[] bytes, String qualifiedName) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
 }
