@@ -119,7 +119,13 @@ public class RedditVisitor implements ArchitectureVisitor {
             Shard.write(JSONGuild.of(guild), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 
-    private void request(String name, BiConsumer<Subreddit, Submission> onSuccess, Consumer<String> onFailure){
+    private void request
+    (
+            @Nonnull String name,
+            @Nonnull BiConsumer<Subreddit, Submission> onSuccess,
+            @Nonnull Consumer<String> onFailure
+    )
+    {
         try {
             Subreddit subreddit = redditClient.getSubreddits(name);
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
@@ -146,8 +152,7 @@ public class RedditVisitor implements ArchitectureVisitor {
             onFailure.accept(name);
             requiresUpdate = true;
         } catch(Exception e) {
-            //TODO
-            log.warn(e.toString());
+            log.warn(Errors.UNKNOWN_RESPONSE.toString(), e.toString());
         }
     }
 }

@@ -27,20 +27,24 @@ public enum Errors {
     //Server Communication
     UNSUCCESSFUL_REDDIT_REQUEST(0x2000, "The Reddit request was unsuccessful due to an internal problem."),
     REDDIT_TIMEOUT(0x2001, "The Reddit server took to long to respond to the request."),
-    REFUSED_REDDIT_REQUEST(0x2003, "The Reddit server refused to handle the request."),
-    DISCORD_TIMEOUT(0x3000, "The Discord server took to long to respond to the request"),
+    REFUSED_REDDIT_REQUEST(0x2002, "The Reddit server refused to handle the request."),
+    DISCORD_TIMEOUT(0x2100, "The Discord server took to long to respond to the request"),
+    UNKNOWN_RESPONSE(0x2200, "The server returned an unknown error."),
     //Type handling
-    UNKNOWN_ENTITY(0x4000, "The given entity could not be resolved."),
-    MULTIPLE_ENTITIES_BY_NAME(0x4001, "Multiple entities with the same name were found."),
+    UNKNOWN_ENTITY(0x3000, "The given entity could not be resolved."),
+    MULTIPLE_ENTITIES_BY_NAME(0x3001, "Multiple entities with the same name were found."),
     //Commands
-    INSUFFICIENT_RANK(0x5000, "The command couldn't be created due to an insufficient rank."),
-    INSUFFICIENT_PERMISSION(0x5001, "The command couldn't be created due to insufficient permissions."),
+    INSUFFICIENT_RANK(0x4000, "The command couldn't be created due to an insufficient rank."),
+    INSUFFICIENT_PERMISSION(0x4001, "The command couldn't be created due to insufficient permissions."),
+    INSUFFICIENT_ATTACHMENTS(0x4002, "The command requires at least one attachment."),
     //Resolve Discord Entities
-    UNKNOWN_GUILD(0x6000, "The specified guild couldn't be found."),
-    UNKNOWN_TEXTCHANNEL(0x6001, "The specified text channel couldn't be found."),
-    UNKNOWN_USER(0x6002, "The specified user couldn't be found."),
-    UNKNOWN_MEMBER(0x6003, "The specified member couldn't be found."),
-    UNKNOWN_ROLE(0x6004, "The specified role couldn't be found.")
+    UNKNOWN_GUILD(0x5000, "The specified guild couldn't be found."),
+    UNKNOWN_TEXTCHANNEL(0x5001, "The specified text channel couldn't be found."),
+    UNKNOWN_USER(0x5002, "The specified user couldn't be found."),
+    UNKNOWN_MEMBER(0x5003, "The specified member couldn't be found."),
+    UNKNOWN_ROLE(0x5004, "The specified role couldn't be found."),
+    //Guild attributes
+    INVALID_PATTERN(0x6000, "The blacklist pattern couldn't be compiled.")
     ;
 
     @Nonnull

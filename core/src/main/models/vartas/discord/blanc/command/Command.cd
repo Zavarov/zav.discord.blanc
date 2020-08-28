@@ -14,6 +14,7 @@ import vartas.discord.blanc.Architecture.TextChannel;
 import vartas.discord.blanc.Architecture.User;
 import vartas.discord.blanc.Architecture.SelfUser;
 import vartas.discord.blanc.Architecture.Shard;
+import vartas.discord.blanc.Architecture.Permission;
 import vartas.discord.blanc.parser.Parser.Argument;
 import vartas.discord.blanc.parser.Parser.AbstractTypeResolver;
 
@@ -21,6 +22,7 @@ public classdiagram Command {
     public abstract class Command implements Runnable {
         - Shard $Shard;
         - Message $Message;
+        - List<String> $Flags;
 
         public abstract void validate();
     }
@@ -40,7 +42,7 @@ public classdiagram Command {
         # AbstractTypeResolver typeResolver;
         # Shard shard;
         public CommandBuilder(BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction, Shard shard);
-        protected abstract Optional<Command> build(String name, List<? extends Argument> arguments);
+        protected abstract Optional<Command> build(String name, List<? extends Argument> arguments, List<String> flags);
         public abstract Optional<Command> build(Message message, MessageChannel channel);
         public abstract Optional<Command> build(Message message, Guild guild, TextChannel textChannel);
     }

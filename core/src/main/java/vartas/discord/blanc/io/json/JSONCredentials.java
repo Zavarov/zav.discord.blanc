@@ -2,6 +2,7 @@ package vartas.discord.blanc.io.json;
 
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.io.Credentials;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class JSONCredentials extends Credentials {
         try{
             CREDENTIALS = JSONCredentials.of(Paths.get("credentials.json"));
         }catch(IOException e){
-            LoggerFactory.getLogger(JSONCredentials.class.getSimpleName()).error(e.toString());
+            LoggerFactory.getLogger(JSONCredentials.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
             CREDENTIALS = new JSONCredentials();
         }
     }

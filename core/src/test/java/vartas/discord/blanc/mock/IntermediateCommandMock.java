@@ -27,6 +27,7 @@ public class IntermediateCommandMock implements IntermediateCommand {
     public String prefix;
     public String name;
     public List<Argument> arguments;
+    public List<String> flags;
 
     public IntermediateCommandMock(String prefix, String name, List<Argument> arguments){
         this.prefix = prefix;
@@ -43,17 +44,14 @@ public class IntermediateCommandMock implements IntermediateCommand {
         return Optional.ofNullable(prefix);
     }
 
-    public void setName(String name){
-        this.name = name;
-    }
-
     @Override
     public String getName() {
         return name;
     }
 
-    public void setArguments(List<Argument> arguments){
-        this.arguments = arguments;
+    @Override
+    public List<String> getFlags() {
+        return flags;
     }
 
     @Override

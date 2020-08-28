@@ -80,8 +80,7 @@ public class JDAShardLoader extends ShardLoader{
         super(credentials);
         this.commandBuilderFunction = commandBuilderFunction;
         try {
-            this.jdaBuilder = new DefaultShardManagerBuilder()
-                    .setToken(credentials.getDiscordToken())
+            this.jdaBuilder = DefaultShardManagerBuilder.createDefault(credentials.getDiscordToken())
                     .setStatus(OnlineStatus.ONLINE)
                     .setShardsTotal(credentials.getShardCount())
                     .build();

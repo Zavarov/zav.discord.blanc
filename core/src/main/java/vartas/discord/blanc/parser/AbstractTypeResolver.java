@@ -17,8 +17,10 @@
 
 package vartas.discord.blanc.parser;
 
+import vartas.chart.Interval;
 import vartas.discord.blanc.*;
 import vartas.discord.blanc.command.Command;
+import vartas.discord.blanc.prettyprint.ArgumentPrettyPrinter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,20 +36,38 @@ import java.util.NoSuchElementException;
  * associated {@link Command}.
  * @see StringArgument
  * @see MentionArgument
- * @see ExpressionArgument
+ * @see ArithmeticArgument
  */
 @Nonnull
 public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
+    /**
+     * The {@link Guild} associated with all resolved types.
+     * Null if the resolver doesn't support guilds.
+     */
     @Nullable
     protected Guild guild;
+    /**
+     * The {@link TextChannel} associated with all resolved types.
+     * Null if the resolver doesn't support guilds.
+     */
     @Nullable
     protected TextChannel textChannel;
 
+    /**
+     * Creates a fresh resolver instance for types that require a guild.
+     * @param guild the {@link Guild} associated with the resolved types.
+     * @param textChannel the {@link TextChannel} associated with the resolved types.
+     */
+    @Nonnull
     public AbstractTypeResolver(@Nullable Guild guild, @Nullable TextChannel textChannel){
         this.guild = guild;
         this.textChannel = textChannel;
     }
 
+    /**
+     * Creates a fresh resolver instance for types that don't require a guild.
+     */
+    @Nonnull
     public AbstractTypeResolver(){
         this(null, null);
     }
@@ -62,7 +82,9 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
     @Override
     @Nonnull
     public String resolveString(@Nonnull Argument argument) throws NoSuchElementException {
-        return new StringResolver().apply(argument).orElseThrow();
+        return new StringResolver().apply(argument).orElseThrow(
+                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+        );
     }
     /**
      * Attempts to transform the provided {@link Argument} into a {@link LocalDate}.<br>
@@ -76,11 +98,13 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
     @Override
     @Nonnull
     public LocalDate resolveLocalDate(@Nonnull Argument argument) throws NoSuchElementException{
-        return new LocalDateResolver().apply(argument).orElseThrow();
+        return new LocalDateResolver().apply(argument).orElseThrow(
+                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+        );
     }
     /**
      * Attempts to transform the provided {@link Argument} into a {@link BigDecimal}.<br>
-     * This is done by using the interval value of the {@link ExpressionArgument}.
+     * This is done by evaluating the expression of the {@link ArithmeticArgument}.
      * @param argument the {@link Argument} associated with the {@link BigDecimal}.
      * @return the {@link BigDecimal} associated with the {@link Argument}.
      * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link BigDecimal}.
@@ -88,18 +112,38 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
     @Override
     @Nonnull
     public BigDecimal resolveBigDecimal(@Nonnull Argument argument) throws NoSuchElementException{
-        return new BigDecimalResolver().apply(argument).orElseThrow();
+        return new BigDecimalResolver().apply(argument).orElseThrow(
+                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+        );
     }
+
     /**
-     * Attempts to transform the provided {@link Argument} into a {@link GuildModule}.<br>
-     * This is done by using the interval value of the {@link ExpressionArgument}.
-     * @param argument the {@link Argument} associated with the {@link GuildModule}.
-     * @return the {@link GuildModule} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link GuildModule}.
+     * Attempts to transform the provided {@link Argument} into a {@link ConfigurationModule}.<br>
+     * This is done by using the interval value of the {@link ArithmeticArgument}.
+     * @param argument the {@link Argument} associated with the {@link ConfigurationModule}.
+     * @return the {@link ConfigurationModule} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as a {@link ConfigurationModule}.
      */
     @Override
     @Nonnull
-    public GuildModule resolveGuildModule(@Nonnull Argument argument) throws NoSuchElementException{
-        return new GuildModuleResolver().apply(argument).orElseThrow();
+    public ConfigurationModule resolveConfigurationModule(@Nonnull Argument argument) throws NoSuchElementException{
+        return new ConfigurationModuleResolver().apply(argument).orElseThrow(
+                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+        );
+    }
+
+    /**
+     * Attempts to transform the provided {@link Argument} into an {@link Interval}.<br>
+     * This is done by the name of the interval specified by the {@link StringArgument}.
+     * @param argument the {@link Argument} associated with the {@link Interval}.
+     * @return the {@link Interval} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as an {@link Interval}.
+     */
+    @Override
+    @Nonnull
+    public Interval resolveInterval(@Nonnull Argument argument) throws NoSuchElementException{
+        return new IntervalResolver().apply(argument).orElseThrow(
+                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+        );
     }
 }

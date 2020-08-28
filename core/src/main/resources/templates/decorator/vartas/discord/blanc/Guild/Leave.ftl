@@ -1,2 +1,2 @@
 ${signature("cdAttribute", "cdMethod")}
-    throw new UnsupportedOperationException();
+    this.${cdAttribute.getName()}.leave();

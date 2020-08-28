@@ -41,6 +41,7 @@ public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> impl
     private ASTCDClassBuilder cdClassBuilder;
     private final List<ASTRank> ranks = new ArrayList<>();
     private final List<ASTPermission> permissions = new ArrayList<>();
+    private boolean requiresAttachment;
 
     public CommandCreator(GlobalExtensionManagement glex){
         super(glex);
@@ -51,6 +52,7 @@ public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> impl
         cdClassBuilder = createClassBuilder();
         permissions.clear();
         ranks.clear();
+        requiresAttachment = false;
 
         ast.accept(this);
 
@@ -63,6 +65,8 @@ public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> impl
 
     @Override
     public void visit(ASTCommand ast){
+        requiresAttachment = ast.containsRestriction(ASTRestriction.ATTACHMENT);
+
         if(ast.containsRestriction(ASTRestriction.GUILD))
             cdClassBuilder.setSuperclass(getMCTypeFacade().createQualifiedType(GuildCommand.class.getSimpleName()));
         else
@@ -101,7 +105,7 @@ public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> impl
     private ASTCDMethod createValidateMethod(){
         ASTCDMethod ast = getCDMethodFacade().createMethodByDefinition(VALIDATE);
 
-        glex.replaceTemplate(CDGeneratorHelper.METHOD_HOOK, ast, new TemplateHookPoint("command.Validate", permissions, ranks));
+        glex.replaceTemplate(CDGeneratorHelper.METHOD_HOOK, ast, new TemplateHookPoint("command.Validate", permissions, ranks, requiresAttachment));
 
         return ast;
     }

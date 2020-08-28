@@ -17,15 +17,21 @@
 
 package vartas.discord.blanc.parser;
 
-import java.math.BigDecimal;
+import vartas.chart.Interval;
 
+import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+/**
+ * Resolves the provided {@link Argument} into a {@link BigDecimal}.
+ */
+@Nonnull
 public class BigDecimalResolver extends TypeResolver<BigDecimal> {
     /**
      * Extracts the result when evaluation the {@link ArithmeticArgument}.
      * @param argument the {@link Argument} associated with the {@link BigDecimal}.
      */
     @Override
-    public void visit(ArithmeticArgument  argument){
+    public void visit(@Nonnull ArithmeticArgument  argument){
         this.type = argument.getValue();
     }
 }

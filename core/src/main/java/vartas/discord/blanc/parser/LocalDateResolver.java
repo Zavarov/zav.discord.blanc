@@ -17,16 +17,12 @@
 
 package vartas.discord.blanc.parser;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.Errors;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Optional;
 
 /**
  * Resolves the provided {@link Argument} into a {@link LocalDate}.
@@ -43,7 +39,7 @@ public class LocalDateResolver extends TypeResolver<LocalDate>{
      * @param argument the {@link Argument} associated with the {@link LocalDate}.
      */
     @Override
-    public void visit(StringArgument argument){
+    public void visit(@Nonnull StringArgument argument){
         try {
             this.type = LocalDate.parse(argument.getContent());
         } catch(DateTimeParseException e) {

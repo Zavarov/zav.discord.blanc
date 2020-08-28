@@ -19,7 +19,9 @@ package vartas.discord.blanc;
 
 import javax.annotation.Nonnull;
 
+@Nonnull
 public class PermissionException extends RuntimeException{
+    @Nonnull
     private PermissionException(@Nonnull Errors error){
         super(error.toString());
     }

@@ -31,5 +31,12 @@ import java.util.function.BiFunction;
  */
 @Nonnull
 public interface GuildTypeResolver  <T> extends ParserVisitor {
-    Optional<T> apply(Guild guild, TextChannel textChannel, Argument argument);
+    /**
+     * Attempts to resolve a type that requires a {@link Guild} or a {@link TextChannel}.
+     * @param guild the {@link Guild} associated with the {@link Argument}.
+     * @param textChannel the {@link TextChannel} associated with the {@link Argument}.
+     * @param argument the {@link Argument} associated with the desired type.
+     * @return the resolved instance. Empty if the entity couldn't be resolved.
+     */
+    Optional<T> apply(@Nonnull Guild guild, @Nonnull TextChannel textChannel, @Nonnull Argument argument);
 }

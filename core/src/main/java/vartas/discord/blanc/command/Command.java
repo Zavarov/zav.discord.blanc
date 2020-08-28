@@ -24,8 +24,17 @@ import vartas.discord.blanc.*;
 import javax.annotation.Nonnull;
 import java.util.*;
 
+/**
+ * The base class for all commands.
+ * It implements methods for validating each command before execution.
+ */
 @Nonnull
 public abstract class Command extends CommandTOP {
+    /**
+     * A {@link Rank} may inherit multiple other ranks. A prime example for this is
+     * {@link Rank#ROOT}, which includes all other ranks.<br>
+     * This multimap keeps track of all those relations.
+     */
     private static final Multimap<Rank, Rank> RANKS_ALIAS = HashMultimap.create();
 
     static{
@@ -47,6 +56,22 @@ public abstract class Command extends CommandTOP {
             throw PermissionException.of(Errors.INSUFFICIENT_RANK);
     }
 
+    /**
+     * Checks if the specified {@link Message} contains at least one attachment.<br>
+     * @param message The {@link Message} associated with the command.
+     * @throws NoSuchElementException if the message has no attachments.
+     */
+    protected void checkAttachment(@Nonnull Message message) throws NoSuchElementException{
+        if(message.isEmptyAttachments())
+            throw new NoSuchElementException(Errors.INSUFFICIENT_ATTACHMENTS.toString());
+    }
+
+    /**
+     * Computes all ranks the specified {@link User} owns. The generated {@link Set} will contain
+     * all explicitly granted ranks, as well as all inherited ranks specified in {@link #RANKS_ALIAS}.
+     * @param user The {@link User} associated with the calculated {@link Rank}.
+     * @return A set containing all ranks associated with the {@link User}.
+     */
     @Nonnull
     protected Set<Rank> getEffectiveRanks(@Nonnull User user){
         Set<Rank> effectiveRanks = new HashSet<>();

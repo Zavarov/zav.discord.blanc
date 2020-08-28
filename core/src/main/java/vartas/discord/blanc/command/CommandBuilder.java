@@ -72,6 +72,7 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
      * @param parser the {@link Parser} used for processing the messages.
      * @param globalPrefix the global command prefix.
      */
+    @Nonnull
     public CommandBuilder(
             @Nonnull BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction,
             @Nonnull Shard shard,
@@ -111,7 +112,7 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         typeResolver = typeResolverFunction.apply(null, null);
 
         if(comparePrefix(command))
-            return build(command.getName(), command.getArguments())
+            return build(command.getName(), command.getArguments(), command.getFlags())
                     .map(c -> provideContext(c, message, channel));
         else
             return Optional.empty();
@@ -144,7 +145,7 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         typeResolver = typeResolverFunction.apply(guild, textChannel);
 
         if(comparePrefix(command) || comparePrefix(command, guild))
-            return build(command.getName(), command.getArguments())
+            return build(command.getName(), command.getArguments(), command.getFlags())
                     .map(c -> provideContext(c, message, guild, textChannel));
         else
             return Optional.empty();
@@ -169,6 +170,14 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         return command.getPrefix().map(globalPrefix::equals).orElse(false);
     }
 
+    /**
+     * Binds the provided context to a guild command.
+     * @param command the received command.
+     * @param message the message instance from which the command originates.
+     * @param guild the guild the message was recevied in.
+     * @param messageChannel the text channel the message was received in.
+     * @return the received command.
+     */
     @Nonnull
     private Command provideContext
             (
@@ -182,6 +191,14 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         return command;
     }
 
+    /**
+     * Binds the provided context to a command.
+     * @param command the received command.
+     * @param message the message instance from which the command originates.
+     * @param messageChannel the message channel the message was received in.
+     * @return the received command.
+     */
+    @Nonnull
     private Command provideContext
             (
                     @Nonnull Command command,
@@ -192,16 +209,39 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         return provideContext(command, message, null, messageChannel);
     }
 
+    /**
+     * This implements traverses the command and attach the context at the respective hook points.
+     */
+    @Nonnull
     private class ContextProvider implements CommandVisitor{
+        /**
+         * The guild the command was received in. Null if the message came from a private channel.
+         */
         @Nullable
         private final Guild guild;
+        /**
+         * The message channel in which the command was received in.
+         */
         @Nonnull
         private final MessageChannel messageChannel;
+        /**
+         * The user who issued the command.
+         */
         @Nonnull
         private final User author;
+        /**
+         * The message that triggered the command.
+         */
         @Nonnull
         private final Message message;
 
+        /**
+         * Creates a fresh visitor instance.
+         * @param message the message instance from which the command originates.
+         * @param guild the guild the message was recevied in.
+         * @param messageChannel the text channel the message was received in.
+         */
+        @Nonnull
         public ContextProvider(@Nonnull Message message, @Nullable Guild guild, @Nonnull MessageChannel messageChannel){
             this.message = message;
             this.author = message.getAuthor();
@@ -209,6 +249,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
             this.messageChannel = messageChannel;
         }
 
+        /**
+         * This method is called in case of a normal command.
+         * Binds the context to the provided command.
+         * @param command the command associated with the context.
+         */
         @Override
         public void visit(MessageCommand command){
             command.set$Author(author);
@@ -217,6 +262,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
             command.set$Message(message);
         }
 
+        /**
+         * This method is called in case of a guild command.
+         * Binds the context to the provided command.
+         * @param command the command associated with the context.
+         */
         @Override
         public void visit(GuildCommandTOP command){
             Preconditions.checkNotNull(guild);

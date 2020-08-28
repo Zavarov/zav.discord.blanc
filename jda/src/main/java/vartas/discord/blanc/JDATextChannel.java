@@ -92,7 +92,7 @@ public class JDATextChannel extends TextChannel{
             JSONObject jsonWebhooks = jsonObject.optJSONObject(JSONTextChannel.WEBHOOKS);
             if(jsonWebhooks != null) {
                 try {
-                    List<net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel.retrieveWebhooks().complete();;
+                    List<net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel.retrieveWebhooks().complete();
 
                     for (String subreddit : jsonWebhooks.keySet()) {
                         JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));

@@ -24,10 +24,15 @@ import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
 
+@Nonnull
 public abstract class MessageChannel extends MessageChannelTOP{
 
     /**
@@ -94,6 +99,19 @@ public abstract class MessageChannel extends MessageChannelTOP{
         message.setContent(object.toString());
 
         send(message);
+    }
+
+    @Override
+    public void send(@Nonnull BufferedImage image, @Nonnull String title) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try {
+            ImageIO.write(image, "png", outputStream);
+            byte[] bytes = outputStream.toByteArray();
+            send(bytes, title+".png");
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void send(@Nonnull String format, @Nonnull Object... arguments){

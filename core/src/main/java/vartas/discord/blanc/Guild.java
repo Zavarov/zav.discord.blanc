@@ -32,11 +32,22 @@ import java.util.regex.PatternSyntaxException;
  * The internal representation of a Discord guild.
  */
 @Nonnull
-public abstract class Guild extends GuildTOP implements Printable{
+public abstract class Guild extends GuildTOP {
+    /**
+     * This class' logger.
+     */
     @Nonnull
     private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    /**
+     * The pattern derived from the blacklisted words.
+     * May be null if there are no banned words.
+     */
     @Nullable
     private Pattern pattern;
+
+    /**
+     * @return an {@link Optional} containing the pattern for blacklisted words.
+     */
     @Nonnull
     public Optional<Pattern> getPattern(){
         return Optional.ofNullable(pattern);
@@ -57,8 +68,7 @@ public abstract class Guild extends GuildTOP implements Printable{
                 pattern = Pattern.compile(getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElseThrow());
             }
         } catch (PatternSyntaxException e) {
-            //TODO
-            log.error(e.toString());
+            log.error(Errors.INVALID_PATTERN.toString(), e.toString());
         }
     }
 
@@ -86,17 +96,4 @@ public abstract class Guild extends GuildTOP implements Printable{
      * @return true if the {@link Member} can interact with the {@link TextChannel}.
      */
     public abstract boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel);
-
-    @Nonnull
-    @Override
-    public MessageEmbed toMessageEmbed(){
-        MessageEmbed messageEmbed = MessageEmbedFactory.create();
-
-        messageEmbed.setTitle(getName());
-        messageEmbed.addFields("#TextChannels", getChannels().size());
-        messageEmbed.addFields("#Roles", getRoles().size());
-        messageEmbed.addFields("#Members", getMembers().size());
-
-        return messageEmbed;
-    }
 }

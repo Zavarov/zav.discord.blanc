@@ -1,5 +1,5 @@
 ${signature("commands", "resolver", "command", "factory", "argumentTypes", "requiresGuild")}
-        ${commands.getName()}.put("${command}", _arguments -> ${factory}.create(
+        ${commands.getName()}.put("${command}", (_arguments, _flags) -> ${factory}.create(
         <#list argumentTypes as argumentType>
             ${resolver.getName()}.resolve${argumentType}(_arguments.get(${argumentType?index})),
         </#list>
@@ -10,5 +10,6 @@ ${signature("commands", "resolver", "command", "factory", "argumentTypes", "requ
             null, //Guild
         </#if>
             null, //ServerHookPoint
-            null  //Message
+            null, //Message
+            _flags
         ));

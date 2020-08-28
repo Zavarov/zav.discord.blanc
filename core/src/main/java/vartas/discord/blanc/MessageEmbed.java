@@ -21,30 +21,32 @@ import vartas.discord.blanc.factory.AuthorFactory;
 import vartas.discord.blanc.factory.FieldFactory;
 import vartas.discord.blanc.factory.TitleFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
+@Nonnull
 public class MessageEmbed extends MessageEmbedTOP{
-    public void addFields(String title, Object content){
+    public void addFields(@Nonnull String title, @Nonnull Object content){
         addFields(title, content, false);
     }
 
-    public void addFields(String title, Object content, boolean inline){
+    public void addFields(@Nonnull String title, @Nonnull Object content, boolean inline){
         addFields(FieldFactory.create(title, content, inline));
     }
 
-    public void setTitle(String title){
+    public void setTitle(@Nonnull String title){
         setTitle(TitleFactory.create(title));
     }
 
-    public void setTitle(String title, String url){
+    public void setTitle(@Nonnull String title, @Nonnull String url){
         setTitle(TitleFactory.create(title, Optional.of(url)));
     }
 
-    public void setAuthor(String name){
+    public void setAuthor(@Nonnull String name){
         setAuthor(AuthorFactory.create(name));
     }
 
-    public void setAuthor(String name, String url){
+    public void setAuthor(@Nonnull String name, @Nonnull String url){
         setAuthor(AuthorFactory.create(name, Optional.of(url)));
     }
 }

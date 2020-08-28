@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.*;
 
+@Nonnull
 public class Shard extends ShardTOP{
     @Nonnull
     protected final ScheduledExecutorService executor;
@@ -37,6 +38,7 @@ public class Shard extends ShardTOP{
     protected final static Semaphore MUTEX = new Semaphore(1);
     protected static boolean MODIFIES_FILE = false;
 
+    @Nonnull
     public Shard(){
         this.executor = Executors.newScheduledThreadPool(
                 1,
@@ -44,18 +46,20 @@ public class Shard extends ShardTOP{
         );
     }
 
+    @Nonnull
     public Shard(@Nonnull RedditVisitor redditVisitor){
         this();
         //Request submissions every minute with one minute initial delay
         this.executor.scheduleAtFixedRate(() -> this.accept(redditVisitor), 1, 1, TimeUnit.MINUTES);
     }
 
+    @Nonnull
     public Shard(@Nonnull RedditVisitor redditVisitor, @Nonnull StatusMessageRunnable statusMessageRunnable){
         this(redditVisitor);
         this.executor.scheduleAtFixedRate(statusMessageRunnable, 0, JSONCredentials.CREDENTIALS.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
     }
 
-    public static void write(JSONObject jsonObject, Path target){
+    public static void write(@Nonnull JSONObject jsonObject, @Nonnull Path target){
         try{
             MUTEX.acquireUninterruptibly();
             MODIFIES_FILE = true;
@@ -63,7 +67,7 @@ public class Shard extends ShardTOP{
             jsonObject.write(writer, 4, 0);
             writer.close();
         }catch(IOException e){
-            LoggerFactory.getLogger(Shard.class.getSimpleName()).error(e.toString());
+            LoggerFactory.getLogger(Shard.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
         }finally {
             MODIFIES_FILE = false;
             MUTEX.release();

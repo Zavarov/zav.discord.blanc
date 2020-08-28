@@ -25,6 +25,7 @@ import vartas.monticore.arithmeticexpressions.calculator.ArithmeticExpressionsVa
 import vartas.monticore.arithmeticexpressions.prettyprint.ArithmeticExpressionsPrettyPrinter;
 
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 
 public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements ArithmeticArgument, StringArgument {
     private static final ArithmeticExpressionsPrettyPrinter prettyPrinter = new ArithmeticExpressionsPrettyPrinter(new IndentPrinter());
@@ -40,7 +41,11 @@ public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements A
 
     @Override
     public void accept(ParserVisitor visitor) {
-        visitor.handle((ArithmeticArgument)this);
+        try {
+            //The argument may be a string, so getValue() could cause an exception
+            visitor.handle((ArithmeticArgument) this);
+        }catch(NoSuchElementException ignored){}
+
         visitor.handle((StringArgument) this);
     }
 }

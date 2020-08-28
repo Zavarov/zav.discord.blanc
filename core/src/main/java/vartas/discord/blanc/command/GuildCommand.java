@@ -21,6 +21,11 @@ import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A guild command is a subclass of the normal command.
+ * This command can only be executed in a guild and allows an additional condition,
+ * with which only users with certain permissions may execute the command.
+ */
 @Nonnull
 public abstract class GuildCommand extends GuildCommandTOP{
     /**

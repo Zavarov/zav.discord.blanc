@@ -39,8 +39,8 @@ public class MontiCoreCommandParser implements Parser {
             //images/files-only messages might not have any text content
             if(content.isEmpty())
                 return Optional.empty();
-
-            return parser.parse_String(content.get());
+            else
+                return parser.parse_String(content.get());
         }catch(IOException e){
             //TODO Error message
             log.error(e.getMessage(), e);

@@ -1,6 +1,0 @@
-{
-    "prefix":"prefix",
-    "blacklist":"pattern",
-    "selfassignable":{"role":[2]},
-    "subreddit":{"channel":[1]}
-}

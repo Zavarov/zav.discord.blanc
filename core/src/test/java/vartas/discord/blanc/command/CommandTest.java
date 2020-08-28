@@ -20,11 +20,12 @@ package vartas.discord.blanc.command;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
+import vartas.discord.blanc.factory.AttachmentFactory;
 import vartas.discord.blanc.factory.PrivateChannelFactory;
 import vartas.discord.blanc.factory.UserFactory;
-import vartas.discord.blanc.mock.MessageCommandMock;
-import vartas.discord.blanc.mock.PrivateChannelMock;
-import vartas.discord.blanc.mock.UserMock;
+import vartas.discord.blanc.mock.*;
+
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,15 +34,18 @@ public class CommandTest extends AbstractTest {
     User author;
     PrivateChannel messageChannel;
     Command command;
+    Message message;
+
     @BeforeEach
     public void setUp(){
         author = UserFactory.create(UserMock::new, 0, "User");
         messageChannel = PrivateChannelFactory.create(PrivateChannelMock::new, 0, "PrivateChannel");
         command = new MessageCommandMock(author, messageChannel);
+        message = new MessageMock();
     }
 
     @Test
-    public void testRoot(){
+    public void testCheckRootRank(){
         author.addRanks(Rank.ROOT);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
@@ -49,7 +53,7 @@ public class CommandTest extends AbstractTest {
     }
 
     @Test
-    public void testDeveloper(){
+    public void testCheckDeveloperRank(){
         author.addRanks(Rank.DEVELOPER);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
@@ -57,10 +61,22 @@ public class CommandTest extends AbstractTest {
     }
 
     @Test
-    public void testUser(){
+    public void testCheckUserRank(){
         author.addRanks(Rank.USER);
         assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
         assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.DEVELOPER));
         assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.ROOT));
+    }
+
+    @Test
+    public void testCheckMissingAttachment(){
+        assertThrows(NoSuchElementException.class, () -> command.checkAttachment(message));
+    }
+
+    @Test
+    public void testCheckAttachment(){
+        message.addAttachments(new AttachmentMock());
+
+        command.checkAttachment(message);
     }
 }

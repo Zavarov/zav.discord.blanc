@@ -36,6 +36,7 @@ public class SubredditMock extends Subreddit {
         UNSUCCESSFUL_EXCEPTION,
         TIMEOUT_EXCEPTION,
         HTTP_EXCEPTION,
+        UNKNOWN_EXCEPTION,
         NO_EXCEPTION
     }
 
@@ -48,6 +49,8 @@ public class SubredditMock extends Subreddit {
                 throw new TimeoutException();
             case HTTP_EXCEPTION:
                 throw new HttpResponseException(HttpStatus.SC_FORBIDDEN, "Forbidden");
+            case UNKNOWN_EXCEPTION:
+                throw new RuntimeException();
             default:
                 return submissions;
         }

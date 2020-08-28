@@ -2,6 +2,7 @@ package vartas.discord.blanc.io.json;
 
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.io.StatusMessages;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class JSONStatusMessages extends StatusMessages {
         try{
             STATUS_MESSAGES = JSONStatusMessages.of(Paths.get("status.json"));
         }catch(IOException e){
-            LoggerFactory.getLogger(JSONStatusMessages.class.getSimpleName()).error(e.toString());
+            LoggerFactory.getLogger(JSONStatusMessages.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
             STATUS_MESSAGES = new JSONStatusMessages();
         }
     }

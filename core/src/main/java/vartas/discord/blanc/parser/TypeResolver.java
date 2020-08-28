@@ -50,7 +50,7 @@ public abstract class TypeResolver <T> implements Function<Argument, Optional<T>
      * @return the resolved {@link T} associated with the {@link Argument}.
      */
     @Override
-    public Optional<T> apply(Argument argument) {
+    public Optional<T> apply(@Nonnull Argument argument) {
         type = null;
         argument.accept(this);
         return Optional.ofNullable(type);

@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.Rank;
 import vartas.discord.blanc.io.Ranks;
 
@@ -21,7 +22,7 @@ public class JSONRanks extends Ranks {
         try{
             RANKS = JSONRanks.of(Paths.get("ranks.json"));
         }catch(IOException e){
-            LoggerFactory.getLogger(JSONRanks.class.getSimpleName()).error(e.toString());
+            LoggerFactory.getLogger(JSONRanks.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
             RANKS = new JSONRanks();
         }
     }

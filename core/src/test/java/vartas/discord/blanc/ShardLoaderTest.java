@@ -25,10 +25,12 @@ public class ShardLoaderTest extends AbstractTest {
     public Path notAGuild;
     @BeforeEach
     public void setUp() throws IOException {
+        guild = JSONGuild.of(RESOURCES.resolve("guild.json"));
+        Shard.write(guild);
+
         shardLoader = new ShardLoaderMock(credentials);
         shard = shardLoader.load(0);
         guilds = shard.getGuilds();
-        guild = JSONGuild.of(credentials.getGuildDirectory().resolve("guild.json"));
 
         notADirectory = RESOURCES.resolve("notadirectory");
         notAGuild = RESOURCES.resolve("invalid");

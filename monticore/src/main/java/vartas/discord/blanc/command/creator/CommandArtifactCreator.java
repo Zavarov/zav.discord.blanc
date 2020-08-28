@@ -109,6 +109,9 @@ public class CommandArtifactCreator extends AbstractCreator<ASTCommandArtifact, 
     }
 
     private void importClasses(CDDefinitionSymbol source, CDDefinitionSymbol target){
+        for(String qualifiedImport : source.getImports())
+            target.addImport(qualifiedImport);
+
         for(CDTypeSymbol type : source.getTypes())
             target.addImport(Joiners.DOT.join(source.getPackageName(), source.getName(), type.getName()));
     }

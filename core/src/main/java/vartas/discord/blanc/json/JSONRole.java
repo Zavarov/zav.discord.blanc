@@ -1,14 +1,8 @@
 package vartas.discord.blanc.json;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import vartas.discord.blanc.Role;
-import vartas.discord.blanc.RoleTOP;
-import vartas.discord.blanc.TextChannel;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 
 //TODO Generate
@@ -16,14 +10,6 @@ public class JSONRole extends Role {
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String GROUP = "group";
-
-    public static JSONRole of(Path rolePath) throws IOException {
-        return of(Files.readString(rolePath));
-    }
-
-    public static JSONRole of(String content){
-        return of(new JSONObject(content));
-    }
 
     public static JSONRole of(JSONObject jsonObject){
         JSONRole jsonRole = new JSONRole();
@@ -33,7 +19,7 @@ public class JSONRole extends Role {
         return jsonRole;
     }
 
-    public static JSONObject of(RoleTOP role){
+    public static JSONObject of(Role role){
         JSONObject jsonRole = new JSONObject();
 
         jsonRole.put(ID, role.getId());
@@ -45,6 +31,6 @@ public class JSONRole extends Role {
 
     @Override
     public String getAsMention() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not supported for JSON instances.");
     }
 }

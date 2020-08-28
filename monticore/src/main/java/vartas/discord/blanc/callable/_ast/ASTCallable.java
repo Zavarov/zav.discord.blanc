@@ -17,11 +17,13 @@
 
 package vartas.discord.blanc.callable._ast;
 
+import com.google.common.collect.Lists;
 import vartas.discord.blanc.parser.Argument;
 import vartas.discord.blanc.parser.IntermediateCommand;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ASTCallable extends ASTCallableTOP implements IntermediateCommand {
 
@@ -33,6 +35,11 @@ public class ASTCallable extends ASTCallableTOP implements IntermediateCommand {
     @Override
     public String getName() {
         return super.getQualifiedName();
+    }
+
+    @Override
+    public List<String> getFlags() {
+        return getAstFlagList().stream().map(ASTFlag::getName).collect(Collectors.toList());
     }
 
     @Override

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
 import vartas.discord.blanc.factory.GuildFactory;
-import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
+import vartas.discord.blanc.factory.WebhookFactory;
 import vartas.discord.blanc.mock.*;
 import vartas.reddit.Submission;
 import vartas.reddit.factory.SubmissionFactory;
@@ -22,10 +22,11 @@ public class RedditVisitorTest extends AbstractTest {
     Guild guild;
     TextChannelMock textChannel;
 
-    RedditClientMock redditHook;
+    ClientMock redditHook;
     RedditVisitor redditVisitor;
     SubredditMock subreddit;
     Submission submission;
+    WebhookMock webhook;
     @BeforeEach
     public void setUp() throws IOException {
         initRedditHook();
@@ -43,6 +44,7 @@ public class RedditVisitorTest extends AbstractTest {
                 "id",
                 Instant.now()
         );
+
         //TODO From JSON
         submission = SubmissionFactory.create(
                 SubmissionMock::new,
@@ -55,15 +57,18 @@ public class RedditVisitorTest extends AbstractTest {
                 Instant.now()
         );
 
-        redditHook = new RedditClientMock();
+        redditHook = new ClientMock();
         redditHook.putSubreddits(subreddit.getName(), subreddit);
+
         subreddit.submissions.add(submission);
     }
 
-    private void initDiscordHook() throws IOException {
+    private void initDiscordHook() {
+        webhook = (WebhookMock) WebhookFactory.create(WebhookMock::new, 12345L,"subreddit");
 
         textChannel = (TextChannelMock) TextChannelFactory.create(TextChannelMock::new, 2, "TextChannel");
         textChannel.addSubreddits(subreddit.getName());
+        textChannel.putWebhooks("subreddit", webhook);
 
         guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 1, "Guild");
         guild.putChannels(textChannel.getId(), textChannel);
@@ -80,7 +85,9 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
+        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
         assertThat(textChannel.sent).isEmpty();
+        assertThat(webhook.sent).isEmpty();
     }
 
     @Test
@@ -90,7 +97,9 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.isEmptySubreddits()).isTrue();
+        assertThat(textChannel.valuesWebhooks()).isEmpty();
         assertThat(textChannel.sent).isEmpty();
+        assertThat(webhook.sent).isEmpty();
     }
 
     @Test
@@ -100,7 +109,21 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
+        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
         assertThat(textChannel.sent).isEmpty();
+        assertThat(webhook.sent).isEmpty();
+    }
+
+    @Test
+    public void testUnknownException(){
+        subreddit.action = SubredditMock.ACTION.UNKNOWN_EXCEPTION;
+
+        shard.accept(redditVisitor);
+
+        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
+        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
+        assertThat(textChannel.sent).isEmpty();
+        assertThat(webhook.sent).isEmpty();
     }
 
     @Test
@@ -108,5 +131,6 @@ public class RedditVisitorTest extends AbstractTest {
         shard.accept(redditVisitor);
 
         assertThat(textChannel.sent).isNotEmpty();
+        assertThat(webhook.sent).isNotEmpty();
     }
 }

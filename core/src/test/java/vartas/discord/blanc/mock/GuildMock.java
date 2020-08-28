@@ -17,10 +17,7 @@
 
 package vartas.discord.blanc.mock;
 
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Member;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 
@@ -44,6 +41,12 @@ public class GuildMock extends Guild {
 
     @Override
     public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
+    public MessageEmbed toMessageEmbed() {
         throw new UnsupportedOperationException();
     }
 }

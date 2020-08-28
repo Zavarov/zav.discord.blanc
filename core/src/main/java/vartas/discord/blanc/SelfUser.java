@@ -17,4 +17,7 @@
 
 package vartas.discord.blanc;
 
+import javax.annotation.Nonnull;
+
+@Nonnull
 public abstract class SelfUser extends User implements SelfUserTOP{}

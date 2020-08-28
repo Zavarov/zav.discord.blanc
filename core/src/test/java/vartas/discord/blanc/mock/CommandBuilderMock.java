@@ -36,7 +36,7 @@ public class CommandBuilderMock extends CommandBuilder {
     }
 
     @Override
-    protected Optional<Command> build(String name, List<? extends Argument> arguments) {
+    protected Optional<Command> build(String name, List<? extends Argument> arguments, List<String> flags) {
         return Optional.ofNullable(commandTable.get(name, arguments));
     }
 }

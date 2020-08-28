@@ -2,6 +2,7 @@ package vartas.discord.blanc;
 
 import com.google.common.cache.Cache.Cache;
 import java.awt.Color.Color;
+import java.awt.image.BufferedImage.BufferedImage;
 import java.io.InputStream.InputStream;
 import java.lang.Object.Object;
 import java.lang.RuntimeException.RuntimeException;
@@ -35,7 +36,11 @@ public classdiagram Architecture {
         void shutdown();
     }
 
-    public abstract class User extends Snowflake {
+    public interface Printable {
+        MessageEmbed toMessageEmbed();
+    }
+
+    public abstract class User extends Snowflake implements Printable {
         - Optional<PrivateChannel> channel;
         - Collection<Rank> ranks;
         + abstract String getAsMention();
@@ -58,6 +63,7 @@ public classdiagram Architecture {
         + abstract void send(Member member);
         + abstract void send(Guild guild);
         + abstract void send(Object object);
+        + abstract void send(BufferedImage image, String title);
     }
 
     public abstract class PrivateChannel extends MessageChannel{
@@ -118,7 +124,7 @@ public classdiagram Architecture {
     //      Guild
     //
     //------------------------------------------------------------------------------------------------------------------
-    public abstract class Guild extends Snowflake {
+    public abstract class Guild extends Snowflake implements Printable{
         - Optional<String> prefix;
         - Cache<Long, Member> members;
         - Cache<Long, TextChannel> channels;
@@ -129,7 +135,7 @@ public classdiagram Architecture {
         + abstract void leave();
     }
 
-    public abstract class Role extends Snowflake {
+    public abstract class Role extends Snowflake implements Printable {
         - Optional<String> group;
         + abstract String getAsMention();
     }
@@ -138,6 +144,7 @@ public classdiagram Architecture {
         + abstract Optional<String> retrieveNickname();
         + abstract List<Role> retrieveRoles();
         + abstract void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove);
+        + abstract List<Permission> getPermissions(TextChannel textChannel);
     }
 
     public interface SelfMember{
@@ -157,7 +164,7 @@ public classdiagram Architecture {
     /**
      * This enumeration contains the different modules of a guild.
      */
-    public enum GuildModule {
+    public enum ConfigurationModule {
         /**
          * Each guild can have a custom prefix. This is to avoid collisions with other bots.
          */

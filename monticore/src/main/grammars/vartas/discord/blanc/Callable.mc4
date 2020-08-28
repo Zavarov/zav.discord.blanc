@@ -15,7 +15,7 @@ grammar Callable extends
      * Each command can have an arbitrary amount of arguments.
      */
     Callable =
-        (astPrefix:Name ":")? astName:MCQualifiedName astArgument:Argument*
+        (astPrefix:Name ":")? astFlag:Flag* astName:MCQualifiedName astArgument:Argument*
     ;
 
     /**
@@ -32,6 +32,10 @@ grammar Callable extends
      */
     interface DiscordEntity =
         id:NatLiteral
+    ;
+
+    Flag =
+        "-" Name&
     ;
 
     /**

@@ -16,10 +16,10 @@ import vartas.discord.blanc.parser.Parser.AbstractTypeResolver;
 
 public classdiagram MontiCoreCommandBuilder {
     public class MontiCoreCommandBuilder extends CommandBuilder {
-        - Map<String, Function<List<? extends Argument>, Command>> commands;
+        - Map<String, BiFunction<List<? extends Argument>, List<String>, Command>> commands;
 
         + MontiCoreCommandBuilder(BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction, Shard shard, Parser parser, String globalPrefix);
 
-        # Optional<Command> build(String name, List<? extends Argument> arguments);
+        # Optional<Command> build(String name, List<? extends Argument> arguments, List<String> flags);
     }
 }

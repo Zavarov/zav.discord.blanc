@@ -17,10 +17,7 @@
 
 package vartas.discord.blanc.mock;
 
-import vartas.discord.blanc.Member;
-import vartas.discord.blanc.Permission;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +48,12 @@ public class MemberMock extends Member {
     }
     @Override
     public String getAsMention() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nonnull
+    @Override
+    public MessageEmbed toMessageEmbed() {
         throw new UnsupportedOperationException();
     }
 }

@@ -2,11 +2,10 @@ package vartas.discord.blanc.json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Message;
+import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.Webhook;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
 //TODO Generate
@@ -15,14 +14,6 @@ public class JSONTextChannel extends TextChannel {
     public static final String NAME = "name";
     public static final String SUBREDDITS = "subreddits";
     public static final String WEBHOOKS = "webhooks";
-
-    public static JSONTextChannel of(Path textChannelPath) throws IOException {
-        return of(Files.readString(textChannelPath));
-    }
-
-    public static JSONTextChannel of(String content){
-        return of(new JSONObject(content));
-    }
 
     public static JSONTextChannel of(JSONObject jsonObject){
         JSONTextChannel jsonTextChannel = new JSONTextChannel();
