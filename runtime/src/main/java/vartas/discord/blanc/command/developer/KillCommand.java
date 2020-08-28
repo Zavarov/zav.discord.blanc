@@ -17,7 +17,7 @@
 
 package vartas.discord.blanc.command.developer;
 
-import vartas.discord.blanc.KillableTOP;
+import vartas.discord.blanc.Killable;
 import vartas.discord.blanc.Main;
 import vartas.discord.blanc.visitor.ArchitectureInheritanceVisitor;
 
@@ -38,7 +38,7 @@ public class KillCommand extends KillCommandTOP implements ArchitectureInheritan
     }
 
     @Override
-    public void visit(KillableTOP node){
+    public void visit(Killable node){
         node.shutdown();
     }
 }

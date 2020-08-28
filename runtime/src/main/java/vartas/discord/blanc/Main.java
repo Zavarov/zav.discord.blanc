@@ -18,24 +18,26 @@
 package vartas.discord.blanc;
 
 import de.se_rwth.commons.logging.Log;
-import de.se_rwth.commons.logging.Slf4jLog;
-import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.callable.MontiCoreCommandParser;
 import vartas.discord.blanc.io.Credentials;
 import vartas.discord.blanc.io.json.JSONCredentials;
 import vartas.discord.blanc.monticore.MontiCoreCommandBuilder;
 import vartas.discord.blanc.parser.JDATypeResolver;
 import vartas.discord.blanc.parser.Parser;
+import vartas.reddit.JSONClient;
+import vartas.reddit.JrawClient;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Paths;
 
 public class Main {
+    //TODO Integrate into the architecture
+    public static vartas.reddit.Client REDDIT_CLIENT;
     @Nonnull
     public static final Client CLIENT = new Client();
     @Nonnull
-    private static final Parser parser = new MontiCoreCommandParser();
+    private static final Parser PARSER = new MontiCoreCommandParser();
 
     static{
         //The application would terminate on an invalid command, for example
@@ -45,12 +47,21 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Credentials credentials = JSONCredentials.of(Paths.get("credentials.json"));
         ShardLoader shardLoader = createShardLoader(credentials);
+
+        REDDIT_CLIENT = new JrawClient(
+                credentials.getRedditAccount(),
+                credentials.getVersion(),
+                credentials.getRedditId(),
+                credentials.getRedditSecret()
+        );
+        REDDIT_CLIENT = new JSONClient(REDDIT_CLIENT, Paths.get("reddit"));
+
         for(int i = 0 ; i < credentials.getShardCount() ; ++i)
             CLIENT.addShards(loadShard(shardLoader, i));
     }
 
     private static ShardLoader createShardLoader(Credentials credentials){
-        return new JDAShardLoader(credentials, (shard, jda) -> new MontiCoreCommandBuilder((guild, textChannel) -> new JDATypeResolver(shard, jda, guild, textChannel), shard, parser , credentials.getGlobalPrefix()));
+        return new JDAShardLoader(credentials, (shard, jda) -> new MontiCoreCommandBuilder((guild, textChannel) -> new JDATypeResolver(shard, jda, guild, textChannel), shard, PARSER, credentials.getGlobalPrefix()));
     }
 
     private static Shard loadShard(ShardLoader shardLoader, int shardId){

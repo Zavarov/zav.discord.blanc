@@ -41,6 +41,7 @@
         <developer.cmd>vartas.discord.blanc.command.developer.Developer</developer.cmd>
         <mod.cmd>vartas.discord.blanc.command.mod.Mod</mod.cmd>
         <legacy.cmd>vartas.discord.blanc.command.legacy.Legacy</legacy.cmd>
+        <reddit.cmd>vartas.discord.blanc.command.reddit.Reddit</reddit.cmd>
     </properties>
 
     <dependencies>
@@ -57,6 +58,12 @@
         </dependency>
 
         <dependency>
+            <groupId>vartas.reddit</groupId>
+            <artifactId>json</artifactId>
+            <version>${reddit.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>vartas.discord.blanc</groupId>
             <artifactId>monticore</artifactId>
             <version>${project.version}</version>
@@ -66,6 +73,12 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>${oshi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.steppschuh.markdowngenerator</groupId>
+            <artifactId>markdowngenerator</artifactId>
+            <version>${markdown.version}</version>
         </dependency>
     </dependencies>
 
@@ -190,6 +203,7 @@
                                 <argument>${developer.cmd}</argument>
                                 <argument>${mod.cmd}</argument>
                                 <argument>${legacy.cmd}</argument>
+                                <argument>${reddit.cmd}</argument>
                             </arguments>
                         </configuration>
                     </execution>

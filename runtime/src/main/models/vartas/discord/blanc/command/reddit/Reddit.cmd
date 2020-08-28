@@ -1,25 +1,27 @@
 package vartas.discord.blanc.command.reddit;
-prefix reddit;
 
-command {
-    subreddit{
-             class : "SubredditChartCommand"
-         parameter : subreddit:String, from:Date, to:Date, type:String
+import vartas.chart.Interval.Interval;
+import java.time.LocalDate.LocalDate;
+
+group reddit {
+    command subreddit{
+             class : SubredditChartCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, String type
+              rank : REDDIT
+    }
+    command snowflake{
+             class : SnowflakeChartCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, Interval interval
               rank : Reddit
     }
-    snowflake{
-             class : "SnowflakeChartCommand"
-         parameter : subreddit:String, from:Date, to:Date, interval:Interval, arguments:String+
-              rank : Reddit
+    command table{
+             class : SnowflakeTableCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, String type
+              rank : REDDIT
     }
-    table{
-             class : "SnowflakeTableCommand"
-         parameter : subreddit:String, from:Date, to:Date
-              rank : Reddit
-    }
-    markdown{
-             class : "MarkdownTableCommand"
-         parameter : subreddit:String, from:Date, to:Date
-              rank : Reddit
+    command markdown{
+             class : MarkdownTableCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, String type
+              rank : REDDIT
     }
 }

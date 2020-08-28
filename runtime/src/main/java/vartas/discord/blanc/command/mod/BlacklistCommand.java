@@ -21,6 +21,9 @@ import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.io.json.JSONCredentials;
 import vartas.discord.blanc.json.JSONGuild;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 /**
  * This command allows to blacklist certain words. Any message that contains the
  * word will be deleted by the bot.
@@ -32,11 +35,18 @@ public class BlacklistCommand extends BlacklistCommandTOP{
             get$Guild().removeBlacklist(getExpression());
             get$TextChannel().send("Removed '"+getExpression()+"' from the blacklist.");
         }else{
-            get$Guild().addBlacklist(getExpression());
-            get$TextChannel().send("Blacklisted '"+getExpression()+"'.");
-        }
+            try{
+                //Check if the regex is valid
+                Pattern.compile(getExpression());
 
-        Shard.write(get$Guild());
-        get$Guild().compilePattern();
+                get$Guild().addBlacklist(getExpression());
+                get$TextChannel().send("Blacklisted '"+getExpression()+"'.");
+
+                Shard.write(get$Guild());
+                get$Guild().compilePattern();
+            }catch(PatternSyntaxException e){
+                get$TextChannel().send(e);
+            }
+        }
     }
 }

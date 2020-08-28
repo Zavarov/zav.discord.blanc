@@ -35,15 +35,6 @@ public class ActivityCommand extends ActivityCommandTOP{
     public void run(){
         JFreeChart chart = ActivityVisitor.create(get$Guild(), new ArrayList<>(get$Guild().valuesChannels()));
         BufferedImage image = chart.createBufferedImage(1024, 768);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        try {
-            ImageIO.write(image, "png", outputStream);
-            byte[] bytes = outputStream.toByteArray();
-            get$TextChannel().send(bytes, chart.getTitle().getText()+".png");
-        }catch(IOException e){
-            //TODO Exception
-            throw new IllegalStateException(e);
-        }
+        send$TextChannel(image, chart.getTitle().getText());
     }
 }

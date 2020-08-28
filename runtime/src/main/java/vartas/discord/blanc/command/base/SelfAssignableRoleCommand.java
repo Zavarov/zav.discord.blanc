@@ -18,9 +18,7 @@
 package vartas.discord.blanc.command.base;
 
 import org.apache.commons.collections4.CollectionUtils;
-import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Role;
-import vartas.discord.blanc.RoleTOP;
 
 import java.util.Collection;
 import java.util.Collections;
