@@ -33,6 +33,8 @@ import java.util.concurrent.*;
 @Nonnull
 public class Shard extends ShardTOP{
     @Nonnull
+    protected final ExecutorService worker;
+    @Nonnull
     protected final ScheduledExecutorService executor;
     @Nonnull
     protected final static Semaphore MUTEX = new Semaphore(1);
@@ -41,8 +43,11 @@ public class Shard extends ShardTOP{
     @Nonnull
     public Shard(){
         this.executor = Executors.newScheduledThreadPool(
-                1,
+                2,
                 new ThreadFactoryBuilder().setNameFormat("Shard#%d").build()
+        );
+        this.worker = Executors.newCachedThreadPool(
+                new ThreadFactoryBuilder().setNameFormat("Worker#%d").build()
         );
     }
 
@@ -80,7 +85,7 @@ public class Shard extends ShardTOP{
     }
 
     public void submit(Runnable runnable){
-        executor.execute(runnable);
+        worker.submit(runnable);
     }
 
     @Override
