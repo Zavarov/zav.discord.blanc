@@ -25,7 +25,7 @@ import vartas.discord.blanc.monticore.MontiCoreCommandBuilder;
 import vartas.discord.blanc.parser.JDATypeResolver;
 import vartas.discord.blanc.parser.Parser;
 import vartas.reddit.JSONClient;
-import vartas.reddit.JrawClient;
+import vartas.reddit.PushshiftClient;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class Main {
         Credentials credentials = JSONCredentials.of(Paths.get("credentials.json"));
         ShardLoader shardLoader = createShardLoader(credentials);
 
-        REDDIT_CLIENT = new JrawClient(
+        REDDIT_CLIENT = new PushshiftClient(
                 credentials.getRedditAccount(),
                 credentials.getVersion(),
                 credentials.getRedditId(),
