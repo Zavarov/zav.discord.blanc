@@ -6,6 +6,8 @@ import com.google.common.collect.Range;
 import org.apache.http.client.HttpResponseException;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.chart.pie.DelegatingPieChart;
 import vartas.reddit.*;
 
@@ -24,9 +26,10 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
     private static final int width = 800;
     private static final int height = 600;
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private final DiscreteDomain<LocalDate> domain = new JSONSubreddit.DiscreteLocalDateDomain();
     private Subreddit subreddit;
     private Range<LocalDate> range;
-    private final DiscreteDomain<LocalDate> domain = new JSONSubreddit.DiscreteLocalDateDomain();
 
     @Override
     public void run() {
@@ -59,6 +62,10 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
         for(LocalDate date : ContiguousSet.create(range, domain)){
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+            log.info("Requesting submissions over [{}, {})", inclusiveFrom, exclusiveTo);
+            log.info(subreddit.getClass().toString());
+
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
             for(Submission submission : submissions){
@@ -74,6 +81,7 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
         }
 
         chart.setAlpha(alpha);
+        chart.setTitle("Submission tags over r/"+getSubreddit());
 
         JFreeChart jchart = chart.create();
 
@@ -103,6 +111,9 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
         for(LocalDate date : ContiguousSet.create(range, domain)){
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+            log.info("Requesting submissions over ({}, {}]", inclusiveFrom, exclusiveTo);
+
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
             for(Submission submission : submissions){
@@ -112,6 +123,7 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
         }
 
         chart.setAlpha(1.0);
+        chart.setTitle("Submission flairs over r/"+getSubreddit());
 
         return chart.create();
     }
