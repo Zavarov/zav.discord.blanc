@@ -59,6 +59,12 @@
 
         <dependency>
             <groupId>vartas.reddit</groupId>
+            <artifactId>pushshift</artifactId>
+            <version>${reddit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.reddit</groupId>
             <artifactId>json</artifactId>
             <version>${reddit.version}</version>
         </dependency>
