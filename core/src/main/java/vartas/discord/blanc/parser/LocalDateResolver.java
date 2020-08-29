@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.parser;
 
+import org.apache.commons.lang3.StringUtils;
 import vartas.discord.blanc.Errors;
 
 import javax.annotation.Nonnull;
@@ -41,7 +42,7 @@ public class LocalDateResolver extends TypeResolver<LocalDate>{
     @Override
     public void visit(@Nonnull StringArgument argument){
         try {
-            this.type = LocalDate.parse(argument.getContent());
+            this.type = LocalDate.parse(StringUtils.deleteWhitespace(argument.getContent()));
         } catch(DateTimeParseException e) {
             log.error(Errors.UNKNOWN_ENTITY.toString(), e);
         }
