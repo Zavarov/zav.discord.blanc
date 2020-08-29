@@ -78,7 +78,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull ShardTOP shard){
-        log.debug("Visiting shard {}.", shard.getId());
+        log.trace("Visiting shard {}.", shard.getId());
 
         //Keep the dates synchronized between multiple shards.
         if(shard.getId() == 0) {
@@ -95,7 +95,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull GuildTOP guild){
-        log.debug("Visiting guild {}", guild.getName());
+        log.trace("Visiting guild {}", guild.getName());
         requiresUpdate = false;
     }
 
@@ -106,7 +106,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      */
     @Override
     public void visit(@Nonnull TextChannel textChannel){
-        log.debug("Visiting text channel {}", textChannel.getName());
+        log.trace("Visiting text channel {}", textChannel.getName());
         for(String subreddit : textChannel.getSubreddits())
             request(subreddit, textChannel::send, textChannel::removeSubreddits);
         for(Map.Entry<String, Webhook> webhook : textChannel.asMapWebhooks().entrySet())
@@ -130,7 +130,7 @@ public class RedditVisitor implements ArchitectureVisitor {
             Subreddit subreddit = redditClient.getSubreddits(name);
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
-            log.debug("{} new {} between {} and {}",
+            log.trace("{} new {} between {} and {}",
                     submissions.size(),
                     English.plural("submission", submissions.size()),
                     inclusiveFrom,
