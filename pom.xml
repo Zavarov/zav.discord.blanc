@@ -46,6 +46,7 @@
         <jda.version>4.2.0_185</jda.version>
         <webhook.version>0.3.1</webhook.version>
         <json.version>20190722</json.version>
+        <logback.version>1.2.3</logback.version>
 
         <vartas.chart.version>1.1.9</vartas.chart.version>
         <cd4code.version>2.0</cd4code.version>
