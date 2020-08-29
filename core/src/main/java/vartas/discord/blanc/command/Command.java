@@ -39,6 +39,7 @@ public abstract class Command extends CommandTOP {
 
     static{
         RANKS_ALIAS.putAll(Rank.ROOT, EnumSet.allOf(Rank.class));
+        RANKS_ALIAS.put(Rank.DEVELOPER, Rank.REDDIT);
     }
 
     /**
