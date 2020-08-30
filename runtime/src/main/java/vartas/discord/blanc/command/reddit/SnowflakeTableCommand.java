@@ -96,14 +96,14 @@ public class SnowflakeTableCommand extends SnowflakeTableCommandTOP implements S
 
     private void printCore(Subreddit subreddit, Range<Instant> range){
         MessageEmbed messageEmbed = MessageEmbedFactory.create();
-        messageEmbed.addFields("#Submissions", countSubmissions(subreddit, range));
-        messageEmbed.addFields("#Comments", countComments(subreddit, range));
-        messageEmbed.addFields("#Unique Submitters", countUniqueSubmitters(subreddit, range));
-        messageEmbed.addFields("#Unique Commenters", countUniqueCommenters(subreddit, range));
-        messageEmbed.addFields("Total Submission Score", countTotalSubmissionScore(subreddit, range));
-        messageEmbed.addFields("Total Comment Score", countTotalCommentScore(subreddit, range));
-        messageEmbed.addFields("#Submissions/day", countSubmissionsPerDay(subreddit, range));
-        messageEmbed.addFields("#Comments/day", countCommentsPerDay(subreddit, range));
+        messageEmbed.addFields("#Submissions", countSubmissions(subreddit, range), true);
+        messageEmbed.addFields("#Comments", countComments(subreddit, range), true);
+        messageEmbed.addFields("#Unique Submitters", countUniqueSubmitters(subreddit, range), true);
+        messageEmbed.addFields("#Unique Commenters", countUniqueCommenters(subreddit, range), true);
+        messageEmbed.addFields("Total Submission Score", countTotalSubmissionScore(subreddit, range), true);
+        messageEmbed.addFields("Total Comment Score", countTotalCommentScore(subreddit, range), true);
+        messageEmbed.addFields("#Submissions/day", countSubmissionsPerDay(subreddit, range), true);
+        messageEmbed.addFields("#Comments/day", countCommentsPerDay(subreddit, range), true);
         get$MessageChannel().send(messageEmbed);
     }
 }

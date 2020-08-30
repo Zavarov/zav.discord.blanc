@@ -27,92 +27,99 @@ import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface SnowflakeCommand {
     DiscreteDomain<Instant> domain = new InstantDomain();
+    Predicate<String> defaultFilter = author -> !Objects.equals(author, "[deleted]");
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Top Authors
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    default SortedSet<Map.Entry<String, LimitedSubmissionSet>> getTopSubmitters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
+        Comparator<Map.Entry<String, LimitedSubmissionSet>> comparator = (u,v) -> Long.compare(v.getValue().getScore(), u.getValue().getScore());
+
+        return getSubmissions(subreddit, range, defaultFilter)
+                .collect(Collectors.groupingBy(Submission::getAuthor, Collectors.toCollection(() -> new LimitedSubmissionSet(size))))
+                .entrySet()
+                .stream()
+                .sorted(comparator)
+                .limit(size)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(comparator)));
+    }
+
+    default SortedSet<Map.Entry<String, LimitedCommentSet>> getTopCommenters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
+        Comparator<Map.Entry<String, LimitedCommentSet>> comparator = (u,v) -> Long.compare(v.getValue().getScore(), u.getValue().getScore());
+
+        return getComments(subreddit, range, defaultFilter)
+                .collect(Collectors.groupingBy(Comment::getAuthor, Collectors.toCollection(() -> new LimitedCommentSet(size))))
+                .entrySet()
+                .stream()
+                .sorted(comparator)
+                .limit(size)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(comparator)));
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Counts
+    //
+    //------------------------------------------------------------------------------------------------------------------
 
     default long countNsfwSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .filter(Submission::getNsfw)
-                .count();
+        return getAllSubmissions(subreddit, range).filter(SubmissionTOP::getNsfw).count();
     }
 
     default long countSpoilerSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .filter(Submission::getSpoiler)
-                .count();
+        return getAllSubmissions(subreddit, range).filter(SubmissionTOP::getSpoiler).count();
     }
 
     default long countSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .mapToLong(List::size)
-                .sum();
+        return getAllSubmissions(subreddit, range).count();
+    }
+
+    default long countSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull String account){
+        return getSubmissions(subreddit, range, account::equals).count();
     }
 
     default long countComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .map(Submission::getComments)
-                .mapToLong(List::size)
-                .sum();
+        return getAllComments(subreddit, range).count();
+    }
+
+    default long countComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull String account){
+        return getComments(subreddit, range, account::equals).count();
     }
 
     default long countUniqueSubmitters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .map(Submission::getAuthor)
-                .distinct()
-                .count();
+        return getSubmissions(subreddit, range, defaultFilter).map(Submission::getAuthor).distinct().count();
     }
 
     default long countUniqueCommenters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .map(Submission::getComments)
-                .flatMap(Collection::stream)
-                .map(Comment::getAuthor)
-                .distinct()
-                .count();
+        return getComments(subreddit, range, defaultFilter).map(Comment::getAuthor).distinct().count();
     }
 
     default long countTotalSubmissionScore(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .mapToLong(Submission::getScore)
-                .sum();
+        return getAllSubmissions(subreddit, range).mapToLong(Submission::getScore).sum();
     }
 
     default long countTotalCommentScore(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .map(Submission::getComments)
-                .flatMap(Collection::stream)
-                .mapToLong(Comment::getScore)
-                .sum();
+        return getAllComments(subreddit, range).mapToLong(Comment::getScore).sum();
     }
 
     default double countSubmissionsPerDay(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
         double numerator = countSubmissions(subreddit, range);
+        double denominator = domain.distance(range.lowerEndpoint(), range.upperEndpoint());
+
+        return numerator / denominator;
+    }
+
+    default double countSubmissionsPerDay(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull String author){
+        double numerator = countSubmissions(subreddit, range, author);
         double denominator = domain.distance(range.lowerEndpoint(), range.upperEndpoint());
 
         return numerator / denominator;
@@ -125,52 +132,79 @@ public interface SnowflakeCommand {
         return numerator / denominator;
     }
 
+    default double countCommentsPerDay(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull String author){
+        double numerator = countComments(subreddit, range, author);
+        double denominator = domain.distance(range.lowerEndpoint(), range.upperEndpoint());
+
+        return numerator / denominator;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Top Snowflakes
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
     default Set<Submission> getTopSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .filter(submission -> !submission.getAuthor().equals("[deleted]"))
-                .collect(Collectors.toCollection(() -> new LimitedSubmissionSet(size)));
+        return getSubmissions(subreddit, range, defaultFilter).collect(Collectors.toCollection(() -> new LimitedSubmissionSet(size)));
     }
 
     default Set<Comment> getTopComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
+        return getComments(subreddit, range, defaultFilter).collect(Collectors.toCollection(() -> new LimitedCommentSet(size)));
+    }
+
+    default Set<Submission> getTopSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, String account, int size){
+        return getSubmissions(subreddit, range, account::equals).collect(Collectors.toCollection(() -> new LimitedSubmissionSet(size)));
+    }
+
+    default Set<Comment> getTopComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, String account, int size){
+        return getComments(subreddit, range, account::equals).collect(Collectors.toCollection(() -> new LimitedCommentSet(size)));
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Helper functions
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    default Stream<Submission> getAllSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
+        return getSubmissions(subreddit, range, author -> true);
+    }
+
+    default Stream<Comment> getAllComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range){
+        return getComments(subreddit, range, author -> true);
+    }
+
+    /**
+     * Creates an unordered {@link Stream} containing all submissions over the specified {@link Range}.
+     * @param subreddit the {@link Subreddit} associated with the submissions.
+     * @param range the {@link Range} specifying the submissions' age.
+     * @param authors a filter skipping all invalid authors.
+     * @return a {@link Stream} of submissions.
+     */
+    default Stream<Submission> getSubmissions(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull Predicate<String> authors){
         return ContiguousSet.create(range, domain)
-                .parallelStream()
+                .stream()
+                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
+                .flatMap(Collection::stream)
+                .filter(submission -> authors.test(submission.getAuthor()));
+    }
+
+    /**
+     * Creates an unordered {@link Stream} containing all comments over the specified {@link Range}.
+     * @param subreddit the {@link Subreddit} associated with the comments.
+     * @param range the {@link Range} specifying the comments' age.
+     * @param authors a filter skipping all invalid authors.
+     * @return a {@link Stream} of comments.
+     */
+    default Stream<Comment> getComments(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, @Nonnull Predicate<String> authors){
+        return ContiguousSet.create(range, domain)
+                .stream()
                 .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
                 .flatMap(Collection::stream)
                 .map(Submission::getComments)
                 .flatMap(Collection::stream)
-                .filter(submission -> !submission.getAuthor().equals("[deleted]"))
-                .collect(Collectors.toCollection(() -> new LimitedCommentSet(size)));
-    }
-
-    default SortedSet<Map.Entry<String, LimitedSubmissionSet>> getTopSubmitters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .filter(e -> !e.getAuthor().equals("[deleted]"))
-                .collect(Collectors.groupingBy(Submission::getAuthor, Collectors.toCollection(() -> new LimitedSubmissionSet(size))))
-                .entrySet()
-                .stream()
-                .limit(size)
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(u -> u.getValue().getScore()))));
-    }
-
-    default SortedSet<Map.Entry<String, LimitedCommentSet>> getTopCommenters(@Nonnull Subreddit subreddit, @Nonnull Range<Instant> range, int size){
-        return ContiguousSet.create(range, domain)
-                .parallelStream()
-                .map(date -> subreddit.getUncheckedSubmissions(date, domain.next(date)))
-                .flatMap(Collection::stream)
-                .map(Submission::getComments)
-                .flatMap(Collection::stream)
-                .filter(e -> !e.getAuthor().equals("[deleted]"))
-                .collect(Collectors.groupingBy(Comment::getAuthor, Collectors.toCollection(() -> new LimitedCommentSet(size))))
-                .entrySet()
-                .stream()
-                .limit(size)
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(u -> u.getValue().getScore()))));
+                .filter(submission -> authors.test(submission.getAuthor()));
     }
 
     //------------------------------------------------------------------------------------------------------------------

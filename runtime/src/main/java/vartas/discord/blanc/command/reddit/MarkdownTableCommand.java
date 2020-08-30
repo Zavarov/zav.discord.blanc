@@ -1,7 +1,6 @@
 package vartas.discord.blanc.command.reddit;
 
 import com.google.common.collect.Range;
-import kotlin.text.Charsets;
 import net.steppschuh.markdowngenerator.link.Link;
 import net.steppschuh.markdowngenerator.list.ListBuilder;
 import net.steppschuh.markdowngenerator.table.Table;
@@ -11,6 +10,7 @@ import vartas.reddit.Comment;
 import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -57,7 +57,7 @@ public class MarkdownTableCommand extends MarkdownTableCommandTOP implements Sno
             markdown.append(link + " " + new ItalicText("by") + " " + submission.getAuthor() + "(" + submission.getScore() + ")");
         }
 
-        get$MessageChannel().send(markdown.build().toString().getBytes(Charsets.UTF_8), getType()+".md");
+        get$MessageChannel().send(markdown.build().toString().getBytes(StandardCharsets.UTF_8), getType()+".md");
     }
 
     private void printTopComments(Subreddit subreddit, Range<Instant> range){
@@ -68,7 +68,7 @@ public class MarkdownTableCommand extends MarkdownTableCommandTOP implements Sno
             markdown.append(new ItalicText("in") + " " + link + " " + new ItalicText("by") + " " + comment.getAuthor() + "(" + comment.getScore() + ")");
         }
 
-        get$MessageChannel().send(markdown.build().toString().getBytes(Charsets.UTF_8), getType()+".md");
+        get$MessageChannel().send(markdown.build().toString().getBytes(StandardCharsets.UTF_8), getType()+".md");
     }
 
     private void printTopSubmitters(Subreddit subreddit, Range<Instant> range){
@@ -87,7 +87,7 @@ public class MarkdownTableCommand extends MarkdownTableCommandTOP implements Sno
             }).toArray());
         }
 
-        get$MessageChannel().send(markdown.build().toString().getBytes(Charsets.UTF_8), getType()+".md");
+        get$MessageChannel().send(markdown.build().toString().getBytes(StandardCharsets.UTF_8), getType()+".md");
     }
 
     private void printTopCommenters(Subreddit subreddit, Range<Instant> range){
@@ -106,7 +106,7 @@ public class MarkdownTableCommand extends MarkdownTableCommandTOP implements Sno
             }).toArray());
         }
 
-        get$MessageChannel().send(markdown.build().toString().getBytes(Charsets.UTF_8), getType()+".md");
+        get$MessageChannel().send(markdown.build().toString().getBytes(StandardCharsets.UTF_8), getType()+".md");
     }
 
     private void printCore(Subreddit subreddit, Range<Instant> range){
@@ -143,6 +143,6 @@ public class MarkdownTableCommand extends MarkdownTableCommandTOP implements Sno
                 countCommentsPerDay(subreddit, range)
         );
 
-        get$MessageChannel().send(markdown.build().toString().getBytes(Charsets.UTF_8), getType()+".md");
+        get$MessageChannel().send(markdown.build().toString().getBytes(StandardCharsets.UTF_8), getType()+".md");
     }
 }

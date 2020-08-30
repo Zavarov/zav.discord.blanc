@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import static vartas.discord.blanc.Main.REDDIT_CLIENT;
 
-public class SubredditChartCommand extends SubredditChartCommandTOP {
+public class SubmissionCommand extends SubmissionCommandTOP {
     private static final double alpha = 0.66;
     private static final int width = 800;
     private static final int height = 600;
@@ -117,7 +117,9 @@ public class SubredditChartCommand extends SubredditChartCommandTOP {
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
             for(Submission submission : submissions){
-                String label = submission.getLinkFlairText().orElse("unflaired");
+                String label;
+                label = submission.getLinkFlairText().orElse("unflaired");
+                label = label.isBlank() ? "unflaired" : label;
                 chart.add(label, submission);
             }
         }

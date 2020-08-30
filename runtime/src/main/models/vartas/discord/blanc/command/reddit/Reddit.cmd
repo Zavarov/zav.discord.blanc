@@ -4,15 +4,10 @@ import vartas.chart.Interval.Interval;
 import java.time.LocalDate.LocalDate;
 
 group reddit {
-    command subreddit{
-             class : SubredditChartCommand
-         parameter : String subreddit, LocalDate from, LocalDate to, String type
+    command user{
+             class : AccountCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, String account
               rank : REDDIT
-    }
-    command snowflake{
-             class : SnowflakeChartCommand
-         parameter : String subreddit, LocalDate from, LocalDate to, Interval interval
-              rank : Reddit
     }
     command table{
              class : SnowflakeTableCommand
@@ -23,5 +18,15 @@ group reddit {
              class : MarkdownTableCommand
          parameter : String subreddit, LocalDate from, LocalDate to, String type
               rank : REDDIT
+    }
+    command submission{
+             class : SubmissionCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, String type
+              rank : REDDIT
+    }
+    command subreddit{
+             class : SubredditCommand
+         parameter : String subreddit, LocalDate from, LocalDate to, Interval interval
+              rank : Reddit
     }
 }
