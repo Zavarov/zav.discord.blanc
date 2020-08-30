@@ -147,4 +147,14 @@ public class MontiCoreCommandParserTest {
         ArithmeticArgument argument = (ASTExpressionArgument)command.getArguments().get(0);
         assertThat(argument.getValue().doubleValue()).isCloseTo(Math.sqrt(5), Percentage.withPercentage(0.1));
     }
+
+    @Test
+    public void testParseFlags(){
+        message.setContent("b: command -Flag Argument");
+        IntermediateCommand command = parser.parse(message).orElseThrow();
+
+        assertThat(command.getFlags()).containsExactly("Flag");
+        assertThat(command.getName()).isEqualTo("command");
+        assertThat(command.getPrefix()).contains("b");
+    }
 }

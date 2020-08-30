@@ -15,7 +15,7 @@ grammar Callable extends
      * Each command can have an arbitrary amount of arguments.
      */
     Callable =
-        (astPrefix:Name ":")? astFlag:Flag* astName:MCQualifiedName astArgument:Argument*
+        (astPrefix:Name ":")? astName:MCQualifiedName astFlag:Flag* astArgument:Argument*
     ;
 
     /**
