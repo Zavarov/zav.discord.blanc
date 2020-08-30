@@ -1,70 +1,33 @@
-# Bot
+# Blanc
 
-This project provides the core functionality of a Discord bot. The main features are:
- * **Configuration files** for every guild the bot is in. This is done to retain the setup for each guild, even after the program has been restarted. It is possible to customize:
-   * **A Local Guild Prefix** in addition to the global prefix, it is possible to define a guild prefix for all commands.
-   * **Banned Words** every newly made message is matched against the regular expression defined by the blacklist. Every message that successfully matches is removed, effectively banning certain words.
-   * **Subreddit Feed** a subreddit feed that posts newly made submissions in designated text channels.
-   * **Self-Assignable Roles** a way to allow normal members to acquire specified roles. In addition, it is also possible to group those roles together, so that it is only possible to have one role in a group at a time.
-whenever a member tries to get a role from a group, but already has one from exactly that group, the previous role is replaced by the new role.
+A multi-purpose Discord bot specialized on cross-posting Reddit submissions in dedicated text channels.
 
- * **A Real-Time Reddit feed**, which periodically pulls the latest submissions and posts them in a designated text channel.  
-It takes at most two minutes for a submission to be posted, after it was submitted on Reddit. One minute is because we only check for submissions every minute, and so it possible that a submission was made just after the period ended, meaning that we have to wait wait for the next one to start.  
-The second minute is due to an artificial restriction. A submission has to be at least one minute old, before we post them in a text channel. This is due to the human factor, meaning that it likely that the author hasn't flaired the submission upon submission. The additional minute provides them with enough time to do it afterwards.  
-The program will attempt to filter the submissions appropriately, meaning that submissions that have been tagged as NSFW will only be posted in text channels marked as such, for example. Additionally, in such a case, no preview would be shown. However, due to the human factor this is impossible to guarantee, hence why it is recommended to pre-emptively mark all text channels as NSFW who are targeted by a feed.
- * **Custom Commands**, by providing a Command interface. Every command simply has to implement it and can then be integrated into the program.
- * **An Internal Permission System**, since the Permissions used by Discord are not always enough to restrict commands only to a selected group of people.
+Its core functionality consists of:
+   * **A Local Guild Prefix** in addition to the global prefix, it is possible to define a guild prefix for all commands. 
+   Any command either accepts the global or the local prefix. This mitigates the issue of colliding prefixes when using multiple bots.
+   * **A Blacklist** containing banned words. This list consists of an arbitrary amount of regular expressions. 
+   If a message matches at least one of those expressions, the program removes them automatically. 
+   This functionality becomes useful, for example, when stopping unwanted advertisements.
+   * **A Real-Time Subreddit Feed** over specified subreddits. The program will periodically fetch the latest submissions
+   and post them in designated text channels. It is recommended to use webhooks, however, for legacy reasons a direct approach is still supported.
+   * **Self-Assignable Roles** allow normal members to acquire custom roles. Additionally, the program supports grouping those roles,
+   meaning at any time, for each group, a user can have at most one role. Requesting a role while already having another role
+   in the same group will effectively replace the old with the new role.
 
-## Command Builder
-
-The Command Builder interface is used to integrate custom commands into the program. The only function it provides is a build method, which provides the user with the prefix-free content and a reference to the Message instance, which can then be used to create the respective command.
-
-One of the easiest ways to implement this transformation is by defining a table, which maps the message string to a command.
-
-## Command
-
-The Command interface is the core of the custom commands. It only contains a single method, which is used when executing the command, which takes the message that triggered the command, and the shard the command is in, as an argument.
-
-In order to access the internal variables of the program, it is recommended to combine the interface with the visitor pattern.
+Moreover, the program is highly adaptable and allows to easily register new commands by modifying the corresponding model files.
+[MontiCore](https://github.com/MontiCore/monticore) will generate the backend and automatically integrate into the rest of the code.
+The same workbench is responsible for processing the received messages that will trigger those commands.
+In addition to the Discord permissions, an internal rank system allows to further restrict commands to a subset of users.
+Unless a user has both the correct permissions and rank, any command that requires both of them will fail.
 
 ## Built With
 
 * [Maven](https://maven.apache.org/) - Dependency Management
+* [MontiCore](https://github.com/MontiCore/monticore) - Command Generation and Processing
 
 ## Authors
 
 * **Zavarov**
-
-## Dependencies:
-
-This project requires at least **Java 11**.  
- * **chart**
-   * Version: **1.1.9**
-   * [Github](https://github.com/Zavarov/chart)
- * **Evo Inflector**
-   * Version: **1.2.2**
-   * [Github](https://github.com/atteo/evo-inflector)
- * **JDA**
-   * Version: **4.0.0_70**
-   * [Github](https://github.com/DV8FromTheWorld/JDA)
- * **reddit**
-   * Version: **2.4**
-   * [Github](https://github.com/Zavarov/reddit)
- 
-## Plugins:
- * **Apache Maven JavaDoc Plugin**
-   * Version: **3.1.1**
-   * [Github](https://github.com/apache/maven-javadoc-plugin)
- * **Apache Maven Source Plugin**
-   * Version: **3.1.0**
-   * [Github](https://github.com/apache/maven-source-plugin)
-   ## Test Dependencies:
- * **AssertJ**
-   * Version: **3.12.2**
-   * [Github](https://github.com/joel-costigliola/assertj-core)
- * **JUnit**
-   * Version: **4.12**
-   * [Github](https://github.com/junit-team/junit4)
 
 ## License
 
