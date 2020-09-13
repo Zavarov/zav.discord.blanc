@@ -12,6 +12,9 @@ import vartas.reddit.Subreddit;
 import vartas.reddit.UnsuccessfulRequestException;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -147,6 +150,19 @@ public class RedditVisitor implements ArchitectureVisitor {
             log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
             //Caused by either Reddit or Discord
         } catch(HttpResponseException | PermissionException | WebhookException e) {
+            try{
+                BufferedWriter writer = new BufferedWriter(new FileWriter(Instant.now().toString()+".txt"));
+                writer.write(e.toString());
+                writer.newLine();
+
+                for(StackTraceElement stackTrace : e.getStackTrace()){
+                    writer.write(stackTrace.toString());
+                    writer.newLine();
+                }
+
+                writer.close();
+            }catch(IOException ignored){}
+
             e.printStackTrace();
             log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
             onFailure.accept(name);
