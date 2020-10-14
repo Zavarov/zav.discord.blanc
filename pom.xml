@@ -33,7 +33,7 @@
         <reddit.version>2.4</reddit.version>
 
         <assertj.version>3.12.2</assertj.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
 
         <!-- .. Plugins......................................................... -->
 
