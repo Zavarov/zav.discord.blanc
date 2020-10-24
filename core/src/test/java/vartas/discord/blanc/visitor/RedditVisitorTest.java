@@ -1,8 +1,27 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.visitor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.AbstractTest;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.factory.GuildFactory;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
@@ -12,7 +31,6 @@ import vartas.reddit.Submission;
 import vartas.reddit.factory.SubmissionFactory;
 import vartas.reddit.factory.SubredditFactory;
 
-import java.io.IOException;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +46,7 @@ public class RedditVisitorTest extends AbstractTest {
     Submission submission;
     WebhookMock webhook;
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         initRedditHook();
         initDiscordHook();
         redditVisitor = new RedditVisitor(redditHook);
@@ -79,8 +97,8 @@ public class RedditVisitorTest extends AbstractTest {
     }
 
     @Test
-    public void testRedditTimeoutException(){
-        subreddit.action = SubredditMock.ACTION.TIMEOUT_EXCEPTION;
+    public void testServerException(){
+        subreddit.action = SubredditMock.ACTION.SERVER_EXCEPTION;
 
         shard.accept(redditVisitor);
 
@@ -91,13 +109,25 @@ public class RedditVisitorTest extends AbstractTest {
     }
 
     @Test
-    public void testRedditHttpException(){
-        subreddit.action = SubredditMock.ACTION.HTTP_EXCEPTION;
+    public void testClientException(){
+        subreddit.action = SubredditMock.ACTION.FORBIDDEN_EXCEPTION;
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.isEmptySubreddits()).isTrue();
+        assertThat(textChannel.getSubreddits()).isEmpty();
         assertThat(textChannel.valuesWebhooks()).isEmpty();
+        assertThat(textChannel.sent).isEmpty();
+        assertThat(webhook.sent).isEmpty();
+    }
+
+    @Test
+    public void testForbiddenException(){
+        subreddit.action = SubredditMock.ACTION.CLIENT_EXCEPTION;
+
+        shard.accept(redditVisitor);
+
+        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
+        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
         assertThat(textChannel.sent).isEmpty();
         assertThat(webhook.sent).isEmpty();
     }

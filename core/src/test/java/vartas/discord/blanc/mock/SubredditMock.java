@@ -18,11 +18,7 @@
 package vartas.discord.blanc.mock;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
-import vartas.reddit.Submission;
-import vartas.reddit.Subreddit;
-import vartas.reddit.TimeoutException;
-import vartas.reddit.UnsuccessfulRequestException;
+import vartas.reddit.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,21 +30,24 @@ public class SubredditMock extends Subreddit {
 
     public enum ACTION{
         UNSUCCESSFUL_EXCEPTION,
-        TIMEOUT_EXCEPTION,
-        HTTP_EXCEPTION,
+        FORBIDDEN_EXCEPTION,
+        CLIENT_EXCEPTION,
+        SERVER_EXCEPTION,
         UNKNOWN_EXCEPTION,
         NO_EXCEPTION
     }
 
     @Override
-    public List<Submission> getSubmissions(Instant inclusiveFrom, Instant exclusiveTo) throws TimeoutException, UnsuccessfulRequestException, HttpResponseException {
+    public List<Submission> getSubmissions(Instant inclusiveFrom, Instant exclusiveTo) throws UnsuccessfulRequestException {
         switch(action){
             case UNSUCCESSFUL_EXCEPTION:
                 throw new UnsuccessfulRequestException();
-            case TIMEOUT_EXCEPTION:
-                throw new TimeoutException();
-            case HTTP_EXCEPTION:
-                throw new HttpResponseException(HttpStatus.SC_FORBIDDEN, "Forbidden");
+            case FORBIDDEN_EXCEPTION:
+                throw new ClientException(HttpStatus.SC_FORBIDDEN, "Forbidden");
+            case CLIENT_EXCEPTION:
+                throw new ClientException(HttpStatus.SC_UNAUTHORIZED, "Unauthorized");
+            case SERVER_EXCEPTION:
+                throw new ServerException(HttpStatus.SC_BAD_GATEWAY, "Bad Gateway");
             case UNKNOWN_EXCEPTION:
                 throw new RuntimeException();
             default:

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.command.reddit;
 
 import com.google.common.collect.ContiguousSet;
@@ -9,7 +26,10 @@ import org.jfree.chart.plot.PiePlot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.chart.pie.DelegatingPieChart;
-import vartas.reddit.*;
+import vartas.reddit.JSONSubreddit;
+import vartas.reddit.Submission;
+import vartas.reddit.Subreddit;
+import vartas.reddit.UnsuccessfulRequestException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -51,12 +71,12 @@ public class SubmissionCommand extends SubmissionCommandTOP {
 
             BufferedImage image = chart.createBufferedImage(width, height);
             send$MessageChannel(image, chart.getTitle().getText());
-        }catch(TimeoutException | HttpResponseException | UnsuccessfulRequestException e){
+        }catch(HttpResponseException | UnsuccessfulRequestException e){
             throw new IllegalStateException(e);
         }
     }
 
-    private JFreeChart createTagChart() throws UnsuccessfulRequestException, TimeoutException, HttpResponseException {
+    private JFreeChart createTagChart() throws UnsuccessfulRequestException, HttpResponseException {
         DelegatingPieChart<Submission> chart = new DelegatingPieChart<>((label, submission) -> (long)submission.size());
 
         for(LocalDate date : ContiguousSet.create(range, domain)){
@@ -105,7 +125,7 @@ public class SubmissionCommand extends SubmissionCommandTOP {
         return new Color(r,g,b,(int)(alpha*255));
     }
 
-    private JFreeChart createFlairChart() throws UnsuccessfulRequestException, TimeoutException, HttpResponseException {
+    private JFreeChart createFlairChart() throws UnsuccessfulRequestException, HttpResponseException {
         DelegatingPieChart<Submission> chart = new DelegatingPieChart<>((label, submission) -> (long)submission.size());
 
         for(LocalDate date : ContiguousSet.create(range, domain)){
