@@ -25,9 +25,10 @@ public enum Errors {
     INVALID_JSON_FILE(0x1000, "The given file is not a valid JSON object."),
     INVALID_FILE(0x1001, "The given file couldn't be accessed."),
     //Server Communication
-    UNSUCCESSFUL_REDDIT_REQUEST(0x2000, "The Reddit request was unsuccessful due to an internal problem."),
-    REDDIT_TIMEOUT(0x2001, "The Reddit server took to long to respond to the request."),
-    REFUSED_REDDIT_REQUEST(0x2002, "The Reddit server refused to handle the request."),
+    UNSUCCESSFUL_REDDIT_REQUEST(0x2000, "The request was unsuccessful due to an unknown error."),
+    REDDIT_CLIENT_ERROR(0x2001, "The request was rejected due to a client error."),
+    REDDIT_SERVER_ERROR(0x2002, "The request was rejected due to a server error."),
+    REDDIT_API_ERROR(0x2003, "The request was rejected due to an unknown API error."),
     DISCORD_TIMEOUT(0x2100, "The Discord server took to long to respond to the request"),
     UNKNOWN_RESPONSE(0x2200, "The server returned an unknown error."),
     //Type handling

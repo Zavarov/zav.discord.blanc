@@ -1,24 +1,20 @@
 package vartas.discord.blanc.visitor;
 
-import org.apache.http.client.HttpResponseException;
+import org.apache.http.HttpStatus;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.*;
 import vartas.discord.blanc.io.json.JSONCredentials;
 import vartas.discord.blanc.json.JSONGuild;
+import vartas.reddit.ApiException;
+import vartas.reddit.ClientException;
 import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
-import vartas.reddit.UnsuccessfulRequestException;
 
 import javax.annotation.Nonnull;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -144,29 +140,17 @@ public class RedditVisitor implements ArchitectureVisitor {
             for (Submission submission : submissions)
                 onSuccess.accept(subreddit, submission);
             //Reddit Exceptions
-        } catch( UnsuccessfulRequestException e) {
-            log.warn(Errors.UNSUCCESSFUL_REDDIT_REQUEST.toString(), e);
-        } catch(vartas.reddit.TimeoutException e) {
-            log.warn(Errors.REDDIT_TIMEOUT.toString(), e);
-            //Caused by either Reddit or Discord
-        } catch(HttpResponseException | PermissionException | WebhookException e) {
-            try{
-                BufferedWriter writer = new BufferedWriter(new FileWriter(Instant.now().toString()+".txt"));
-                writer.write(e.toString());
-                writer.newLine();
-
-                for(StackTraceElement stackTrace : e.getStackTrace()){
-                    writer.write(stackTrace.toString());
-                    writer.newLine();
-                }
-
-                writer.close();
-            }catch(IOException ignored){}
-
-            e.printStackTrace();
-            log.error(Errors.REFUSED_REDDIT_REQUEST.toString(), e);
-            onFailure.accept(name);
-            requiresUpdate = true;
+        } catch(ClientException e) {
+            //Subreddit is not accessible
+            if(e.getErrorCode() == HttpStatus.SC_FORBIDDEN) {
+                log.error(Errors.REDDIT_CLIENT_ERROR.toString(), e);
+                onFailure.accept(name);
+                requiresUpdate = true;
+            }else{
+                log.warn(Errors.REDDIT_CLIENT_ERROR.toString(), e);
+            }
+        } catch( ApiException e) {
+            log.warn(Errors.REDDIT_API_ERROR.toString(), e);
         } catch(Exception e) {
             log.warn(Errors.UNKNOWN_RESPONSE.toString(), e.toString());
         }
