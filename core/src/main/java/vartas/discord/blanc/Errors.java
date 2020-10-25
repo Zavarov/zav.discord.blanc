@@ -44,6 +44,7 @@ public enum Errors {
     UNKNOWN_USER(0x5002, "The specified user couldn't be found."),
     UNKNOWN_MEMBER(0x5003, "The specified member couldn't be found."),
     UNKNOWN_ROLE(0x5004, "The specified role couldn't be found."),
+    UNKNOWN_WEBHOOK(0x5005, "The specified webhooks couldn't be found."),
     //Guild attributes
     INVALID_PATTERN(0x6000, "The blacklist pattern couldn't be compiled.")
     ;

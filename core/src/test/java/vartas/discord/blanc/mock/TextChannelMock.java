@@ -19,6 +19,7 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.Webhook;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,5 +40,10 @@ public class TextChannelMock extends TextChannel {
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    @Override
+    public Webhook getWebhooks(String key){
+        return new WebhookMock();
     }
 }

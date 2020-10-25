@@ -19,9 +19,26 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.SelfUser;
 
+import java.io.InputStream;
+
 public class SelfUserMock extends SelfUser {
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyStatusMessage(String statusMessage) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyAvatar(InputStream avatar) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SelfUser getRealThis() {
+        return this;
     }
 }

@@ -1,103 +1,139 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.json;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import vartas.discord.blanc.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.Errors;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Role;
+import vartas.discord.blanc.TextChannel;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.concurrent.ExecutionException;
 
-//TODO Generate
-public class JSONGuild extends Guild {
-    public static final String NAME = "name";
-    public static final String ID = "id";
+public class JSONGuild extends JSONGuildTOP {
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     public static final String PREFIX = "prefix";
     public static final String CHANNELS = "channels";
     public static final String ROLES = "roles";
     public static final String BLACKLIST = "blacklist";
 
-    public static Guild of(Path guildPath) throws IOException, JSONException {
-        return of(guildId -> new JSONGuild(), guildPath);
+    @Override
+    protected void $fromPrefix(JSONObject source, Guild target){
+        target.setPrefix(Optional.ofNullable(source.optString(PREFIX)));
     }
 
-    public static Guild of(Function<Long, Guild> guildFunction, Path guildPath) throws IOException, JSONException {
-        return of(guildFunction, Files.readString(guildPath));
+    @Override
+    protected void $toPrefix(Guild source, JSONObject target){
+        source.ifPresentPrefix(prefix -> target.put(PREFIX, prefix));
     }
 
-    public static Guild of(Function<Long, Guild> guildFunction, String content){
-        return of(guildFunction, new JSONObject(content));
+    @Override
+    protected void $fromMembers(JSONObject source, Guild target){
+        //Omitted
     }
 
-    public static Guild of(Function<Long, Guild> guildFunction, JSONObject jsonObject){
-        Guild jsonGuild = guildFunction.apply(jsonObject.getLong(ID));
+    @Override
+    protected void $toMembers(Guild source, JSONObject target){
+        //Omitted
+    }
 
-        jsonGuild.setName(jsonObject.getString(NAME));
-        jsonGuild.setId(jsonObject.getLong(ID));
-        jsonGuild.setPrefix(Optional.ofNullable(jsonObject.optString(PREFIX)));
+    @Override
+    protected void $fromSelfMember(JSONObject source, Guild target){
+        //Omitted
+    }
 
-        JSONArray jsonChannels = jsonObject.getJSONArray(CHANNELS);
-        for(int i = 0 ; i < jsonChannels.length() ; ++i){
-            JSONTextChannel jsonTextChannel = JSONTextChannel.of(jsonChannels.getJSONObject(i));
-            jsonGuild.putChannels(jsonTextChannel.getId(), jsonTextChannel);
+    @Override
+    protected void $toSelfMember(Guild source, JSONObject target){
+        //Omitted
+    }
+
+    @Override
+    protected void $fromChannels(JSONObject source, Guild target){
+        JSONArray jsonChannels = source.optJSONArray(CHANNELS);
+        if(jsonChannels != null) {
+            for (int i = 0; i < jsonChannels.length(); ++i) {
+                try {
+                    JSONObject jsonChannel = jsonChannels.getJSONObject(i);
+                    //TODO Magic key label
+                    TextChannel textChannel = target.getChannels(jsonChannel.getLong("id"));
+                    target.putChannels(textChannel.getId(), JSONTextChannel.fromJson(textChannel, jsonChannel));
+                }catch(ExecutionException e){
+                    //The text channel may no longer exist.
+                    log.warn(Errors.UNKNOWN_TEXTCHANNEL.toString(), e);
+                }
+            }
         }
-
-        JSONArray jsonRoles = jsonObject.getJSONArray(ROLES);
-        for(int i = 0 ; i < jsonRoles.length() ; ++i){
-            JSONRole jsonRole = JSONRole.of(jsonRoles.getJSONObject(i));
-            jsonGuild.putRoles(jsonRole.getId(), jsonRole);
-        }
-
-        JSONArray jsonBlacklist = jsonObject.getJSONArray(BLACKLIST);
-        for(int i = 0 ; i < jsonBlacklist.length() ; ++i){
-            jsonGuild.addBlacklist(jsonBlacklist.getString(i));
-        }
-        jsonGuild.compilePattern();
-
-        return jsonGuild;
     }
 
-    public static JSONObject of(GuildTOP guild){
-        JSONObject jsonGuild = new JSONObject();
-
-        jsonGuild.put(NAME, guild.getName());
-        jsonGuild.put(ID ,guild.getId());
-        guild.ifPresentPrefix(prefix -> jsonGuild.put(PREFIX, prefix));
-
+    @Override
+    protected void $toChannels(Guild source, JSONObject target){
         JSONArray jsonChannels = new JSONArray();
-        for(TextChannel channel : guild.valuesChannels())
-            jsonChannels.put(JSONTextChannel.of(channel));
-        jsonGuild.put(CHANNELS, jsonChannels);
+        for(TextChannel channel : source.valuesChannels())
+            jsonChannels.put(JSONTextChannel.toJson(channel, new JSONObject()));
+        target.put(CHANNELS, jsonChannels);
+    }
 
+    @Override
+    protected void $fromRoles(JSONObject source, Guild target){
+        JSONArray jsonRoles = source.optJSONArray(ROLES);
+        if(jsonRoles != null) {
+            for (int i = 0; i < jsonRoles.length(); ++i) {
+                try{
+                    JSONObject jsonRole = jsonRoles.getJSONObject(i);
+                    //TODO Magic key label
+                    Role role = target.getRoles(jsonRole.getLong("id"));
+                    target.putRoles(role.getId(), JSONRole.fromJson(role, jsonRole));
+                }catch(ExecutionException e){
+                    //The role may no longer exist.
+                    log.warn(Errors.UNKNOWN_ROLE.toString(), e);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void $toRoles(Guild source, JSONObject target){
         JSONArray jsonRoles = new JSONArray();
-        for(Role role : guild.valuesRoles())
-            jsonRoles.put(JSONRole.of(role));
-        jsonGuild.put(ROLES, jsonRoles);
+        for(Role role : source.valuesRoles())
+            jsonRoles.put(JSONRole.toJson(role, new JSONObject()));
+        target.put(ROLES, jsonRoles);
+    }
 
+    @Override
+    protected void $fromBlacklist(JSONObject source, Guild target){
+        JSONArray jsonBlacklist = source.optJSONArray(BLACKLIST);
+        if(jsonBlacklist != null) {
+            for (int i = 0; i < jsonBlacklist.length(); ++i) {
+                target.addBlacklist(jsonBlacklist.getString(i));
+            }
+            target.compilePattern();
+        }
+    }
+
+    @Override
+    protected void $toBlacklist(Guild source, JSONObject target){
         JSONArray jsonBlacklist = new JSONArray();
-        for(String entry : guild.getBlacklist())
+        for(String entry : source.getBlacklist())
             jsonBlacklist.put(entry);
-        jsonGuild.put(BLACKLIST, jsonBlacklist);
-
-        return jsonGuild;
-    }
-
-    @Override
-    public void leave(){
-        throw new UnsupportedOperationException("Not supported for JSON instances.");
-    }
-
-    @Override
-    public boolean canInteract(@Nonnull Member member, @Nonnull Role role) {
-        throw new UnsupportedOperationException("Not supported for JSON instances.");
-    }
-
-    @Override
-    public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel) {
-        throw new UnsupportedOperationException("Not supported for JSON instances.");
+        target.put(BLACKLIST, jsonBlacklist);
     }
 }

@@ -20,12 +20,17 @@ package vartas.discord.blanc.mock;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class SelfMemberMock extends SelfMember {
+    @Override
+    public SelfMember getRealThis() {
+        return this;
+    }
+
     @Nonnull
     @Override
     public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
@@ -34,16 +39,11 @@ public class SelfMemberMock extends SelfMember {
 
     @Override
     public Optional<String> retrieveNickname() {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Role> retrieveRoles() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
         throw new UnsupportedOperationException();
     }
     @Override
@@ -54,6 +54,26 @@ public class SelfMemberMock extends SelfMember {
     @Nonnull
     @Override
     public MessageEmbed toMessageEmbed() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyStatusMessage(String statusMessage) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyAvatar(InputStream avatar) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void modifyNickname(String nickname) {
         throw new UnsupportedOperationException();
     }
 }

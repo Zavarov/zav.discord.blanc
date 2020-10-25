@@ -49,4 +49,9 @@ public class MessageEmbed extends MessageEmbedTOP{
     public void setAuthor(@Nonnull String name, @Nonnull String url){
         setAuthor(AuthorFactory.create(name, Optional.of(url)));
     }
+
+    @Override
+    public MessageEmbed getRealThis() {
+        return this;
+    }
 }

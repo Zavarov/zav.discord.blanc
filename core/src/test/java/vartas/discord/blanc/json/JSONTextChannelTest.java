@@ -19,27 +19,16 @@ package vartas.discord.blanc.json;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.Message;
 import vartas.discord.blanc.Webhook;
-import vartas.discord.blanc.mock.MessageMock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONTextChannelTest extends AbstractJSONTest{
-    @Test
-    public void testGetName(){
-        assertThat(TEXT_CHANNEL.getName()).isEqualTo(JSON_TEXT_CHANNEL.getString(JSONTextChannel.NAME));
-    }
-
-    @Test
-    public void testGetId(){
-        assertThat(TEXT_CHANNEL.getId()).isEqualTo(JSON_WEBHOOK.getLong(JSONTextChannel.ID));
-    }
-
     @Test
     public void testGetWebhooks(){
         List<Webhook> webhooks = new ArrayList<>(TEXT_CHANNEL.valuesWebhooks());
@@ -58,26 +47,8 @@ public class JSONTextChannelTest extends AbstractJSONTest{
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonTextChannel = JSONTextChannel.of(TEXT_CHANNEL);
+        JSONObject jsonTextChannel = JSONTextChannel.toJson(TEXT_CHANNEL, new JSONObject());
 
         assertTrue(JSON_TEXT_CHANNEL.similar(jsonTextChannel));
-    }
-
-    @Test
-    public void testGetAsMention(){
-        assertThrows(UnsupportedOperationException.class, () -> TEXT_CHANNEL.getAsMention());
-    }
-
-    @Test
-    public void testSendMessage(){
-        Message message = new MessageMock();
-        assertThrows(UnsupportedOperationException.class, () -> TEXT_CHANNEL.send(message));
-    }
-
-    @Test
-    public void testSendBytes(){
-        byte[] bytes = new byte[0];
-        String name = "";
-        assertThrows(UnsupportedOperationException.class, () -> TEXT_CHANNEL.send(bytes, name));
     }
 }

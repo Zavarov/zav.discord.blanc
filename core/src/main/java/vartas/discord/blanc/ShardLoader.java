@@ -1,9 +1,25 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.io.Credentials;
-import vartas.discord.blanc.json.JSONGuild;
 import vartas.discord.blanc.visitor.ArchitectureVisitor;
 
 import javax.annotation.Nonnull;
@@ -11,18 +27,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.function.Function;
 
 public abstract class ShardLoader implements ArchitectureVisitor {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final Credentials credentials;
     private final int shardCount;
-    protected Function<Long, Guild> defaultGuild;
 
     public ShardLoader(Credentials credentials){
         this.credentials = credentials;
         this.shardCount = credentials.getShardCount();
-        this.defaultGuild = (guildId) -> new JSONGuild();
     }
 
     public abstract Shard load(int shardId);
@@ -30,7 +43,7 @@ public abstract class ShardLoader implements ArchitectureVisitor {
     public abstract Optional<Guild> load(@Nonnull Path guildPath);
 
     @Override
-    public void visit(@Nonnull ShardTOP shard){
+    public void visit(@Nonnull Shard shard){
         Path guildDirectory = credentials.getGuildDirectory();
 
         try {

@@ -18,38 +18,16 @@
 package vartas.discord.blanc.json;
 
 import org.json.JSONObject;
-import vartas.discord.blanc.Message;
 import vartas.discord.blanc.Webhook;
 
-public class JSONWebhook extends Webhook {
-    public static final String ID = "id";
-    public static final String NAME = "name";
-
-    public static JSONWebhook of(JSONObject jsonObject){
-        JSONWebhook jsonWebhook = new JSONWebhook();
-
-        jsonWebhook.setId(jsonObject.getLong(ID));
-        jsonWebhook.setName(jsonObject.getString(NAME));
-
-        return jsonWebhook;
-    }
-
-    public static JSONObject of(Webhook webhook){
-        JSONObject jsonWebhook = new JSONObject();
-
-        jsonWebhook.put(ID, webhook.getId());
-        jsonWebhook.put(NAME, webhook.getName());
-
-        return jsonWebhook;
+public class JSONWebhook extends JSONWebhookTOP {
+    @Override
+    protected void $fromMessages(JSONObject source, Webhook target){
+        //Omitted
     }
 
     @Override
-    public void send(Message message) {
-        throw new UnsupportedOperationException("Not supported for JSON instances");
-    }
-
-    @Override
-    public void send(byte[] bytes, String qualifiedName) {
-        throw new UnsupportedOperationException("Not supported for JSON instances");
+    protected void $toMessages(Webhook source, JSONObject target){
+        //Omitted
     }
 }

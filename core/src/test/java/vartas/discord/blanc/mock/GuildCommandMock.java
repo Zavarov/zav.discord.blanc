@@ -36,4 +36,9 @@ public class GuildCommandMock extends GuildCommand {
 
     @Override
     public void validate() {}
+
+    @Override
+    public GuildCommand getRealThis() {
+        return this;
+    }
 }

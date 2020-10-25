@@ -4,6 +4,7 @@ import com.google.common.cache.Cache.Cache;
 import java.awt.Color.Color;
 import java.awt.image.BufferedImage.BufferedImage;
 import java.io.InputStream.InputStream;
+import java.lang.String.String;
 import java.lang.Object.Object;
 import java.lang.RuntimeException.RuntimeException;
 import java.nio.file.Path.Path;
@@ -46,9 +47,9 @@ public classdiagram Architecture {
         + abstract String getAsMention();
     }
 
-    public interface SelfUser{
-        void modifyStatusMessage(String statusMessage);
-        void modifyAvatar(InputStream avatar);
+    public abstract class SelfUser extends User{
+        + abstract void modifyStatusMessage(String statusMessage);
+        + abstract void modifyAvatar(InputStream avatar);
     }
 
     public abstract class MessageChannel extends Snowflake{
@@ -147,8 +148,11 @@ public classdiagram Architecture {
         + abstract List<Permission> getPermissions(TextChannel textChannel);
     }
 
-    public interface SelfMember{
-        void modifyNickname(String nickname);
+    //SelfMember should also inherit from SelfUser, but inheriting from multiple classes is not allowed in Java
+    public abstract class SelfMember extends Member{
+        + abstract void modifyStatusMessage(String statusMessage);
+        + abstract void modifyAvatar(InputStream avatar);
+        + abstract void modifyNickname(String nickname);
     }
 
     public abstract class TextChannel extends MessageChannel{

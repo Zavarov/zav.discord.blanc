@@ -268,7 +268,7 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
          * @param command the command associated with the context.
          */
         @Override
-        public void visit(GuildCommandTOP command){
+        public void visit(GuildCommand command){
             Preconditions.checkNotNull(guild);
 
             command.set$Author(guild.getUncheckedMembers(author.getId()));

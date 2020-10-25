@@ -1,7 +1,25 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.visitor;
 
 import org.apache.http.HttpStatus;
 import org.atteo.evo.inflector.English;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.*;
@@ -76,7 +94,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      * @param shard the current {@link Shard}.
      */
     @Override
-    public void visit(@Nonnull ShardTOP shard){
+    public void visit(@Nonnull Shard shard){
         log.trace("Visiting shard {}.", shard.getId());
 
         //Keep the dates synchronized between multiple shards.
@@ -93,7 +111,7 @@ public class RedditVisitor implements ArchitectureVisitor {
      * @param guild the current {@link Guild}.
      */
     @Override
-    public void visit(@Nonnull GuildTOP guild){
+    public void visit(@Nonnull Guild guild){
         log.trace("Visiting guild {}", guild.getName());
         requiresUpdate = false;
     }
@@ -113,9 +131,9 @@ public class RedditVisitor implements ArchitectureVisitor {
     }
 
     @Override
-    public void endVisit(@Nonnull GuildTOP guild){
+    public void endVisit(@Nonnull Guild guild){
         if(requiresUpdate)
-            Shard.write(JSONGuild.of(guild), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
+            Shard.write(JSONGuild.toJson(guild, new JSONObject()), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 
     private void request

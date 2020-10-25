@@ -27,4 +27,9 @@ public class Credentials extends CredentialsTOP{
         String packageVersion = getClass().getPackage().getImplementationVersion();
         return packageVersion == null ? getBotName() + "#Test" : packageVersion;
     }
+
+    @Override
+    public Credentials getRealThis() {
+        return this;
+    }
 }

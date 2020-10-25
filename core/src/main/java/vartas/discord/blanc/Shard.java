@@ -80,7 +80,7 @@ public class Shard extends ShardTOP{
     }
 
     public static void write(Guild guild){
-        JSONObject jsonGuild = JSONGuild.of(guild);
+        JSONObject jsonGuild = JSONGuild.toJson(guild, new JSONObject());
         write(jsonGuild, JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 
@@ -95,5 +95,10 @@ public class Shard extends ShardTOP{
         if(MODIFIES_FILE || MUTEX.availablePermits() > 0)
             MUTEX.acquireUninterruptibly();
         executor.shutdown();
+    }
+
+    @Override
+    public Shard getRealThis() {
+        return this;
     }
 }

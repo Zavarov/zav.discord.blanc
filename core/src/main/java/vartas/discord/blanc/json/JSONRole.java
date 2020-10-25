@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.json;
 
 import org.json.JSONObject;
@@ -5,32 +22,16 @@ import vartas.discord.blanc.Role;
 
 import java.util.Optional;
 
-//TODO Generate
-public class JSONRole extends Role {
-    public static final String ID = "id";
-    public static final String NAME = "name";
+public class JSONRole extends JSONRoleTOP {
     public static final String GROUP = "group";
 
-    public static JSONRole of(JSONObject jsonObject){
-        JSONRole jsonRole = new JSONRole();
-        jsonRole.setId(jsonObject.getLong(ID));
-        jsonRole.setName(jsonObject.getString(NAME));
-        jsonRole.setGroup(Optional.ofNullable(jsonObject.optString(GROUP)));
-        return jsonRole;
-    }
-
-    public static JSONObject of(Role role){
-        JSONObject jsonRole = new JSONObject();
-
-        jsonRole.put(ID, role.getId());
-        jsonRole.put(NAME, role.getName());
-        role.ifPresentGroup(group -> jsonRole.put(GROUP, group));
-
-        return jsonRole;
+    @Override
+    protected void $fromGroup(JSONObject source, Role target){
+        target.setGroup(Optional.ofNullable(source.optString(GROUP)));
     }
 
     @Override
-    public String getAsMention() {
-        throw new UnsupportedOperationException("Not supported for JSON instances.");
+    protected void $toGroup(Role source, JSONObject target){
+        source.ifPresentGroup(group -> target.put(GROUP, group));
     }
 }

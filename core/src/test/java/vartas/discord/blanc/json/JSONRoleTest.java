@@ -21,20 +21,9 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONRoleTest extends AbstractJSONTest{
-    @Test
-    public void testGetName(){
-        assertThat(ROLE.getName()).isEqualTo(JSON_ROLE.getString(JSONRole.NAME));
-    }
-
-    @Test
-    public void testGetId(){
-        assertThat(ROLE.getId()).isEqualTo(JSON_ROLE.getLong(JSONRole.ID));
-    }
-
     @Test
     public void testGetGroup(){
         assertThat(ROLE.getGroup()).contains(JSON_ROLE.getString(JSONRole.GROUP));
@@ -42,13 +31,8 @@ public class JSONRoleTest extends AbstractJSONTest{
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonRole = JSONRole.of(ROLE);
+        JSONObject jsonRole = JSONRole.toJson(ROLE, new JSONObject());
 
         assertTrue(JSON_ROLE.similar(jsonRole));
-    }
-
-    @Test
-    public void testGetAsMention(){
-        assertThrows(UnsupportedOperationException.class, () -> ROLE.getAsMention());
     }
 }

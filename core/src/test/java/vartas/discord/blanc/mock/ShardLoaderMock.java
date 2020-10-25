@@ -18,7 +18,6 @@
 package vartas.discord.blanc.mock;
 
 import org.json.JSONException;
-import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.ShardLoader;
@@ -46,7 +45,7 @@ public class ShardLoaderMock extends ShardLoader {
     @Nonnull
     public Optional<Guild> load(@Nonnull Path guildPath){
         try{
-            Guild jsonGuild = JSONGuild.of(defaultGuild, guildPath);
+            Guild jsonGuild = JSONGuild.fromJson(new GuildMock(), guildPath);
             jsonGuild.setSelfMember(new SelfMemberMock());
             return Optional.of(jsonGuild);
         }catch(IOException | JSONException e){

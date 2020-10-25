@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2020 Zavarov
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package vartas.discord.blanc.io.json;
 
 import org.json.JSONObject;
@@ -5,53 +22,24 @@ import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.io.Credentials;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
-//TODO Generate
-public class JSONCredentials extends Credentials {
-    public static JSONCredentials CREDENTIALS;
+public class JSONCredentials extends JSONCredentialsTOP {
+    @Nonnull
+    public static Credentials CREDENTIALS = new Credentials();
 
     static{
         try{
-            CREDENTIALS = JSONCredentials.of(Paths.get("credentials.json"));
+            fromJson(CREDENTIALS, Paths.get("credentials.json"));
         }catch(IOException e){
             LoggerFactory.getLogger(JSONCredentials.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
-            CREDENTIALS = new JSONCredentials();
         }
     }
 
-    public static JSONCredentials of(Path guildPath) throws IOException {
-        return of(Files.readString(guildPath));
-    }
-
-    public static JSONCredentials of(String content){
-        return of(new JSONObject(content));
-    }
-
-    public static JSONCredentials of(JSONObject jsonObject){
-        JSONCredentials jsonCredentials = new JSONCredentials();
-
-        jsonCredentials.setStatusMessageUpdateInterval(jsonObject.getInt("statusMessageUpdateInterval"));
-        jsonCredentials.setInteractiveMessageLifetime(jsonObject.getInt("interactiveMessageLifetime"));
-
-        jsonCredentials.setBotName(jsonObject.getString("botName"));
-        jsonCredentials.setGlobalPrefix(jsonObject.getString("globalPrefix"));
-        jsonCredentials.setShardCount(jsonObject.getInt("shardCount"));
-        jsonCredentials.setImageWidth(jsonObject.getInt("imageWidth"));
-
-
-        jsonCredentials.setInviteSupportServer(jsonObject.getString("inviteSupportServer"));
-        jsonCredentials.setWikiUrl(jsonObject.getString("wikiUrl"));
-        jsonCredentials.setDiscordToken(jsonObject.getString("discordToken"));
-        jsonCredentials.setRedditAccount(jsonObject.getString("redditAccount"));
-        jsonCredentials.setRedditId(jsonObject.getString("redditId"));
-        jsonCredentials.setRedditSecret(jsonObject.getString("redditSecret"));
-
-        jsonCredentials.setGuildDirectory(Paths.get(jsonObject.getString("guildDirectory")));
-
-        return jsonCredentials;
+    @Override
+    protected void $fromGuildDirectory(JSONObject source, Credentials target){
+        target.setGuildDirectory(Paths.get(source.getString("guildDirectory")));
     }
 }

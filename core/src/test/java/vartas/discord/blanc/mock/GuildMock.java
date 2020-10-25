@@ -17,23 +17,24 @@
 
 package vartas.discord.blanc.mock;
 
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Member;
+import vartas.discord.blanc.Role;
+import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 
 public class GuildMock extends Guild {
     @Override
-    public Member getMembers(Long key){
-        return null;
-    }
-    @Override
-    public TextChannel getChannels(Long key){
-        return null;
-    }
-    @Override
     public void leave(){
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Guild getRealThis() {
+        return this;
+    }
+
     @Override
     public boolean canInteract(@Nonnull Member member, @Nonnull Role role) {
         throw new UnsupportedOperationException();
@@ -43,10 +44,17 @@ public class GuildMock extends Guild {
     public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel) {
         throw new UnsupportedOperationException();
     }
-
-    @Nonnull
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     @Override
-    public MessageEmbed toMessageEmbed() {
-        throw new UnsupportedOperationException();
+    public TextChannel getChannels(Long key) {
+        return new TextChannelMock();
+    }
+    @Override
+    public Member getMembers(Long key) {
+        return new MemberMock();
+    }
+    @Override
+    public Role getRoles(Long key) {
+        return new RoleMock();
     }
 }

@@ -19,32 +19,17 @@ package vartas.discord.blanc.json;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.Member;
 import vartas.discord.blanc.Role;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.Webhook;
-import vartas.discord.blanc.mock.MemberMock;
-import vartas.discord.blanc.mock.RoleMock;
-import vartas.discord.blanc.mock.TextChannelMock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONGuildTest extends AbstractJSONTest{
-    @Test
-    public void testGetName(){
-        assertThat(GUILD.getName()).isEqualTo(JSON_GUILD.getString(JSONGuild.NAME));
-    }
-
-    @Test
-    public void testGetId(){
-        assertThat(GUILD.getId()).isEqualTo(JSON_GUILD.getLong(JSONGuild.ID));
-    }
-
     @Test
     public void testGetBlacklist(){
         assertThat(GUILD.getBlacklist()).containsExactly("handholding");
@@ -88,29 +73,7 @@ public class JSONGuildTest extends AbstractJSONTest{
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonGuild = JSONGuild.of(GUILD);
-
+        JSONObject jsonGuild = JSONGuild.toJson(GUILD, new JSONObject());
         assertThat(JSON_GUILD.similar(jsonGuild));
-    }
-
-    @Test
-    public void testLeave(){
-        assertThrows(UnsupportedOperationException.class, () -> GUILD.leave());
-    }
-
-    @Test
-    public void testCanInteractWithTextChannel(){
-        Member member = new MemberMock();
-        TextChannel textChannel = new TextChannelMock();
-
-        assertThrows(UnsupportedOperationException.class, () -> GUILD.canInteract(member, textChannel));
-    }
-
-    @Test
-    public void testCanInteractWithRole(){
-        Member member = new MemberMock();
-        Role role = new RoleMock();
-
-        assertThrows(UnsupportedOperationException.class, () -> GUILD.canInteract(member, role));
     }
 }
