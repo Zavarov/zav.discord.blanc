@@ -17,24 +17,24 @@
 
 package vartas.discord.blanc.command.creator;
 
+import de.monticore.cd.cd4analysis.CD4AnalysisMill;
 import de.monticore.cd.cd4analysis._ast.*;
 import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
 import de.monticore.cd.cd4analysis._symboltable.CDFieldSymbol;
-import de.monticore.cd.cd4analysis._symboltable.CDTypeSymbolLoader;
+import de.monticore.cd.cd4analysis._symboltable.CDTypeSymbolSurrogate;
 import de.monticore.cd.cd4code._visitor.CD4CodeInheritanceVisitor;
 import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
-import de.monticore.utils.Names;
 import de.se_rwth.commons.Joiners;
-import net.sourceforge.plantuml.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import vartas.discord.blanc.command._ast.*;
 import vartas.discord.blanc.command._visitor.CommandVisitor;
-import vartas.monticore.cd4analysis.CDGeneratorHelper;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeGlobalScope;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeSymbolTableCreatorDelegator;
+import vartas.monticore.cd4code.CDGeneratorHelper;
+import vartas.monticore.cd4code._symboltable.CD4CodeGlobalScope;
+import vartas.monticore.cd4code._symboltable.CD4CodeSymbolTableCreatorDelegator;
 
 import java.util.*;
 import java.util.function.Function;
@@ -108,7 +108,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
 
     private void rebindCommands(){
         CDFieldSymbol commands = cdDefinition.getSpannedScope().resolveCDFieldDown(Joiners.DOT.join(CLASS,"commands")).orElseThrow();
-        commands.setType(new CDTypeSymbolLoader(commands.getType().getName(), globalScope.resolveCDDefinition("java.util.Map").orElseThrow().getSpannedScope()));
+        commands.setType(new CDTypeSymbolSurrogate(commands.getType().getName(), globalScope.resolveCDDefinition("java.util.Map").orElseThrow().getSpannedScope()));
     }
 
     private void loadModelImports(){

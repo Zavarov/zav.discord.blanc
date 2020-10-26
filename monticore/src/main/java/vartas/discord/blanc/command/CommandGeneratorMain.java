@@ -20,8 +20,6 @@ package vartas.discord.blanc.command;
 import de.monticore.io.paths.ModelPath;
 import vartas.discord.blanc.command._ast.ASTCommandArtifact;
 import vartas.discord.blanc.command._symboltable.CommandGlobalScope;
-import vartas.discord.blanc.command._symboltable.CommandLanguage;
-import vartas.discord.blanc.command._symboltable.CommandModelLoader;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -84,7 +82,7 @@ public class CommandGeneratorMain {
 
     private static void buildGlobalScope(){
         assert MODEL_PATH != null;
-        GLOBAL_SCOPE = new CommandGlobalScope(MODEL_PATH, new CommandLanguage());
+        GLOBAL_SCOPE = new CommandGlobalScope(MODEL_PATH, "cmd");
     }
 
     private static void generateCommands(){
@@ -128,8 +126,7 @@ public class CommandGeneratorMain {
             @Nonnull String qualifiedName
     )
     {
-        CommandModelLoader modelLoader = scope.getCommandLanguage().getModelLoader();
-        List<ASTCommandArtifact> models = modelLoader.loadModelsIntoScope(qualifiedName, modelPath, scope);
+        List<ASTCommandArtifact> models = scope.getModelLoader().loadModelsIntoScope(qualifiedName, modelPath, scope);
 
         if(models.size() == 1)
             return models.get(0);

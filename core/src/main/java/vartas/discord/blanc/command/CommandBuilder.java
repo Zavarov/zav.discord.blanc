@@ -87,6 +87,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         super.shard = shard;
     }
 
+    @Override
+    public CommandBuilder getRealThis(){
+        return this;
+    }
+
     /**
      * Processes the received {@link Message} from an arbitrary {@link MessageChannel}.<br>
      * If the {@link Message} doesn't start with the global prefix, doesn't describe a {@link Command}

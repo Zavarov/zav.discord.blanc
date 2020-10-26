@@ -17,6 +17,8 @@
 
 package vartas.discord.blanc.command._ast;
 
+import vartas.discord.blanc.command.CommandMill;
+
 import java.util.Objects;
 
 public class ASTRestriction extends ASTRestrictionTOP{

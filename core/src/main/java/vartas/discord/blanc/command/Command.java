@@ -22,7 +22,10 @@ import com.google.common.collect.Multimap;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * The base class for all commands.
@@ -84,5 +87,10 @@ public abstract class Command extends CommandTOP {
             effectiveRanks.addAll(RANKS_ALIAS.get(rank));
 
         return effectiveRanks;
+    }
+
+    @Override
+    public Command getRealThis(){
+        return this;
     }
 }

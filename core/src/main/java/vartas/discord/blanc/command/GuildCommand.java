@@ -43,4 +43,9 @@ public abstract class GuildCommand extends GuildCommandTOP{
         if(!member.getPermissions(textChannel).contains(permission))
             throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
     }
+
+    @Override
+    public GuildCommand getRealThis(){
+        return this;
+    }
 }

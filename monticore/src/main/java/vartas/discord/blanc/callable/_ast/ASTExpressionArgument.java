@@ -48,4 +48,9 @@ public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements A
 
         visitor.handle((StringArgument) this);
     }
+
+    @Override
+    public ASTExpressionArgument getRealThis() {
+        return this;
+    }
 }

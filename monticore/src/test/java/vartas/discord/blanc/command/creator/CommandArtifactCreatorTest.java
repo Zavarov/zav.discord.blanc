@@ -17,20 +17,13 @@
 
 package vartas.discord.blanc.command.creator;
 
-import de.monticore.cd.cd4analysis._ast.*;
+import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
-import de.monticore.cd.cd4analysis._symboltable.CDFieldSymbol;
 import de.monticore.cd.cd4analysis._symboltable.CDTypeSymbol;
-import de.monticore.cd.cd4code._symboltable.CD4CodeGlobalScope;
-import de.monticore.cd.cd4code._symboltable.CD4CodeScope;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.command.BasicCommandTest;
-import vartas.discord.blanc.command.creator.CommandArtifactCreator;
-
-import java.util.Collections;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

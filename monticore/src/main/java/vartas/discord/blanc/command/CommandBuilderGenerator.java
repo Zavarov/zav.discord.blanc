@@ -18,7 +18,6 @@
 package vartas.discord.blanc.command;
 
 import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
-import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
 import de.monticore.cd.cd4code.CD4CodePrettyPrinterDelegator;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -28,20 +27,14 @@ import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
 import vartas.discord.blanc.command._ast.ASTCommandArtifact;
 import vartas.discord.blanc.command.creator.CommandBuilderCreator;
-import vartas.monticore.cd4analysis.CDGeneratorHelper;
-import vartas.monticore.cd4analysis.CDTemplateGenerator;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeGlobalScope;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeLanguage;
-import vartas.monticore.cd4analysis.template.CDBindImportTemplate;
-import vartas.monticore.cd4analysis.template.CDBindPackageTemplate;
-import vartas.monticore.cd4analysis.template.CDHandwrittenFileTemplate;
-import vartas.monticore.cd4analysis.template.CDInitializerTemplate;
+import vartas.monticore.cd4code.CDGeneratorHelper;
+import vartas.monticore.cd4code.CDPreprocessorGenerator;
+import vartas.monticore.cd4code._symboltable.CD4CodeGlobalScope;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CommandBuilderGenerator {
@@ -55,7 +48,7 @@ public class CommandBuilderGenerator {
     private static GlobalExtensionManagement GLEX;
     private static GeneratorSetup GENERATOR_SETUP;
     private static CDGeneratorHelper GENERATOR_HELPER;
-    private static CDTemplateGenerator GENERATOR;
+    private static CDPreprocessorGenerator GENERATOR;
 
 
     public static void generate(
@@ -95,13 +88,12 @@ public class CommandBuilderGenerator {
     private static void buildGlobalScope(){
         assert MODELS_PATH != null;
 
-        CD4CodeLanguage language = new CD4CodeLanguage();
         ModelPath modelPath = new ModelPath();
 
         if(MODELS_PATH.toFile().exists())
             modelPath.addEntry(MODELS_PATH);
 
-        GLOBAL_SCOPE = new CD4CodeGlobalScope(modelPath, language);
+        GLOBAL_SCOPE = new CD4CodeGlobalScope(modelPath, "cd");
     }
 
     private static void buildGlex(){
@@ -136,15 +128,9 @@ public class CommandBuilderGenerator {
     }
 
     private static void buildGenerator(){
-        GENERATOR = new CDTemplateGenerator(
+        GENERATOR = new CDPreprocessorGenerator(
                 GENERATOR_SETUP,
-                GENERATOR_HELPER,
-                Arrays.asList(
-                        new CDBindPackageTemplate(GLEX),
-                        new CDBindImportTemplate(GLEX),
-                        new CDInitializerTemplate(GLEX),
-                        new CDHandwrittenFileTemplate(GLEX, GENERATOR_HELPER)
-                )
+                GENERATOR_HELPER
         );
     }
 
@@ -158,8 +144,6 @@ public class CommandBuilderGenerator {
         CommandBuilderCreator transformer = new CommandBuilderCreator(GLEX, GLOBAL_SCOPE);
         ASTCDCompilationUnit ast = transformer.decorate(MODELS);
 
-        CDDefinitionSymbol cdDefinitionSymbol = ast.getCDDefinition().getSymbol();
-
-        GENERATOR.generate(cdDefinitionSymbol);
+        GENERATOR.generate(ast.getCDDefinition());
     }
 }

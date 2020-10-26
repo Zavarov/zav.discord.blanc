@@ -18,8 +18,6 @@
 package vartas.discord.blanc.command;
 
 import de.monticore.cd.cd4analysis._ast.ASTCDCompilationUnit;
-import de.monticore.cd.cd4analysis._ast.ASTCDType;
-import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
 import de.monticore.cd.cd4code.CD4CodePrettyPrinterDelegator;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -29,11 +27,10 @@ import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
 import vartas.discord.blanc.command._ast.ASTCommandArtifact;
 import vartas.discord.blanc.command.creator.CommandArtifactCreator;
-import vartas.monticore.cd4analysis.CDDecoratorGenerator;
-import vartas.monticore.cd4analysis.CDFactoryGenerator;
-import vartas.monticore.cd4analysis.CDGeneratorHelper;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeGlobalScope;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeLanguage;
+import vartas.monticore.cd4code.CDGeneratorHelper;
+import vartas.monticore.cd4code._symboltable.CD4CodeGlobalScope;
+import vartas.monticore.cd4code.decorator.CDDecoratorGenerator;
+import vartas.monticore.cd4code.factory.CDFactoryGenerator;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -93,13 +90,12 @@ public class CommandGenerator {
     private static void buildGlobalScope(){
         assert MODELS_PATH != null;
 
-        CD4CodeLanguage language = new CD4CodeLanguage();
         ModelPath modelPath = new ModelPath();
 
         if(MODELS_PATH.toFile().exists())
             modelPath.addEntry(MODELS_PATH);
 
-        GLOBAL_SCOPE = new CD4CodeGlobalScope(modelPath, language);
+        GLOBAL_SCOPE = new CD4CodeGlobalScope(modelPath, "cd");
     }
 
     private static void buildGlex(){
@@ -135,7 +131,7 @@ public class CommandGenerator {
 
     private static void buildGenerator(){
         FACTORY_GENERATOR = new CDFactoryGenerator(GENERATOR_SETUP, GENERATOR_HELPER, GLOBAL_SCOPE);
-        DECORATOR_GENERATOR = new CDDecoratorGenerator(GENERATOR_SETUP, GENERATOR_HELPER);
+        DECORATOR_GENERATOR = new CDDecoratorGenerator(GENERATOR_SETUP, GENERATOR_HELPER, GLOBAL_SCOPE);
     }
 
     private static void generate(){
@@ -149,9 +145,7 @@ public class CommandGenerator {
         CommandArtifactCreator transformer = new CommandArtifactCreator(GLEX, GLOBAL_SCOPE);
         ASTCDCompilationUnit ast = transformer.decorate(MODEL);
 
-        CDDefinitionSymbol cdDefinitionSymbol = ast.getCDDefinition().getSymbol();
-
-        FACTORY_GENERATOR.generate(cdDefinitionSymbol);
-        DECORATOR_GENERATOR.generate(cdDefinitionSymbol);
+        FACTORY_GENERATOR.generate(ast.getCDDefinition());
+        DECORATOR_GENERATOR.generate(ast.getCDDefinition());
     }
 }

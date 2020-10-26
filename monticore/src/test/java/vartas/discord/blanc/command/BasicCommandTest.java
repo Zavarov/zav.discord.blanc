@@ -21,14 +21,10 @@ import de.monticore.io.paths.ModelPath;
 import vartas.discord.blanc.command._ast.ASTCommand;
 import vartas.discord.blanc.command._ast.ASTCommandArtifact;
 import vartas.discord.blanc.command._symboltable.CommandGlobalScope;
-import vartas.discord.blanc.command._symboltable.CommandLanguage;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeGlobalScope;
-import vartas.monticore.cd4analysis._symboltable.CD4CodeLanguage;
+import vartas.monticore.cd4code._symboltable.CD4CodeGlobalScope;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 public abstract class BasicCommandTest {
     protected static final Path MODELS_PATH = Paths.get("src","test","resources");
@@ -37,11 +33,10 @@ public abstract class BasicCommandTest {
     protected static final Path SOURCES_PATH = Paths.get("src","main", "java");
     protected static final Path OUTPUT_PATH = Paths.get("target","generated-sources","monticore","sourcecode");
 
-    public CommandLanguage cmdLanguage = new CommandLanguage();
     public ModelPath cmdModelPath = new ModelPath(MODELS_PATH);
-    public CommandGlobalScope cmdGlobalScope = new CommandGlobalScope(cmdModelPath, cmdLanguage);
+    public CommandGlobalScope cmdGlobalScope = new CommandGlobalScope(cmdModelPath, "cmd");
     public ModelPath cdModelPath = new ModelPath(CLASSES_PATH);
-    public CD4CodeGlobalScope cdGlobalScope = new CD4CodeGlobalScope(cdModelPath, new CD4CodeLanguage());
+    public CD4CodeGlobalScope cdGlobalScope = new CD4CodeGlobalScope(cdModelPath, "cd");
 
     public ASTCommandArtifact cmdArtifact;
     public ASTCommand cmd;

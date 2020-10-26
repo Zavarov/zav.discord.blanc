@@ -17,7 +17,11 @@
 
 package vartas.discord.blanc.command.creator;
 
-import de.monticore.cd.cd4analysis._ast.*;
+import de.monticore.cd.cd4analysis.CD4AnalysisMill;
+import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
+import de.monticore.cd.cd4analysis._ast.ASTCDClass;
+import de.monticore.cd.cd4analysis._ast.ASTCDClassBuilder;
+import de.monticore.cd.cd4analysis._ast.ASTCDMethod;
 import de.monticore.cd.facade.CDModifier;
 import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -26,7 +30,7 @@ import vartas.discord.blanc.command.GuildCommand;
 import vartas.discord.blanc.command.MessageCommand;
 import vartas.discord.blanc.command._ast.*;
 import vartas.discord.blanc.command._visitor.CommandVisitor;
-import vartas.monticore.cd4analysis.CDGeneratorHelper;
+import vartas.monticore.cd4code.CDGeneratorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
