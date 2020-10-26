@@ -30,7 +30,11 @@ public class JDAPrivateChannel extends PrivateChannel{
     }
 
     public static PrivateChannel create(net.dv8tion.jda.api.entities.PrivateChannel privateChannel){
-        return PrivateChannelFactory.create(() -> new JDAPrivateChannel(privateChannel), privateChannel.getIdLong(), privateChannel.getName());
+        return PrivateChannelFactory.create(
+                () -> new JDAPrivateChannel(privateChannel),
+                privateChannel.getIdLong(),
+                privateChannel.getName()
+        );
     }
 
     @Override

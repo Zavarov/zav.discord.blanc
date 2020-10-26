@@ -114,7 +114,6 @@ public class JDAShardLoader extends ShardLoader{
                 shard = ShardFactory.create(() -> new JDAShard(redditVisitor, currentJda), shardId, selfUser);
             }
 
-            setGuildFunction(currentJda);
             shard.accept(this);
 
             //Load listeners
@@ -136,12 +135,13 @@ public class JDAShardLoader extends ShardLoader{
         try{
             log.info("Loading guild {}.", guildPath);
             JSONObject jsonGuild = new JSONObject(Files.readString(guildPath));
-            long guildId = jsonGuild.getLong(JSONGuild.ID);
+            //TODO Magic guild number
+            long guildId = jsonGuild.getLong("id");
 
             if(currentJda != null) {
                 net.dv8tion.jda.api.entities.Guild jdaGuild = currentJda.getGuildById(guildId);
                 if (jdaGuild != null)
-                    return Optional.of(JDAGuild.create(jdaGuild, jsonGuild));
+                    return Optional.of(JSONGuild.fromJson(JDAGuild.create(jdaGuild), jsonGuild));
             }
 
             return Optional.empty();
@@ -154,6 +154,7 @@ public class JDAShardLoader extends ShardLoader{
         }
     }
 
+    /*
     private void setGuildFunction(JDA jda){
         super.defaultGuild = (guildId) -> {
             //TODO Error Messages
@@ -162,7 +163,7 @@ public class JDAShardLoader extends ShardLoader{
             return JDAGuild.create(guild);
         };
     }
-
+     */
     private StatusMessageRunnable createStatusMessageRunnable(SelfUser selfUser){
         return new StatusMessageRunnable(selfUser);
     }

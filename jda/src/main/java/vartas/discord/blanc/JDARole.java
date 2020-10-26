@@ -18,13 +18,10 @@
 package vartas.discord.blanc;
 
 import org.atteo.evo.inflector.English;
-import org.json.JSONObject;
 import vartas.discord.blanc.factory.MessageEmbedFactory;
 import vartas.discord.blanc.factory.RoleFactory;
-import vartas.discord.blanc.json.JSONRole;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -46,17 +43,13 @@ public class JDARole extends Role{
         this.role = role;
     }
 
-    public static Role create(@Nonnull net.dv8tion.jda.api.entities.Role role, @Nullable JSONObject jsonObject){
+    public static Role create(@Nonnull net.dv8tion.jda.api.entities.Role role){
         return RoleFactory.create(
                 () -> new JDARole(role),
-                jsonObject == null ? Optional.empty() : Optional.ofNullable(jsonObject.optString(JSONRole.GROUP)),
+                Optional.empty(),
                 role.getIdLong(),
                 role.getName()
         );
-    }
-
-    public static Role create(@Nonnull net.dv8tion.jda.api.entities.Role role){
-        return create(role, null);
     }
 
     @Override

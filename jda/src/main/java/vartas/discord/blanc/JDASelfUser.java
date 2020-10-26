@@ -19,17 +19,14 @@ package vartas.discord.blanc;
 
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.RichPresence;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.factory.SelfUserFactory;
-import vartas.discord.blanc.factory.UserFactory;
 import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 public class JDASelfUser extends SelfUser{
     @Nonnull
@@ -41,10 +38,12 @@ public class JDASelfUser extends SelfUser{
 
     @Nonnull
     public static SelfUser create(net.dv8tion.jda.api.entities.SelfUser selfUser){
-        JDASelfUser jdaSelfUser = new JDASelfUser(selfUser);
+        SelfUser jdaSelfUser = SelfUserFactory.create(
+                () -> new JDASelfUser(selfUser),
+                selfUser.getIdLong(),
+                selfUser.getName()
+        );
 
-        jdaSelfUser.setId(selfUser.getIdLong());
-        jdaSelfUser.setName(selfUser.getName());
         jdaSelfUser.setRanks(JSONRanks.RANKS.getRanks().get(selfUser.getIdLong()));
 
         return jdaSelfUser;

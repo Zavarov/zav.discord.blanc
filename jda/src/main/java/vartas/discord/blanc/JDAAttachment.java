@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 public class JDAAttachment extends Attachment{
     private final net.dv8tion.jda.api.entities.Message.Attachment attachment;
-    public JDAAttachment(net.dv8tion.jda.api.entities.Message.Attachment attachment){
+    private JDAAttachment(net.dv8tion.jda.api.entities.Message.Attachment attachment){
         this.attachment = attachment;
     }
 

@@ -18,7 +18,7 @@
 package vartas.discord.blanc;
 
 import net.dv8tion.jda.api.entities.Activity;
-import net.sourceforge.plantuml.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
 import vartas.discord.blanc.factory.MemberFactory;
 import vartas.discord.blanc.factory.MessageEmbedFactory;
@@ -52,7 +52,6 @@ public class JDAMember extends Member{
 
     @Nonnull
     public static Member create(net.dv8tion.jda.api.entities.Member member){
-        //TODO Member should have the user rank
         return MemberFactory.create(
                 () -> new JDAMember(member),
                 Optional.empty(),                           //Private Channel

@@ -19,8 +19,6 @@ package vartas.discord.blanc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.factory.FieldFactory;
-import vartas.discord.blanc.factory.MessageEmbedFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +49,11 @@ public abstract class Guild extends GuildTOP {
     @Nonnull
     public Optional<Pattern> getPattern(){
         return Optional.ofNullable(pattern);
+    }
+
+    @Override
+    public Guild getRealThis() {
+        return this;
     }
 
     /**

@@ -20,12 +20,6 @@ package vartas.discord.blanc;
 import vartas.discord.blanc.factory.MessageFactory;
 
 import javax.annotation.Nonnull;
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class JDAMessage extends Message {
     private final net.dv8tion.jda.api.entities.Message jdaMessage;
@@ -40,11 +34,7 @@ public class JDAMessage extends Message {
                 () -> new JDAMessage(message),
                 message.getIdLong(),
                 message.getTimeCreated().toInstant(),
-                JDAUser.create(message.getAuthor()),
-                message.getContentRaw().isEmpty() ? Optional.empty() : Optional.of(message.getContentRaw()),
-                //TODO Integrate embeds
-                Optional.empty(),
-                message.getAttachments().stream().map(JDAAttachment::create).collect(Collectors.toList())
+                JDAUser.create(message.getAuthor())
         );
     }
 

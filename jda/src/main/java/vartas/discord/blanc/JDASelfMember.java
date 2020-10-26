@@ -17,10 +17,17 @@
 
 package vartas.discord.blanc;
 
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Icon;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.factory.SelfMemberFactory;
 import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,12 +41,12 @@ public class JDASelfMember extends SelfMember{
 
     @Nonnull
     public static SelfMember create(net.dv8tion.jda.api.entities.Member member){
-        JDASelfMember selfMember = new JDASelfMember(member);
-
+        SelfMember selfMember = SelfMemberFactory.create(
+                () -> new JDASelfMember(member),
+                member.getIdLong(),
+                member.getUser().getName()
+        );
         selfMember.setRanks(JSONRanks.RANKS.getRanks().get(member.getIdLong()));
-        selfMember.setId(member.getIdLong());
-        selfMember.setName(member.getUser().getName());
-
         return selfMember;
     }
 
@@ -84,6 +91,22 @@ public class JDASelfMember extends SelfMember{
                 .collect(Collectors.toList());
 
         member.getGuild().modifyMemberRoles(member, jdaRolesToAdd, jdaRolesToRemove).complete();
+    }
+
+    @Override
+    public void modifyStatusMessage(String statusMessage) {
+        ShardManager shardManager = member.getJDA().getShardManager();
+        if(shardManager != null)
+            shardManager.setActivityProvider(i -> Activity.playing(statusMessage));
+    }
+
+    @Override
+    public void modifyAvatar(@Nonnull InputStream avatar) {
+        try {
+            member.getJDA().getSelfUser().getManager().setAvatar(Icon.from(avatar)).complete();
+        } catch(IOException e){
+            LoggerFactory.getLogger(this.getClass().getSimpleName()).error(e.toString());
+        }
     }
 
     @Override

@@ -21,17 +21,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.atteo.evo.inflector.English;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import vartas.discord.blanc.factory.GuildFactory;
-import vartas.discord.blanc.json.JSONGuild;
-import vartas.discord.blanc.json.JSONRole;
-import vartas.discord.blanc.json.JSONTextChannel;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -61,7 +58,7 @@ public class JDAGuild extends Guild{
     @Nonnull
     private final net.dv8tion.jda.api.entities.Guild guild;
 
-    public JDAGuild(@Nonnull net.dv8tion.jda.api.entities.Guild guild){
+    private JDAGuild(@Nonnull net.dv8tion.jda.api.entities.Guild guild){
         this.guild = guild;
     }
 
@@ -72,51 +69,36 @@ public class JDAGuild extends Guild{
 
     @Override
     @Nonnull
-    public TextChannel getChannels(@Nonnull Long key){
-        try{
-            return getChannels(key, () -> {
-                net.dv8tion.jda.api.entities.TextChannel textChannel = guild.getTextChannelById(key);
-                Preconditions.checkNotNull(textChannel, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-                return JDATextChannel.create(textChannel);
-            });
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
-        }
+    public TextChannel getChannels(@Nonnull Long key) throws ExecutionException{
+        return getChannels(key, () -> {
+            net.dv8tion.jda.api.entities.TextChannel textChannel = guild.getTextChannelById(key);
+            Preconditions.checkNotNull(textChannel, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
+            return JDATextChannel.create(textChannel);
+        });
     }
 
     @Override
     @Nonnull
-    public Role getRoles(@Nonnull Long key){
-        try{
-            return getRoles(key, () -> {
-                net.dv8tion.jda.api.entities.Role role = guild.getRoleById(key);
-                Preconditions.checkNotNull(role, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-                return JDARole.create(role);
-            });
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
-        }
+    public Role getRoles(@Nonnull Long key) throws ExecutionException{
+        return getRoles(key, () -> {
+            net.dv8tion.jda.api.entities.Role role = guild.getRoleById(key);
+            Preconditions.checkNotNull(role, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
+            return JDARole.create(role);
+        });
     }
 
     @Override
     @Nonnull
-    public Member getMembers(@Nonnull Long key){
-        try{
-            return getMembers(key, () -> {
-                net.dv8tion.jda.api.entities.Member member = guild.getMemberById(key);
-                Preconditions.checkNotNull(member, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-                return JDAMember.create(member);
-            });
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
-        }
+    public Member getMembers(@Nonnull Long key) throws ExecutionException{
+        return getMembers(key, () -> {
+            net.dv8tion.jda.api.entities.Member member = guild.getMemberById(key);
+            Preconditions.checkNotNull(member, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
+            return JDAMember.create(member);
+        });
     }
 
     @Override
-    public boolean canInteract(Member member, TextChannel textChannel){
+    public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel){
         net.dv8tion.jda.api.entities.Member jdaMember = guild.getMemberById(member.getId());
         net.dv8tion.jda.api.entities.TextChannel jdaTextChannel = guild.getTextChannelById(textChannel.getId());
 
@@ -127,7 +109,7 @@ public class JDAGuild extends Guild{
     }
 
     @Override
-    public boolean canInteract(Member member, Role role){
+    public boolean canInteract(@Nonnull Member member, @Nonnull Role role){
         net.dv8tion.jda.api.entities.Member jdaMember = guild.getMemberById(member.getId());
         net.dv8tion.jda.api.entities.Role jdaRole = guild.getRoleById(role.getId());
 
@@ -137,56 +119,13 @@ public class JDAGuild extends Guild{
             return jdaMember.canInteract(jdaRole);
     }
 
-    public static Guild create(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild, @Nullable JSONObject jsonObject){
-        //Optional<String> prefix,  Cache<Long,TextChannel> channels,  Cache<Long,Role> roles,  List<String> blacklist
-        Guild guild = GuildFactory.create(
+    public static Guild create(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild){
+        return GuildFactory.create(
                 () -> new JDAGuild(jdaGuild),
                 JDASelfMember.create(jdaGuild.getSelfMember()),
                 jdaGuild.getIdLong(),
                 jdaGuild.getName()
         );
-
-        if(jsonObject != null){
-            guild.setPrefix(Optional.ofNullable(jsonObject.optString(JSONGuild.PREFIX)));
-
-            //Load channels
-            JSONArray jsonChannels = jsonObject.getJSONArray(JSONGuild.CHANNELS);
-            for(int i = 0 ; i < jsonChannels.length() ; ++i) {
-                JSONObject jsonTextChannel = jsonChannels.getJSONObject(i);
-                long textChannelId = jsonTextChannel.getLong(JSONTextChannel.ID);
-                net.dv8tion.jda.api.entities.TextChannel jdaTextChannel = jdaGuild.getTextChannelById(textChannelId);
-
-                //Channel might've been removed since the last initialization
-                if(jdaTextChannel != null)
-                    guild.putChannels(textChannelId, JDATextChannel.create(jdaTextChannel, jsonTextChannel));
-            }
-
-            //Load roles
-            JSONArray jsonRoles = jsonObject.getJSONArray(JSONGuild.ROLES);
-            for(int i = 0 ; i < jsonRoles.length() ; ++i){
-                JSONObject jsonRole = jsonRoles.getJSONObject(i);
-                long roleId = jsonRole.getLong(JSONRole.ID);
-                net.dv8tion.jda.api.entities.Role jdaRole = jdaGuild.getRoleById(roleId);
-
-                //Channel might've been removed since the last initialization
-                if(jdaRole != null)
-                    guild.putRoles(roleId, JDARole.create(jdaRole, jsonRole));
-            }
-
-            //Load blacklist
-            JSONArray jsonBlacklist = jsonObject.getJSONArray(JSONGuild.BLACKLIST);
-            for(int i = 0 ; i < jsonBlacklist.length() ; ++i)
-                guild.addBlacklist(jsonBlacklist.getString(i));
-
-            //Derive blacklist pattern
-            guild.compilePattern();
-        }
-
-        return guild;
-    }
-
-    public static Guild create(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild){
-        return create(jdaGuild, null);
     }
 
     //------------------------------------------------------------------------------------------------------------------

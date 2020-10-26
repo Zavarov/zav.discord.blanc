@@ -18,7 +18,9 @@
 package vartas.discord.blanc.parser;
 
 import vartas.chart.Interval;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.ConfigurationModule;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.command.Command;
 import vartas.discord.blanc.prettyprint.ArgumentPrettyPrinter;
 
@@ -145,5 +147,10 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
         return new IntervalResolver().apply(argument).orElseThrow(
                 () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
         );
+    }
+
+    @Override
+    public AbstractTypeResolver getRealThis(){
+        return this;
     }
 }

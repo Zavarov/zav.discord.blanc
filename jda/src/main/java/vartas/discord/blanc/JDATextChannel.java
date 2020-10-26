@@ -18,21 +18,13 @@
 package vartas.discord.blanc;
 
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
-import vartas.discord.blanc.json.JSONTextChannel;
-import vartas.discord.blanc.json.JSONWebhook;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class JDATextChannel extends TextChannel{
     private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
@@ -44,17 +36,12 @@ public class JDATextChannel extends TextChannel{
     }
 
     @Override
-    public Message getMessages(Long key){
-        try{
-            return getMessages(key, () -> JDAMessage.create(textChannel.retrieveMessageById(key).complete()));
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
-        }
+    public Message getMessages(Long key) throws ExecutionException{
+        return getMessages(key, () -> JDAMessage.create(textChannel.retrieveMessageById(key).complete()));
     }
 
     @Override
-    public Webhook getWebhooks(String key){
+    public Webhook getWebhooks(String key) throws ExecutionException{
         try {
             return getWebhooks(key, () -> {
                 List<net.dv8tion.jda.api.entities.Webhook> webhooks = textChannel.retrieveWebhooks().complete();
@@ -69,51 +56,15 @@ public class JDATextChannel extends TextChannel{
         } catch(net.dv8tion.jda.api.exceptions.PermissionException e){
             log.error(Errors.INSUFFICIENT_PERMISSION.toString(), e);
             throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
         }
     }
 
-    public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel, @Nullable JSONObject jsonObject){
-        TextChannel textChannel = TextChannelFactory.create(
+    public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel){
+        return TextChannelFactory.create(
                 () -> new JDATextChannel(jdaTextChannel),
                 jdaTextChannel.getIdLong(),
                 jdaTextChannel.getName()
         );
-
-        if(jsonObject != null && jdaTextChannel.canTalk()){
-            JSONArray jsonSubreddits = jsonObject.optJSONArray(JSONTextChannel.SUBREDDITS);
-            if(jsonSubreddits != null)
-                for(int i = 0 ; i < jsonSubreddits.length() ; ++i)
-                    textChannel.addSubreddits(jsonSubreddits.getString(i));
-
-
-            JSONObject jsonWebhooks = jsonObject.optJSONObject(JSONTextChannel.WEBHOOKS);
-            if(jsonWebhooks != null) {
-                try {
-                    List<net.dv8tion.jda.api.entities.Webhook> jdaWebhooks = jdaTextChannel.retrieveWebhooks().complete();
-
-                    for (String subreddit : jsonWebhooks.keySet()) {
-                        JSONWebhook jsonWebhook = JSONWebhook.of(jsonWebhooks.getJSONObject(subreddit));
-
-                        //Try to recover the webhook
-                        jdaWebhooks.stream()
-                                .filter(webhook -> webhook.getName().equals(jsonWebhook.getName()))
-                                .findAny()
-                                .ifPresent(jdaWebhook -> textChannel.putWebhooks(subreddit, JDAWebhook.create(jdaWebhook)));
-                    }
-                }catch(InsufficientPermissionException e){
-                    LoggerFactory.getLogger(JDATextChannel.class.getSimpleName()).warn("Couldn't retrieve webhooks.", e);
-                }
-            }
-        }
-
-        return textChannel;
-    }
-
-    public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel){
-        return create(jdaTextChannel, null);
     }
 
     @Override
