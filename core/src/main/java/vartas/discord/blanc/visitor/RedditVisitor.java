@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.visitor;
 
-import org.apache.http.HttpStatus;
 import org.atteo.evo.inflector.English;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -35,6 +34,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -143,8 +143,17 @@ public class RedditVisitor implements ArchitectureVisitor {
             @Nonnull Consumer<String> onFailure
     )
     {
+        Optional<Subreddit> subredditOpt = getSubreddit(name, onFailure);
+        subredditOpt.ifPresent(subreddit -> postSubmission(subreddit, onSuccess));
+    }
+
+    private void postSubmission(
+            @Nonnull Subreddit subreddit,
+            @Nonnull BiConsumer<Subreddit, Submission> onSuccess
+    )
+    {
+
         try {
-            Subreddit subreddit = redditClient.getSubreddits(name);
             List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
 
             log.trace("{} new {} between {} and {}",
@@ -157,20 +166,23 @@ public class RedditVisitor implements ArchitectureVisitor {
             //Post the individual submissions
             for (Submission submission : submissions)
                 onSuccess.accept(subreddit, submission);
-            //Reddit Exceptions
         } catch(ClientException e) {
-            //Subreddit is not accessible
-            if(e.getErrorCode() == HttpStatus.SC_FORBIDDEN) {
-                log.error(Errors.REDDIT_CLIENT_ERROR.toString(), e);
-                onFailure.accept(name);
-                requiresUpdate = true;
-            }else{
-                log.warn(Errors.REDDIT_CLIENT_ERROR.toString(), e);
-            }
-        } catch( ApiException e) {
+            log.warn(Errors.REDDIT_CLIENT_ERROR.toString(), e);
+        } catch(ApiException e) {
             log.warn(Errors.REDDIT_API_ERROR.toString(), e);
         } catch(Exception e) {
-            log.warn(Errors.UNKNOWN_RESPONSE.toString(), e.toString());
+            log.warn(Errors.UNKNOWN_RESPONSE.toString(), e);
+        }
+    }
+
+    private Optional<Subreddit> getSubreddit(String subreddit, Consumer<String> onFailure){
+        try{
+            return Optional.of(redditClient.getSubreddits(subreddit));
+        }catch(Exception e){
+            log.error(Errors.INVALID_SUBREDDIT.toString(), e);
+            onFailure.accept(subreddit);
+            requiresUpdate = true;
+            return Optional.empty();
         }
     }
 }

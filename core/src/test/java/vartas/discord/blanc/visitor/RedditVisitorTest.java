@@ -114,8 +114,8 @@ public class RedditVisitorTest extends AbstractTest {
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.getSubreddits()).isEmpty();
-        assertThat(textChannel.valuesWebhooks()).isEmpty();
+        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
+        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
         assertThat(textChannel.sent).isEmpty();
         assertThat(webhook.sent).isEmpty();
     }

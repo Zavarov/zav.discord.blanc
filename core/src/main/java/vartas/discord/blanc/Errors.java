@@ -31,6 +31,7 @@ public enum Errors {
     REDDIT_API_ERROR(0x2003, "The request was rejected due to an unknown API error."),
     DISCORD_TIMEOUT(0x2100, "The Discord server took to long to respond to the request"),
     UNKNOWN_RESPONSE(0x2200, "The server returned an unknown error."),
+    INVALID_SUBREDDIT(0x2300, "The specified subreddit couldn't be accessed."),
     //Type handling
     UNKNOWN_ENTITY(0x3000, "The given entity could not be resolved."),
     MULTIPLE_ENTITIES_BY_NAME(0x3001, "Multiple entities with the same name were found."),
