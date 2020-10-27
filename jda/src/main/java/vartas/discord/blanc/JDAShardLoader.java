@@ -140,8 +140,10 @@ public class JDAShardLoader extends ShardLoader{
 
             if(currentJda != null) {
                 net.dv8tion.jda.api.entities.Guild jdaGuild = currentJda.getGuildById(guildId);
-                if (jdaGuild != null)
+                if (jdaGuild != null) {
+                    log.info("Guild {} loaded.", jdaGuild.getName());
                     return Optional.of(JSONGuild.fromJson(JDAGuild.create(jdaGuild), jsonGuild));
+                }
             }
 
             return Optional.empty();
