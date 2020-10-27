@@ -25,11 +25,13 @@ import vartas.discord.blanc.command.visitor.CommandVisitor;
 import vartas.discord.blanc.parser.AbstractTypeResolver;
 import vartas.discord.blanc.parser.IntermediateCommand;
 import vartas.discord.blanc.parser.Parser;
+import vartas.discord.blanc.prettyprint.ArgumentPrettyPrinter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * This class is responsible for transforming received text {@link Message Messages}
@@ -145,7 +147,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
         IntermediateCommand command = commandOpt.get();
 
-        log.info("Received command {} : {} {}", command.getPrefix(), command.getName(), command.getArguments());
+        log.info("Received command {} : {} {}",
+                command.getPrefix(),
+                command.getName(),
+                command.getArguments().stream().map(ArgumentPrettyPrinter::printPretty).collect(Collectors.toList())
+        );
 
         typeResolver = typeResolverFunction.apply(guild, textChannel);
 
