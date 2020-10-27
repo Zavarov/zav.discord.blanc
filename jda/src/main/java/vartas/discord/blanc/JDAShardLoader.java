@@ -20,8 +20,10 @@ package vartas.discord.blanc;
 import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,9 +82,10 @@ public class JDAShardLoader extends ShardLoader{
         super(credentials);
         this.commandBuilderFunction = commandBuilderFunction;
         try {
-            this.jdaBuilder = DefaultShardManagerBuilder.createDefault(credentials.getDiscordToken())
+            this.jdaBuilder = DefaultShardManagerBuilder.createDefault(credentials.getDiscordToken(), GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
                     .setStatus(OnlineStatus.ONLINE)
                     .setShardsTotal(credentials.getShardCount())
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build();
         } catch(LoginException e) {
             //TODO Error Messages;
