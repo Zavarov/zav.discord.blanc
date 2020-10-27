@@ -83,6 +83,7 @@ public class RedditVisitorTest extends AbstractTest {
 
     private void initDiscordHook() {
         webhook = (WebhookMock) WebhookFactory.create(WebhookMock::new, 12345L,"subreddit");
+        webhook.setSubreddit("subreddit");
 
         textChannel = (TextChannelMock) TextChannelFactory.create(TextChannelMock::new, 2, "TextChannel");
         textChannel.addSubreddits(subreddit.getName());

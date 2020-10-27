@@ -20,6 +20,8 @@ package vartas.discord.blanc.json;
 import org.json.JSONObject;
 import vartas.discord.blanc.Webhook;
 
+import java.util.Optional;
+
 public class JSONWebhook extends JSONWebhookTOP {
     @Override
     protected void $fromMessages(JSONObject source, Webhook target){
@@ -29,5 +31,16 @@ public class JSONWebhook extends JSONWebhookTOP {
     @Override
     protected void $toMessages(Webhook source, JSONObject target){
         //Omitted
+    }
+
+    @Override
+    protected void $fromSubreddit(JSONObject source, Webhook target){
+        Optional<String> subreddit = Optional.ofNullable(source.optString("subreddit"));
+        target.setSubreddit(subreddit);
+    }
+
+    @Override
+    protected void $toSubreddit(Webhook source, JSONObject target){
+        source.ifPresentSubreddit(subreddit ->  target.put("subreddit", subreddit));
     }
 }

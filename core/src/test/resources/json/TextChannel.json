@@ -1,7 +1,8 @@
 {
   "subreddits": ["redditdev"],
   "webhooks": {
-    "gamindustri": {
+    "redditdev": {
+      "subreddit": "redditdev",
       "name": "redditdev",
       "id": 112233445566778899
     }

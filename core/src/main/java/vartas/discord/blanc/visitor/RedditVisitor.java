@@ -33,7 +33,6 @@ import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -126,8 +125,9 @@ public class RedditVisitor implements ArchitectureVisitor {
         log.trace("Visiting text channel {}", textChannel.getName());
         for(String subreddit : textChannel.getSubreddits())
             request(subreddit, textChannel::send, textChannel::removeSubreddits);
-        for(Map.Entry<String, Webhook> webhook : textChannel.asMapWebhooks().entrySet())
-            request(webhook.getKey(), webhook.getValue()::send, textChannel::invalidateWebhooks);
+        for(Webhook webhook : textChannel.valuesWebhooks())
+            if(webhook.isPresentSubreddit())
+                request(webhook.getSubreddit().orElseThrow(), webhook::send, textChannel::invalidateWebhooks);
     }
 
     @Override
@@ -179,6 +179,7 @@ public class RedditVisitor implements ArchitectureVisitor {
         try{
             return Optional.of(redditClient.getSubreddits(subreddit));
         }catch(Exception e){
+            System.out.println(subreddit);
             log.error(Errors.INVALID_SUBREDDIT.toString(), e);
             onFailure.accept(subreddit);
             requiresUpdate = true;
