@@ -50,18 +50,26 @@ public class JDAShard extends Shard {
 
     @Override
     @Nonnull
-    public Guild getGuilds(@Nonnull Long key){
-        try{
-            return getGuilds(key, () -> {
-                net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(key);
-                //TODO Internal Error
-                Preconditions.checkNotNull(guild);
-                return JDAGuild.create(guild);
-            });
-        }catch(ExecutionException e){
-            //TODO Internal error
-            throw new RuntimeException("Internal error: " + e.getMessage());
-        }
+    public User getUsers(@Nonnull Long key) throws ExecutionException{
+        return getUsers(key, () -> {
+            net.dv8tion.jda.api.entities.User user;
+            user = jda.getUserById(key);
+            if(user == null)
+                user = jda.retrieveUserById(key).complete();
+            Preconditions.checkNotNull(user);
+            return JDAUser.create(user);
+        });
+    }
+
+    @Override
+    @Nonnull
+    public Guild getGuilds(@Nonnull Long key) throws ExecutionException{
+        return getGuilds(key, () -> {
+            net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(key);
+            //TODO Internal Error
+            Preconditions.checkNotNull(guild);
+            return JDAGuild.create(guild);
+        });
     }
 
     @Override

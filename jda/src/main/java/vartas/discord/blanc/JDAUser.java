@@ -17,13 +17,26 @@
 
 package vartas.discord.blanc;
 
+import org.atteo.evo.inflector.English;
+import vartas.discord.blanc.factory.MessageEmbedFactory;
 import vartas.discord.blanc.factory.UserFactory;
 import vartas.discord.blanc.io.json.JSONRanks;
 
 import javax.annotation.Nonnull;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public class JDAUser extends User{
+    /**
+     * The formatter for the dates.
+     */
+    private static final SimpleDateFormat DATE = new SimpleDateFormat("EEE, d MMM ''yy z", Locale.ENGLISH);
+
     @Nonnull
     private final net.dv8tion.jda.api.entities.User user;
 
@@ -50,5 +63,49 @@ public class JDAUser extends User{
     @Override
     public String getAsMention(){
         return user.getAsMention();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Printable
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public MessageEmbed toMessageEmbed(){
+        MessageEmbed messageEmbed = MessageEmbedFactory.create();
+
+        setTitle(messageEmbed);
+        setThumbnail(messageEmbed);
+        addId(messageEmbed);
+        addCreated(messageEmbed);
+
+        return messageEmbed;
+    }
+
+    private void setTitle(MessageEmbed messageEmbed){
+        messageEmbed.setTitle(user.getName() + "#" + user.getDiscriminator());
+    }
+
+    private void setThumbnail(MessageEmbed messageEmbed){
+        messageEmbed.setThumbnail(user.getEffectiveAvatarUrl());
+    }
+
+    protected void addId(MessageEmbed messageEmbed){
+        messageEmbed.addFields("ID", user.getId());
+    }
+
+    protected void addCreated(MessageEmbed messageEmbed){
+        int days = (int)DAYS.between(user.getTimeCreated().toLocalDate(), LocalDate.now());
+        messageEmbed.addFields(
+                "Created",
+                String.format("%s\n(%d %s ago)",
+                        DATE.format(Date.from(user.getTimeCreated().toInstant())),
+                        days,
+                        English.plural("day", days)
+                ),
+                true
+        );
+
     }
 }
