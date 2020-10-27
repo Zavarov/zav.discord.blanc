@@ -60,11 +60,19 @@ public class JDATextChannel extends TextChannel{
     }
 
     public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel){
-        return TextChannelFactory.create(
+        TextChannel textChannel = TextChannelFactory.create(
                 () -> new JDATextChannel(jdaTextChannel),
                 jdaTextChannel.getIdLong(),
                 jdaTextChannel.getName()
         );
+
+        if(jdaTextChannel.canTalk()) {
+            jdaTextChannel.retrieveWebhooks().complete().forEach(webhook ->
+                textChannel.putWebhooks(webhook.getName(), JDAWebhook.create(webhook))
+            );
+        }
+
+        return textChannel;
     }
 
     @Override
