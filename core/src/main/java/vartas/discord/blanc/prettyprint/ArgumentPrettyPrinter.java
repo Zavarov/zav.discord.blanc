@@ -26,7 +26,7 @@ import vartas.discord.blanc.parser.visitor.ParserVisitor;
 import javax.annotation.Nonnull;
 
 public class ArgumentPrettyPrinter implements ParserVisitor {
-    private final StringBuilder stringBuilder = new StringBuilder();
+    private String content = "";
 
     private ArgumentPrettyPrinter(){}
 
@@ -35,21 +35,21 @@ public class ArgumentPrettyPrinter implements ParserVisitor {
 
         argument.accept(prettyPrinter);
 
-        return prettyPrinter.stringBuilder.toString();
+        return prettyPrinter.content;
     }
 
     @Override
     public void visit(@Nonnull StringArgument argument){
-        stringBuilder.append(argument.getContent());
+        content = argument.getContent();
     }
 
     @Override
     public void visit(@Nonnull ArithmeticArgument argument){
-        stringBuilder.append(argument.getValue());
+        content = argument.getValue().toString();
     }
 
     @Override
     public void visit(@Nonnull MentionArgument argument){
-        stringBuilder.append(argument.getNumber());
+        content = argument.getNumber().toString();
     }
 }
