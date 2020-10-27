@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.command.developer;
 
+import org.json.JSONObject;
 import vartas.discord.blanc.Rank;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.io.json.JSONRanks;
@@ -95,6 +96,6 @@ public class FailsafeCommand extends FailsafeCommandTOP {
         }
 
         get$MessageChannel().send(message);
-        Shard.write(JSONRanks.of(JSONRanks.RANKS), Paths.get("ranks.json"));
+        Shard.write(JSONRanks.toJson(JSONRanks.RANKS, new JSONObject()), Paths.get("ranks.json"));
     }
 }

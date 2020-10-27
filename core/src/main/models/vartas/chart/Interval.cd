@@ -1,0 +1,12 @@
+package vartas.chart;
+
+public classdiagram Interval {
+    public enum Interval {
+        MINUTE,
+        HOUR,
+        DAY,
+        WEEK,
+        MONTH,
+        YEAR;
+    }
+}

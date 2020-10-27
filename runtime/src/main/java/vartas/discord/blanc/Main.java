@@ -45,7 +45,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        Credentials credentials = JSONCredentials.of(Paths.get("credentials.json"));
+        Credentials credentials = JSONCredentials.fromJson(new Credentials(), Paths.get("credentials.json"));
         ShardLoader shardLoader = createShardLoader(credentials);
 
         REDDIT_CLIENT = new PushshiftClient(
