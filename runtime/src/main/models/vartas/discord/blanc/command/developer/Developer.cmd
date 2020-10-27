@@ -55,4 +55,9 @@ group dev {
              class : StatusCommand
               rank : Developer
     }
+    command user{
+             class : UserCommand
+         parameter : User user
+              rank : Developer
+    }
 }
