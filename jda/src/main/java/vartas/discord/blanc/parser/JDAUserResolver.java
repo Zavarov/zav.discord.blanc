@@ -42,7 +42,8 @@ public class JDAUserResolver extends AbstractJDAResolver<net.dv8tion.jda.api.ent
     @Nullable
     @Override
     protected net.dv8tion.jda.api.entities.User resolveByNumber(Number number) {
-        return jda.getUserById(number.longValue());
+        net.dv8tion.jda.api.entities.User user;
+        return (user = jda.getUserById(number.longValue())) != null ? user : jda.retrieveUserById(number.longValue()).complete();
     }
 
     @Nonnull
