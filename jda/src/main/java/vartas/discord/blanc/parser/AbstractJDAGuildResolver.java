@@ -20,8 +20,9 @@ package vartas.discord.blanc.parser;
 import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Text;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,15 +63,8 @@ public abstract class AbstractJDAGuildResolver<U, V> implements GuildTypeResolve
 
         snowflakes = resolveByName(argument.getContent());
 
-        if(snowflakes.size() == 0){
-            //TODO Error message
-            log.error(argument.getContent(), TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-        }else if(snowflakes.size() > 1){
-            //TODO Error message
-            log.error(argument.getContent(), TypeResolverException.of(Errors.MULTIPLE_ENTITIES_BY_NAME));
-        }else{
+        if(snowflakes.size() == 1)
             snowflake = snowflakes.iterator().next();
-        }
     }
 
     @Override
