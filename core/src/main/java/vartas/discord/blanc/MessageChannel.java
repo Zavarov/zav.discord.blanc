@@ -92,6 +92,11 @@ public abstract class MessageChannel extends MessageChannelTOP{
     }
 
     @Override
+    public void send(@Nonnull User user) {
+        send(user.toMessageEmbed());
+    }
+
+    @Override
     public void send(@Nonnull Object object) {
         Message message = MessageFactory.create(0, Instant.now(), null);
 

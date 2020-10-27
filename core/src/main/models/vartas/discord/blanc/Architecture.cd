@@ -61,6 +61,7 @@ public classdiagram Architecture {
         + abstract void send(Subreddit subreddit, Submission submission);
         + abstract void send(byte[] bytes, String qualifiedName);
         + abstract void send(Role role);
+        + abstract void send(User user);
         + abstract void send(Member member);
         + abstract void send(Guild guild);
         + abstract void send(Object object);
@@ -161,7 +162,9 @@ public classdiagram Architecture {
         + abstract String getAsMention();
     }
 
-    public abstract class Webhook extends MessageChannel {}
+    public abstract class Webhook extends MessageChannel {
+        + Optional<String> subreddit;
+    }
 
     public class WebhookException extends RuntimeException{}
 
