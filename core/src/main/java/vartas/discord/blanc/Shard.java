@@ -54,7 +54,7 @@ public class Shard extends ShardTOP{
                 new ThreadFactoryBuilder().setNameFormat("Worker#%d").build()
         );
         //Update guild activity every 30 minutes
-        this.executor.scheduleAtFixedRate(() -> this.accept(new ActivityVisitor()), 5, ACTIVITY_RATE.toMinutes(), TimeUnit.MINUTES);
+        this.executor.scheduleAtFixedRate(() -> this.accept(new ActivityVisitor()), ACTIVITY_RATE.toMinutes(), ACTIVITY_RATE.toMinutes(), TimeUnit.MINUTES);
     }
 
     @Nonnull
