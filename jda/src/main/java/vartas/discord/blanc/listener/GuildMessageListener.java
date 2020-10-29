@@ -20,7 +20,6 @@ package vartas.discord.blanc.listener;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
 
@@ -37,6 +36,7 @@ public class GuildMessageListener extends ListenerAdapter {
         TextChannel textChannel = guild.getUncheckedChannels(event.getChannel().getIdLong());
         Message message = JDAMessage.create(event.getMessage());
 
+        guild.getActivity().countMessage(textChannel);
         textChannel.putMessages(message.getId(), message);
     }
 }

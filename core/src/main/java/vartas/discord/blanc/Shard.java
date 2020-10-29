@@ -39,6 +39,9 @@ public class Shard extends ShardTOP{
     protected final ScheduledExecutorService executor;
     @Nonnull
     protected final static Semaphore MUTEX = new Semaphore(1);
+    @Nonnull
+    public static final java.time.Duration ACTIVITY_RATE = java.time.Duration.ofMinutes(30);
+
     protected static boolean MODIFIES_FILE = false;
 
     @Nonnull
@@ -51,7 +54,7 @@ public class Shard extends ShardTOP{
                 new ThreadFactoryBuilder().setNameFormat("Worker#%d").build()
         );
         //Update guild activity every 30 minutes
-        this.executor.scheduleAtFixedRate(() -> this.accept(new ActivityVisitor()), 5, 30, TimeUnit.MINUTES);
+        this.executor.scheduleAtFixedRate(() -> this.accept(new ActivityVisitor()), 5, ACTIVITY_RATE.toMinutes(), TimeUnit.MINUTES);
     }
 
     @Nonnull

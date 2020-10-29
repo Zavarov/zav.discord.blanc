@@ -30,15 +30,29 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This class records the activity in a single {@link Guild} over the course of several hours and is able to visualize
  * them.
  */
 public class Activity extends ActivityTOP{
+    /**
+     * In order to avoid the ambiguity causes by the message cache of the text channel, all received messages are
+     * stored in a separate map. To minimize the overhead, only the count is stored. <b>Note:</b> The map has to be
+     * cleared manually to prevent it from growing indefinitely.
+     */
+    protected final Map<TextChannel, Long> messages = new HashMap<>();
+
+    /**
+     * Increases the number of received messages in the specified {@link TextChannel} by one.
+     * @param channel A {@link TextChannel} in which a new message was received.
+     */
+    public void countMessage(TextChannel channel){
+        messages.merge(channel, 1L, Long::sum);
+    }
+
     /**
      * Creates a new {@link JFreeChart} containing the activity of the specified {@link Guild}.
      * @param guild The {@link Guild} associated with this {@link Activity}.

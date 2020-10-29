@@ -24,6 +24,8 @@ import vartas.discord.blanc.visitor.ArchitectureVisitor;
 
 import java.time.LocalDateTime;
 
+import static vartas.discord.blanc.Shard.ACTIVITY_RATE;
+
 public class JDAActivity extends Activity{
     private final net.dv8tion.jda.api.entities.Guild jdaGuild;
     public JDAActivity(net.dv8tion.jda.api.entities.Guild jdaGuild){
@@ -33,6 +35,7 @@ public class JDAActivity extends Activity{
     @Override
     public void update(Guild guild){
         putActivity(LocalDateTime.now(), new GuildVisitor().gather(guild));
+        messages.clear();
     }
 
     private class GuildVisitor implements ArchitectureVisitor{
@@ -48,8 +51,7 @@ public class JDAActivity extends Activity{
 
         @Override
         public void visit(TextChannel channel){
-            //TODO Magic number. 5 is the time in minutes after which messages expire.
-            data.putChannelActivity(channel, channel.valuesMessages().size() / 5.0);
+            data.putChannelActivity(channel, messages.getOrDefault(channel, 0L) / (double)ACTIVITY_RATE.toMinutes());
         }
 
         @Override
