@@ -30,8 +30,11 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class records the activity in a single {@link Guild} over the course of several hours and is able to visualize
@@ -43,7 +46,7 @@ public class Activity extends ActivityTOP{
      * stored in a separate map. To minimize the overhead, only the count is stored. <b>Note:</b> The map has to be
      * cleared manually to prevent it from growing indefinitely.
      */
-    protected final Map<TextChannel, Long> messages = new HashMap<>();
+    protected final Map<TextChannel, Long> messages = new ConcurrentHashMap<>();
 
     /**
      * Increases the number of received messages in the specified {@link TextChannel} by one.
