@@ -19,11 +19,18 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.PrivateChannel;
+import vartas.discord.blanc.factory.PrivateChannelFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PrivateChannelMock extends PrivateChannel {
+    public PrivateChannelMock(){}
+
+    public PrivateChannelMock(int id, String name){
+        PrivateChannelFactory.create(() -> this, id, name);
+    }
+
     public List<Message> sent = new ArrayList<>();
 
     @Override

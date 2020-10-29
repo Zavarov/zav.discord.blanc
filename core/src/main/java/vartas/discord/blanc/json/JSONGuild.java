@@ -67,6 +67,16 @@ public class JSONGuild extends JSONGuildTOP {
     }
 
     @Override
+    protected void $fromActivity(JSONObject source, Guild target){
+        //Omitted
+    }
+
+    @Override
+    protected void $toActivity(Guild source, JSONObject target){
+        //Omitted
+    }
+
+    @Override
     protected void $fromChannels(JSONObject source, Guild target){
         JSONArray jsonChannels = source.optJSONArray(CHANNELS);
         if(jsonChannels != null) {

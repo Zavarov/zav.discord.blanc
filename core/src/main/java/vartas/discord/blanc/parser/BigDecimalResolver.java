@@ -17,8 +17,6 @@
 
 package vartas.discord.blanc.parser;
 
-import vartas.chart.Interval;
-
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 /**

@@ -19,7 +19,6 @@ package vartas.discord.blanc.parser;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.chart.Interval;
 import vartas.discord.blanc.ConfigurationModule;
 import vartas.discord.blanc.mock.AbstractTypeResolverMock;
 import vartas.discord.blanc.mock.ArithmeticArgumentMock;
@@ -28,6 +27,7 @@ import vartas.discord.blanc.mock.StringArgumentMock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class AbstractTypeResolverTest {
         localDateArgument = new StringArgumentMock(LocalDate.ofEpochDay(1337).toString());
         bigDecimalArgument = new ArithmeticArgumentMock(BigDecimal.TEN);
         configurationModuleArgument = new StringArgumentMock(ConfigurationModule.BLACKLIST.name());
-        intervalArgument = new StringArgumentMock(Interval.HOUR.name());
+        intervalArgument = new StringArgumentMock(ChronoUnit.HOURS.name());
         dummyArgument = new MentionArgumentMock(12345L);
     }
 
@@ -81,7 +81,7 @@ public class AbstractTypeResolverTest {
 
     @Test
     public void testResolveInterval(){
-        assertThat(resolver.resolveInterval(intervalArgument)).isEqualTo(Interval.HOUR);
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveInterval(dummyArgument));
+        assertThat(resolver.resolveChronoUnit(intervalArgument)).isEqualTo(ChronoUnit.HOURS);
+        assertThrows(NoSuchElementException.class, () -> resolver.resolveChronoUnit(dummyArgument));
     }
 }

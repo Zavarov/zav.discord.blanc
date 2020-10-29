@@ -19,21 +19,22 @@ package vartas.discord.blanc.parser;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.chart.Interval;
 import vartas.discord.blanc.mock.StringArgumentMock;
+
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IntervalResolverTest {
-    IntervalResolver resolver;
-    Interval interval;
+public class ChronoUnitResolverTest {
+    ChronoUnitResolver resolver;
+    ChronoUnit interval;
     Argument stringArgument;
     Argument invalidArgument;
     @BeforeEach
     public void setUp(){
-        resolver = new IntervalResolver();
-        interval = Interval.DAY;
-        stringArgument = new StringArgumentMock(Interval.DAY.name());
+        resolver = new ChronoUnitResolver();
+        interval = ChronoUnit.DAYS;
+        stringArgument = new StringArgumentMock(ChronoUnit.DAYS.name());
         invalidArgument = new StringArgumentMock("junk");
     }
     @Test

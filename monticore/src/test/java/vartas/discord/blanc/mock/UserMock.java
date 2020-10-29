@@ -17,9 +17,14 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.OnlineStatus;
 import vartas.discord.blanc.User;
+import vartas.discord.blanc.factory.UserFactory;
 
 public class UserMock extends User {
+    public UserMock(int id, String name){
+        UserFactory.create(() -> this, OnlineStatus.UNKNOWN, id, name);
+    }
     @Override
     public String getAsMention(){
         throw new UnsupportedOperationException();

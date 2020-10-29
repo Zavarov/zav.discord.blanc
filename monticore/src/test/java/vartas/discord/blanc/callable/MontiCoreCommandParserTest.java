@@ -24,7 +24,6 @@ import vartas.discord.blanc.Message;
 import vartas.discord.blanc.User;
 import vartas.discord.blanc.callable._ast.*;
 import vartas.discord.blanc.factory.MessageFactory;
-import vartas.discord.blanc.factory.UserFactory;
 import vartas.discord.blanc.mock.UserMock;
 import vartas.discord.blanc.parser.*;
 
@@ -41,7 +40,7 @@ public class MontiCoreCommandParserTest {
     public void setUp(){
         parser = new MontiCoreCommandParser();
 
-        author = UserFactory.create(UserMock::new, 0, "User");
+        author = new UserMock(0, "User");
         message = MessageFactory.create(0, Instant.now(), author);
     }
 

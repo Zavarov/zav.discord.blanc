@@ -20,7 +20,6 @@ package vartas.discord.blanc.command;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.factory.*;
 import vartas.discord.blanc.mock.*;
 
 import java.time.Instant;
@@ -46,14 +45,14 @@ public class CommandBuilderTest extends AbstractTest {
         parser = new ParserMock();
         commandBuilder = new CommandBuilderMock(parser, "!!");
 
-        author = MemberFactory.create(MemberMock::new, 0, "User");
-        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 0, "Guild");
+        author = new MemberMock(0, "User");
+        guild = new GuildMock(0, "Guild");
 
-        privateChannel = PrivateChannelFactory.create(PrivateChannelMock::new, 0, "PrivateChannel");
-        textChannel = TextChannelFactory.create(TextChannelMock::new, 0, "TextChannel");
+        privateChannel = new PrivateChannelMock(0, "PrivateChannel");
+        textChannel = new TextChannelMock(0, "TextChannel");
 
-        guildMessage = MessageFactory.create(0, Instant.now(), author);
-        privateMessage = MessageFactory.create(1, Instant.now(), author);
+        guildMessage = new MessageMock(0, Instant.now(), author);
+        privateMessage = new MessageMock(1, Instant.now(), author);
 
         privateCommand = new MessageCommandMock(author, privateChannel);
         guildCommand = new GuildCommandMock(author, textChannel, guild);

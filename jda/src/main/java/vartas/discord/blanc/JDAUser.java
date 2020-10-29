@@ -48,6 +48,7 @@ public class JDAUser extends User{
     public static User create(net.dv8tion.jda.api.entities.User user){
         return UserFactory.create(
                 () -> new JDAUser(user),
+                OnlineStatus.UNKNOWN,
                 Optional.empty(),                           //Private Channel
                 JSONRanks.RANKS.getRanks().get(user.getIdLong()),
                 user.getIdLong(),

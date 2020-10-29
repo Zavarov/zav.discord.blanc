@@ -18,6 +18,15 @@
 package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Message;
+import vartas.discord.blanc.User;
+import vartas.discord.blanc.factory.MessageFactory;
+
+import java.time.Instant;
 
 public class MessageMock extends Message {
+    public MessageMock(){}
+
+    public MessageMock(int id, Instant created, User author){
+        MessageFactory.create(() -> this,0, Instant.now(), author);
+    }
 }

@@ -54,6 +54,7 @@ public class JDAMember extends Member{
     public static Member create(net.dv8tion.jda.api.entities.Member member){
         return MemberFactory.create(
                 () -> new JDAMember(member),
+                JDAOnlineStatus.transform(member.getOnlineStatus()),
                 Optional.empty(),                           //Private Channel
                 JSONRanks.RANKS.getRanks().get(member.getIdLong()),
                 member.getIdLong(),

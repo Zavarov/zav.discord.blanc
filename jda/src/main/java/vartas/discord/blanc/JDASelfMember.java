@@ -43,6 +43,7 @@ public class JDASelfMember extends SelfMember{
     public static SelfMember create(net.dv8tion.jda.api.entities.Member member){
         SelfMember selfMember = SelfMemberFactory.create(
                 () -> new JDASelfMember(member),
+                JDAOnlineStatus.transform(member.getOnlineStatus()),
                 member.getIdLong(),
                 member.getUser().getName()
         );

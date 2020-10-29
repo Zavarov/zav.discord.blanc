@@ -44,6 +44,10 @@ public abstract class GuildCommand extends GuildCommandTOP{
             throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
     }
 
+    /**
+     * Part of the visitor pattern to grant access to the explicit implementation of the individual types.
+     * @return The current instance.
+     */
     @Override
     public GuildCommand getRealThis(){
         return this;

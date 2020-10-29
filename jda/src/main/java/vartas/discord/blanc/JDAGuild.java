@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.atteo.evo.inflector.English;
+import vartas.discord.blanc.activity.JDAActivity;
 import vartas.discord.blanc.factory.GuildFactory;
 
 import javax.annotation.Nonnull;
@@ -123,6 +124,7 @@ public class JDAGuild extends Guild{
         return GuildFactory.create(
                 () -> new JDAGuild(jdaGuild),
                 JDASelfMember.create(jdaGuild.getSelfMember()),
+                new JDAActivity(jdaGuild),
                 jdaGuild.getIdLong(),
                 jdaGuild.getName()
         );

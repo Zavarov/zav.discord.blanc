@@ -25,6 +25,7 @@ import vartas.discord.blanc.parser.visitor.ParserVisitor;
 
 import javax.annotation.Nonnull;
 
+
 public class ArgumentPrettyPrinter implements ParserVisitor {
     private String content = "";
 

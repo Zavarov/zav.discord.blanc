@@ -89,6 +89,10 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         super.shard = shard;
     }
 
+    /**
+     * Part of the visitor pattern to grant access to the explicit implementation of the individual types.
+     * @return The current instance.
+     */
     @Override
     public CommandBuilder getRealThis(){
         return this;

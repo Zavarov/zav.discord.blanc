@@ -1,6 +1,6 @@
 package vartas.discord.blanc.command.reddit;
 
-import vartas.chart.Interval.Interval;
+import java.time.temporal.ChronoUnit.ChronoUnit;
 import java.time.LocalDate.LocalDate;
 
 group reddit {
@@ -26,7 +26,7 @@ group reddit {
     }
     command subreddit{
              class : SubredditCommand
-         parameter : String subreddit, LocalDate from, LocalDate to, Interval interval
+         parameter : String subreddit, LocalDate from, LocalDate to, ChronoUnit granularity
               rank : Reddit
     }
 }

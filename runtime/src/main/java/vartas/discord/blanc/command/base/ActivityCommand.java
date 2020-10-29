@@ -16,25 +16,20 @@
  */
 package vartas.discord.blanc.command.base;
 
-import org.jfree.chart.JFreeChart;
-import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.visitor.ActivityVisitor;
-
-import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * This command generates a plot of the activity in the respective guild.
  */
 public class ActivityCommand extends ActivityCommandTOP{
+    private static final Rectangle dimension = new Rectangle(1024, 768);
+
     @Override
     public void run(){
-        JFreeChart chart = ActivityVisitor.create(get$Guild(), new ArrayList<>(get$Guild().valuesChannels()));
-        BufferedImage image = chart.createBufferedImage(1024, 768);
-        send$TextChannel(image, chart.getTitle().getText());
+        //Text Channels not supported (yet).
+        BufferedImage image = get$Guild().getActivity().create(get$Guild(), Collections.emptyList(), dimension);
+        send$TextChannel(image, "Activity");
     }
 }

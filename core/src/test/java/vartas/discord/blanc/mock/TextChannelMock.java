@@ -20,11 +20,18 @@ package vartas.discord.blanc.mock;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.Webhook;
+import vartas.discord.blanc.factory.TextChannelFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TextChannelMock extends TextChannel {
+    public TextChannelMock(){}
+
+    public TextChannelMock(int id, String name){
+        TextChannelFactory.create(() -> this, id, name);
+    }
+
     public List<Message> sent = new ArrayList<>();
 
     @Override

@@ -17,13 +17,18 @@
 
 package vartas.discord.blanc.command.reddit;
 
+import chart.line.JFreeLineChart;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
-import vartas.chart.line.DelegatingLineChart;
+import vartas.chart.line.LineChart;
+import vartas.chart.line.Position;
+import vartas.chart.line.factory.LineChartFactory;
+import vartas.chart.line.factory.NumberDatasetFactory;
 import vartas.reddit.JSONSubreddit;
 import vartas.reddit.Subreddit;
 
+import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,10 +38,9 @@ import java.util.Locale;
 import static vartas.discord.blanc.Main.REDDIT_CLIENT;
 
 public class SubredditCommand extends SubredditCommandTOP implements SnowflakeCommand{
-    private static final int width = 800;
-    private static final int height = 600;
+    private static final Rectangle dimension = new Rectangle(1024, 768);
 
-    private DiscreteDomain<LocalDate> domain = new JSONSubreddit.DiscreteLocalDateDomain();
+    private final DiscreteDomain<LocalDate> domain = new JSONSubreddit.DiscreteLocalDateDomain();
     private Range<LocalDate> range;
     private Subreddit subreddit;
 
@@ -45,12 +49,13 @@ public class SubredditCommand extends SubredditCommandTOP implements SnowflakeCo
         subreddit = REDDIT_CLIENT.getUncheckedSubreddits(getSubreddit());
         range = Range.closedOpen(getFrom(), getTo());
 
-        DelegatingLineChart<Long> chart = new DelegatingLineChart<>((u, v) -> v.stream().mapToLong(x -> x).sum());
-
-        chart.setTitle(String.format("Snowflake Chart over r/%s (per %s)", subreddit.getName(), interval.name().toLowerCase()));
-        chart.setYAxisLabel("Count");
-        chart.setXAxisLabel("Time");
-        chart.setInterval(interval);
+        LineChart chart = LineChartFactory.create(
+                JFreeLineChart::new,
+                getGranularity(),
+                "Time",
+                "Count",
+                String.format("Snowflake Chart over r/%s (per %s)", subreddit.getName(), getGranularity().name().toLowerCase())
+        );
 
         for(String flag : get$Flags()){
             switch(flag.toLowerCase(Locale.ENGLISH)){
@@ -71,52 +76,54 @@ public class SubredditCommand extends SubredditCommandTOP implements SnowflakeCo
             }
         }
 
-        get$MessageChannel().send(chart.create().createBufferedImage(width, height), getSubreddit()+".png");
+        get$MessageChannel().send(chart.create(dimension.width, dimension.height), getSubreddit()+".png");
     }
 
-    private void addSubmissions(DelegatingLineChart<Long> chart){
+    private void addSubmissions(LineChart chart){
         for(LocalDate date : ContiguousSet.create(range, domain)) {
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
             Range<Instant> range = Range.closedOpen(inclusiveFrom, exclusiveTo);
             LocalDateTime day = date.atStartOfDay();
 
-            chart.add("#Submissions", day, countSubmissions(subreddit, range));
-            chart.add("#NSFW Submissions", day, countNsfwSubmissions(subreddit, range));
-            chart.add("#Spoiler Submissions", day, countSpoilerSubmissions(subreddit, range));
+            chart.addEntries(NumberDatasetFactory.create(countSubmissions(subreddit, range), day, "#Submissions", Position.LEFT));
+            chart.addEntries(NumberDatasetFactory.create(countNsfwSubmissions(subreddit, range), day, "#NSFW Submissions", Position.LEFT));
+            chart.addEntries(NumberDatasetFactory.create(countSpoilerSubmissions(subreddit, range), day, "#Spoiler Submissions", Position.LEFT));
         }
     }
 
-    private void addComments(DelegatingLineChart<Long> chart){
+    private void addComments(LineChart chart){
         for(LocalDate date : ContiguousSet.create(range, domain)) {
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
             Range<Instant> range = Range.closedOpen(inclusiveFrom, exclusiveTo);
             LocalDateTime day = date.atStartOfDay();
 
-            chart.add("#Comments", day, countComments(subreddit, range));
+            chart.addEntries(NumberDatasetFactory.create(countComments(subreddit, range), day, "#Comments", Position.LEFT));
         }
     }
 
-    private void addSubmitters(DelegatingLineChart<Long> chart){
+    private void addSubmitters(LineChart chart){
         for(LocalDate date : ContiguousSet.create(range, domain)) {
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
             Range<Instant> range = Range.closedOpen(inclusiveFrom, exclusiveTo);
             LocalDateTime day = date.atStartOfDay();
 
-            chart.add("#Unique Submitters", day, countUniqueSubmitters(subreddit, range));
+            chart.addEntries(NumberDatasetFactory.create(countUniqueSubmitters(subreddit, range), day, "#Unique Submitters", Position.LEFT));
+
         }
     }
 
-    private void addCommenters(DelegatingLineChart<Long> chart){
+    private void addCommenters(LineChart chart){
         for(LocalDate date : ContiguousSet.create(range, domain)) {
             Instant inclusiveFrom = date.atStartOfDay(ZoneOffset.UTC).toInstant();
             Instant exclusiveTo = domain.next(date).atStartOfDay(ZoneOffset.UTC).toInstant();
             Range<Instant> range = Range.closedOpen(inclusiveFrom, exclusiveTo);
             LocalDateTime day = date.atStartOfDay();
 
-            chart.add("#Unique Commenters", day, countUniqueCommenters(subreddit, range));
+            chart.addEntries(NumberDatasetFactory.create(countUniqueCommenters(subreddit, range), day, "#Unique Commenters", Position.LEFT));
+
         }
     }
 }

@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.io.json.JSONCredentials;
 import vartas.discord.blanc.json.JSONGuild;
+import vartas.discord.blanc.visitor.ActivityVisitor;
 import vartas.discord.blanc.visitor.RedditVisitor;
 
 import javax.annotation.Nonnull;
@@ -49,6 +50,8 @@ public class Shard extends ShardTOP{
         this.worker = Executors.newCachedThreadPool(
                 new ThreadFactoryBuilder().setNameFormat("Worker#%d").build()
         );
+        //Update guild activity every 30 minutes
+        this.executor.scheduleAtFixedRate(() -> this.accept(new ActivityVisitor()), 5, 30, TimeUnit.MINUTES);
     }
 
     @Nonnull

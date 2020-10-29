@@ -18,12 +18,18 @@
 package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.*;
+import vartas.discord.blanc.factory.MemberFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class MemberMock extends Member {
+    public MemberMock(){}
+
+    public MemberMock(int id, String name){
+        MemberFactory.create(() -> this, OnlineStatus.ONLINE, id, name);
+    }
+
     public List<Permission> permissions = new ArrayList<>();
 
     @Nonnull

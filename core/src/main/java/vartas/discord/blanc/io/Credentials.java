@@ -17,6 +17,10 @@
 
 package vartas.discord.blanc.io;
 
+/**
+ * The credentials contain all information necessary for initializing the program. This includes passwords and
+ * other information necessary for communication with the individual applications, as well as
+ */
 public class Credentials extends CredentialsTOP{
     /**
      * The Maven build process automatically stores the POM version in the manifest when creating the Jar.<br>
@@ -28,6 +32,10 @@ public class Credentials extends CredentialsTOP{
         return packageVersion == null ? getBotName() + "#Test" : packageVersion;
     }
 
+    /**
+     * Part of the visitor pattern to grant access to the explicit implementation of the individual types.
+     * @return The current instance.
+     */
     @Override
     public Credentials getRealThis() {
         return this;

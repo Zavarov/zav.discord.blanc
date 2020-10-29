@@ -17,27 +17,25 @@
 
 package vartas.discord.blanc.parser;
 
-import vartas.chart.Interval;
-
 import javax.annotation.Nonnull;
-import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 /**
- * Resolves the provided {@link Argument} into an {@link Interval}.
+ * Resolves the provided {@link Argument} into an {@link ChronoUnit}.
  */
 @Nonnull
-public class IntervalResolver extends TypeResolver<Interval>{
+public class ChronoUnitResolver extends TypeResolver<ChronoUnit>{
     /**
      * Attempts to get the interval matching the name.
-     * @see Interval#valueOf(String)
+     * @see ChronoUnit#valueOf(String)
      * @param argument the name of the interval.
      */
     @Override
     public void visit(@Nonnull StringArgument argument){
         try {
-            this.type = Interval.valueOf(argument.getContent().toUpperCase(Locale.ENGLISH));
+            this.type = ChronoUnit.valueOf(argument.getContent().toUpperCase(Locale.ENGLISH));
         }catch(IllegalArgumentException ignored){
-            //Is thrown when no matching module exists.
+            //Is thrown when no matching chrono unit exists.
         }
     }
 }

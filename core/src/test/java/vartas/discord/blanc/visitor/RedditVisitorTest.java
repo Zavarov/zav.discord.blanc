@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.AbstractTest;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.activity.Activity;
 import vartas.discord.blanc.factory.GuildFactory;
 import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.factory.TextChannelFactory;
@@ -89,7 +90,7 @@ public class RedditVisitorTest extends AbstractTest {
         textChannel.addSubreddits(subreddit.getName());
         textChannel.putWebhooks("subreddit", webhook);
 
-        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 1, "Guild");
+        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), new Activity(), 1, "Guild");
         guild.putChannels(textChannel.getId(), textChannel);
 
         shard = ShardFactory.create(0, new SelfUserMock());

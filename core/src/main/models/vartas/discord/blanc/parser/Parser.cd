@@ -2,10 +2,10 @@ package vartas.discord.blanc.parser;
 
 import java.math.BigDecimal.BigDecimal;
 import java.time.LocalDate.LocalDate;
+import java.time.temporal.ChronoUnit.ChronoUnit;
 import java.util.List.List;
 import java.util.NoSuchElementException.NoSuchElementException;
 import java.util.Optional.Optional;
-import vartas.chart.Interval.Interval;
 import vartas.discord.blanc.Architecture.Guild;
 import vartas.discord.blanc.Architecture.Member;
 import vartas.discord.blanc.Architecture.Message;
@@ -41,7 +41,7 @@ public classdiagram Parser {
     }
 
     public abstract class AbstractTypeResolver{
-        public abstract Interval resolveInterval(Argument argument) throws NoSuchElementException;
+        public abstract ChronoUnit resolveChronoUnit(Argument argument) throws NoSuchElementException;
         public abstract String resolveString(Argument argument) throws NoSuchElementException;
         public abstract LocalDate resolveLocalDate(Argument argument) throws NoSuchElementException;
         public abstract BigDecimal resolveBigDecimal(Argument argument) throws NoSuchElementException;

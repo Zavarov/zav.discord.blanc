@@ -20,9 +20,6 @@ package vartas.discord.blanc.command;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.factory.AttachmentFactory;
-import vartas.discord.blanc.factory.PrivateChannelFactory;
-import vartas.discord.blanc.factory.UserFactory;
 import vartas.discord.blanc.mock.*;
 
 import java.util.NoSuchElementException;
@@ -38,8 +35,8 @@ public class CommandTest extends AbstractTest {
 
     @BeforeEach
     public void setUp(){
-        author = UserFactory.create(UserMock::new, 0, "User");
-        messageChannel = PrivateChannelFactory.create(PrivateChannelMock::new, 0, "PrivateChannel");
+        author = new UserMock(0, "User");
+        messageChannel = new PrivateChannelMock(0, "PrivateChannel");
         command = new MessageCommandMock(author, messageChannel);
         message = new MessageMock();
     }

@@ -15,36 +15,74 @@ import java.util.Optional.Optional;
 import java.util.Set.Set;
 import vartas.reddit.Submission.Submission;
 import vartas.reddit.Subreddit.Subreddit;
+import vartas.discord.blanc.activity.Activity.Activity;
 
 public classdiagram Architecture {
-    public class Client {
-        - List<Shard> shards;
-    }
-
-    public class Shard implements Killable{
-        - int id;
-        - Cache<Long, Guild> guilds;
-        - Cache<Long, User> users;
-        - SelfUser selfUser;
-    }
-
-    public abstract class Snowflake implements Killable{
+    /**
+     * A snowflake is the base class for every Discord entity.
+     */
+    public abstract class Snowflake{
+        /**
+         * Each snowflake can be uniquely identified by their id.
+         */
         - long id;
+        /**
+         * Each snowflake has a name that is displayed on the client.
+         */
         - String name;
     }
 
-    public interface Killable {
-        void shutdown();
+    /**
+     * The client is the overarching structure managing the individual shards. Additionally it is also
+     * responsible for initializing the application.
+     */
+    public class Client {
+        /**
+         * A collection of all managed shards.
+         */
+        - List<Shard> shards;
     }
 
-    public interface Printable {
-        MessageEmbed toMessageEmbed();
+    /**
+     * In order to distribute the workload, the application is split into multiple subprocesses, each operating
+     * on an mutually exclusive part of Discord.
+     */
+    public class Shard implements Killable{
+        /**
+         * Each shard is uniquely identified by its ID.
+         */
+        - int id;
+        /**
+         * A collection containing all visible guilds in the given shard. Note that the guild are permanently cached,
+         * due to automated processes like the Reddit feed. Otherwise inactive guilds may be invalidated and thus skipped.
+         */
+        - Cache<Long, Guild> guilds;
+        /**
+         * A collection of all visible users. Note that users are only cached when they actively interact with the
+         * application. For efficiency users are only cached temporarily and invalidated after a certain amount of
+         * inactivity.
+         */
+        <<initialized="PT1D">>
+        - Cache<Long, User> users;
+        /**
+         * The instance of this application inside the given shard.
+         */
+        - SelfUser selfUser;
     }
 
     public abstract class User extends Snowflake implements Printable {
+        - OnlineStatus onlineStatus;
         - Optional<PrivateChannel> channel;
         - Collection<Rank> ranks;
         + abstract String getAsMention();
+    }
+
+    public enum OnlineStatus{
+        ONLINE,
+        OFFLINE,
+        BUSY,
+        IDLE,
+        UNKNOWN;
     }
 
     public abstract class SelfUser extends User{
@@ -53,7 +91,7 @@ public classdiagram Architecture {
     }
 
     public abstract class MessageChannel extends Snowflake{
-        <<initialized="P1D">>
+        <<initialized="PT5M">>
         - Cache<Long, Message> messages;
 
         + abstract void send(Message message);
@@ -133,6 +171,7 @@ public classdiagram Architecture {
         - Cache<Long, Role> roles;
         - List<String> blacklist;
         - SelfMember selfMember;
+        - Activity activity;
 
         + abstract void leave();
     }
@@ -162,7 +201,7 @@ public classdiagram Architecture {
         + abstract String getAsMention();
     }
 
-    public abstract class Webhook extends MessageChannel {
+    public abstract class Webhook extends MessageChannel implements Killable {
         + Optional<String> subreddit;
     }
 
@@ -253,5 +292,19 @@ public classdiagram Architecture {
         MANAGE_ROLES,
         MANAGE_WEBHOOKS,
         MANAGE_EMOJIS;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Utils
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    public interface Killable {
+        void shutdown();
+    }
+
+    public interface Printable {
+        MessageEmbed toMessageEmbed();
     }
 }

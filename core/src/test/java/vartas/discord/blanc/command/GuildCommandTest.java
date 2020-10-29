@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.factory.*;
 import vartas.discord.blanc.mock.*;
 
 public class GuildCommandTest extends AbstractTest {
@@ -36,9 +35,9 @@ public class GuildCommandTest extends AbstractTest {
         parser = new ParserMock();
         commandBuilder = new CommandBuilderMock(parser, "!!");
 
-        author = (MemberMock) MemberFactory.create(MemberMock::new, 0, "User");
-        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), 0, "Guild");
-        textChannel = TextChannelFactory.create(TextChannelMock::new, 0, "TextChannel");
+        author = new MemberMock(0, "User");
+        guild = new GuildMock(0, "Guild");
+        textChannel = new TextChannelMock(0, "TextChannel");
         guildCommand = new GuildCommandMock(author, textChannel, guild);
     }
 

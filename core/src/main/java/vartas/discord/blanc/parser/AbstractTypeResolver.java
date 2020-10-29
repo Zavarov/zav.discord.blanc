@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.parser;
 
-import vartas.chart.Interval;
 import vartas.discord.blanc.ConfigurationModule;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
@@ -29,6 +28,7 @@ import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 
 /**
@@ -135,16 +135,16 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP{
     }
 
     /**
-     * Attempts to transform the provided {@link Argument} into an {@link Interval}.<br>
+     * Attempts to transform the provided {@link Argument} into an {@link ChronoUnit}.<br>
      * This is done by the name of the interval specified by the {@link StringArgument}.
-     * @param argument the {@link Argument} associated with the {@link Interval}.
-     * @return the {@link Interval} associated with the {@link Argument}.
-     * @throws NoSuchElementException if the {@link Argument} can't be resolved as an {@link Interval}.
+     * @param argument the {@link Argument} associated with the {@link ChronoUnit}.
+     * @return the {@link ChronoUnit} associated with the {@link Argument}.
+     * @throws NoSuchElementException if the {@link Argument} can't be resolved as an {@link ChronoUnit}.
      */
     @Override
     @Nonnull
-    public Interval resolveInterval(@Nonnull Argument argument) throws NoSuchElementException{
-        return new IntervalResolver().apply(argument).orElseThrow(
+    public ChronoUnit resolveChronoUnit(@Nonnull Argument argument) throws NoSuchElementException{
+        return new ChronoUnitResolver().apply(argument).orElseThrow(
                 () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
         );
     }

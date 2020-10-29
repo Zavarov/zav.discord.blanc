@@ -21,10 +21,18 @@ import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Member;
 import vartas.discord.blanc.Role;
 import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.activity.Activity;
+import vartas.discord.blanc.factory.GuildFactory;
 
 import javax.annotation.Nonnull;
 
 public class GuildMock extends Guild {
+    public GuildMock(){}
+
+    public GuildMock(int id, String name){
+        GuildFactory.create(() -> this, new SelfMemberMock(), new Activity(), id, name);
+    }
+
     @Override
     public void leave(){
         throw new UnsupportedOperationException();

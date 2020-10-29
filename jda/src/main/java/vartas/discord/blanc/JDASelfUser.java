@@ -40,6 +40,7 @@ public class JDASelfUser extends SelfUser{
     public static SelfUser create(net.dv8tion.jda.api.entities.SelfUser selfUser){
         SelfUser jdaSelfUser = SelfUserFactory.create(
                 () -> new JDASelfUser(selfUser),
+                OnlineStatus.UNKNOWN,
                 selfUser.getIdLong(),
                 selfUser.getName()
         );
