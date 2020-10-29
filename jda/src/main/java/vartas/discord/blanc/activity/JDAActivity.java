@@ -44,8 +44,7 @@ public class JDAActivity extends Activity{
         private GuildVisitor(){}
 
         public GuildActivity gather(Guild guild){
-            GuildVisitor visitor = new GuildVisitor();
-            guild.accept(visitor);
+            guild.accept(this);
             return data;
         }
 
