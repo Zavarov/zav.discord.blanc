@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.json;
+package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;

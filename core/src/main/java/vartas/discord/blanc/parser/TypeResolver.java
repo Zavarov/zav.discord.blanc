@@ -19,7 +19,7 @@ package vartas.discord.blanc.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.parser.visitor.ParserVisitor;
+import vartas.discord.blanc.parser.$visitor.ParserVisitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,7 +50,7 @@ public abstract class TypeResolver <T> implements Function<Argument, Optional<T>
      * @return the resolved {@link T} associated with the {@link Argument}.
      */
     @Override
-    public Optional<T> apply(@Nonnull Argument argument) {
+    public Optional<T> apply(Argument argument) {
         type = null;
         argument.accept(this);
         return Optional.ofNullable(type);

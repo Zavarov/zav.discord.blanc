@@ -17,9 +17,9 @@
 
 package vartas.discord.blanc;
 
-import vartas.discord.blanc.factory.AuthorFactory;
-import vartas.discord.blanc.factory.FieldFactory;
-import vartas.discord.blanc.factory.TitleFactory;
+import vartas.discord.blanc.$factory.AuthorFactory;
+import vartas.discord.blanc.$factory.FieldFactory;
+import vartas.discord.blanc.$factory.TitleFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;

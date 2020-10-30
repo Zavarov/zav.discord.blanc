@@ -18,9 +18,9 @@
 package vartas.discord.blanc.callable._ast;
 
 import de.monticore.prettyprint.IndentPrinter;
+import vartas.discord.blanc.parser.$visitor.ParserVisitor;
 import vartas.discord.blanc.parser.ArithmeticArgument;
 import vartas.discord.blanc.parser.StringArgument;
-import vartas.discord.blanc.parser.visitor.ParserVisitor;
 import vartas.monticore.arithmeticexpressions.calculator.ArithmeticExpressionsValueCalculator;
 import vartas.monticore.arithmeticexpressions.prettyprint.ArithmeticExpressionsPrettyPrinter;
 

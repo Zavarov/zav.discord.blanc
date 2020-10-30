@@ -17,7 +17,7 @@
 
 package vartas.discord.blanc;
 
-import vartas.discord.blanc.factory.MessageFactory;
+import vartas.discord.blanc.$factory.MessageFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;

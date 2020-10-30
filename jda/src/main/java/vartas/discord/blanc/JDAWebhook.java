@@ -20,14 +20,11 @@ package vartas.discord.blanc;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.json.JSONObject;
-import vartas.discord.blanc.factory.WebhookFactory;
+import vartas.discord.blanc.$factory.WebhookFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class JDAWebhook extends Webhook{
     @Nonnull

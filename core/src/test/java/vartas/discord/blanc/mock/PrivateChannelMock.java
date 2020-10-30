@@ -17,9 +17,9 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.PrivateChannelFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.PrivateChannel;
-import vartas.discord.blanc.factory.PrivateChannelFactory;
 
 import java.util.ArrayList;
 import java.util.List;

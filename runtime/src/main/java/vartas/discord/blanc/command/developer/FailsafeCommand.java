@@ -20,7 +20,7 @@ package vartas.discord.blanc.command.developer;
 import org.json.JSONObject;
 import vartas.discord.blanc.Rank;
 import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.io.json.JSONRanks;
+import vartas.discord.blanc.io.$json.JSONRanks;
 
 import java.nio.file.Paths;
 import java.util.Random;

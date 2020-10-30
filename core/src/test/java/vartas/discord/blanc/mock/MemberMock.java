@@ -17,8 +17,8 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.MemberFactory;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.factory.MemberFactory;
 
 import javax.annotation.Nonnull;
 import java.util.*;

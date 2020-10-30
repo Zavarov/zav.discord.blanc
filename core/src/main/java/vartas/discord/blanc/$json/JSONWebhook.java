@@ -15,23 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.json;
+package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
-import vartas.discord.blanc.Role;
+import vartas.discord.blanc.Webhook;
 
 import java.util.Optional;
 
-public class JSONRole extends JSONRoleTOP {
-    public static final String GROUP = "group";
-
+public class JSONWebhook extends JSONWebhookTOP {
     @Override
-    protected void $fromGroup(JSONObject source, Role target){
-        target.setGroup(Optional.ofNullable(source.optString(GROUP)));
+    protected void $fromMessages(JSONObject source, Webhook target){
+        //Omitted
     }
 
     @Override
-    protected void $toGroup(Role source, JSONObject target){
-        source.ifPresentGroup(group -> target.put(GROUP, group));
+    protected void $toMessages(Webhook source, JSONObject target){
+        //Omitted
+    }
+
+    @Override
+    protected void $fromSubreddit(JSONObject source, Webhook target){
+        Optional<String> subreddit = Optional.ofNullable(source.optString("subreddit"));
+        target.setSubreddit(subreddit);
+    }
+
+    @Override
+    protected void $toSubreddit(Webhook source, JSONObject target){
+        source.ifPresentSubreddit(subreddit ->  target.put("subreddit", subreddit));
     }
 }

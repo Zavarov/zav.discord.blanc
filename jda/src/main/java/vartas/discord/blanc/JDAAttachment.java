@@ -19,7 +19,7 @@ package vartas.discord.blanc;
 
 
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.factory.AttachmentFactory;
+import vartas.discord.blanc.$factory.AttachmentFactory;
 
 import java.util.concurrent.ExecutionException;
 

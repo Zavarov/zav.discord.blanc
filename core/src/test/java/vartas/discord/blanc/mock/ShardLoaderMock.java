@@ -18,12 +18,12 @@
 package vartas.discord.blanc.mock;
 
 import org.json.JSONException;
+import vartas.discord.blanc.$factory.ShardFactory;
+import vartas.discord.blanc.$json.JSONGuild;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.ShardLoader;
-import vartas.discord.blanc.factory.ShardFactory;
 import vartas.discord.blanc.io.Credentials;
-import vartas.discord.blanc.json.JSONGuild;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

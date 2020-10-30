@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.visitor;
 
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.Guild;
 
 public class ActivityVisitor implements ArchitectureVisitor {

@@ -17,9 +17,9 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.UserFactory;
 import vartas.discord.blanc.OnlineStatus;
 import vartas.discord.blanc.User;
-import vartas.discord.blanc.factory.UserFactory;
 
 public class UserMock extends User {
     public UserMock(){}

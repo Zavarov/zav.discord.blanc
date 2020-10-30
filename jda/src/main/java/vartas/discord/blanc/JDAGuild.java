@@ -21,8 +21,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.atteo.evo.inflector.English;
+import vartas.discord.blanc.$factory.GuildFactory;
 import vartas.discord.blanc.activity.JDAActivity;
-import vartas.discord.blanc.factory.GuildFactory;
 
 import javax.annotation.Nonnull;
 import java.time.format.DateTimeFormatter;

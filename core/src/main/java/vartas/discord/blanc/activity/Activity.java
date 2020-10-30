@@ -18,11 +18,9 @@
 package vartas.discord.blanc.activity;
 
 import chart.line.JFreeLineChart;
-import org.jfree.chart.JFreeChart;
+import vartas.chart.line.$factory.LineChartFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
-import vartas.chart.line.factory.LineChartFactory;
-import vartas.chart.line.factory.NumberDatasetFactory;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
 
@@ -37,36 +35,34 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class records the activity in a single {@link Guild} over the course of several hours and is able to visualize
- * them.
+ * The activity within a ${@link Guild} describes both the amount of members and their participation.
+ * <p>
+ * Throughout the lifetime of the ${@link Guild}, the total amount of members and its subset that are online are counted
+ * periodically. Additionally, it also keeps track of the messages sent in the individual text channels. The activity in
+ * those is then computed by taking all messages that have been received within a specific interval and then dividing it
+ * by the duration to get the number of messages per minute.
  */
+@Nonnull
 public class Activity extends ActivityTOP{
     /**
-     * In order to avoid the ambiguity causes by the message cache of the text channel, all received messages are
-     * stored in a separate map. To minimize the overhead, only the count is stored. <b>Note:</b> The map has to be
-     * cleared manually to prevent it from growing indefinitely.
+     * This map keeps track of all messages that have been received in the individual text channels. One may be tempted
+     * to use the internal cache via {@link TextChannel#getMessages()}, but the we are left to the mercy of its
+     * behaviour and messages may be discarded before the activity has been calculated. In order to minimize the
+     * overhead, we only keep track of the message occurrences and not their content.
+     * <p>
+     * The downside is, however, that we manually have to clear the map in order to prevent it from growing
+     * indefinitely.
      */
+    @Nonnull
     protected final Map<TextChannel, Long> messages = new ConcurrentHashMap<>();
 
     /**
-     * Increases the number of received messages in the specified {@link TextChannel} by one.
-     * @param channel A {@link TextChannel} in which a new message was received.
+     * Increases the count for the number of messages in the associated {@link TextChannel} by one.
+     * @see #messages
+     * @param channel The {@link TextChannel} in which the new message was received.
      */
-    public void countMessage(TextChannel channel){
+    public void countMessage(@Nonnull TextChannel channel){
         messages.merge(channel, 1L, Long::sum);
-    }
-
-    /**
-     * Creates a new {@link JFreeChart} containing the activity of the specified {@link Guild}.
-     * @param guild The {@link Guild} associated with this {@link Activity}.
-     * @param textChannels A subset of {@link TextChannel TextChannels} of the specified {@link Guild}.
-     *                     The generated chart will also include the activity within those individual channels..
-     * @param bounds The dimensions of the {@link BufferedImage}.
-     * @return A {@link BufferedImage} plotting the {@link Guild} activity over the past hours.
-     */
-    @Nonnull
-    public BufferedImage create(@Nonnull Guild guild, @Nonnull List<TextChannel> textChannels, @Nonnull Rectangle bounds){
-        return new ChartBuilder(guild, textChannels).build(bounds);
     }
 
     /**
@@ -79,16 +75,36 @@ public class Activity extends ActivityTOP{
     }
 
     /**
-     * This class is used to construct a chart based on the cached {@link Guild} snapshots.
+     * Plots the activity of the corresponding {@link Guild} using the cached snapshots.
+     * @see #getActivity()
+     * @param guild The {@link Guild} associated with this {@link Activity}.
+     * @param textChannels A subset of text channels belonging to the specified {@link Guild}. Additionally to the
+     *                     normal entry, the chart will also include the activity of the individual channels.
+     * @param bounds The dimensions of the {@link BufferedImage}.
+     * @return A line chart plotting the recent {@link Guild} activity..
      */
+    @Nonnull
+    public BufferedImage create(@Nonnull Guild guild, @Nonnull List<TextChannel> textChannels, @Nonnull Rectangle bounds){
+        return new ChartBuilder(guild, textChannels).build(bounds);
+    }
+
+    /**
+     * The builder for constructing the line chart over the corresponding {@link Guild}.
+     * <p>
+     * By using the cached snapshots, we can recreate and plot the recent history of the {@link Guild}. The chart
+     * itself consists two range axis. The left axis plots the accumulated number of messages per minute over all
+     * text channels. If individual channels have been specified, the chart also includes their activity separately.
+     * The right axis plots the total amount of members as well as the ones that are currently online.
+     */
+    @Nonnull
     private class ChartBuilder{
         /**
-         * A collection of text channels whose activity is also included in the chart.
+         * A collection of text channels whose activity is plotted separately.
          */
         @Nonnull
         private final List<TextChannel> channels;
         /**
-         * The chart containing the accumulated data.
+         * The final chart containing the accumulated data.
          */
         @Nonnull
         private final LineChart chart;
@@ -126,15 +142,14 @@ public class Activity extends ActivityTOP{
         public BufferedImage build(@Nonnull Rectangle bounds){
             //Fill the chart with the corresponding data sets
             asMapActivity().forEach((key, value) -> {
-                chart.addEntries(NumberDatasetFactory.create(value.getMembersCount(), key, "#Members", Position.RIGHT));
-                chart.addEntries(NumberDatasetFactory.create(value.getMembersOnline(), key, "#Members Online", Position.RIGHT));
-                chart.addEntries(NumberDatasetFactory.create(value.getActivity(), key, "#Messages/min", Position.LEFT));
+                chart.addEntries(value.getMembersCount(), key, "#Members", Position.RIGHT);
+                chart.addEntries(value.getMembersOnline(), key, "#Members Online", Position.RIGHT);
+                chart.addEntries(value.getActivity(), key, "#Messages/min", Position.LEFT);
                 value.forEachChannelActivity((channel, activity) -> {
                     if(channels.contains(channel))
-                        chart.addEntries(NumberDatasetFactory.create(activity, key, channel.getName(), Position.LEFT));
+                        chart.addEntries(activity, key, channel.getName(), Position.LEFT);
                 });
             });
-
 
             return chart.create(bounds.width, bounds.height);
         }

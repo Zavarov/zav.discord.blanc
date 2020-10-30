@@ -17,10 +17,10 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.TextChannelFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.Webhook;
-import vartas.discord.blanc.factory.TextChannelFactory;
 
 import java.util.ArrayList;
 import java.util.List;

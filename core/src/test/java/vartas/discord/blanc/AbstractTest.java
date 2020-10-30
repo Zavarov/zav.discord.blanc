@@ -18,8 +18,8 @@
 package vartas.discord.blanc;
 
 import org.junit.jupiter.api.BeforeAll;
+import vartas.discord.blanc.io.$json.JSONCredentials;
 import vartas.discord.blanc.io.Credentials;
-import vartas.discord.blanc.io.json.JSONCredentials;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.io.json;
+package vartas.discord.blanc.io.$json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

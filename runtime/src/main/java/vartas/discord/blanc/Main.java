@@ -19,8 +19,8 @@ package vartas.discord.blanc;
 
 import de.se_rwth.commons.logging.Log;
 import vartas.discord.blanc.callable.MontiCoreCommandParser;
+import vartas.discord.blanc.io.$json.JSONCredentials;
 import vartas.discord.blanc.io.Credentials;
-import vartas.discord.blanc.io.json.JSONCredentials;
 import vartas.discord.blanc.monticore.MontiCoreCommandBuilder;
 import vartas.discord.blanc.parser.JDATypeResolver;
 import vartas.discord.blanc.parser.Parser;

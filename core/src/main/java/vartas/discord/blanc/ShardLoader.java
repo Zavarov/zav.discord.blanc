@@ -19,8 +19,8 @@ package vartas.discord.blanc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.io.Credentials;
-import vartas.discord.blanc.visitor.ArchitectureVisitor;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

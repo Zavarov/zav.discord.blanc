@@ -35,10 +35,9 @@
         <!-- .. Libraries ..................................................... -->
 
         <evo-inflector.version>1.2.2</evo-inflector.version>
-        <chart.version>2.2</chart.version>
+        <chart.version>2.3</chart.version>
         <reddit.version>3.3-SNAPSHOT</reddit.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <jda.version>4.1.1_165</jda.version>
         <oshi.version>5.3.3</oshi.version>
 
         <monticore.guava.version>25.1-jre</monticore.guava.version>

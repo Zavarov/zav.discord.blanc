@@ -22,11 +22,6 @@ import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.AbstractTest;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.activity.Activity;
-import vartas.discord.blanc.factory.GuildFactory;
-import vartas.discord.blanc.factory.ShardFactory;
-import vartas.discord.blanc.factory.TextChannelFactory;
-import vartas.discord.blanc.factory.WebhookFactory;
 import vartas.discord.blanc.mock.*;
 import vartas.reddit.Submission;
 import vartas.reddit.factory.SubmissionFactory;
@@ -83,17 +78,17 @@ public class RedditVisitorTest extends AbstractTest {
     }
 
     private void initDiscordHook() {
-        webhook = (WebhookMock) WebhookFactory.create(WebhookMock::new, 12345L,"subreddit");
+        webhook = new WebhookMock(12345L,"subreddit");
         webhook.setSubreddit("subreddit");
 
-        textChannel = (TextChannelMock) TextChannelFactory.create(TextChannelMock::new, 2, "TextChannel");
+        textChannel = new TextChannelMock(2, "TextChannel");
         textChannel.addSubreddits(subreddit.getName());
         textChannel.putWebhooks("subreddit", webhook);
 
-        guild = GuildFactory.create(GuildMock::new, new SelfMemberMock(), new Activity(), 1, "Guild");
+        guild = new GuildMock(1, "Guild");
         guild.putChannels(textChannel.getId(), textChannel);
 
-        shard = ShardFactory.create(0, new SelfUserMock());
+        shard = new ShardMock(0);
         shard.putGuilds(guild.getId(), guild);
 
     }

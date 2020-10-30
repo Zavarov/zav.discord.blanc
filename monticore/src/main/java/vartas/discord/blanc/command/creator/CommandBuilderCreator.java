@@ -180,7 +180,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
 
         @Override
         public void visit(ASTClassAttribute ast){
-            commandClass = Joiners.DOT.join(commandPackage, CDGeneratorHelper.FACTORY_MODULE, ast.getName() + "Factory");
+            commandClass = Joiners.DOT.join(commandPackage, CDGeneratorHelper.FACTORY_PACKAGE, ast.getName() + "Factory");
         }
 
         @Override

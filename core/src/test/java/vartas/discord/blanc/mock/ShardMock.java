@@ -17,7 +17,13 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.ShardFactory;
 import vartas.discord.blanc.Shard;
 
 public class ShardMock extends Shard {
+    public ShardMock(){}
+
+    public ShardMock(int id){
+        ShardFactory.create(() -> this, id, new SelfUserMock());
+    }
 }

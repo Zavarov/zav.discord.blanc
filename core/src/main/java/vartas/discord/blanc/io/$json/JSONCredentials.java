@@ -15,33 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.io.json;
+package vartas.discord.blanc.io.$json;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.Errors;
-import vartas.discord.blanc.io.StatusMessages;
+import vartas.discord.blanc.io.Credentials;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-public class JSONStatusMessages extends JSONStatusMessagesTOP {
-    public static StatusMessages STATUS_MESSAGES = new StatusMessages();
+public class JSONCredentials extends JSONCredentialsTOP {
+    @Nonnull
+    public static Credentials CREDENTIALS = new Credentials();
 
     static{
         try{
-            fromJson(STATUS_MESSAGES, Paths.get("status.json"));
+            fromJson(CREDENTIALS, Paths.get("credentials.json"));
         }catch(IOException e){
-            LoggerFactory.getLogger(JSONStatusMessages.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
+            LoggerFactory.getLogger(JSONCredentials.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
         }
     }
 
     @Override
-    protected void $fromStatusMessages(JSONObject source, StatusMessages target){
-        JSONArray jsonArray = source.getJSONArray("statusMessages");
-        for(int i = 0 ; i < jsonArray.length() ; ++i){
-            target.addStatusMessages(jsonArray.getString(i));
-        }
+    protected void $fromGuildDirectory(JSONObject source, Credentials target){
+        target.setGuildDirectory(Paths.get(source.getString("guildDirectory")));
     }
 }

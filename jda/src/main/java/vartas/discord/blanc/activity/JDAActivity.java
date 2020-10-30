@@ -18,9 +18,9 @@
 package vartas.discord.blanc.activity;
 
 import net.dv8tion.jda.api.OnlineStatus;
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.visitor.ArchitectureVisitor;
 
 import java.time.LocalDateTime;
 

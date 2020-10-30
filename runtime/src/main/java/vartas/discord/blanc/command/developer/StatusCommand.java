@@ -25,8 +25,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
 import vartas.discord.blanc.MessageEmbed;
-import vartas.discord.blanc.factory.MessageEmbedFactory;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;

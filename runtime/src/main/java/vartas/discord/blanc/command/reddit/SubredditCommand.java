@@ -21,10 +21,10 @@ import chart.line.JFreeLineChart;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
+import vartas.chart.line.$factory.LineChartFactory;
+import vartas.chart.line.$factory.NumberDatasetFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
-import vartas.chart.line.factory.LineChartFactory;
-import vartas.chart.line.factory.NumberDatasetFactory;
 import vartas.reddit.JSONSubreddit;
 import vartas.reddit.Subreddit;
 

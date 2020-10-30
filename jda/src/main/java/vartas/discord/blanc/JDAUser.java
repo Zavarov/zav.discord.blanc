@@ -18,9 +18,9 @@
 package vartas.discord.blanc;
 
 import org.atteo.evo.inflector.English;
-import vartas.discord.blanc.factory.MessageEmbedFactory;
-import vartas.discord.blanc.factory.UserFactory;
-import vartas.discord.blanc.io.json.JSONRanks;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.UserFactory;
+import vartas.discord.blanc.io.$json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;

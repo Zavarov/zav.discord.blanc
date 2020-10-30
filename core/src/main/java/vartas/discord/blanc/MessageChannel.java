@@ -17,8 +17,8 @@
 
 package vartas.discord.blanc;
 
-import vartas.discord.blanc.factory.MessageEmbedFactory;
-import vartas.discord.blanc.factory.MessageFactory;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.MessageFactory;
 import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
 

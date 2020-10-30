@@ -17,9 +17,9 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.MessageFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.User;
-import vartas.discord.blanc.factory.MessageFactory;
 
 import java.time.Instant;
 

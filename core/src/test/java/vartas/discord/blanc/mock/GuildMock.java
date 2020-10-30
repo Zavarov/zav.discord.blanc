@@ -17,12 +17,12 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.GuildFactory;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Member;
 import vartas.discord.blanc.Role;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.activity.Activity;
-import vartas.discord.blanc.factory.GuildFactory;
 
 import javax.annotation.Nonnull;
 

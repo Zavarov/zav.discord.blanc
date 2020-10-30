@@ -17,7 +17,7 @@
 
 package vartas.discord.blanc;
 
-import vartas.discord.blanc.factory.PrivateChannelFactory;
+import vartas.discord.blanc.$factory.PrivateChannelFactory;
 
 import javax.annotation.Nonnull;
 

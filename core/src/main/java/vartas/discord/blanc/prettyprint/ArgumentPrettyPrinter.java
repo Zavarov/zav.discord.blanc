@@ -17,11 +17,11 @@
 
 package vartas.discord.blanc.prettyprint;
 
+import vartas.discord.blanc.parser.$visitor.ParserVisitor;
 import vartas.discord.blanc.parser.Argument;
 import vartas.discord.blanc.parser.ArithmeticArgument;
 import vartas.discord.blanc.parser.MentionArgument;
 import vartas.discord.blanc.parser.StringArgument;
-import vartas.discord.blanc.parser.visitor.ParserVisitor;
 
 import javax.annotation.Nonnull;
 

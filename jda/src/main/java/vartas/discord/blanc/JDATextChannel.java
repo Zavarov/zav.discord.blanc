@@ -20,7 +20,7 @@ package vartas.discord.blanc;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.factory.TextChannelFactory;
+import vartas.discord.blanc.$factory.TextChannelFactory;
 
 import javax.annotation.Nonnull;
 import java.util.List;

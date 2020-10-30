@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.factory.SelfUserFactory;
-import vartas.discord.blanc.io.json.JSONRanks;
+import vartas.discord.blanc.$factory.SelfUserFactory;
+import vartas.discord.blanc.io.$json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

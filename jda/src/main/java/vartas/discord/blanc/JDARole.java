@@ -18,8 +18,8 @@
 package vartas.discord.blanc;
 
 import org.atteo.evo.inflector.English;
-import vartas.discord.blanc.factory.MessageEmbedFactory;
-import vartas.discord.blanc.factory.RoleFactory;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.RoleFactory;
 
 import javax.annotation.Nonnull;
 import java.awt.*;

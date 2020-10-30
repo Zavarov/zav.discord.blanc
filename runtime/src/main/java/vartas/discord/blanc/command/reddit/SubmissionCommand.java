@@ -24,10 +24,10 @@ import com.google.common.collect.Range;
 import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vartas.chart.pie.$factory.NumberDatasetFactory;
+import vartas.chart.pie.$factory.PieChartFactory;
 import vartas.chart.pie.Dataset;
 import vartas.chart.pie.PieChart;
-import vartas.chart.pie.factory.NumberDatasetFactory;
-import vartas.chart.pie.factory.PieChartFactory;
 import vartas.reddit.JSONSubreddit;
 import vartas.reddit.Submission;
 import vartas.reddit.Subreddit;
@@ -37,8 +37,10 @@ import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
 
 import static vartas.discord.blanc.Main.REDDIT_CLIENT;
 
@@ -158,7 +160,7 @@ public class SubmissionCommand extends SubmissionCommandTOP {
     private void createChart(PieChart chart, Map<String, Long> data, Map<String, Color> colors){
         data.forEach((key, value) -> {
             Color color = colors.computeIfAbsent(key, name -> new Color(name.hashCode() & 0xFFFFFF));
-            Dataset dataset = NumberDatasetFactory.create(value, Optional.of(color));
+            Dataset dataset = NumberDatasetFactory.create(value, color);
             chart.putEntries(key, dataset);
         });
     }

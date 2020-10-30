@@ -19,11 +19,10 @@ package vartas.discord.blanc.parser;
 
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.parser.visitor.ParserVisitor;
+import vartas.discord.blanc.parser.$visitor.ParserVisitor;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
 /**
  * This interface is used for all data types that exist within the scope of a {@link Guild}

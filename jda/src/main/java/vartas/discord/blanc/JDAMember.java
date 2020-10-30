@@ -20,9 +20,9 @@ package vartas.discord.blanc;
 import net.dv8tion.jda.api.entities.Activity;
 import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
-import vartas.discord.blanc.factory.MemberFactory;
-import vartas.discord.blanc.factory.MessageEmbedFactory;
-import vartas.discord.blanc.io.json.JSONRanks;
+import vartas.discord.blanc.$factory.MemberFactory;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.io.$json.JSONRanks;
 
 import javax.annotation.Nonnull;
 import java.awt.*;

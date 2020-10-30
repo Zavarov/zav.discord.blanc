@@ -17,9 +17,9 @@
 
 package vartas.discord.blanc.command.developer;
 
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.Killable;
 import vartas.discord.blanc.Main;
-import vartas.discord.blanc.visitor.ArchitectureVisitor;
 
 /**
  * This command terminates the whole instance by halting all threads.

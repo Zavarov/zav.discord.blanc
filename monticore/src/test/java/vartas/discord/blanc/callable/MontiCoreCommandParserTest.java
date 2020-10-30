@@ -20,10 +20,10 @@ package vartas.discord.blanc.callable;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import vartas.discord.blanc.$factory.MessageFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.User;
 import vartas.discord.blanc.callable._ast.*;
-import vartas.discord.blanc.factory.MessageFactory;
 import vartas.discord.blanc.mock.UserMock;
 import vartas.discord.blanc.parser.*;
 

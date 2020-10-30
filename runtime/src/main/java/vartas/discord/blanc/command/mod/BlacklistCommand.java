@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Zavarov
+ * Copyright (c) 2020 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 package vartas.discord.blanc.command.mod;
 
 import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.io.json.JSONCredentials;
-import vartas.discord.blanc.json.JSONGuild;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;

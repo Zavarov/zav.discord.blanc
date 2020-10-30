@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.WebhookFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.Webhook;
 
@@ -25,6 +26,12 @@ import java.util.List;
 
 public class WebhookMock extends Webhook {
     public List<Message> sent = new ArrayList<>();
+
+    public WebhookMock(){}
+
+    public WebhookMock(long id, String name){
+        WebhookFactory.create(() -> this, id, name);
+    }
 
     @Override
     public void send(Message message) {
