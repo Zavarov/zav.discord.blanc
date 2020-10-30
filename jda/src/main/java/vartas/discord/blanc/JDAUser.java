@@ -25,11 +25,10 @@ import vartas.discord.blanc.io.json.JSONRanks;
 import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class JDAUser extends User{
     /**
@@ -97,13 +96,19 @@ public class JDAUser extends User{
     }
 
     protected void addCreated(MessageEmbed messageEmbed){
-        int days = (int)DAYS.between(user.getTimeCreated().toLocalDate(), LocalDate.now());
+        Period period = Period.between(user.getTimeCreated().toLocalDate(), LocalDate.now());
+
         messageEmbed.addFields(
                 "Created",
-                String.format("%s\n(%d %s ago)",
+                String.format(
+                        "%s\n(%d %s, %d %s and %d %s ago)",
                         DATE.format(Date.from(user.getTimeCreated().toInstant())),
-                        days,
-                        English.plural("day", days)
+                        period.getYears(),
+                        English.plural("year", period.getYears()),
+                        period.getMonths(),
+                        English.plural("month", period.getMonths()),
+                        period.getDays(),
+                        English.plural("day", period.getDays())
                 ),
                 true
         );

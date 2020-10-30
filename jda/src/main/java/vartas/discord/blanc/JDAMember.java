@@ -28,11 +28,10 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class JDAMember extends Member{
     /**
@@ -154,13 +153,19 @@ public class JDAMember extends Member{
     }
 
     protected void addCreated(MessageEmbed messageEmbed){
-        int days = (int)DAYS.between(member.getUser().getTimeCreated().toLocalDate(),LocalDate.now());
+        Period period = Period.between(member.getTimeCreated().toLocalDate(), LocalDate.now());
+
         messageEmbed.addFields(
                 "Created",
-                String.format("%s\n(%d %s ago)",
-                    DATE.format(Date.from(member.getUser().getTimeCreated().toInstant())),
-                    days,
-                    English.plural("day", days)
+                String.format(
+                        "%s\n(%d %s, %d %s and %d %s ago)",
+                        DATE.format(Date.from(member.getTimeCreated().toInstant())),
+                        period.getYears(),
+                        English.plural("year", period.getYears()),
+                        period.getMonths(),
+                        English.plural("month", period.getMonths()),
+                        period.getDays(),
+                        English.plural("day", period.getDays())
                 ),
                 true
         );
@@ -168,13 +173,19 @@ public class JDAMember extends Member{
     }
 
     private void addJoined(MessageEmbed messageEmbed){
-        int days = (int)DAYS.between(member.getTimeJoined().toLocalDate(), LocalDate.now());
+        Period period = Period.between(member.getTimeJoined().toLocalDate(), LocalDate.now());
+
         messageEmbed.addFields(
                 "Joined",
-                String.format("%s\n(%d %s ago)",
-                    DATE.format(Date.from(member.getTimeJoined().toInstant())),
-                    days,
-                    English.plural("day", days)
+                String.format(
+                        "%s\n(%d %s, %d %s and %d %s ago)",
+                        DATE.format(Date.from(member.getTimeCreated().toInstant())),
+                        period.getYears(),
+                        English.plural("year", period.getYears()),
+                        period.getMonths(),
+                        English.plural("month", period.getMonths()),
+                        period.getDays(),
+                        English.plural("day", period.getDays())
                 ),
                 true
         );
