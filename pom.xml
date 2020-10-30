@@ -39,7 +39,7 @@
         <reddit.version>3.3-SNAPSHOT</reddit.version>
         <slf4j.version>1.7.30</slf4j.version>
         <jda.version>4.1.1_165</jda.version>
-        <oshi.version>5.1.2</oshi.version>
+        <oshi.version>5.3.3</oshi.version>
 
         <monticore.guava.version>25.1-jre</monticore.guava.version>
         <guava.version>28.2-jre</guava.version>
