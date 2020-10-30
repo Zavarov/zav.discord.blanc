@@ -76,7 +76,7 @@ public class StatusCommand extends StatusCommandTOP {
         messageEmbed.addFields("Logical", cpu.getLogicalProcessorCount(), true);
         messageEmbed.addFields("Physical", cpu.getPhysicalProcessorCount(), true);
         messageEmbed.addFields("Available", os.getAvailableProcessors(), true);
-        messageEmbed.addFields("System Load", 100.0 * cpu.getSystemLoadAverage(1)[0] / cpu.getPhysicalProcessorCount() + "%", true);
+        messageEmbed.addFields("System Load", 100.0 * cpu.getSystemLoadAverage(1)[0] / cpu.getLogicalProcessorCount() + "%", true);
 
         StringBuilder frequencyBuilder = new StringBuilder();
         for(int i = 0 ; i < Math.min(processors.size(), frequencies.length) ; ++i)
