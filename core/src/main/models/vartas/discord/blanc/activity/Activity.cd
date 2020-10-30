@@ -20,7 +20,7 @@ public classdiagram Activity {
          * A cache containing previous guild snapshots. Each snapshot represents the state of a guild at an arbitrary point
          * in history.
          */
-        <<initialized="PT1D">>
+        <<initializer="P1D">>
         - Cache<LocalDateTime, GuildActivity> activity;
         + BufferedImage build(List<TextChannel> channels, Rectangle bounds);
         + void update(Guild guild);

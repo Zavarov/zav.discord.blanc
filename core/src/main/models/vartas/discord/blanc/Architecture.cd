@@ -62,7 +62,7 @@ public classdiagram Architecture {
          * application. For efficiency users are only cached temporarily and invalidated after a certain amount of
          * inactivity.
          */
-        <<initialized="PT1D">>
+        <<initializer="PT1H">>
         - Cache<Long, User> users;
         /**
          * The instance of this application inside the given shard.
@@ -91,7 +91,7 @@ public classdiagram Architecture {
     }
 
     public abstract class MessageChannel extends Snowflake{
-        <<initialized="PT5M">>
+        <<initializer="PT5M">>
         - Cache<Long, Message> messages;
 
         + abstract void send(Message message);
@@ -166,8 +166,10 @@ public classdiagram Architecture {
     //------------------------------------------------------------------------------------------------------------------
     public abstract class Guild extends Snowflake implements Printable{
         - Optional<String> prefix;
+        <<initializer="PT1H">>
         - Cache<Long, Member> members;
         - Cache<Long, TextChannel> channels;
+        <<initializer="PT1H">>
         - Cache<Long, Role> roles;
         - List<String> blacklist;
         - SelfMember selfMember;
