@@ -19,7 +19,10 @@ package vartas.discord.blanc.command.developer;
 
 import org.atteo.evo.inflector.English;
 import oshi.SystemInfo;
-import oshi.hardware.*;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.Sensors;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import vartas.discord.blanc.MessageEmbed;
@@ -90,11 +93,12 @@ public class StatusCommand extends StatusCommandTOP {
 
     private void printOs(){
         OperatingSystem os = systemInfo.getOperatingSystem();
-        Duration duration = Duration.ofSeconds(os.getSystemUptime());
+        OSProcess process = os.getProcess(os.getProcessId());
+        Duration duration = Duration.ofMillis(process.getUpTime());
         messageEmbed.addFields(
                 "Uptime",
                 String.format(
-                        "Running for %d %s %d %s %d %s.\n",
+                        "Running for %d %s, %d %s and %d %s.\n",
                         duration.toDays(),English.plural("day",(int)duration.toDays()),
                         duration.toHours() % 24, English.plural("hour",(int)(duration.toHours() % 24)),
                         duration.toMinutes() % 60,English.plural("minute",(int)(duration.toMinutes() % 60))
