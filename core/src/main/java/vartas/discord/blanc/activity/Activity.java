@@ -120,7 +120,7 @@ public class Activity extends ActivityTOP{
                     JFreeLineChart::new,
                     ChronoUnit.MINUTES,
                     new ArrayList<>(),
-                    "Time",
+                    "Time (UTC)",
                     "#Messages/min",
                     Optional.of("Members"),
                     guild.getName()
