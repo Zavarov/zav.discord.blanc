@@ -29,6 +29,7 @@
         <module>jda</module>
         <module>monticore</module>
         <module>runtime</module>
+        <module>shaded</module>
     </modules>
 
     <properties>
@@ -73,6 +74,7 @@
         <maven-builder-helper-plugin.version>3.0.0</maven-builder-helper-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
+        <maven-deploy-plugin.version>2.7</maven-deploy-plugin.version>
 
         <!-- .. Misc .......................................................... -->
         <init.path>initializer/**</init.path>
