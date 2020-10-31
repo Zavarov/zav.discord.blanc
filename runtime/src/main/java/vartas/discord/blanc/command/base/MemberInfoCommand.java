@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Zavarov
+ * Copyright (c) 2020 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,12 @@
 
 package vartas.discord.blanc.command.base;
 
-import vartas.discord.blanc.Member;
-
 /**
  * This command shows information about the mentioned member.
  */
 public class MemberInfoCommand extends MemberInfoCommandTOP{
     @Override
     public void run(){
-        get$TextChannel().send(member);
+        get$TextChannel().send(getMember().orElse(get$Author()));
     }
 }

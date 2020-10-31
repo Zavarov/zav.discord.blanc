@@ -18,7 +18,6 @@ package vartas.discord.blanc.command.base;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 
 /**
  * This command generates a plot of the activity in the respective guild.
@@ -28,8 +27,7 @@ public class ActivityCommand extends ActivityCommandTOP{
 
     @Override
     public void run(){
-        //Text Channels not supported (yet).
-        BufferedImage image = get$Guild().getActivity().create(get$Guild(), Collections.emptyList(), dimension);
+        BufferedImage image = get$Guild().getActivity().create(get$Guild(), getChannels(), dimension);
         send$TextChannel(image, "Activity");
     }
 }

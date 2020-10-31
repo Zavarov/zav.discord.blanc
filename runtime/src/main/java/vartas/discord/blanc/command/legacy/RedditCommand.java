@@ -18,6 +18,7 @@
 package vartas.discord.blanc.command.legacy;
 
 import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 /**
  * This command allows to link subreddits to channels.
@@ -25,14 +26,15 @@ import vartas.discord.blanc.Shard;
 public class RedditCommand extends RedditCommandTOP {
     @Override
     public void run(){
-        if(!get$Guild().canInteract(get$Guild().getSelfMember(), getTextChannel())){
-            get$TextChannel().send("I can't interact with "+getTextChannel().getName());
-        }else if(getTextChannel().containsSubreddits(getSubreddit())){
-            getTextChannel().removeSubreddits(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+getTextChannel().getName()+".");
+        TextChannel textChannel = getTextChannel().orElse(get$TextChannel());
+        if(!get$Guild().canInteract(get$Guild().getSelfMember(), textChannel)){
+            get$TextChannel().send("I can't interact with "+textChannel.getName());
+        }else if(textChannel.containsSubreddits(getSubreddit())){
+            textChannel.removeSubreddits(getSubreddit());
+            get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+textChannel+".");
         }else{
-            getTextChannel().addSubreddits(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+getTextChannel().getName()+".");
+            textChannel.addSubreddits(getSubreddit());
+            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getName()+".");
         }
         Shard.write(get$Guild());
     }

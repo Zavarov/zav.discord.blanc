@@ -43,7 +43,7 @@ group dev {
     }
     command nickname requires Guild{
              class : NicknameCommand
-         parameter : String nickname
+         parameter : String nickname?
               rank : Developer
     }
     command say{

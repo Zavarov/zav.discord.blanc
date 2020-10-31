@@ -10,6 +10,7 @@ import java.util.List.List;
     }
     command activity requires Guild{
              class : ActivityCommand
+         parameter : TextChannel channels+
     }
     command guild requires Guild{
              class : GuildInfoCommand
@@ -26,7 +27,7 @@ import java.util.List.List;
     }
     command member requires Guild{
              class : MemberInfoCommand
-         parameter : Member member
+         parameter : Member member?
     }
     command ping{
              class : PingCommand

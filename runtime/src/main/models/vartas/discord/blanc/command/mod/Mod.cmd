@@ -21,7 +21,7 @@ group mod {
     }
     command reddit requires Guild{
              class : RedditCommand
-         parameter : String subreddit, TextChannel textChannel
+         parameter : String subreddit, TextChannel textChannel?
         permission : MANAGE_CHANNELS
     }
     command role requires Guild{

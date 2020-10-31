@@ -18,6 +18,7 @@ package vartas.discord.blanc.command.mod;
 
 
 import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 /**
  * This command allows to link subreddits to channels.
@@ -25,14 +26,15 @@ import vartas.discord.blanc.Shard;
 public class RedditCommand extends RedditCommandTOP {
     @Override
     public void run(){
-        if(!get$Guild().canInteract(get$Guild().getSelfMember(), getTextChannel())){
-            get$TextChannel().send("I can't interact with "+getTextChannel().getName());
-        }else if(getTextChannel().asMapWebhooks().containsKey(getSubreddit())){
-            getTextChannel().invalidateWebhooks(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+getTextChannel().getName()+".");
+        TextChannel textChannel = getTextChannel().orElse(get$TextChannel());
+        if(!get$Guild().canInteract(get$Guild().getSelfMember(), textChannel)){
+            get$TextChannel().send("I can't interact with "+textChannel.getName());
+        }else if(textChannel.asMapWebhooks().containsKey(getSubreddit())){
+            textChannel.invalidateWebhooks(getSubreddit());
+            get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getName()+".");
         }else{
-            getTextChannel().getUncheckedWebhooks(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+getTextChannel().getName()+".");
+            textChannel.getUncheckedWebhooks(getSubreddit());
+            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getName()+".");
         }
         Shard.write(get$Guild());
     }
