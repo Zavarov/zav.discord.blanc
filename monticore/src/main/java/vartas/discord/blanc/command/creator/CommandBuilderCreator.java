@@ -157,7 +157,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
         private String commandGroup;
         private String commandClass;
         private String command;
-        private List<String> argumentTypes;
+        private Map<ASTParameter, String> parameters;
         private boolean requiresGuild;
 
         public CommandLoader(){
@@ -175,7 +175,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
         public void visit(ASTCommand ast){
             command = commandGroup.isEmpty() ? ast.getName() : Joiners.DOT.join(commandGroup, ast.getName());
             requiresGuild = ast.getRestrictionList().contains(ASTRestriction.GUILD);
-            argumentTypes = new ArrayList<>();
+            parameters = new LinkedHashMap<>();
         }
 
         @Override
@@ -185,7 +185,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
 
         @Override
         public void visit(ASTParameter ast){
-            argumentTypes.add(ast.getMCType().printType(printer));
+            parameters.put(ast, printer.prettyprint(ast.getMCType()));
         }
 
         @Override
@@ -199,7 +199,7 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
                             resolver,
                             command,
                             commandClass,
-                            argumentTypes,
+                            parameters,
                             requiresGuild
                     )
             );

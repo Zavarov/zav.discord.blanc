@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.command.creator;
 
+import com.google.common.base.Preconditions;
 import de.monticore.cd.cd4analysis.CD4AnalysisMill;
 import de.monticore.cd.cd4analysis._ast.ASTCDAttribute;
 import de.monticore.cd.cd4analysis._ast.ASTCDClass;
@@ -26,6 +27,9 @@ import de.monticore.cd.facade.CDModifier;
 import de.monticore.codegen.cd2java.AbstractCreator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
+import de.monticore.types.mcbasictypes._ast.ASTMCType;
+import vartas.discord.blanc.cardinality._ast.ASTMany;
+import vartas.discord.blanc.cardinality._ast.ASTOptional;
 import vartas.discord.blanc.command.GuildCommand;
 import vartas.discord.blanc.command.MessageCommand;
 import vartas.discord.blanc.command._ast.*;
@@ -34,11 +38,16 @@ import vartas.monticore.cd4code.CDGeneratorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Transforms an instance of an {@link ASTCommand} into an {@link ASTCDClass} for code generation.
  */
 public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> implements CommandVisitor {
+    private static final String RESOLVE = "command.builder.resolve.Resolve";
+    private static final String RESOLVE_SINGLETON = "command.builder.resolve.ResolveSingleton";
+    private static final String RESOLVE_MANY = "command.builder.resolve.ResolveMany";
+    private static final String RESOLVE_OPTIONAL = "command.builder.resolve.ResolveOptional";
     private static final String RUN = "public void run();";
     private static final String VALIDATE = "public void validate();";
 
@@ -102,8 +111,33 @@ public class CommandCreator extends AbstractCreator<ASTCommand, ASTCDClass> impl
         return CD4AnalysisMill.cDClassBuilder().setModifier(CDModifier.PUBLIC.build());
     }
 
-    private ASTCDAttribute createAttribute(ASTParameter ast){
-        return getCDAttributeFacade().createAttribute(CDModifier.PROTECTED, ast.getMCType(), ast.getName());
+    private ASTCDAttribute createAttribute(ASTParameter ast) {
+        AtomicReference<ASTCDAttribute> attribute = new AtomicReference<>();
+
+        if (ast.isPresentCardinality()){
+            CommandVisitor visitor = new CommandVisitor() {
+                @Override
+                public void visit(ASTMany node){
+                    ASTMCType type = getMCTypeFacade().createListTypeOf(ast.getMCType());
+                    attribute.set(getCDAttributeFacade().createAttribute(CDModifier.PROTECTED, type, ast.getName()));
+                    glex.replaceTemplate(RESOLVE, ast, new TemplateHookPoint(RESOLVE_MANY));
+                }
+
+                @Override
+                public void visit(ASTOptional node){
+                    ASTMCType type = getMCTypeFacade().createOptionalTypeOf(ast.getMCType());
+                    attribute.set(getCDAttributeFacade().createAttribute(CDModifier.PROTECTED, type, ast.getName()));
+                    glex.replaceTemplate(RESOLVE, ast, new TemplateHookPoint(RESOLVE_OPTIONAL));
+                }
+            };
+
+            ast.accept(visitor);
+        } else {
+            attribute.set(getCDAttributeFacade().createAttribute(CDModifier.PROTECTED, ast.getMCType(), ast.getName()));
+            glex.replaceTemplate(RESOLVE, ast, new TemplateHookPoint(RESOLVE_SINGLETON));
+        }
+
+        return Preconditions.checkNotNull(attribute.get());
     }
 
     private ASTCDMethod createValidateMethod(){

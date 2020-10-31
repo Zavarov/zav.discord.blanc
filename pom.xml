@@ -36,7 +36,7 @@
         <!-- .. Libraries ..................................................... -->
 
         <evo-inflector.version>1.2.2</evo-inflector.version>
-        <chart.version>2.3</chart.version>
+        <chart.version>2.5</chart.version>
         <reddit.version>3.3-SNAPSHOT</reddit.version>
         <slf4j.version>1.7.30</slf4j.version>
         <oshi.version>5.3.3</oshi.version>
@@ -44,7 +44,7 @@
         <monticore.guava.version>25.1-jre</monticore.guava.version>
         <guava.version>28.2-jre</guava.version>
         <jda.version>4.2.0_211</jda.version>
-        <webhook.version>0.3.1</webhook.version>
+        <webhook.version>0.5.0</webhook.version>
         <json.version>20190722</json.version>
         <logback.version>1.2.3</logback.version>
 
@@ -201,6 +201,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <skipIfEmpty>true</skipIfEmpty>
                             <classifier>${models.classifier}</classifier>
                             <classesDirectory>src/main/models</classesDirectory>
                         </configuration>
@@ -213,6 +214,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <skipIfEmpty>true</skipIfEmpty>
                             <classifier>${templates.classifier}</classifier>
                             <classesDirectory>src/main/resources/templates</classesDirectory>
                             <!-- Avoid collisions with cd4code templates -->

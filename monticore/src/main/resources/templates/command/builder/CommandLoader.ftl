@@ -1,7 +1,16 @@
-${signature("commands", "resolver", "command", "factory", "argumentTypes", "requiresGuild")}
-        ${commands.getName()}.put("${command}", (_arguments, _flags) -> ${factory}.create(
-        <#list argumentTypes as argumentType>
-            ${resolver.getName()}.resolve${argumentType}(_arguments.get(${argumentType?index})),
+${signature("commands", "resolver", "command", "factory", "parameters", "requiresGuild")}
+<#assign arguments = "$arguments">
+<#assign flags = "$flags">
+        ${commands.getName()}.put("${command}", (${arguments}, ${flags}) -> ${factory}.create(
+        <#list parameters as parameter, parameterName>
+            ${
+                tc.includeArgs(
+                    "command.builder.resolve.Resolve",
+                    parameter,
+                    [resolver.getName(), parameterName, arguments, parameter?index]
+                )
+            }<#t>
+            ,<#lt>
         </#list>
             //The context is provided in the other builder methods.
             null, //Author
@@ -11,5 +20,5 @@ ${signature("commands", "resolver", "command", "factory", "argumentTypes", "requ
         </#if>
             null, //ServerHookPoint
             null, //Message
-            _flags
+            ${flags}
         ));

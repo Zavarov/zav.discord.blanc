@@ -7,4 +7,16 @@ group vartas.discord.blanc.guild {
          parameter : Member member
               rank : User, Developer
     }
+
+    command activity requires Guild {
+             class : ActivityClass
+         parameter : TextChannel channel+
+              rank : User
+    }
+
+    command info requires Guild {
+             class : InfoClass
+         parameter : Member member?
+              rank : User
+    }
 }

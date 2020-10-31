@@ -38,12 +38,7 @@
     <!-- == Dependencies ==================================================== -->
 
     <dependencies>
-        <dependency>
-            <groupId>vartas.monticore-commons</groupId>
-            <artifactId>cd4code</artifactId>
-            <version>${cd4code.version}</version>
-        </dependency>
-
+        <!-- Numbers -->
         <dependency>
             <groupId>vartas.monticore-commons</groupId>
             <artifactId>numbers</artifactId>
@@ -55,9 +50,34 @@
             <artifactId>numbers</artifactId>
             <classifier>${grammars.classifier}</classifier>
             <version>${cd4code.version}</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
+        <!-- CD4Code -->
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <classifier>${grammars.classifier}</classifier>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <classifier>${templates.classifier}</classifier>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Core -->
         <dependency>
             <groupId>vartas.discord.blanc</groupId>
             <artifactId>core</artifactId>
@@ -70,6 +90,7 @@
             <artifactId>monticore-grammar</artifactId>
             <classifier>${grammars.classifier}</classifier>
             <version>${monticore.version}</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -142,6 +163,7 @@
                             <includeGroupIds>vartas.monticore-commons</includeGroupIds>
                             <includeArtifactIds>cd4code</includeArtifactIds>
                             <includeTypes>jar</includeTypes>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                     <execution>

@@ -4,7 +4,7 @@ package vartas.discord.blanc;
  * This grammar describes the individual commands.
  */
 grammar Command extends
-        de.monticore.Cardinality,
+        vartas.discord.blanc.Cardinality,
         de.monticore.literals.MCCommonLiterals,
         de.monticore.types.MCFullGenericTypes
 {
@@ -82,7 +82,7 @@ grammar Command extends
             "parameter" ":" (Parameter || ",")+
         ;
 
-        Parameter = MCType Name&;
+        Parameter = MCType Name& Cardinality?;
 
         /**
          * The caller might specific ranks when executing the command.

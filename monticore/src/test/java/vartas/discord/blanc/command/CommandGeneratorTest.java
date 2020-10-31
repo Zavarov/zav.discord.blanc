@@ -18,7 +18,8 @@
 package vartas.discord.blanc.command;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class CommandGeneratorTest extends BasicCommandTest {
     @BeforeEach
@@ -26,8 +27,14 @@ public class CommandGeneratorTest extends BasicCommandTest {
         parseCommand("kick", "vartas.discord.blanc.command.Guild");
     }
 
-    @Test
-    public void testGenerate(){
+    @ParameterizedTest
+    @CsvSource({
+            "    kick, vartas.discord.blanc.command.Guild",
+            "activity, vartas.discord.blanc.command.Guild",
+            "    info, vartas.discord.blanc.command.Guild",
+    })
+    public void testGenerate(String commandName, String groupName){
+        parseCommand(commandName, groupName);
         CommandGenerator.generate(CLASSES_PATH, TEMPLATES_PATH, SOURCES_PATH, OUTPUT_PATH, cmdArtifact);
     }
 }
