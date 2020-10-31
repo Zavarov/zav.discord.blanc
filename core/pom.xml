@@ -80,8 +80,15 @@
             <groupId>vartas.monticore-commons</groupId>
             <artifactId>cd4code</artifactId>
             <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
             <classifier>${templates.classifier}</classifier>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -138,7 +145,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -160,7 +167,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -182,7 +189,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -204,7 +211,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -226,7 +233,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -241,13 +248,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>vartas.monticore-commons</groupId>
-                        <artifactId>cd4code</artifactId>
-                        <version>${cd4code.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <!-- Including the generated source files -->
             <plugin>

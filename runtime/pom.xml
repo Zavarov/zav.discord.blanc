@@ -98,6 +98,13 @@
             <artifactId>logback-core</artifactId>
             <version>${logback.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
@@ -208,7 +215,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <includeProjectDependencies>true</includeProjectDependencies>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>${generator.main}</mainClass>
                             <arguments>
@@ -226,18 +233,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>vartas.monticore-commons</groupId>
-                        <artifactId>cd4code</artifactId>
-                        <version>${cd4code.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>vartas.discord.blanc</groupId>
-                        <artifactId>monticore</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <!-- Including the generated source files -->
             <plugin>
