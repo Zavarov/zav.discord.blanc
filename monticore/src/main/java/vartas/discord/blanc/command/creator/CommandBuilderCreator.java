@@ -17,6 +17,7 @@
 
 package vartas.discord.blanc.command.creator;
 
+import com.google.common.base.Preconditions;
 import de.monticore.cd.cd4analysis.CD4AnalysisMill;
 import de.monticore.cd.cd4analysis._ast.*;
 import de.monticore.cd.cd4analysis._symboltable.CDDefinitionSymbol;
@@ -28,6 +29,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.generating.templateengine.TemplateHookPoint;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.MCFullGenericTypesPrettyPrinter;
+import de.monticore.utils.Names;
 import de.se_rwth.commons.Joiners;
 import org.apache.commons.lang3.StringUtils;
 import vartas.discord.blanc.command._ast.*;
@@ -113,7 +115,12 @@ public class CommandBuilderCreator extends AbstractCreator<List<ASTCommandArtifa
 
     private void loadModelImports(){
         CDDefinitionSymbol definitionSymbol = this.cdDefinition.getSymbol();
+        String preconditions = Names.getQualifiedName(
+                Preconditions.class.getCanonicalName(),
+                Preconditions.class.getSimpleName()
+        );
 
+        definitionSymbol.addImport(preconditions);
         for(String cdImport : globalScope.resolveCDDefinition(CLASS_DIAGRAM).orElseThrow().getImports())
             definitionSymbol.addImport(cdImport);
     }
