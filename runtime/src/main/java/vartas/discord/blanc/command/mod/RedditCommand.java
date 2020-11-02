@@ -24,16 +24,18 @@ import vartas.discord.blanc.TextChannel;
  * This command allows to link subreddits to channels.
  */
 public class RedditCommand extends RedditCommandTOP {
+    private static final String WEBHOOK_NAME = "Reddit";
+
     @Override
     public void run(){
         TextChannel textChannel = getTextChannel().orElse(get$TextChannel());
         if(!get$Guild().canInteract(get$Guild().getSelfMember(), textChannel)){
             get$TextChannel().send("I can't interact with "+textChannel.getName());
-        }else if(textChannel.asMapWebhooks().containsKey(getSubreddit())){
-            textChannel.invalidateWebhooks(getSubreddit());
+        }else if(textChannel.asMapWebhooks().containsKey(WEBHOOK_NAME)){
+            textChannel.getUncheckedWebhooks(WEBHOOK_NAME).removeSubreddits(getSubreddit());
             get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getName()+".");
         }else{
-            textChannel.getUncheckedWebhooks(getSubreddit());
+            textChannel.getUncheckedWebhooks(WEBHOOK_NAME).addSubreddits(getSubreddit());
             get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getName()+".");
         }
         Shard.write(get$Guild());
