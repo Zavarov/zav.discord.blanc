@@ -17,12 +17,13 @@
 
 package vartas.discord.blanc.$json;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import vartas.discord.blanc.Webhook;
 
-import java.util.Optional;
-
 public class JSONWebhook extends JSONWebhookTOP {
+    private static final String SUBREDDITS = "subreddits";
+
     @Override
     protected void $fromMessages(JSONObject source, Webhook target){
         //Omitted
@@ -34,13 +35,22 @@ public class JSONWebhook extends JSONWebhookTOP {
     }
 
     @Override
-    protected void $fromSubreddit(JSONObject source, Webhook target){
-        Optional<String> subreddit = Optional.ofNullable(source.optString("subreddit"));
-        target.setSubreddit(subreddit);
+    protected void $fromSubreddits(JSONObject source, Webhook target){
+        JSONArray subreddits = source.optJSONArray(SUBREDDITS);
+
+        if(subreddits != null) {
+            for (int i = 0; i < subreddits.length(); ++i)
+                target.addSubreddits(subreddits.getString(i));
+        }
     }
 
     @Override
-    protected void $toSubreddit(Webhook source, JSONObject target){
-        source.ifPresentSubreddit(subreddit ->  target.put("subreddit", subreddit));
+    protected void $toSubreddits(Webhook source, JSONObject target){
+        JSONArray subreddits = new JSONArray();
+
+        for(String subreddit : source.getSubreddits())
+            subreddits.put(subreddit);
+
+        target.put(SUBREDDITS, subreddits);
     }
 }

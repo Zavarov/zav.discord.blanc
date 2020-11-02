@@ -204,7 +204,7 @@ public classdiagram Architecture {
     }
 
     public abstract class Webhook extends MessageChannel implements Killable {
-        + Optional<String> subreddit;
+        + Set<String> subreddits;
     }
 
     public class WebhookException extends RuntimeException{}

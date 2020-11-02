@@ -127,8 +127,8 @@ public class RedditVisitor implements ArchitectureVisitor {
         for(String subreddit : textChannel.getSubreddits())
             request(subreddit, textChannel::send, textChannel::removeSubreddits);
         for(Webhook webhook : textChannel.valuesWebhooks())
-            if(webhook.isPresentSubreddit())
-                request(webhook.getSubreddit().orElseThrow(), webhook::send, textChannel::invalidateWebhooks);
+            for(String subreddit : webhook.getSubreddits())
+                request(subreddit, webhook::send, webhook::removeSubreddits);
     }
 
     @Override
