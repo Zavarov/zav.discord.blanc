@@ -80,6 +80,7 @@
         <init.path>initializer/**</init.path>
         <java.lang.init.path>initializer/java/lang/**</java.lang.init.path>
         <java.util.init.path>initializer/java/util/**</java.util.init.path>
+        <com.google.common.cache.init.path>initializer/com/google/common/cache/**</com.google.common.cache.init.path>
 
         <templates.classifier>templates</templates.classifier>
         <models.classifier>models</models.classifier>

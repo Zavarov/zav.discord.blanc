@@ -112,7 +112,7 @@
                             <includeGroupIds>vartas.monticore-commons</includeGroupIds>
                             <includeArtifactIds>cd4code</includeArtifactIds>
                             <includeTypes>jar</includeTypes>
-                            <excludes>${java.lang.init.path},${java.util.init.path}</excludes>
+                            <excludes>${java.lang.init.path},${java.util.init.path},${com.google.common.cache.init.path}</excludes>
                         </configuration>
                     </execution>
                     <execution>
