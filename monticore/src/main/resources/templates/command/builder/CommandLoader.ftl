@@ -2,10 +2,11 @@ ${signature("commands", "resolver", "command", "factory", "parameters", "require
 <#assign arguments = "$arguments">
 <#assign flags = "$flags">
         ${commands.getName()}.put("${command}", (${arguments}, ${flags}) -> {
-            Preconditions.checkArgument(<#rt>
-                ${arguments}.size() >= ${parameters?size},<#t>
-                "This command requires at least ${parameters?size} argument<#if parameters?size != 1>s</#if>."<#t>
-            );<#lt>
+            //Check fails with optional arguments
+            //Preconditions.checkArgument(<#rt>
+            //    ${arguments}.size() >= ${parameters?size},<#t>
+            //    "This command requires at least ${parameters?size} argument<#if parameters?size != 1>s</#if>."<#t>
+            //);<#lt>
             return ${factory}.create(
             <#list parameters as parameter, parameterName>
                 ${
@@ -23,7 +24,7 @@ ${signature("commands", "resolver", "command", "factory", "parameters", "require
             <#if requiresGuild>
                 null, //Guild
             </#if>
-                null, //ServerHookPoint
+                null, //Shard
                 null, //Message
                 ${flags}
             );
