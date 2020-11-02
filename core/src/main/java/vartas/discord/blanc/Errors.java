@@ -19,6 +19,9 @@ package vartas.discord.blanc;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A collection of all error types that are logged by this application.
+ */
 @Nonnull
 public enum Errors {
     //File Access
@@ -48,8 +51,9 @@ public enum Errors {
     UNKNOWN_WEBHOOK(0x5005, "The specified webhook couldn't be found."),
     UNKNOWN_MESSAGE(0x5005, "The specified message couldn't be found."),
     //Guild attributes
-    INVALID_PATTERN(0x6000, "The blacklist pattern couldn't be compiled.")
-    ;
+    INVALID_PATTERN(0x6000, "The blacklist pattern couldn't be compiled."),
+    //Monticore
+    INVALID_COMMAND(0x7000, "The text sequence is not a valid command.");
 
     @Nonnull
     private final String description;

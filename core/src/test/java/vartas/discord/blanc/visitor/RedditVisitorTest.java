@@ -79,7 +79,7 @@ public class RedditVisitorTest extends AbstractTest {
 
     private void initDiscordHook() {
         webhook = new WebhookMock(12345L,"subreddit");
-        webhook.setSubreddit("subreddit");
+        webhook.addSubreddits("subreddit");
 
         textChannel = new TextChannelMock(2, "TextChannel");
         textChannel.addSubreddits(subreddit.getName());

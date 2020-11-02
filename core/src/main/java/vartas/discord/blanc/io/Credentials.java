@@ -23,9 +23,10 @@ package vartas.discord.blanc.io;
  */
 public class Credentials extends CredentialsTOP{
     /**
-     * The Maven build process automatically stores the POM version in the manifest when creating the Jar.<br>
+     * The Maven build process automatically stores the POM version in the manifest when creating the Jar.
+     * <p>
      * However, during the test phase, this value is not specified. Therefore a "Test version" is generated.
-     * @return this program's version.
+     * @return This program's version.
      */
     public String getVersion(){
         String packageVersion = getClass().getPackage().getImplementationVersion();

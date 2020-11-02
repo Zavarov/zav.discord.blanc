@@ -28,32 +28,33 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * The base class for all commands.
- * It implements methods for validating each command before execution.
+ * The base class for all commands. A command is a subroutine of the application than can be executed via a
+ * {@link MessageChannel}.
  */
 @Nonnull
 public abstract class Command extends CommandTOP {
     /**
-     * A {@link Rank} may inherit multiple other ranks. A prime example for this is
-     * {@link Rank#ROOT}, which includes all other ranks.<br>
-     * This multimap keeps track of all those relations.
+     * Specifies the hierarchy between the different ranks. It is not necessary for a {@link User} to have a specific
+     * {@link Rank}, as long as they have a {@link Rank} that inherits it. A prime example for this is
+     * {@link Rank#ROOT}, which includes all other ranks.
      */
-    private static final Multimap<Rank, Rank> RANKS_ALIAS = HashMultimap.create();
+    @Nonnull
+    private static final Multimap<Rank, Rank> RANK_ALIASES = HashMultimap.create();
 
     static{
-        RANKS_ALIAS.putAll(Rank.ROOT, EnumSet.allOf(Rank.class));
-        RANKS_ALIAS.put(Rank.DEVELOPER, Rank.REDDIT);
+        RANK_ALIASES.putAll(Rank.ROOT, EnumSet.allOf(Rank.class));
+        RANK_ALIASES.put(Rank.DEVELOPER, Rank.REDDIT);
     }
 
     /**
-     * Checks if the specified {@link User} has the given {@link Rank}.<br>
-     * This check is transitive, meaning if the {@link User} has a specific {@link Rank}, they
-     * automatically also have all ranks below it.
+     * Checks if the specified {@link User} has the given {@link Rank}. Upon failure, a {@link PermissionException} is
+     * thrown. The check will succeed if the {@link User} either has the {link Rank} explicitly or implicitly via
+     * aliases.
      * @param user The {@link User} associated with the given {@link Rank}.
      * @param rank The {@link Rank} associated with the {@link User}.
      * @see Rank
      * @see Errors#INSUFFICIENT_RANK
-     * @throws PermissionException if the user doesn't have the given rank.
+     * @throws PermissionException If the user doesn't have the given rank.
      */
     protected void checkRank(@Nonnull User user, @Nonnull Rank rank) throws PermissionException{
         if(!getEffectiveRanks(user).contains(rank))
@@ -61,9 +62,10 @@ public abstract class Command extends CommandTOP {
     }
 
     /**
-     * Checks if the specified {@link Message} contains at least one attachment.<br>
-     * @param message The {@link Message} associated with the command.
-     * @throws NoSuchElementException if the message has no attachments.
+     * Checks if the specified {@link Message} contains at least one attachment. Upon failure, a
+     * {@link NoSuchElementException} is thrown.
+     * @param message The {@link Message} associated with the {@link Command}.
+     * @throws NoSuchElementException If the message has no attachments.
      */
     protected void checkAttachment(@Nonnull Message message) throws NoSuchElementException{
         if(message.isEmptyAttachments())
@@ -71,8 +73,8 @@ public abstract class Command extends CommandTOP {
     }
 
     /**
-     * Computes all ranks the specified {@link User} owns. The generated {@link Set} will contain
-     * all explicitly granted ranks, as well as all inherited ranks specified in {@link #RANKS_ALIAS}.
+     * Computes all ranks owned the specified {@link User}. The returned {@link Set} contains all explicitly owned
+     * ranks, as well as all aliases specified in {@link #RANK_ALIASES}. Note that an user always has {@link Rank#USER}.
      * @param user The {@link User} associated with the calculated {@link Rank}.
      * @return A set containing all ranks associated with the {@link User}.
      */
@@ -84,7 +86,7 @@ public abstract class Command extends CommandTOP {
         effectiveRanks.add(Rank.USER);
         effectiveRanks.addAll(user.getRanks());
         for(Rank rank : user.getRanks())
-            effectiveRanks.addAll(RANKS_ALIAS.get(rank));
+            effectiveRanks.addAll(RANK_ALIASES.get(rank));
 
         return effectiveRanks;
     }

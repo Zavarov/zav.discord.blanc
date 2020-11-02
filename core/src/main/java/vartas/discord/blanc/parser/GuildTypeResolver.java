@@ -32,10 +32,10 @@ import java.util.Optional;
 public interface GuildTypeResolver  <T> extends ParserVisitor {
     /**
      * Attempts to resolve a type that requires a {@link Guild} or a {@link TextChannel}.
-     * @param guild the {@link Guild} associated with the {@link Argument}.
-     * @param textChannel the {@link TextChannel} associated with the {@link Argument}.
-     * @param argument the {@link Argument} associated with the desired type.
-     * @return the resolved instance. Empty if the entity couldn't be resolved.
+     * @param guild The {@link Guild} associated with the {@link Argument}.
+     * @param textChannel The {@link TextChannel} associated with the {@link Argument}.
+     * @param argument The {@link Argument} associated with the desired type.
+     * @return The resolved instance. Empty if the entity couldn't be resolved.
      */
     Optional<T> apply(@Nonnull Guild guild, @Nonnull TextChannel textChannel, @Nonnull Argument argument);
 }

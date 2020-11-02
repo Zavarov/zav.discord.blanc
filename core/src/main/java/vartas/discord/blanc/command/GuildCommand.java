@@ -22,22 +22,23 @@ import vartas.discord.blanc.*;
 import javax.annotation.Nonnull;
 
 /**
- * A guild command is a subclass of the normal command.
- * This command can only be executed in a guild and allows an additional condition,
- * with which only users with certain permissions may execute the command.
+ * A guild command is a subclass of the normal command that can only be executed within a {@link Guild}. In addition to
+ * a normal {@link Command}, it allows an additional condition, according to which a {@link User} is only able to
+ * execute the {@link Command}, if and only if they have a specified set of permissions.
+ * @see Permission
  */
 @Nonnull
 public abstract class GuildCommand extends GuildCommandTOP{
     /**
-     * Checks if the specified {@link Member} has the given Discord {@link Permission}.<br>
-     * The permissions can either come via {@link Role Roles} or via {@link TextChannel TextChannels}.
-     * In the latter case, those permissions are only valid within the scope of the given {@link TextChannel}.
+     * Checks if the specified {@link Member} has the given Discord {@link Permission}. Permissions can be granted
+     * either by roles or via {@link TextChannel} overrides. As such, the number of permissions may differ between
+     * multiple channels.
      * @param member The {@link Member} associated with the given {@link Permission}.
      * @param textChannel The {@link TextChannel} associated with the given {@link Permission}.
      * @param permission The {@link Permission} associated with the given {@link Member} and {@link TextChannel}.
      * @see Permission
      * @see Errors#INSUFFICIENT_PERMISSION
-     * @throws PermissionException if the user doesn't have the given rank.
+     * @throws PermissionException If the user doesn't have at least one of the required permissions.
      */
     protected void checkPermission(@Nonnull Member member, @Nonnull TextChannel textChannel, @Nonnull Permission permission){
         if(!member.getPermissions(textChannel).contains(permission))

@@ -17,25 +17,28 @@
 
 package vartas.discord.blanc.parser;
 
+import vartas.discord.blanc.Errors;
+
 import javax.annotation.Nonnull;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 /**
- * Resolves the provided {@link Argument} into an {@link ChronoUnit}.
+ * Resolves the provided {@link Argument} into a {@link ChronoUnit}.
  */
 @Nonnull
 public class ChronoUnitResolver extends TypeResolver<ChronoUnit>{
     /**
-     * Attempts to get the interval matching the name.
+     * Attempts to get the {@link ChronoUnit} with the same name.
+     * The {@link IllegalArgumentException} caused by an invalid module is catched and logged.
      * @see ChronoUnit#valueOf(String)
-     * @param argument the name of the interval.
+     * @param argument The name of the interval.
      */
     @Override
     public void visit(@Nonnull StringArgument argument){
         try {
             this.type = ChronoUnit.valueOf(argument.getContent().toUpperCase(Locale.ENGLISH));
-        }catch(IllegalArgumentException ignored){
-            //Is thrown when no matching chrono unit exists.
+        }catch(IllegalArgumentException e){
+            log.error(Errors.UNKNOWN_ENTITY.toString(), e);
         }
     }
 }

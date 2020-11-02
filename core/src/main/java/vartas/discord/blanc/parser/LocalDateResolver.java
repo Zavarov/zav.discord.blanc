@@ -30,11 +30,10 @@ import java.time.format.DateTimeParseException;
  */
 @Nonnull
 public class LocalDateResolver extends TypeResolver<LocalDate>{
-
     /**
-     * Parses the value contained in the provided {@link StringArgument}.<br>
-     * The {@link DateTimeParseException} caused by a malformed String is catched
-     * and logged.
+     * Parses the value contained in the provided {@link StringArgument}.
+     * <p>
+     * The {@link DateTimeParseException} caused by a malformed String is catched and logged.
      * @see DateTimeFormatter#ISO_LOCAL_DATE
      * @see LocalDate#parse(CharSequence)
      * @param argument the {@link Argument} associated with the {@link LocalDate}.

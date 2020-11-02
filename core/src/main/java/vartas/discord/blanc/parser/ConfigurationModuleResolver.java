@@ -18,6 +18,7 @@
 package vartas.discord.blanc.parser;
 
 import vartas.discord.blanc.ConfigurationModule;
+import vartas.discord.blanc.Errors;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -28,15 +29,16 @@ import java.util.Locale;
 @Nonnull
 public class ConfigurationModuleResolver extends TypeResolver<ConfigurationModule>{
     /**
-     * Extracts the content of the provided {@link StringArgument}.
-     * @param argument the {@link StringArgument} associated with the {@link String}.
+     * Attempts to get the {@link ConfigurationModule} with the same name.
+     * The {@link IllegalArgumentException} caused by an invalid module is catched and logged.
+     * @param argument The {@link StringArgument} associated with the {@link ConfigurationModule}.
      */
     @Override
     public void visit(@Nonnull StringArgument argument) {
         try {
             this.type = ConfigurationModule.valueOf(argument.getContent().toUpperCase(Locale.ENGLISH));
-        }catch(IllegalArgumentException ignored){
-            //Is thrown when no matching module exists.
+        }catch(IllegalArgumentException e){
+            log.error(Errors.UNKNOWN_ENTITY.toString(), e);
         }
     }
 }

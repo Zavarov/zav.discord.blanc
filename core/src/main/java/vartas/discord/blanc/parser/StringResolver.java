@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public class StringResolver extends TypeResolver<String> {
     /**
      * Extracts the content of the provided {@link StringArgument}.
-     * @param argument the {@link StringArgument} associated with the {@link String}.
+     * @param argument The {@link StringArgument} associated with the {@link String}.
      */
     @Override
     public void visit(@Nonnull StringArgument argument){

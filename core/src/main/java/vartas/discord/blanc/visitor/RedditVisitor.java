@@ -39,14 +39,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * This visitor class is responsible for requesting the latest submissions
- * from all registered subreddits in the internal structure.
- * <br>
- * In order to detect new submissions, an internal {@link Instant}
- * of the most recent {@link Submission} is kept. During each cycle,
- * all submissions past this date are considered to be new. In addition,
- * the {@link Instant} of the latest {@link Submission} becomes the new
- * date for the succeeding cycle.
+ * This visitor traverses through all guilds and their corresponding text channels. If a Reddit feed is assigned to one
+ * of the text channels, the latest submissions of the corresponding {@link Subreddit} are fetched and then posted in
+ * the channel itself. The visitor has to be called periodically, in order to retrieve new submissions in real-time.
+ * <p>
+ * Internally, an {@link Instant} is used to keep track of which submissions have already been posted. It contains the
+ * last time the visitor has been executed, which means that every {@link Submission}, that is newer than this time step
+ * is new and has not been posted before.
  */
 @Nonnull
 public class RedditVisitor implements ArchitectureVisitor {
@@ -61,15 +60,16 @@ public class RedditVisitor implements ArchitectureVisitor {
     @Nonnull
     private final vartas.reddit.Client redditClient;
     /**
-     * The creation time of the most recent {@link Submission}.
+     * The last time this visitor has been executed.
      */
     @Nonnull
-    private Instant inclusiveFrom = Instant.now();
+    private Instant previousExecution = Instant.now();
     /**
-     * The time when the current cycle was started.
+     * The minimum age of a {@link Submission}. We allow a certain grace period for each {@link Submission}, in order
+     * to allow the author to correctly flair and tag the post.
      */
     @Nonnull
-    private Instant exclusiveTo = inclusiveFrom;
+    private Instant minimumAge = previousExecution;
 
     /**
      * Indicates that the guild file was modified by the visitor and the corresponding JSON
@@ -79,19 +79,18 @@ public class RedditVisitor implements ArchitectureVisitor {
 
     /**
      * Initializes the visitor.
-     * @param redditClient the hook point for receiving new {@link Submission submissions}
+     * @param redditClient The hook point for receiving new {@link Submission submissions}
      */
-    public RedditVisitor
-            (
-                    @Nonnull vartas.reddit.Client redditClient
-            )
-    {
+    public RedditVisitor(@Nonnull vartas.reddit.Client redditClient){
         this.redditClient = redditClient;
     }
 
     /**
-     * Update {@link #exclusiveTo} with the current time, and {@link #inclusiveFrom} with the end of the last cycle.
-     * @param shard the current {@link Shard}.
+     * In order to keep the minimum age synchronized between multiple shards, {@link #minimumAge} is only updated to the
+     * current time for the first shard. All succeeding shards use exactly the same time. This is to avoid missing out
+     * on submissions that have been made between the small time difference between the processing the individual
+     * shards.
+     * @param shard The current {@link Shard}.
      */
     @Override
     public void visit(@Nonnull Shard shard){
@@ -100,15 +99,15 @@ public class RedditVisitor implements ArchitectureVisitor {
         //Keep the dates synchronized between multiple shards.
         if(shard.getId() == 0) {
             //Take the timestamp from the last cycle
-            inclusiveFrom = exclusiveTo;
+            previousExecution = minimumAge;
             //Submissions need to be at least one minute old
-            exclusiveTo = Instant.now().minus(1, ChronoUnit.MINUTES);
+            minimumAge = Instant.now().minus(1, ChronoUnit.MINUTES);
         }
     }
 
     /**
      * Log when entering a guild.
-     * @param guild the current {@link Guild}.
+     * @param guild The current {@link Guild}.
      */
     @Override
     public void visit(@Nonnull Guild guild){
@@ -117,9 +116,13 @@ public class RedditVisitor implements ArchitectureVisitor {
     }
 
     /**
-     * Request the latest submissions from all registered subreddits in this channel and submit them.
-     * In case one of the requests failed, either due to an error on either clients, unregister the subreddit.
-     * @param textChannel the current {@link TextChannel}.
+     * The Reddit feed is implementing by either posting submissions via webhooks, or directly via the
+     * {@link TextChannel} as a normal {@link Message}. When visiting a {@link TextChannel} all submissions between
+     * {@link #previousExecution} and {@link #minimumAge} requested and forwarded to the channel.
+     * <p>
+     * If the specified {@link Subreddit} can't be accessed, due to being set to private or other factors, the feed is
+     * removed from the {@link TextChannel}.
+     * @param textChannel The current {@link TextChannel}.
      */
     @Override
     public void visit(@Nonnull TextChannel textChannel){
@@ -131,12 +134,27 @@ public class RedditVisitor implements ArchitectureVisitor {
                 request(subreddit, webhook::send, webhook::removeSubreddits);
     }
 
+    /**
+     * If a {@link Subreddit} specified in one of the guilds text channels has been removed, the corresponding JSON
+     * instance has to be updated to keep track of this change, even when restarting the application.
+     * @param guild The current {@link Guild}.
+     */
     @Override
     public void endVisit(@Nonnull Guild guild){
         if(requiresUpdate)
             Shard.write(JSONGuild.toJson(guild, new JSONObject()), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
     }
 
+    /**
+     * Retrieves all submissions in the specified {@link Subreddit} that have been made between
+     * {@link #previousExecution} and {@link #minimumAge} and forwards them to the corresponding {@link TextChannel}.
+     * @param name The name of the {@link Subreddit} the submissions are retrieved from.
+     * @param onSuccess The action that is performed for each retrieved {@link Submission}. It forwards a
+     *                  {@link Submission} to the corresponding {@link TextChannel}.
+     * @param onFailure The action that is performed if the {@link Subreddit} and consequently the submissions couldn't
+     *                  be retrieved. It removes the feed from the {@link TextChannel}, so that they are skipped in
+     *                  future execution instead of throwing errors.
+     */
     private void request
     (
             @Nonnull String name,
@@ -148,20 +166,30 @@ public class RedditVisitor implements ArchitectureVisitor {
         subredditOpt.ifPresent(subreddit -> postSubmission(subreddit, onSuccess));
     }
 
-    private void postSubmission(
+    /**
+     * Retrieves all submissions in the specified {@link Subreddit} that have been made between
+     * {@link #previousExecution} and {@link #minimumAge} and forwards them to the corresponding {@link TextChannel}.
+     * At this point, the {@link Subreddit} has already been successfully retrieved, meaning that the submissions should
+     * be visible to the application.
+     * @param subreddit The {@link Subreddit} instance matching the subreddit name specified in the {@link TextChannel}.
+     * @param onSuccess The action that is performed for each retrieved {@link Submission}. It forwards a
+     *                  {@link Submission} to the corresponding {@link TextChannel}.
+     */
+    private void postSubmission
+    (
             @Nonnull Subreddit subreddit,
             @Nonnull BiConsumer<Subreddit, Submission> onSuccess
     )
     {
 
         try {
-            List<Submission> submissions = subreddit.getSubmissions(inclusiveFrom, exclusiveTo);
+            List<Submission> submissions = subreddit.getSubmissions(previousExecution, minimumAge);
 
             log.trace("{} new {} between {} and {}",
                     submissions.size(),
                     English.plural("submission", submissions.size()),
-                    inclusiveFrom,
-                    exclusiveTo
+                    previousExecution,
+                    minimumAge
             );
 
             //Post the individual submissions
@@ -176,11 +204,23 @@ public class RedditVisitor implements ArchitectureVisitor {
         }
     }
 
-    private Optional<Subreddit> getSubreddit(String subreddit, Consumer<String> onFailure){
+    /**
+     * Retrieves the {@link Subreddit} with the matching name. If the {@link Subreddit} couldn't be retrieved, the
+     * corresponding entry in the {@link TextChannel} is removed, to prevent this error to appear again in future
+     * requests.
+     * @param subreddit The name of the {@link Subreddit}.
+     * @param onFailure The action that is performed if the {@link Subreddit} and consequently the submissions couldn't
+     *                  be retrieved. It removes the feed from the {@link TextChannel}, so that they are skipped in
+     *                  future execution instead of throwing errors.
+     * @return An {@link Optional} containing the {@link Subreddit} instance whose name matches the provided argument.
+     *         If no {@link Subreddit} with such a name exists or the subreddit isn't accessible,
+     *         {@link Optional#empty()} is returned.
+     */
+    @Nonnull
+    private Optional<Subreddit> getSubreddit(@Nonnull String subreddit, @Nonnull Consumer<String> onFailure){
         try{
             return Optional.of(redditClient.getSubreddits(subreddit));
         }catch(Exception e){
-            System.out.println(subreddit);
             log.error(Errors.INVALID_SUBREDDIT.toString(), e);
             onFailure.accept(subreddit);
             requiresUpdate = true;

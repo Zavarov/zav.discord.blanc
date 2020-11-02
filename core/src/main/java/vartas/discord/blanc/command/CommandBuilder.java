@@ -34,16 +34,13 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
- * This class is responsible for transforming received text {@link Message Messages}
- * and execute the {@link Command Commands} associated with it.<br>
- * This process is split into two phases. First, the {@link Message} will be parsed
- * and transformed into an {@link IntermediateCommand}.<br>
- * In this state, we can check for a matching prefix. This can either be the global prefix,
- * valid in all circumstances, or guild-specific prefixes,
- * which are only accepted in their respective {@link Guild Guilds}.
- * If the prefix is valid, an instance of the command, indicated by its name is created and executed,
- * provided with the arguments of the call.
+ * This class is responsible for transforming a received text {@link Message Message} into a {@link Command}. The
+ * transformation itself is split into two parts. First, the {@link Message} will be parsed and turned into an
+ * {@link IntermediateCommand}. In this state, the syntactical correctness of the command is verified.
+ * <p>
+ * In the next step, assuming that the verification was successful, the concrete command instance is calculated.
  * @see IntermediateCommand
+ * @see Command
  */
 @Nonnull
 public abstract class CommandBuilder extends CommandBuilderTOP {
@@ -53,7 +50,7 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
     @Nonnull
     private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     /**
-     * Responsible for creating the {@link IntermediateCommand}
+     * Responsible for creating the {@link IntermediateCommand}.
      */
     @Nonnull
     private final Parser parser;
@@ -71,8 +68,8 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
     /**
      * Initializes the builder.
-     * @param parser the {@link Parser} used for processing the messages.
-     * @param globalPrefix the global command prefix.
+     * @param parser The {@link Parser} used for processing the messages.
+     * @param globalPrefix The global command prefix.
      */
     @Nonnull
     public CommandBuilder(
@@ -99,13 +96,15 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
     }
 
     /**
-     * Processes the received {@link Message} from an arbitrary {@link MessageChannel}.<br>
-     * If the {@link Message} doesn't start with the global prefix, doesn't describe a {@link Command}
-     * or isn't associated with one, {@link Optional#empty()} is returned. Otherwise an {@link Optional} containing
-     * the associated command is returned.
-     * @param message the received {@link Message}.
+     * Processes the received {@link Message} from an arbitrary {@link MessageChannel} and attempts to transform
+     * it into an executable {@link Command}. The command will be created if and only if the message starts with a
+     * valid prefix and if a {@link Command} with the specified name exists.
+     * <p>
+     * Every command returned by this method is considered to be made outside a guild.
+     * @param message The received {@link Message}.
      * @param channel the {@link MessageChannel} from which the {@link Message} was received.
-     * @return the {@link Command} instance associated with the {@link Message}.
+     * @return An {@link Optional} containing the {@link Command} associated with the {@link Message}. If the command
+     *         is couldn't be created due to an unspecified reason, {@link Optional#empty()} is returned.
      */
     @Nonnull
     @Override
@@ -118,7 +117,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
         IntermediateCommand command = commandOpt.get();
 
-        log.info("Received command {} : {} {}", command.getPrefix(), command.getName(), command.getArguments());
+        log.info("Received command {} : {} {}",
+                command.getPrefix(),
+                command.getName(),
+                command.getArguments().stream().map(ArgumentPrettyPrinter::printPretty).collect(Collectors.toList())
+        );
 
         typeResolver = typeResolverFunction.apply(null, null);
 
@@ -131,10 +134,12 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
 
     /**
-     * Processes the received {@link Message} from a {@link TextChannel}.<br>
-     * If the {@link Message} doesn't start with either the global or the guild prefix,
-     * doesn't describe a {@link Command} or isn't associated with one, {@link Optional#empty()} is returned.
-     * Otherwise an {@link Optional} containing the associated command is returned.
+     * Processes the received {@link Message} from an arbitrary {@link TextChannel} and attempts to transform
+     * it into an executable {@link Command}. The command will be created if and only if the message starts with a
+     * valid prefix and if a {@link Command} with the specified name exists. The prefix can either be the global prefix
+     * or a guild-specific prefix.
+     * <p>
+     * Every command returned by this method is considered to be made inside a guild.
      * @param message the received {@link Message}.
      * @param guild the {@link Guild} associated with the {@link TextChannel} from which the {@link Message} was received.
      * @param textChannel the {@link TextChannel} from which the {@link Message} was received.
@@ -167,10 +172,12 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
     }
 
     /**
-     * Checks if the {@link Command} starts with either the guild or the global prefix.
-     * @param command the {@link Command} associated with the received {@link Message}.
-     * @param guild the {@link Guild} associated with the received {@link Message}.
-     * @return true if the command prefix is valid.
+     * Checks if the {@link Command} starts with the ${@link Guild} prefix.
+     * @param command The {@link Command} associated with the received {@link Message}.
+     * @param guild The {@link Guild} associated with the received {@link Message}.
+     * @return <code>true</code> if the {@link Command} prefix is matches the {@link Guild} prefix. In case the
+     *         {@link Guild} doesn't have a prefix specified, <code>false</code> is returned.
+     * @see Guild#getPrefix()
      */
     private boolean comparePrefix(@Nonnull IntermediateCommand command, @Nonnull Guild guild){
         return guild.getPrefix().equals(command.getPrefix()) && command.getPrefix().isPresent();
@@ -178,20 +185,23 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
 
     /**
      * Checks if the {@link Command} starts with the global prefix.
-     * @param command the {@link Command} associated with the received {@link Message}.
-     * @return true if the command prefix is valid.
+     * @param command The {@link Command} associated with the received {@link Message}.
+     * @return <code>true</code> if the {@link Command} prefix is matches the global prefix.
      */
     private boolean comparePrefix(@Nonnull IntermediateCommand command){
         return command.getPrefix().map(globalPrefix::equals).orElse(false);
     }
 
     /**
-     * Binds the provided context to a guild command.
-     * @param command the received command.
-     * @param message the message instance from which the command originates.
-     * @param guild the guild the message was recevied in.
-     * @param messageChannel the text channel the message was received in.
-     * @return the received command.
+     * Parameters such as the received {@link Message}, which are not required for the parsing processing and as such
+     * aren't initialized upon creation. They are set by this method in order to provide them during execution.
+     * @param command The {@link Command} created by the received {@link Message}.
+     * @param message The {@link Message} corresponding to the {@link Command}.
+     * @param guild The {@link Guild} the {@link Message} was received in. May be <code>null</code> in case the
+     *              {@link Message} wasn't received inside a guild.
+     * @param messageChannel The {@link MessageChannel} the {@link Message} was received in.
+     * @return The {@link Command} provided as an argument. Upon return, the attributes of the {@link Command} matching
+     *         the remaining arguments have been properly initialized.
      */
     @Nonnull
     private Command provideContext
@@ -207,11 +217,13 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
     }
 
     /**
-     * Binds the provided context to a command.
-     * @param command the received command.
-     * @param message the message instance from which the command originates.
-     * @param messageChannel the message channel the message was received in.
-     * @return the received command.
+     * Parameters such as the received {@link Message}, which are not required for the parsing processing and as such
+     * aren't initialized upon creation. They are set by this method in order to provide them during execution.
+     * @param command The {@link Command} created by the received {@link Message}.
+     * @param message The {@link Message} corresponding to the {@link Command}.
+     * @param messageChannel The {@link MessageChannel} the {@link Message} was received in.
+     * @return The {@link Command} provided as an argument. Upon return, the attributes of the {@link Command} matching
+     *         the remaining arguments have been properly initialized.
      */
     @Nonnull
     private Command provideContext
@@ -225,36 +237,39 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
     }
 
     /**
-     * This implements traverses the command and attach the context at the respective hook points.
+     * This visitor is used to break up the encapsulation of the commands. Depending on what type of {@link Command} was
+     * created, the attributes that weren't set during creation are initialized properly.
      */
     @Nonnull
     private class ContextProvider implements CommandVisitor{
         /**
-         * The guild the command was received in. Null if the message came from a private channel.
+         * The {@link Guild} the visited {@link Command} was received in. Null if the {@link Message} wasn't received
+         * inside a {@link Guild}.
          */
         @Nullable
         private final Guild guild;
         /**
-         * The message channel in which the command was received in.
+         * The {@link MessageChannel} in which the visited {@link Command} was received in.
          */
         @Nonnull
         private final MessageChannel messageChannel;
         /**
-         * The user who issued the command.
+         * The {@link User} who issued the visited {@link Command}.
          */
         @Nonnull
         private final User author;
         /**
-         * The message that triggered the command.
+         * The {@link Message} corresponding to the visited {@link Command}.
          */
         @Nonnull
         private final Message message;
 
         /**
          * Creates a fresh visitor instance.
-         * @param message the message instance from which the command originates.
-         * @param guild the guild the message was recevied in.
-         * @param messageChannel the text channel the message was received in.
+         * @param message The {@link Message} corresponding to the visited {@link Command}.
+         * @param guild The {@link Guild} the {@link Message} was received in. May be <code>null</code> if the
+         *              {@link Message} wasn't received inside a guild.
+         * @param messageChannel The {@link MessageChannel} the {@link Message} was received in.
          */
         @Nonnull
         public ContextProvider(@Nonnull Message message, @Nullable Guild guild, @Nonnull MessageChannel messageChannel){
@@ -265,12 +280,11 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         }
 
         /**
-         * This method is called in case of a normal command.
-         * Binds the context to the provided command.
-         * @param command the command associated with the context.
+         * Completes the initialization of a {@link Command} that can be executed without a {@link Guild}.
+         * @param command The {@link Command} associated with the provided attributes.
          */
         @Override
-        public void visit(MessageCommand command){
+        public void visit(@Nonnull MessageCommand command){
             command.set$Author(author);
             command.set$MessageChannel(messageChannel);
             command.set$Shard(shard);
@@ -278,12 +292,13 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
         }
 
         /**
-         * This method is called in case of a guild command.
-         * Binds the context to the provided command.
-         * @param command the command associated with the context.
+         * Completes the initialization of a {@link Command} that can only be executed inside a {@link Guild}.
+         * @param command The {@link Command} associated with the provided attributes.
+         * @throws NullPointerException If {@link #guild} is <code>null</code>.
          */
         @Override
-        public void visit(GuildCommand command){
+        public void visit(@Nonnull GuildCommand command) throws NullPointerException{
+            //A guild command needs a guild
             Preconditions.checkNotNull(guild);
 
             command.set$Author(guild.getUncheckedMembers(author.getId()));

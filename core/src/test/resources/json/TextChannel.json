@@ -2,7 +2,7 @@
   "subreddits": ["redditdev"],
   "webhooks": {
     "redditdev": {
-      "subreddit": "redditdev",
+      "subreddits": ["redditdev"],
       "name": "redditdev",
       "id": 112233445566778899
     }

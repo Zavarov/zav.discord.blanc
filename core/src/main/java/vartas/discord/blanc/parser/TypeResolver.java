@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 /**
  * This class is used to resolve an arbitrary data type.
- * @param <T> the resolved type.
+ * @param <T> The resolved type.
  */
 @Nonnull
 public abstract class TypeResolver <T> implements Function<Argument, Optional<T>>, ParserVisitor {
@@ -46,8 +46,9 @@ public abstract class TypeResolver <T> implements Function<Argument, Optional<T>
 
     /**
      * Transforms the {@link Argument} into an instance of {@link T}
-     * @param argument the {@link Argument} associated with {@link T}.
-     * @return the resolved {@link T} associated with the {@link Argument}.
+     * @param argument The {@link Argument} associated with {@link T}.
+     * @return An {@link Optional} containing the resolved type. In case the argument couldn't be resolved,
+     *         {@link Optional#empty()} is returned.
      */
     @Override
     public Optional<T> apply(Argument argument) {

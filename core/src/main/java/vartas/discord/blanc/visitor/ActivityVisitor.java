@@ -19,10 +19,21 @@ package vartas.discord.blanc.visitor;
 
 import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.activity.Activity;
 
+/**
+ * This visitor traverses through every {@link Guild} in a shard and calls the <code>update</code> method of the
+ * corresponding {@link Guild}. By doing this periodically, we are able to track the guilds activity over time.
+ */
 public class ActivityVisitor implements ArchitectureVisitor {
+    /**
+     * Triggers the update method of the corresponding {@link Activity}
+     * @param guild One of the guilds in the corresponding {@link Shard}.
+     * @see Activity
+     */
     @Override
     public void handle(Guild guild){
-        guild.getActivity().update(guild);
+        guild.updateActivity(guild);
     }
 }
