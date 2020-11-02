@@ -7,9 +7,9 @@ grammar Cardinality extends de.monticore.MCBasics{
         interface Cardinality;
 
         /**
-         * Indicates that a variable occurs at least once. This cardinality corresponds to a list.
+         * Indicates that a variable occurs an arbitrary amount of times. This cardinality corresponds to a list.
          */
-        Many implements Cardinality = "+";
+        Many implements Cardinality = "*";
         /**
          * Indicates that a variable occurs either once or not at all. This cardinality corresponds to the Optional
          * class.

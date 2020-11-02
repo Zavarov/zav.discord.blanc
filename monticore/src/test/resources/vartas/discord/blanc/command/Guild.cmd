@@ -10,7 +10,7 @@ group vartas.discord.blanc.guild {
 
     command activity requires Guild {
              class : ActivityClass
-         parameter : TextChannel channel+
+         parameter : TextChannel channel*
               rank : User
     }
 
