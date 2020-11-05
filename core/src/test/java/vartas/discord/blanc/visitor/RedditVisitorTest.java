@@ -17,35 +17,41 @@
 
 package vartas.discord.blanc.visitor;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.AbstractTest;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.mock.*;
+import vartas.discord.blanc.io.$json.JSONCredentials;
+import vartas.discord.blanc.mock.ClientMock;
+import vartas.discord.blanc.mock.SubmissionMock;
+import vartas.discord.blanc.mock.SubredditMock;
 import vartas.reddit.Submission;
 import vartas.reddit.factory.SubmissionFactory;
 import vartas.reddit.factory.SubredditFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RedditVisitorTest extends AbstractTest {
-    Shard shard;
-    Guild guild;
-    TextChannelMock textChannel;
-
+    Path targetDirectory = Paths.get("target", "test", "resources");
+    Path jsonDirectory;
     ClientMock redditHook;
     RedditVisitor redditVisitor;
     SubredditMock subreddit;
     Submission submission;
-    WebhookMock webhook;
     @BeforeEach
     public void setUp() {
         initRedditHook();
-        initDiscordHook();
+        jsonDirectory = JSONCredentials.CREDENTIALS.getJsonDirectory();
         redditVisitor = new RedditVisitor(redditHook);
+    }
+
+    @AfterEach
+    public void tearDown(){
+        credentials.setJsonDirectory(jsonDirectory);
     }
 
     private void initRedditHook(){
@@ -72,92 +78,73 @@ public class RedditVisitorTest extends AbstractTest {
         );
 
         redditHook = new ClientMock();
-        redditHook.putSubreddits(subreddit.getName(), subreddit);
+        textChannel.getSubreddits().forEach(name -> redditHook.putSubreddits(name, subreddit));
+        webhook.getSubreddits().forEach(name -> redditHook.putSubreddits(name, subreddit));
 
         subreddit.submissions.add(submission);
     }
 
-    private void initDiscordHook() {
-        webhook = new WebhookMock(12345L,"subreddit");
-        webhook.addSubreddits("subreddit");
-
-        textChannel = new TextChannelMock(2, "TextChannel");
-        textChannel.addSubreddits(subreddit.getName());
-        textChannel.putWebhooks("subreddit", webhook);
-
-        guild = new GuildMock(1, "Guild");
-        guild.putChannels(textChannel.getId(), textChannel);
-
-        shard = new ShardMock(0);
-        shard.putGuilds(guild.getId(), guild);
-
-    }
-
     @Test
     public void testServerException(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
         subreddit.action = SubredditMock.ACTION.SERVER_EXCEPTION;
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
-        assertThat(textChannel.sent).isEmpty();
-        assertThat(webhook.sent).isEmpty();
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
     }
 
     @Test
     public void testClientException(){
-        subreddit.action = SubredditMock.ACTION.FORBIDDEN_EXCEPTION;
-
-        shard.accept(redditVisitor);
-
-        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
-        assertThat(textChannel.sent).isEmpty();
-        assertThat(webhook.sent).isEmpty();
-    }
-
-    @Test
-    public void testForbiddenException(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
         subreddit.action = SubredditMock.ACTION.CLIENT_EXCEPTION;
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
-        assertThat(textChannel.sent).isEmpty();
-        assertThat(webhook.sent).isEmpty();
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
+    }
+
+    @Test
+    public void testForbiddenException(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
+        subreddit.action = SubredditMock.ACTION.FORBIDDEN_EXCEPTION;
+
+        shard.accept(redditVisitor);
+
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
     }
 
     @Test
     public void testRedditUnsuccessfulException(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
         subreddit.action = SubredditMock.ACTION.UNSUCCESSFUL_EXCEPTION;
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
-        assertThat(textChannel.sent).isEmpty();
-        assertThat(webhook.sent).isEmpty();
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
     }
 
     @Test
     public void testUnknownException(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
         subreddit.action = SubredditMock.ACTION.UNKNOWN_EXCEPTION;
 
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.getSubreddits()).containsExactly(subreddit.getName());
-        assertThat(textChannel.valuesWebhooks()).containsExactly(webhook);
-        assertThat(textChannel.sent).isEmpty();
-        assertThat(webhook.sent).isEmpty();
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
     }
 
     @Test
     public void testSuccess(){
+        JSONCredentials.CREDENTIALS.setJsonDirectory(targetDirectory);
         shard.accept(redditVisitor);
 
-        assertThat(textChannel.sent).isNotEmpty();
-        assertThat(webhook.sent).isNotEmpty();
+        assertThat(textChannel.retrieveMessages()).isNotEmpty();
+        assertThat(webhook.retrieveMessages()).isNotEmpty();
     }
 }

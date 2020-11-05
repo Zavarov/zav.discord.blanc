@@ -17,30 +17,32 @@
 
 package vartas.discord.blanc.mock;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.blanc.$factory.GuildFactory;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Member;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.*;
 import vartas.discord.blanc.activity.Activity;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class GuildMock extends Guild {
+    public Map<Long, Member> members = new HashMap<>();
+    public Map<Long, Role> roles = new HashMap<>();
+    public Map<Long, TextChannel> channels = new HashMap<>();
+    public SelfMember selfMember;
+
     public GuildMock(){}
 
-    public GuildMock(int id, String name){
-        GuildFactory.create(() -> this, new SelfMemberMock(), new Activity(), id, name);
+    public GuildMock(long id, String name){
+        GuildFactory.create(() -> this, new Activity(), id, name);
     }
 
     @Override
     public void leave(){
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Guild getRealThis() {
-        return this;
     }
 
     @Override
@@ -53,16 +55,49 @@ public class GuildMock extends Guild {
         throw new UnsupportedOperationException();
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     @Override
-    public TextChannel getChannels(Long key) {
-        return new TextChannelMock();
+    public Member retrieveMember(long id) {
+        if(!members.containsKey(id))
+            throw new NoSuchElementException();
+
+        return members.get(id);
     }
+
     @Override
-    public Member getMembers(Long key) {
-        return new MemberMock();
+    public Collection<Member> retrieveMembers() {
+        return members.values();
     }
+
     @Override
-    public Role getRoles(Long key) {
-        return new RoleMock();
+    public TextChannel retrieveTextChannel(long id) {
+        if(!channels.containsKey(id))
+            throw new NoSuchElementException();
+
+        return channels.get(id);
+    }
+
+    @Override
+    public Collection<TextChannel> retrieveTextChannels() {
+        return channels.values();
+    }
+
+    @Override
+    public Role retrieveRole(long id) {
+        if(!roles.containsKey(id))
+            throw new NoSuchElementException();
+
+        return roles.get(id);
+    }
+
+    @Override
+    public Collection<Role> retrieveRoles() {
+        return roles.values();
+    }
+
+    @Override
+    public SelfMember retrieveSelfMember() {
+        return Preconditions.checkNotNull(selfMember);
     }
 }

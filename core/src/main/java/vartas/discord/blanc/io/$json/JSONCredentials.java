@@ -39,7 +39,7 @@ public class JSONCredentials extends JSONCredentialsTOP {
     }
 
     @Override
-    protected void $fromGuildDirectory(JSONObject source, Credentials target){
-        target.setGuildDirectory(Paths.get(source.getString("guildDirectory")));
+    protected void $fromJsonDirectory(JSONObject source, Credentials target){
+        target.setJsonDirectory(Paths.get(source.getString("jsonDirectory")));
     }
 }

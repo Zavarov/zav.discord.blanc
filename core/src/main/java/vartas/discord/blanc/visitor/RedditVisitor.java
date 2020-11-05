@@ -18,13 +18,10 @@
 package vartas.discord.blanc.visitor;
 
 import org.atteo.evo.inflector.English;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.$json.JSONGuild;
 import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.io.$json.JSONCredentials;
 import vartas.reddit.ApiException;
 import vartas.reddit.ClientException;
 import vartas.reddit.Submission;
@@ -72,12 +69,6 @@ public class RedditVisitor implements ArchitectureVisitor {
     private Instant minimumAge = previousExecution;
 
     /**
-     * Indicates that the guild file was modified by the visitor and the corresponding JSON
-     * file needs to be updated.
-     */
-    private boolean requiresUpdate;
-
-    /**
      * Initializes the visitor.
      * @param redditClient The hook point for receiving new {@link Submission submissions}
      */
@@ -110,39 +101,20 @@ public class RedditVisitor implements ArchitectureVisitor {
      * @param guild The current {@link Guild}.
      */
     @Override
-    public void visit(@Nonnull Guild guild){
+    public void handle(@Nonnull Guild guild){
         log.trace("Visiting guild {}", guild.getName());
-        requiresUpdate = false;
-    }
-
-    /**
-     * The Reddit feed is implementing by either posting submissions via webhooks, or directly via the
-     * {@link TextChannel} as a normal {@link Message}. When visiting a {@link TextChannel} all submissions between
-     * {@link #previousExecution} and {@link #minimumAge} requested and forwarded to the channel.
-     * <p>
-     * If the specified {@link Subreddit} can't be accessed, due to being set to private or other factors, the feed is
-     * removed from the {@link TextChannel}.
-     * @param textChannel The current {@link TextChannel}.
-     */
-    @Override
-    public void visit(@Nonnull TextChannel textChannel){
-        log.trace("Visiting text channel {}", textChannel.getName());
-        for(String subreddit : textChannel.getSubreddits())
-            request(subreddit, textChannel::send, textChannel::removeSubreddits);
-        for(Webhook webhook : textChannel.valuesWebhooks())
-            for(String subreddit : webhook.getSubreddits())
-                request(subreddit, webhook::send, webhook::removeSubreddits);
-    }
-
-    /**
-     * If a {@link Subreddit} specified in one of the guilds text channels has been removed, the corresponding JSON
-     * instance has to be updated to keep track of this change, even when restarting the application.
-     * @param guild The current {@link Guild}.
-     */
-    @Override
-    public void endVisit(@Nonnull Guild guild){
-        if(requiresUpdate)
-            Shard.write(JSONGuild.toJson(guild, new JSONObject()), JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
+        for(TextChannel textChannel : guild.retrieveTextChannels()) {
+            log.trace("Visiting text channel {}", textChannel.getName());
+            for (String subreddit : textChannel.getSubreddits()) {
+                request(subreddit, textChannel::send, name -> this.removeSubreddit(name, guild, textChannel));
+            }
+            for(Webhook webhook : textChannel.retrieveWebhooks()) {
+                log.trace("Visiting webhook {}", webhook.getName());
+                for (String subreddit : webhook.getSubreddits()) {
+                    request(subreddit, webhook::send, name -> this.removeSubreddit(name, guild, webhook));
+                }
+            }
+        }
     }
 
     /**
@@ -223,8 +195,17 @@ public class RedditVisitor implements ArchitectureVisitor {
         }catch(Exception e){
             log.error(Errors.INVALID_SUBREDDIT.toString(), e);
             onFailure.accept(subreddit);
-            requiresUpdate = true;
             return Optional.empty();
         }
+    }
+
+    private void removeSubreddit(String subreddit, Guild guild, TextChannel textChannel){
+        textChannel.removeSubreddits(subreddit);
+        Shard.write(guild, textChannel);
+    }
+
+    private void removeSubreddit(String subreddit, Guild guild, Webhook webhook){
+        webhook.removeSubreddits(subreddit);
+        Shard.write(guild, webhook);
     }
 }

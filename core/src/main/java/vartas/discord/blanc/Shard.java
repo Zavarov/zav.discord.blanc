@@ -21,6 +21,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$json.JSONGuild;
+import vartas.discord.blanc.$json.JSONRole;
+import vartas.discord.blanc.$json.JSONTextChannel;
+import vartas.discord.blanc.$json.JSONWebhook;
 import vartas.discord.blanc.io.$json.JSONCredentials;
 import vartas.discord.blanc.visitor.ActivityVisitor;
 import vartas.discord.blanc.visitor.RedditVisitor;
@@ -32,7 +35,7 @@ import java.nio.file.Path;
 import java.util.concurrent.*;
 
 @Nonnull
-public class Shard extends ShardTOP{
+public abstract class Shard extends ShardTOP{
     @Nonnull
     protected final ExecutorService worker;
     @Nonnull
@@ -70,26 +73,6 @@ public class Shard extends ShardTOP{
         this.executor.scheduleAtFixedRate(statusMessageRunnable, 0, JSONCredentials.CREDENTIALS.getStatusMessageUpdateInterval(), TimeUnit.MINUTES);
     }
 
-    public static void write(@Nonnull JSONObject jsonObject, @Nonnull Path target){
-        try{
-            MUTEX.acquireUninterruptibly();
-            MODIFIES_FILE = true;
-            FileWriter writer = new FileWriter(target.toFile());
-            jsonObject.write(writer, 4, 0);
-            writer.close();
-        }catch(IOException e){
-            LoggerFactory.getLogger(Shard.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
-        }finally {
-            MODIFIES_FILE = false;
-            MUTEX.release();
-        }
-    }
-
-    public static void write(Guild guild){
-        JSONObject jsonGuild = JSONGuild.toJson(guild, new JSONObject());
-        write(jsonGuild, JSONCredentials.CREDENTIALS.getGuildDirectory().resolve(guild.getId()+".gld"));
-    }
-
     public void submit(Runnable runnable){
         worker.submit(runnable);
     }
@@ -106,5 +89,60 @@ public class Shard extends ShardTOP{
     @Override
     public Shard getRealThis() {
         return this;
+    }
+
+    public static void write(Guild guild){
+        String fileName = JSONGuild.getFileName(guild);
+        JSONObject jsonGuild = JSONGuild.toJson(guild, new JSONObject());
+
+        Path fileDirectory = JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toString(guild.getId()));
+        Path filePath = fileDirectory.resolve(fileName);
+
+        write(jsonGuild, filePath);
+    }
+
+    public static void write(Guild guild, TextChannel channel){
+        String fileName = JSONTextChannel.getFileName(channel);
+        JSONObject jsonChannel = JSONTextChannel.toJson(channel, new JSONObject());
+
+        Path fileDirectory = JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toString(guild.getId()));
+        Path filePath = fileDirectory.resolve(fileName);
+
+        write(jsonChannel, filePath);
+    }
+
+    public static void write(Guild guild, Role role){
+        String fileName = JSONRole.getFileName(role);
+        JSONObject jsonRole = JSONRole.toJson(role, new JSONObject());
+
+        Path fileDirectory = JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toString(guild.getId()));
+        Path filePath = fileDirectory.resolve(fileName);
+
+        write(jsonRole, filePath);
+    }
+
+    public static void write(Guild guild, Webhook webhook){
+        String fileName = JSONWebhook.getFileName(webhook);
+        JSONObject jsonWebhook = JSONWebhook.toJson(webhook, new JSONObject());
+
+        Path fileDirectory = JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toString(guild.getId()));
+        Path filePath = fileDirectory.resolve(fileName);
+
+        write(jsonWebhook, filePath);
+    }
+
+    public static void write(@Nonnull JSONObject jsonObject, @Nonnull Path target){
+        try{
+            MUTEX.acquireUninterruptibly();
+            MODIFIES_FILE = true;
+            FileWriter writer = new FileWriter(target.toFile());
+            jsonObject.write(writer, 4, 0);
+            writer.close();
+        }catch(IOException e){
+            LoggerFactory.getLogger(Shard.class.getSimpleName()).error(Errors.INVALID_FILE.toString(), e.toString());
+        }finally {
+            MODIFIES_FILE = false;
+            MUTEX.release();
+        }
     }
 }

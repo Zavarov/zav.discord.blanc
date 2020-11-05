@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Activity extends ActivityTOP{
     /**
      * This map keeps track of all messages that have been received in the individual text channels. One may be tempted
-     * to use the internal cache via {@link TextChannel#getMessages()}, but the we are left to the mercy of its
+     * to use the internal cache via {@link TextChannel#retrieveMessages()} ()}, but the we are left to the mercy of its
      * behaviour and messages may be discarded before the activity has been calculated. In order to minimize the
      * overhead, we only keep track of the message occurrences and not their content.
      * <p>

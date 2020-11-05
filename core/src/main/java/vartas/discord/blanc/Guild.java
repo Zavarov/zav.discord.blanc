@@ -72,6 +72,7 @@ public abstract class Guild extends GuildTOP {
             }
         } catch (PatternSyntaxException e) {
             log.error(Errors.INVALID_PATTERN.toString(), e.toString());
+            pattern = null;
         }
     }
 

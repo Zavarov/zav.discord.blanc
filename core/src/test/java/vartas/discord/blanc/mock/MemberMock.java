@@ -17,6 +17,9 @@
 
 package vartas.discord.blanc.mock;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import vartas.discord.blanc.$factory.MemberFactory;
 import vartas.discord.blanc.*;
 
@@ -24,34 +27,45 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class MemberMock extends Member {
-    public MemberMock(){}
+    public Map<Long, Role> roles = new HashMap<>();
+    public SetMultimap<TextChannel, Permission> permissions = HashMultimap.create();
+    public PrivateChannel privateChannel;
 
+    public MemberMock(){}
     public MemberMock(int id, String name){
         MemberFactory.create(() -> this, OnlineStatus.ONLINE, id, name);
     }
 
-    public List<Permission> permissions = new ArrayList<>();
 
     @Nonnull
     @Override
-    public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
-        return  permissions;
+    public Set<Permission> getPermissions(@Nonnull TextChannel textChannel) {
+        return permissions.get(textChannel);
     }
 
     @Override
     public Optional<String> retrieveNickname() {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<Role> retrieveRoles() {
-        return Collections.emptyList();
+    public Collection<Role> retrieveRoles() {
+        return roles.values();
     }
 
     @Override
     public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
-        throw new UnsupportedOperationException();
+        for(Role role : rolesToAdd)
+            roles.put(role.getId(), role);
+        for(Role role : rolesToRemove)
+            roles.remove(role.getId());
     }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        return Preconditions.checkNotNull(privateChannel);
+    }
+
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();

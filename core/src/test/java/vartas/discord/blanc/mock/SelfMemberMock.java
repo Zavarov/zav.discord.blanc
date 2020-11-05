@@ -17,24 +17,28 @@
 
 package vartas.discord.blanc.mock;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import vartas.discord.blanc.$factory.SelfMemberFactory;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SelfMemberMock extends SelfMember {
-    @Override
-    public SelfMember getRealThis() {
-        return this;
+    public Map<Long, Role> roles = new HashMap<>();
+    public SetMultimap<TextChannel, Permission> permissions = HashMultimap.create();
+
+    public SelfMemberMock(){}
+    public SelfMemberMock(long id, String name){
+        SelfMemberFactory.create(() -> this, OnlineStatus.ONLINE, id, name);
     }
 
     @Nonnull
     @Override
-    public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
-        throw new UnsupportedOperationException();
+    public Set<Permission> getPermissions(@Nonnull TextChannel textChannel) {
+        return permissions.get(textChannel);
     }
 
     @Override
@@ -43,9 +47,15 @@ public class SelfMemberMock extends SelfMember {
     }
 
     @Override
-    public List<Role> retrieveRoles() {
+    public Collection<Role> retrieveRoles() {
+        return roles.values();
+    }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
@@ -59,7 +69,10 @@ public class SelfMemberMock extends SelfMember {
 
     @Override
     public void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove) {
-        throw new UnsupportedOperationException();
+        for(Role role : rolesToAdd)
+            roles.put(role.getId(), role);
+        for(Role role : rolesToRemove)
+            roles.remove(role.getId());
     }
 
     @Override

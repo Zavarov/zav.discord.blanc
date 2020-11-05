@@ -19,19 +19,31 @@ package vartas.discord.blanc.$json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Webhook;
+import vartas.discord.blanc.io.$json.JSONCredentials;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class JSONWebhook extends JSONWebhookTOP {
     private static final String SUBREDDITS = "subreddits";
 
-    @Override
-    protected void $fromMessages(JSONObject source, Webhook target){
-        //Omitted
+    public static String getFileName(Webhook source){
+        return getFileName(source.getId());
     }
 
-    @Override
-    protected void $toMessages(Webhook source, JSONObject target){
-        //Omitted
+    private static String getFileName(long id){
+        return "w" + Long.toUnsignedString(id) + ".json";
+    }
+
+    private static Path getFileDirectory(Guild guild){
+        return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(guild.getId()));
+    }
+
+    public static Webhook fromJson(Webhook target, Guild guild, long id) throws IOException {
+        Path filePath = getFileDirectory(guild).resolve(getFileName(id));
+        return fromJson(target, filePath);
     }
 
     @Override

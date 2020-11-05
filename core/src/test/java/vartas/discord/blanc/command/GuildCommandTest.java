@@ -20,14 +20,15 @@ package vartas.discord.blanc.command;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.*;
-import vartas.discord.blanc.mock.*;
+import vartas.discord.blanc.AbstractTest;
+import vartas.discord.blanc.Permission;
+import vartas.discord.blanc.PermissionException;
+import vartas.discord.blanc.mock.CommandBuilderMock;
+import vartas.discord.blanc.mock.GuildCommandMock;
+import vartas.discord.blanc.mock.ParserMock;
 
 public class GuildCommandTest extends AbstractTest {
-    MemberMock author;
-    Guild guild;
     ParserMock parser;
-    TextChannel textChannel;
     GuildCommandMock guildCommand;
     CommandBuilderMock commandBuilder;
     @BeforeEach
@@ -35,20 +36,17 @@ public class GuildCommandTest extends AbstractTest {
         parser = new ParserMock();
         commandBuilder = new CommandBuilderMock(parser, "!!");
 
-        author = new MemberMock(0, "User");
-        guild = new GuildMock(0, "Guild");
-        textChannel = new TextChannelMock(0, "TextChannel");
-        guildCommand = new GuildCommandMock(author, textChannel, guild);
+        guildCommand = new GuildCommandMock(member, textChannel, guild);
     }
 
     @Test
     public void testCheckPermission(){
-        author.permissions.add(Permission.CHANGE_NICKNAME);
-        guildCommand.checkPermission(author, textChannel, Permission.CHANGE_NICKNAME);
+        member.permissions.put(textChannel, Permission.CHANGE_NICKNAME);
+        guildCommand.checkPermission(member, textChannel, Permission.CHANGE_NICKNAME);
     }
 
     @Test
     public void testCheckMissingPermission(){
-        Assertions.assertThrows(PermissionException.class, () -> guildCommand.checkPermission(author, textChannel, Permission.CHANGE_NICKNAME));
+        Assertions.assertThrows(PermissionException.class, () -> guildCommand.checkPermission(member, textChannel, Permission.CHANGE_NICKNAME));
     }
 }

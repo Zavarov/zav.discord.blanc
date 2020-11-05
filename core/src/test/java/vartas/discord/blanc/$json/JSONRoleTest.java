@@ -21,18 +21,27 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONRoleTest extends AbstractJSONTest{
     @Test
     public void testGetGroup(){
-        assertThat(ROLE.getGroup()).contains(JSON_ROLE.getString(JSONRole.GROUP));
+        assertThat(role.getGroup()).contains("Color");
+    }
+
+    @Test
+    public void testGetName(){
+        assertThat(role.getName()).isEqualTo("Purple");
+    }
+
+    @Test
+    public void testGetId(){
+        assertThat(role.getId()).isEqualTo(20);
     }
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonRole = JSONRole.toJson(ROLE, new JSONObject());
-
-        assertTrue(JSON_ROLE.similar(jsonRole));
+        JSONObject jsonObject = JSONRole.toJson(role, new JSONObject());
+        assertEquals(jsonObject.toString(), jsonRole.toString());
     }
 }

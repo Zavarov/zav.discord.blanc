@@ -17,13 +17,55 @@
 
 package vartas.discord.blanc.mock;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.blanc.$factory.ShardFactory;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.SelfUser;
 import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.User;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class ShardMock extends Shard {
+    public Map<Long, User> users = new HashMap<>();
+    public Map<Long, Guild> guilds = new HashMap<>();
+    public SelfUser selfUser;
+
     public ShardMock(){}
 
     public ShardMock(int id){
-        ShardFactory.create(() -> this, id, new SelfUserMock());
+        ShardFactory.create(() -> this, id);
+    }
+
+    @Override
+    public SelfUser retrieveSelfUser() {
+        return Preconditions.checkNotNull(selfUser);
+    }
+
+    @Override
+    public User retrieveUser(long id) {
+        if(!users.containsKey(id))
+            throw new NoSuchElementException();
+        return users.get(id);
+    }
+
+    @Override
+    public Collection<User> retrieveUsers() {
+        return users.values();
+    }
+
+    @Override
+    public Guild retrieveGuild(long id) {
+        if(!guilds.containsKey(id))
+            throw new NoSuchElementException();
+        return guilds.get(id);
+    }
+
+    @Override
+    public Collection<Guild> retrieveGuilds() {
+        return guilds.values();
     }
 }

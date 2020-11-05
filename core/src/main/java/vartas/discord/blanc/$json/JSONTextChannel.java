@@ -19,52 +19,31 @@ package vartas.discord.blanc.$json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.Errors;
+import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.Webhook;
+import vartas.discord.blanc.io.$json.JSONCredentials;
 
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class JSONTextChannel extends JSONTextChannelTOP {
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     public static final String SUBREDDITS = "subreddits";
-    public static final String WEBHOOKS = "webhooks";
 
-    @Override
-    protected void $fromMessages(JSONObject source, TextChannel target){
-        //Omitted
+    public static String getFileName(TextChannel source){
+        return getFileName(source.getId());
     }
 
-    @Override
-    protected void $toMessages(TextChannel source, JSONObject target){
-        //Omitted
+    private static String getFileName(long id){
+        return "t" + Long.toUnsignedString(id) + ".json";
     }
 
-    @Override
-    protected void $fromWebhooks(JSONObject source, TextChannel target) {
-        JSONObject webhooks = source.optJSONObject(WEBHOOKS);
-        if(webhooks != null) {
-            for (String key : webhooks.keySet()) {
-                try {
-                    Webhook webhook = target.getWebhooks(key);
-                    target.putWebhooks(key, JSONWebhook.fromJson(webhook, webhooks.getJSONObject(key)));
-                } catch (ExecutionException e) {
-                    //The requested webhook may no longer exist.
-                    log.warn(Errors.UNKNOWN_WEBHOOK.toString(), e);
-                }
-            }
-        }
+    private static Path getFileDirectory(Guild guild){
+        return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(guild.getId()));
     }
 
-    @Override
-    protected void $toWebhooks(TextChannel source, JSONObject target){
-        JSONObject webhooks = new JSONObject();
-        for(Map.Entry<String, Webhook> webhook : source.asMapWebhooks().entrySet())
-            webhooks.put(webhook.getKey(), JSONWebhook.toJson(webhook.getValue(), new JSONObject()));
-        target.put(WEBHOOKS, webhooks);
+    public static TextChannel fromJson(TextChannel target, Guild guild, long id) throws IOException {
+        Path filePath = getFileDirectory(guild).resolve(getFileName(id));
+        return fromJson(target, filePath);
     }
 
     @Override

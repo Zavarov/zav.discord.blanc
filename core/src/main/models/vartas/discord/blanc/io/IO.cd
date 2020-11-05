@@ -26,7 +26,7 @@ public classdiagram IO {
         - String redditId;
         - String redditSecret;
 
-        - Path guildDirectory;
+        - Path jsonDirectory;
     }
 
     public class Ranks {

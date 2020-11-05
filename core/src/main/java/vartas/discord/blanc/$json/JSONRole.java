@@ -18,12 +18,33 @@
 package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
+import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Role;
+import vartas.discord.blanc.io.$json.JSONCredentials;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class JSONRole extends JSONRoleTOP {
     public static final String GROUP = "group";
+
+    public static String getFileName(Role source){
+        return getFileName(source.getId());
+    }
+
+    private static String getFileName(long id){
+        return "r" + Long.toUnsignedString(id) + ".json";
+    }
+
+    private static Path getFileDirectory(Guild guild){
+        return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(guild.getId()));
+    }
+
+    public static Role fromJson(Role target, Guild guild, long id) throws IOException {
+        Path filePath = getFileDirectory(guild).resolve(getFileName(id));
+        return fromJson(target, filePath);
+    }
 
     @Override
     protected void $fromGroup(JSONObject source, Role target){

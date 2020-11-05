@@ -19,36 +19,29 @@ package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.Webhook;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONTextChannelTest extends AbstractJSONTest{
     @Test
-    public void testGetWebhooks(){
-        List<Webhook> webhooks = new ArrayList<>(TEXT_CHANNEL.valuesWebhooks());
+    public void testGetName(){
+        assertThat(textChannel.getName()).isEqualTo("Reddit");
+    }
 
-        assertEquals(webhooks.size(), 1);
-
-        Webhook webhook = webhooks.get(0);
-        assertEquals(webhook.getId(), 112233445566778899L);
-        assertEquals(webhook.getName(), "redditdev");
+    @Test
+    public void testGetId(){
+        assertThat(textChannel.getId()).isEqualTo(30);
     }
 
     @Test
     public void testGetSubreddits(){
-        assertThat(TEXT_CHANNEL.getSubreddits()).containsExactly("redditdev");
+        assertThat(textChannel.getSubreddits()).containsExactly("redditdev");
     }
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonTextChannel = JSONTextChannel.toJson(TEXT_CHANNEL, new JSONObject());
-
-        assertTrue(JSON_TEXT_CHANNEL.similar(jsonTextChannel));
+        JSONObject jsonObject = JSONTextChannel.toJson(textChannel, new JSONObject());
+        assertEquals(jsonObject.toString(), jsonTextChannel.toString());
     }
 }

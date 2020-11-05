@@ -20,13 +20,28 @@ package vartas.discord.blanc.$json;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONWebhookTest extends AbstractJSONTest{
     @Test
-    public void testGetJsonObject(){
-        JSONObject jsonWebhook = JSONWebhook.toJson(WEBHOOK, new JSONObject());
+    public void testGetName(){
+        assertThat(webhook.getName()).isEqualTo("Webhook");
+    }
 
-        assertTrue(JSON_WEBHOOK.similar(jsonWebhook));
+    @Test
+    public void testGetId(){
+        assertThat(webhook.getId()).isEqualTo(40);
+    }
+
+    @Test
+    public void testGetSubreddits(){
+        assertThat(webhook.getSubreddits()).containsExactly("modnews");
+    }
+
+    @Test
+    public void testGetJsonObject(){
+        JSONObject jsonObject = JSONWebhook.toJson(webhook, new JSONObject());
+        assertEquals(jsonObject.toString(), jsonWebhook.toString());
     }
 }

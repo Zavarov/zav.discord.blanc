@@ -19,8 +19,13 @@ package vartas.discord.blanc.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.*;
-import vartas.discord.blanc.mock.*;
+import vartas.discord.blanc.AbstractTest;
+import vartas.discord.blanc.Message;
+import vartas.discord.blanc.PermissionException;
+import vartas.discord.blanc.Rank;
+import vartas.discord.blanc.mock.AttachmentMock;
+import vartas.discord.blanc.mock.MessageCommandMock;
+import vartas.discord.blanc.mock.MessageMock;
 
 import java.util.NoSuchElementException;
 
@@ -28,41 +33,37 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CommandTest extends AbstractTest {
-    User author;
-    PrivateChannel messageChannel;
     Command command;
     Message message;
 
     @BeforeEach
     public void setUp(){
-        author = new UserMock(0, "User");
-        messageChannel = new PrivateChannelMock(0, "PrivateChannel");
-        command = new MessageCommandMock(author, messageChannel);
+        command = new MessageCommandMock(user, textChannel);
         message = new MessageMock();
     }
 
     @Test
     public void testCheckRootRank(){
-        author.addRanks(Rank.ROOT);
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.ROOT));
+        user.addRanks(Rank.ROOT);
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.USER));
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.DEVELOPER));
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.ROOT));
     }
 
     @Test
     public void testCheckDeveloperRank(){
-        author.addRanks(Rank.DEVELOPER);
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.DEVELOPER));
-        assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.ROOT));
+        user.addRanks(Rank.DEVELOPER);
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.USER));
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.DEVELOPER));
+        assertThrows(PermissionException.class, () -> command.checkRank(user, Rank.ROOT));
     }
 
     @Test
     public void testCheckUserRank(){
-        author.addRanks(Rank.USER);
-        assertDoesNotThrow(() -> command.checkRank(author, Rank.USER));
-        assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.DEVELOPER));
-        assertThrows(PermissionException.class, () -> command.checkRank(author, Rank.ROOT));
+        user.addRanks(Rank.USER);
+        assertDoesNotThrow(() -> command.checkRank(user, Rank.USER));
+        assertThrows(PermissionException.class, () -> command.checkRank(user, Rank.DEVELOPER));
+        assertThrows(PermissionException.class, () -> command.checkRank(user, Rank.ROOT));
     }
 
     @Test

@@ -22,21 +22,35 @@ import vartas.discord.blanc.Message;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.Webhook;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class TextChannelMock extends TextChannel {
-    public TextChannelMock(){}
+    public Map<Long, Message> messages = new HashMap<>();
+    public Map<Long, Webhook> webhooks = new HashMap<>();
 
+    public TextChannelMock(){}
     public TextChannelMock(int id, String name){
         TextChannelFactory.create(() -> this, id, name);
     }
 
-    public List<Message> sent = new ArrayList<>();
+    @Override
+    public Message retrieveMessage(long id) {
+        if(!messages.containsKey(id))
+            throw new NoSuchElementException();
+        return messages.get(id);
+    }
+
+    @Override
+    public Collection<Message> retrieveMessages() {
+        return messages.values();
+    }
 
     @Override
     public void send(Message message) {
-        sent.add(message);
+        messages.put(message.getId(), message);
     }
 
     @Override
@@ -45,12 +59,17 @@ public class TextChannelMock extends TextChannel {
     }
 
     @Override
+    public Webhook retrieveWebhook(String name) {
+        return retrieveWebhooks().stream().filter(webhook -> webhook.getName().equals(name)).findAny().orElseThrow();
+    }
+
+    @Override
+    public Collection<Webhook> retrieveWebhooks() {
+        return webhooks.values();
+    }
+
+    @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
-    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    @Override
-    public Webhook getWebhooks(String key){
-        return new WebhookMock();
     }
 }

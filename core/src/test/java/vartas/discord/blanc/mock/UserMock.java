@@ -17,15 +17,23 @@
 
 package vartas.discord.blanc.mock;
 
+import com.google.common.base.Preconditions;
 import vartas.discord.blanc.$factory.UserFactory;
 import vartas.discord.blanc.OnlineStatus;
+import vartas.discord.blanc.PrivateChannel;
 import vartas.discord.blanc.User;
 
 public class UserMock extends User {
+    public PrivateChannel privateChannel;
     public UserMock(){}
 
     public UserMock(int id, String name){
         UserFactory.create(() -> this, OnlineStatus.ONLINE, id, name);
+    }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        return Preconditions.checkNotNull(privateChannel);
     }
 
     @Override

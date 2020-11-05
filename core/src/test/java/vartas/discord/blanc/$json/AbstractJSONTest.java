@@ -18,48 +18,27 @@
 package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
-import vartas.discord.blanc.*;
-import vartas.discord.blanc.mock.GuildMock;
-import vartas.discord.blanc.mock.RoleMock;
-import vartas.discord.blanc.mock.TextChannelMock;
-import vartas.discord.blanc.mock.WebhookMock;
+import org.junit.jupiter.api.BeforeEach;
+import vartas.discord.blanc.AbstractTest;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public abstract class AbstractJSONTest extends AbstractTest {
-    public static Path JSON;
+    public JSONObject jsonGuild;
+    public JSONObject jsonRole;
+    public JSONObject jsonTextChannel;
+    public JSONObject jsonWebhook;
 
-    public static Path GUILD_PATH;
-    public static JSONObject JSON_GUILD;
-    public static Guild GUILD;
+    @BeforeEach
+    public void setUp() throws IOException{
+        Path json = RESOURCES.resolve("10");
 
-    public static JSONObject JSON_ROLE;
-    public static Role ROLE;
-
-    public static JSONObject JSON_TEXT_CHANNEL;
-    public static TextChannel TEXT_CHANNEL;
-    public static JSONObject JSON_WEBHOOK;
-    public static Webhook WEBHOOK;
-
-    @BeforeAll
-    public static void setUpAll() throws IOException{
-        JSON = RESOURCES.resolve("json");
-
-        GUILD_PATH = JSON.resolve("Guild.json");
-        JSON_GUILD = parse(GUILD_PATH);
-        GUILD = JSONGuild.fromJson(new GuildMock(), GUILD_PATH);
-
-        JSON_ROLE = parse(JSON.resolve("Role.json"));
-        ROLE = JSONRole.fromJson(new RoleMock(), JSON_ROLE);
-
-        JSON_TEXT_CHANNEL = parse(JSON.resolve("TextChannel.json"));
-        TEXT_CHANNEL = JSONTextChannel.fromJson(new TextChannelMock(), JSON_TEXT_CHANNEL);
-
-        JSON_WEBHOOK = parse(JSON.resolve("Webhook.json"));
-        WEBHOOK = JSONWebhook.fromJson(new WebhookMock(), JSON_WEBHOOK);
+        jsonGuild = parse(json.resolve("g10.json"));
+        jsonRole = parse(json.resolve("r20.json"));
+        jsonTextChannel = parse(json.resolve("t30.json"));
+        jsonWebhook = parse(json.resolve("w40.json"));
     }
 
     private static JSONObject parse(Path path) throws IOException {

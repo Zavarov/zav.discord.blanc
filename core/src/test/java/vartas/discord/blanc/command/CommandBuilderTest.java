@@ -19,7 +19,7 @@ package vartas.discord.blanc.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.AbstractTest;
 import vartas.discord.blanc.mock.*;
 
 import java.time.Instant;
@@ -28,34 +28,25 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommandBuilderTest extends AbstractTest {
-    Member author;
-    Guild guild;
     ParserMock parser;
-    Message privateMessage;
-    Message guildMessage;
-    PrivateChannel privateChannel;
-    TextChannel textChannel;
     IntermediateCommandMock privateIntermediateCommand;
     IntermediateCommandMock guildIntermediateCommand;
     MessageCommandMock privateCommand;
     GuildCommandMock guildCommand;
     CommandBuilderMock commandBuilder;
+
+    MessageMock guildMessage;
+    MessageMock privateMessage;
     @BeforeEach
     public void setUp(){
         parser = new ParserMock();
         commandBuilder = new CommandBuilderMock(parser, "!!");
 
-        author = new MemberMock(0, "User");
-        guild = new GuildMock(0, "Guild");
+        guildMessage = new MessageMock(0, Instant.now(), member);
+        privateMessage = new MessageMock(1, Instant.now(), user);
 
-        privateChannel = new PrivateChannelMock(0, "PrivateChannel");
-        textChannel = new TextChannelMock(0, "TextChannel");
-
-        guildMessage = new MessageMock(0, Instant.now(), author);
-        privateMessage = new MessageMock(1, Instant.now(), author);
-
-        privateCommand = new MessageCommandMock(author, privateChannel);
-        guildCommand = new GuildCommandMock(author, textChannel, guild);
+        privateCommand = new MessageCommandMock(user, privateChannel);
+        guildCommand = new GuildCommandMock(member, textChannel, guild);
 
         privateIntermediateCommand = new IntermediateCommandMock("!!", "private", Collections.emptyList());
         guildIntermediateCommand = new IntermediateCommandMock("!!", "guild", Collections.emptyList());

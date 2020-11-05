@@ -21,25 +21,38 @@ import vartas.discord.blanc.$factory.PrivateChannelFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.PrivateChannel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class PrivateChannelMock extends PrivateChannel {
-    public PrivateChannelMock(){}
+    public Map<Long, Message> messages = new HashMap<>();
 
+    public PrivateChannelMock(){}
     public PrivateChannelMock(int id, String name){
         PrivateChannelFactory.create(() -> this, id, name);
     }
 
-    public List<Message> sent = new ArrayList<>();
-
     @Override
     public void send(Message message) {
-        sent.add(message);
+        messages.put(message.getId(), message);
     }
 
     @Override
     public void send(byte[] bytes, String qualifiedName) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Message retrieveMessage(long id) {
+        if(!messages.containsKey(id))
+            throw new NoSuchElementException();
+        return messages.get(id);
+    }
+
+    @Override
+    public Collection<Message> retrieveMessages() {
+        return messages.values();
     }
 }

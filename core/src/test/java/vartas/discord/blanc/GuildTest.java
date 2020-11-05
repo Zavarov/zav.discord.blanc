@@ -17,40 +17,30 @@
 
 package vartas.discord.blanc;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.mock.GuildMock;
 
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GuildTest extends AbstractTest{
-    Guild guild;
-
-    @BeforeEach
-    public void setUp(){
-        guild = new GuildMock();
-    }
-
     @Test
     public void testCompileEmptyPattern(){
+        guild.clearBlacklist();
         guild.compilePattern();
         assertThat(guild.getPattern()).isEmpty();
     }
 
     @Test
     public void testCompilePattern(){
-        guild.addBlacklist("pattern");
-
         guild.compilePattern();
-        assertThat(guild.getPattern()).map(Pattern::toString).contains("pattern");
+        assertThat(guild.getPattern()).map(Pattern::toString).contains("handholding");
     }
 
     @Test
     public void testCompileInvalidPattern(){
+        guild.clearBlacklist();
         guild.addBlacklist("[");
-
         guild.compilePattern();
         assertThat(guild.getPattern()).isEmpty();
     }

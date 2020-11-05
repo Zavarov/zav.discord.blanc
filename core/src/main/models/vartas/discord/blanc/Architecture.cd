@@ -47,33 +47,24 @@ public classdiagram Architecture {
      * In order to distribute the workload, the application is split into multiple subprocesses, each operating
      * on an mutually exclusive part of Discord.
      */
-    public class Shard implements Killable{
+    public abstract class Shard implements Killable{
         /**
          * Each shard is uniquely identified by its ID.
          */
         - int id;
-        /**
-         * A collection containing all visible guilds in the given shard. Note that the guild are permanently cached,
-         * due to automated processes like the Reddit feed. Otherwise inactive guilds may be invalidated and thus skipped.
-         */
-        - Cache<Long, Guild> guilds;
-        /**
-         * A collection of all visible users. Note that users are only cached when they actively interact with the
-         * application. For efficiency users are only cached temporarily and invalidated after a certain amount of
-         * inactivity.
-         */
-        <<initializer="PT1H">>
-        - Cache<Long, User> users;
-        /**
-         * The instance of this application inside the given shard.
-         */
-        - SelfUser selfUser;
+
+        + abstract SelfUser retrieveSelfUser();
+        + abstract User retrieveUser(long id);
+        + abstract Collection<User> retrieveUsers();
+        + abstract Guild retrieveGuild(long id);
+        + abstract Collection<Guild> retrieveGuilds();
     }
 
     public abstract class User extends Snowflake implements Printable {
         - OnlineStatus onlineStatus;
-        - Optional<PrivateChannel> channel;
         - Collection<Rank> ranks;
+
+        + abstract PrivateChannel retrievePrivateChannel();
         + abstract String getAsMention();
     }
 
@@ -91,8 +82,8 @@ public classdiagram Architecture {
     }
 
     public abstract class MessageChannel extends Snowflake{
-        <<initializer="PT5M">>
-        - Cache<Long, Message> messages;
+        + abstract Message retrieveMessage(long id);
+        + abstract Collection<Message> retrieveMessages();
 
         + abstract void send(Message message);
         + abstract void send(MessageEmbed messageEmbed);
@@ -154,8 +145,7 @@ public classdiagram Architecture {
     }
 
     public abstract class Attachment{
-        - Optional<InputStream> content;
-        + abstract void download();
+        + abstract InputStream retrieveContent();
         + abstract boolean isImage();
     }
 
@@ -166,15 +156,16 @@ public classdiagram Architecture {
     //------------------------------------------------------------------------------------------------------------------
     public abstract class Guild extends Snowflake implements Printable{
         - Optional<String> prefix;
-        <<initializer="PT1H">>
-        - Cache<Long, Member> members;
-        - Cache<Long, TextChannel> channels;
-        <<initializer="PT1H">>
-        - Cache<Long, Role> roles;
         - List<String> blacklist;
-        - SelfMember selfMember;
         - Activity activity;
 
+        + abstract Member retrieveMember(long id);
+        + abstract Collection<Member> retrieveMembers();
+        + abstract TextChannel retrieveTextChannel(long id);
+        + abstract Collection<TextChannel> retrieveTextChannels();
+        + abstract Role retrieveRole(long id);
+        + abstract Collection<Role> retrieveRoles();
+        + abstract SelfMember retrieveSelfMember();
         + abstract void leave();
     }
 
@@ -185,9 +176,9 @@ public classdiagram Architecture {
 
     public abstract class Member extends User{
         + abstract Optional<String> retrieveNickname();
-        + abstract List<Role> retrieveRoles();
+        + abstract Collection<Role> retrieveRoles();
         + abstract void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove);
-        + abstract List<Permission> getPermissions(TextChannel textChannel);
+        + abstract Set<Permission> getPermissions(TextChannel textChannel);
     }
 
     //SelfMember should also inherit from SelfUser, but inheriting from multiple classes is not allowed in Java
@@ -199,7 +190,9 @@ public classdiagram Architecture {
 
     public abstract class TextChannel extends MessageChannel{
         - Set<String> subreddits;
-        - Cache<String, Webhook> webhooks;
+
+        + abstract Webhook retrieveWebhook(String name);
+        + abstract Collection<Webhook> retrieveWebhooks();
         + abstract String getAsMention();
     }
 

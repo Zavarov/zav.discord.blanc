@@ -19,22 +19,33 @@ package vartas.discord.blanc.$json;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.Errors;
 import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.io.$json.JSONCredentials;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class JSONGuild extends JSONGuildTOP {
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     public static final String PREFIX = "prefix";
-    public static final String CHANNELS = "channels";
-    public static final String ROLES = "roles";
     public static final String BLACKLIST = "blacklist";
+
+    public static String getFileName(Guild source){
+        return getFileName(source.getId());
+    }
+
+    private static String getFileName(long id){
+        return "g" + Long.toUnsignedString(id) + ".json";
+    }
+
+    private static Path getFileDirectory(long id){
+        return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(id));
+    }
+
+    public static Guild fromJson(Guild target, long id) throws IOException {
+        Path filePath = getFileDirectory(id).resolve(getFileName(id));
+        return fromJson(target, filePath);
+    }
 
     @Override
     protected void $fromPrefix(JSONObject source, Guild target){
@@ -47,26 +58,6 @@ public class JSONGuild extends JSONGuildTOP {
     }
 
     @Override
-    protected void $fromMembers(JSONObject source, Guild target){
-        //Omitted
-    }
-
-    @Override
-    protected void $toMembers(Guild source, JSONObject target){
-        //Omitted
-    }
-
-    @Override
-    protected void $fromSelfMember(JSONObject source, Guild target){
-        //Omitted
-    }
-
-    @Override
-    protected void $toSelfMember(Guild source, JSONObject target){
-        //Omitted
-    }
-
-    @Override
     protected void $fromActivity(JSONObject source, Guild target){
         //Omitted
     }
@@ -74,58 +65,6 @@ public class JSONGuild extends JSONGuildTOP {
     @Override
     protected void $toActivity(Guild source, JSONObject target){
         //Omitted
-    }
-
-    @Override
-    protected void $fromChannels(JSONObject source, Guild target){
-        JSONArray jsonChannels = source.optJSONArray(CHANNELS);
-        if(jsonChannels != null) {
-            for (int i = 0; i < jsonChannels.length(); ++i) {
-                try {
-                    JSONObject jsonChannel = jsonChannels.getJSONObject(i);
-                    //TODO Magic key label
-                    TextChannel textChannel = target.getChannels(jsonChannel.getLong("id"));
-                    target.putChannels(textChannel.getId(), JSONTextChannel.fromJson(textChannel, jsonChannel));
-                }catch(ExecutionException e){
-                    //The text channel may no longer exist.
-                    log.warn(Errors.UNKNOWN_TEXTCHANNEL.toString(), e);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void $toChannels(Guild source, JSONObject target){
-        JSONArray jsonChannels = new JSONArray();
-        for(TextChannel channel : source.valuesChannels())
-            jsonChannels.put(JSONTextChannel.toJson(channel, new JSONObject()));
-        target.put(CHANNELS, jsonChannels);
-    }
-
-    @Override
-    protected void $fromRoles(JSONObject source, Guild target){
-        JSONArray jsonRoles = source.optJSONArray(ROLES);
-        if(jsonRoles != null) {
-            for (int i = 0; i < jsonRoles.length(); ++i) {
-                try{
-                    JSONObject jsonRole = jsonRoles.getJSONObject(i);
-                    //TODO Magic key label
-                    Role role = target.getRoles(jsonRole.getLong("id"));
-                    target.putRoles(role.getId(), JSONRole.fromJson(role, jsonRole));
-                }catch(ExecutionException e){
-                    //The role may no longer exist.
-                    log.warn(Errors.UNKNOWN_ROLE.toString(), e);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void $toRoles(Guild source, JSONObject target){
-        JSONArray jsonRoles = new JSONArray();
-        for(Role role : source.valuesRoles())
-            jsonRoles.put(JSONRole.toJson(role, new JSONObject()));
-        target.put(ROLES, jsonRoles);
     }
 
     @Override

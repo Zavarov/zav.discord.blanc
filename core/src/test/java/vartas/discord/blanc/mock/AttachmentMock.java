@@ -19,9 +19,11 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.Attachment;
 
+import java.io.InputStream;
+
 public class AttachmentMock extends Attachment {
     @Override
-    public void download() {
+    public InputStream retrieveContent() {
         throw new UnsupportedOperationException();
     }
 

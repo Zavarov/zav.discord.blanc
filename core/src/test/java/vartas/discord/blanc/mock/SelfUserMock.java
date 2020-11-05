@@ -17,11 +17,24 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.SelfUserFactory;
+import vartas.discord.blanc.OnlineStatus;
+import vartas.discord.blanc.PrivateChannel;
 import vartas.discord.blanc.SelfUser;
 
 import java.io.InputStream;
 
 public class SelfUserMock extends SelfUser {
+    public SelfUserMock(){}
+    public SelfUserMock(long id, String name){
+        SelfUserFactory.create(() -> this, OnlineStatus.ONLINE, id, name);
+    }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
@@ -35,10 +48,5 @@ public class SelfUserMock extends SelfUser {
     @Override
     public void modifyAvatar(InputStream avatar) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public SelfUser getRealThis() {
-        return this;
     }
 }

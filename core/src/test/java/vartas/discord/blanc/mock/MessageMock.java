@@ -23,10 +23,10 @@ import vartas.discord.blanc.User;
 
 import java.time.Instant;
 
-public class MessageMock extends Message {
+public class  MessageMock extends Message {
     public MessageMock(){}
 
     public MessageMock(int id, Instant created, User author){
-        MessageFactory.create(() -> this,0, Instant.now(), author);
+        MessageFactory.create(() -> this,id, created, author);
     }
 }

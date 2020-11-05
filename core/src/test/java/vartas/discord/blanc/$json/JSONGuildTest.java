@@ -19,12 +19,6 @@ package vartas.discord.blanc.$json;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.Role;
-import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.Webhook;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,48 +26,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JSONGuildTest extends AbstractJSONTest{
     @Test
     public void testGetBlacklist(){
-        assertThat(GUILD.getBlacklist()).containsExactly("handholding");
+        assertThat(guild.getBlacklist()).containsExactly("handholding");
     }
 
     @Test
     public void testGetPrefix(){
-        assertThat(GUILD.getPrefix()).contains(JSON_GUILD.getString(JSONGuild.PREFIX));
+        assertThat(guild.getPrefix()).contains("b.");
     }
 
     @Test
-    public void testGetRoles(){
-        List<Role> roles = new ArrayList<>(GUILD.valuesRoles());
-
-        assertEquals(roles.size(), 1);
-
-        Role role = roles.get(0);
-        assertThat(role.getId()).isEqualTo(22222222222222L);
-        assertThat(role.getName()).isEqualTo("Banana");
-        assertThat(role.getGroup()).contains("Fruit");
+    public void testGetName(){
+        assertThat(guild.getName()).isEqualTo("Guild");
     }
 
     @Test
-    public void testGetChannels(){
-        List<TextChannel> textChannels = new ArrayList<>(GUILD.valuesChannels());
-
-        assertEquals(textChannels.size(), 1);
-
-        TextChannel textChannel = textChannels.get(0);
-        assertThat(textChannel.getId()).isEqualTo(33333333333333L);
-        assertThat(textChannel.getName()).isEqualTo("redditdev");
-        assertThat(textChannel.getSubreddits()).containsExactly("redditdev");
-
-        List<Webhook> webhooks = new ArrayList<>(textChannel.valuesWebhooks());
-        assertEquals(webhooks.size(), 1);
-
-        Webhook webhook = webhooks.get(0);
-        assertEquals(webhook.getId(), 44444444444444L);
-        assertEquals(webhook.getName(), "redditdev");
+    public void testGetId(){
+        assertThat(guild.getId()).isEqualTo(10);
     }
+
 
     @Test
     public void testGetJsonObject(){
-        JSONObject jsonGuild = JSONGuild.toJson(GUILD, new JSONObject());
-        assertThat(JSON_GUILD.similar(jsonGuild));
+        JSONObject jsonObject = JSONGuild.toJson(guild, new JSONObject());
+        assertEquals(jsonObject.toString(), jsonGuild.toString());
     }
 }

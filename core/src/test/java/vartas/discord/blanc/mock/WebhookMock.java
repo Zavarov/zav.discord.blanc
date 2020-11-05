@@ -21,11 +21,13 @@ import vartas.discord.blanc.$factory.WebhookFactory;
 import vartas.discord.blanc.Message;
 import vartas.discord.blanc.Webhook;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class WebhookMock extends Webhook {
-    public List<Message> sent = new ArrayList<>();
+    public Map<Long, Message> messages = new HashMap<>();
 
     public WebhookMock(){}
 
@@ -34,8 +36,20 @@ public class WebhookMock extends Webhook {
     }
 
     @Override
+    public Message retrieveMessage(long id) {
+        if(!messages.containsKey(id))
+            throw new NoSuchElementException();
+        return messages.get(id);
+    }
+
+    @Override
+    public Collection<Message> retrieveMessages() {
+        return messages.values();
+    }
+
+    @Override
     public void send(Message message) {
-        sent.add(message);
+        messages.put(message.getId(), message);
     }
 
     @Override
