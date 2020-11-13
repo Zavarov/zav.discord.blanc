@@ -27,6 +27,8 @@ import vartas.discord.blanc.mock.CommandBuilderMock;
 import vartas.discord.blanc.mock.GuildCommandMock;
 import vartas.discord.blanc.mock.ParserMock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class GuildCommandTest extends AbstractTest {
     ParserMock parser;
     GuildCommandMock guildCommand;
@@ -48,5 +50,10 @@ public class GuildCommandTest extends AbstractTest {
     @Test
     public void testCheckMissingPermission(){
         Assertions.assertThrows(PermissionException.class, () -> guildCommand.checkPermission(member, textChannel, Permission.CHANGE_NICKNAME));
+    }
+
+    @Test
+    public void testGetRealThis(){
+        assertThat(guildCommand.getRealThis()).isInstanceOf(GuildCommand.class);
     }
 }

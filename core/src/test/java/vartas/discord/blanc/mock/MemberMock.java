@@ -21,6 +21,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import vartas.discord.blanc.$factory.MemberFactory;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.TitleFactory;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
@@ -74,6 +76,14 @@ public class MemberMock extends Member {
     @Nonnull
     @Override
     public MessageEmbed toMessageEmbed() {
-        throw new UnsupportedOperationException();
+        return MessageEmbedFactory.create(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(TitleFactory.create("Member")),
+                Optional.of(Long.toUnsignedString(getId())),
+                Optional.empty(),
+                Optional.empty(),
+                Collections.emptyList()
+        );
     }
 }

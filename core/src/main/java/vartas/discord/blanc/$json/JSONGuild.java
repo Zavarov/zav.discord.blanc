@@ -20,55 +20,138 @@ package vartas.discord.blanc.$json;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Message;
 import vartas.discord.blanc.io.$json.JSONCredentials;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * This class is responsible for (de-)serializing {@link Guild} instances.
+ * <p>
+ * For each {@link Guild}, a file corresponding to its id is created, containing custom configurations such as the
+ * prefix and blacklist. Those have to be stored in order to preserve the data in case the application restarts.
+ */
+@Nonnull
 public class JSONGuild extends JSONGuildTOP {
+    /**
+     * The key corresponding to the custom {@link Guild} prefix.
+     */
+    @Nonnull
     public static final String PREFIX = "prefix";
+    /**
+     * The key corresponding to all expressions that have been blacklisted. Every message matching at least one of those
+     * expressions is removed automatically.
+     */
+    @Nonnull
     public static final String BLACKLIST = "blacklist";
 
-    public static String getFileName(Guild source){
+    /**
+     * Calculates the file name for the serialized {@link Guild}. The name consists of its id, to ensure that the file
+     * name is unique, as well as an identifier, marking it as {@link Guild}, in order to distinguish it from other
+     * serialized types.
+     * @param source The {@link Guild} that is serialized.
+     * @return The file name of the serialized {@link Guild}.
+     * @see #getFileName(long) 
+     */
+    @Nonnull
+    public static String getFileName(@Nonnull Guild source){
         return getFileName(source.getId());
     }
 
-    private static String getFileName(long id){
+    /**
+     * Calculates the file name for the serialized {@link Guild}. The name consists of its id, to ensure that the file
+     * name is unique, as well as an identifier, marking it as {@link Guild}, in order to distinguish it from other
+     * serialized types.
+     * @param id The id of the {@link Guild} that is serialized.
+     * @return The file name of the serialized {@link Guild}.
+     * @see #getFileName(Guild) 
+     */
+    @Nonnull
+    protected static String getFileName(long id){
         return "g" + Long.toUnsignedString(id) + ".json";
     }
 
-    private static Path getFileDirectory(long id){
+    /**
+     * Calculates the qualified path of folder containing the serialized {@link Guild}. All JSON files correlating to
+     * a specific {@link Guild} are stored in a common folder identified by the {@link Guild} id.
+     * @param id The {@link Guild} id used to determine the folder of containing the serialized {@link Guild} file.
+     * @return The qualified path of the folder containing the serialized {@link Guild}. No attempts are made to verify
+     *         that this directory actually exists.
+     */
+    @Nonnull
+    protected static Path getFileDirectory(long id){
         return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(id));
     }
 
-    public static Guild fromJson(Guild target, long id) throws IOException {
+    /**
+     * Deserializes the specified {@link Guild}. The file indicated by the <code>id</code> is read and its content
+     * written into the provided {@link Guild} instance.
+     * @param target The {@link Guild} the deserialized content is written into.
+     * @param id The id of the {@link Guild} that is deserialized.
+     * @return An instance of the deserialized {@link Guild}.
+     * @throws IOException If the corresponding file couldn't be read.
+     */
+    @Nonnull
+    public static Guild fromJson(@Nonnull Guild target, long id) throws IOException {
         Path filePath = getFileDirectory(id).resolve(getFileName(id));
         return fromJson(target, filePath);
     }
 
+    /**
+     * Extracts the optional {@link Guild} prefix from the JSON file. A valid command can either start with this
+     * guild-specific prefix or the global prefix.
+     * @param source The JSON file from which the prefix is retrieved.
+     * @param target The {@link Guild} instance in which the prefix is stored.
+     */
     @Override
-    protected void $fromPrefix(JSONObject source, Guild target){
+    protected void $fromPrefix(@Nonnull JSONObject source, @Nonnull Guild target){
         target.setPrefix(Optional.ofNullable(source.optString(PREFIX)));
     }
 
+    /**
+     * Stores the {@link Guild} prefix, if present, in the corresponding JSON file.
+     * @param source The {@link Guild} instance that may contain a custom prefix.
+     * @param target The JSON object the prefix is written into.
+     */
     @Override
-    protected void $toPrefix(Guild source, JSONObject target){
+    protected void $toPrefix(@Nonnull Guild source, @Nonnull JSONObject target){
         source.ifPresentPrefix(prefix -> target.put(PREFIX, prefix));
     }
 
+    /**
+     * Extracts the most recent activity of the {@link Guild}. Since the activity is not serialized, this method
+     * immediately returns without altering the state of the provided {@link Guild}.
+     * @param source The JSON file from which the activity is retrieved.
+     * @param target The {@link Guild} instance in which the activity is stored.
+     */
     @Override
-    protected void $fromActivity(JSONObject source, Guild target){
+    protected void $fromActivity(@Nonnull JSONObject source, @Nonnull Guild target){
         //Omitted
     }
 
+    /**
+     * Stores the {@link Guild} activity in the corresponding JSON file. However, doing so causes an unnecessary
+     * overhead without providing much of value. As such, this data is serialized.
+     * @param source The {@link Guild} instance containing the most recent activity.
+     * @param target The JSON object the activity is written into.
+     */
     @Override
-    protected void $toActivity(Guild source, JSONObject target){
+    protected void $toActivity(@Nonnull Guild source, @Nonnull JSONObject target){
         //Omitted
     }
 
+    /**
+     * Extracts the pattern describing all blacklisted expressions. The pattern itself is stored as a sequence of
+     * expressions, in order to simplify the process of adding and removing. Once all expressions have been read, the
+     * pattern is compiled. Every {@link Message} whose content is accepted by this pattern is removed automatically.
+     * @param source The JSON file from which the blacklist is retrieved.
+     * @param target The {@link Guild} instance in which the blacklist is stored.
+     */
     @Override
-    protected void $fromBlacklist(JSONObject source, Guild target){
+    protected void $fromBlacklist(@Nonnull JSONObject source, @Nonnull Guild target){
         JSONArray jsonBlacklist = source.optJSONArray(BLACKLIST);
         if(jsonBlacklist != null) {
             for (int i = 0; i < jsonBlacklist.length(); ++i) {
@@ -78,8 +161,14 @@ public class JSONGuild extends JSONGuildTOP {
         }
     }
 
+    /**
+     * Stores the blacklist of the provided {@link Guild} in the corresponding JSON file. The pattern is stored as an
+     * array, with its value representing the individual expressions in the list.
+     * @param source The {@link Guild} instance from which the blacklist is retrieved.
+     * @param target The JSON object the blacklist is written into.
+     */
     @Override
-    protected void $toBlacklist(Guild source, JSONObject target){
+    protected void $toBlacklist(@Nonnull Guild source, @Nonnull JSONObject target){
         JSONArray jsonBlacklist = new JSONArray();
         for(String entry : source.getBlacklist())
             jsonBlacklist.put(entry);

@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONRoleTest extends AbstractJSONTest{
     @Test
+    public void testGetFileName(){
+        assertThat(JSONRole.getFileName(role).equals(JSONGuild.getFileName(role.getId())));
+    }
+
+    @Test
     public void testGetGroup(){
         assertThat(role.getGroup()).contains("Color");
     }

@@ -68,7 +68,7 @@ public abstract class AbstractTest {
     @BeforeEach
     private void setUpDiscord() throws IOException {
         shard = new ShardMock();
-        guild = (GuildMock) JSONGuild.fromJson(new GuildMock(), 10);
+        guild = (GuildMock) JSONGuild.fromJson(new GuildMock(10, "Guild"), 10);
         role = (RoleMock) JSONRole.fromJson(new RoleMock(), guild, 20);
         textChannel = (TextChannelMock) JSONTextChannel.fromJson(new TextChannelMock(), guild, 30);
         webhook = (WebhookMock) JSONWebhook.fromJson(new WebhookMock(), guild, 40);

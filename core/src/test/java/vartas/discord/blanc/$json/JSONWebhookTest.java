@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONWebhookTest extends AbstractJSONTest{
     @Test
+    public void testGetFileName(){
+        assertThat(JSONWebhook.getFileName(webhook).equals(JSONWebhook.getFileName(webhook.getId())));
+    }
+
+    @Test
     public void testGetName(){
         assertThat(webhook.getName()).isEqualTo("Webhook");
     }

@@ -24,7 +24,7 @@ import vartas.discord.blanc.Webhook;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class WebhookMock extends Webhook {
     public Map<Long, Message> messages = new HashMap<>();
@@ -36,10 +36,8 @@ public class WebhookMock extends Webhook {
     }
 
     @Override
-    public Message retrieveMessage(long id) {
-        if(!messages.containsKey(id))
-            throw new NoSuchElementException();
-        return messages.get(id);
+    public Optional<Message> retrieveMessage(long id) {
+        return Optional.ofNullable(messages.get(id));
     }
 
     @Override

@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * by the duration to get the number of messages per minute.
  */
 @Nonnull
-public class Activity extends ActivityTOP{
+public abstract class Activity extends ActivityTOP{
     /**
      * This map keeps track of all messages that have been received in the individual text channels. One may be tempted
      * to use the internal cache via {@link TextChannel#retrieveMessages()} ()}, but the we are left to the mercy of its
@@ -70,6 +70,7 @@ public class Activity extends ActivityTOP{
      * @return The current instance.
      */
     @Override
+    @Nonnull
     public Activity getRealThis() {
         return this;
     }
@@ -139,6 +140,7 @@ public class Activity extends ActivityTOP{
          * @param bounds The dimension of the {@link BufferedImage}.
          * @return A {@link BufferedImage} containing a plot of the activity.
          */
+        @Nonnull
         public BufferedImage build(@Nonnull Rectangle bounds){
             //Fill the chart with the corresponding data sets
             asMapActivity().forEach((key, value) -> {

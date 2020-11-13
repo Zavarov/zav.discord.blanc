@@ -54,9 +54,9 @@ public classdiagram Architecture {
         - int id;
 
         + abstract SelfUser retrieveSelfUser();
-        + abstract User retrieveUser(long id);
+        + abstract Optional<User> retrieveUser(long id);
         + abstract Collection<User> retrieveUsers();
-        + abstract Guild retrieveGuild(long id);
+        + abstract Optional<Guild> retrieveGuild(long id);
         + abstract Collection<Guild> retrieveGuilds();
     }
 
@@ -82,7 +82,7 @@ public classdiagram Architecture {
     }
 
     public abstract class MessageChannel extends Snowflake{
-        + abstract Message retrieveMessage(long id);
+        + abstract Optional<Message> retrieveMessage(long id);
         + abstract Collection<Message> retrieveMessages();
 
         + abstract void send(Message message);
@@ -159,11 +159,11 @@ public classdiagram Architecture {
         - List<String> blacklist;
         - Activity activity;
 
-        + abstract Member retrieveMember(long id);
+        + abstract Optional<Member> retrieveMember(long id);
         + abstract Collection<Member> retrieveMembers();
-        + abstract TextChannel retrieveTextChannel(long id);
+        + abstract Optional<TextChannel> retrieveTextChannel(long id);
         + abstract Collection<TextChannel> retrieveTextChannels();
-        + abstract Role retrieveRole(long id);
+        + abstract Optional<Role> retrieveRole(long id);
         + abstract Collection<Role> retrieveRoles();
         + abstract SelfMember retrieveSelfMember();
         + abstract void leave();
@@ -191,7 +191,8 @@ public classdiagram Architecture {
     public abstract class TextChannel extends MessageChannel{
         - Set<String> subreddits;
 
-        + abstract Webhook retrieveWebhook(String name);
+        + abstract Webhook createWebhook(String name);
+        + abstract Collection<Webhook> retrieveWebhooks(String name);
         + abstract Collection<Webhook> retrieveWebhooks();
         + abstract String getAsMention();
     }

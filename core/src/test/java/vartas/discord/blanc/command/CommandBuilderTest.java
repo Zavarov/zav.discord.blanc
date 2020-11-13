@@ -98,4 +98,9 @@ public class CommandBuilderTest extends AbstractTest {
         privateIntermediateCommand.setPrefix(null);
         assertThat(commandBuilder.build(privateMessage, privateChannel)).isEmpty();
     }
+
+    @Test
+    public void testGetRealThis(){
+        assertThat(commandBuilder.getRealThis()).isInstanceOf(CommandBuilder.class);
+    }
 }

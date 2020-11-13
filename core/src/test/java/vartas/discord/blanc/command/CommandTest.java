@@ -29,6 +29,7 @@ import vartas.discord.blanc.mock.MessageMock;
 
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -76,5 +77,10 @@ public class CommandTest extends AbstractTest {
         message.addAttachments(new AttachmentMock());
 
         command.checkAttachment(message);
+    }
+
+    @Test
+    public void testGetRealThis(){
+        assertThat(command.getRealThis()).isInstanceOf(Command.class);
     }
 }

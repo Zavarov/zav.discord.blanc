@@ -15,17 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.mock;
+package vartas.discord.blanc;
 
-import vartas.reddit.Client;
-import vartas.reddit.Subreddit;
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
+import vartas.discord.blanc.io.Credentials;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+public abstract class ShardLoader implements ArchitectureVisitor {
+    private final Credentials credentials;
+    private final int shardCount;
 
-public class ClientMock extends Client {
-    @Override
-    public Subreddit getSubreddits(String key){
-        return Optional.of(getIfPresentSubreddits(key)).orElseThrow(NoSuchElementException::new);
+    public ShardLoader(Credentials credentials){
+        this.credentials = credentials;
+        this.shardCount = credentials.getShardCount();
     }
+
+    public abstract Shard load(int shardId);
 }

@@ -33,11 +33,11 @@ public class JSONWebhook extends JSONWebhookTOP {
         return getFileName(source.getId());
     }
 
-    private static String getFileName(long id){
+    protected static String getFileName(long id){
         return "w" + Long.toUnsignedString(id) + ".json";
     }
 
-    private static Path getFileDirectory(Guild guild){
+    protected static Path getFileDirectory(Guild guild){
         return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(guild.getId()));
     }
 

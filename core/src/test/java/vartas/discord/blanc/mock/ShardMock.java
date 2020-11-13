@@ -27,7 +27,7 @@ import vartas.discord.blanc.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ShardMock extends Shard {
     public Map<Long, User> users = new HashMap<>();
@@ -46,10 +46,8 @@ public class ShardMock extends Shard {
     }
 
     @Override
-    public User retrieveUser(long id) {
-        if(!users.containsKey(id))
-            throw new NoSuchElementException();
-        return users.get(id);
+    public Optional<User> retrieveUser(long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
@@ -58,10 +56,8 @@ public class ShardMock extends Shard {
     }
 
     @Override
-    public Guild retrieveGuild(long id) {
-        if(!guilds.containsKey(id))
-            throw new NoSuchElementException();
-        return guilds.get(id);
+    public Optional<Guild> retrieveGuild(long id) {
+        return Optional.ofNullable(guilds.get(id));
     }
 
     @Override

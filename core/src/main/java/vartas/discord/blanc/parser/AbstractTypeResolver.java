@@ -206,12 +206,8 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
         return arguments.stream().map(transformer).collect(Collectors.toList());
     }
 
-    /**
-     * Part of the visitor pattern to grant access to the explicit implementation of the individual types.
-     * @return The current instance.
-     */
     @Override
-    public AbstractTypeResolver getRealThis() {
+    public AbstractTypeResolver getRealThis(){
         return this;
     }
 }

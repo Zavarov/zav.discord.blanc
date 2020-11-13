@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONTextChannelTest extends AbstractJSONTest{
     @Test
+    public void testGetFileName(){
+        assertThat(JSONTextChannel.getFileName(textChannel).equals(JSONTextChannel.getFileName(textChannel.getId())));
+    }
+
+    @Test
     public void testGetName(){
         assertThat(textChannel.getName()).isEqualTo("Reddit");
     }

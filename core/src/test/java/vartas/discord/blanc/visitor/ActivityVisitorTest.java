@@ -15,17 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vartas.discord.blanc.mock;
+package vartas.discord.blanc.visitor;
 
-import vartas.reddit.Client;
-import vartas.reddit.Subreddit;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import vartas.discord.blanc.AbstractTest;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ClientMock extends Client {
-    @Override
-    public Subreddit getSubreddits(String key){
-        return Optional.of(getIfPresentSubreddits(key)).orElseThrow(NoSuchElementException::new);
+public class ActivityVisitorTest extends AbstractTest {
+    ActivityVisitor visitor;
+    @BeforeEach
+    public void setUp(){
+        visitor = new ActivityVisitor();
+    }
+
+    @Test
+    public void testVisitor(){
+        shard.accept(visitor);
+        assertThat(guild.getActivity().asMapActivity()).isNotEmpty();
     }
 }

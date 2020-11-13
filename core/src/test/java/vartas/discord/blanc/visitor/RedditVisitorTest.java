@@ -147,4 +147,17 @@ public class RedditVisitorTest extends AbstractTest {
         assertThat(textChannel.retrieveMessages()).isNotEmpty();
         assertThat(webhook.retrieveMessages()).isNotEmpty();
     }
+
+    @Test
+    public void testInvalidSubreddit(){
+        credentials.setJsonDirectory(targetDirectory);
+        redditHook.invalidateAllSubreddits();
+
+        shard.accept(redditVisitor);
+
+        assertThat(textChannel.retrieveMessages()).isEmpty();
+        assertThat(webhook.retrieveMessages()).isEmpty();
+        assertThat(textChannel.getSubreddits()).isEmpty();
+        assertThat(webhook.getSubreddits()).isEmpty();
+    }
 }

@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JSONGuildTest extends AbstractJSONTest{
     @Test
+    public void testGetFileName(){
+        assertThat(JSONGuild.getFileName(guild).equals(JSONGuild.getFileName(guild.getId())));
+    }
+
+    @Test
     public void testGetBlacklist(){
         assertThat(guild.getBlacklist()).containsExactly("handholding");
     }

@@ -33,11 +33,11 @@ public class JSONTextChannel extends JSONTextChannelTOP {
         return getFileName(source.getId());
     }
 
-    private static String getFileName(long id){
+    protected static String getFileName(long id){
         return "t" + Long.toUnsignedString(id) + ".json";
     }
 
-    private static Path getFileDirectory(Guild guild){
+    protected static Path getFileDirectory(Guild guild){
         return JSONCredentials.CREDENTIALS.getJsonDirectory().resolve(Long.toUnsignedString(guild.getId()));
     }
 

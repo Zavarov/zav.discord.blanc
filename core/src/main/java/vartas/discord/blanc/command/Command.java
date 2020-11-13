@@ -90,13 +90,4 @@ public abstract class Command extends CommandTOP {
 
         return effectiveRanks;
     }
-
-    /**
-     * Part of the visitor pattern to grant access to the explicit implementation of the individual types.
-     * @return The current instance.
-     */
-    @Override
-    public Command getRealThis(){
-        return this;
-    }
 }

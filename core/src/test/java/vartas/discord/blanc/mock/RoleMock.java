@@ -17,11 +17,30 @@
 
 package vartas.discord.blanc.mock;
 
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.TitleFactory;
+import vartas.discord.blanc.MessageEmbed;
 import vartas.discord.blanc.Role;
+
+import java.util.Collections;
+import java.util.Optional;
 
 public class RoleMock extends Role {
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MessageEmbed toMessageEmbed(){
+        return MessageEmbedFactory.create(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(TitleFactory.create("Role")),
+                Optional.of(Long.toUnsignedString(getId())),
+                Optional.empty(),
+                Optional.empty(),
+                Collections.emptyList()
+        );
     }
 }

@@ -114,7 +114,8 @@ public abstract class MessageChannel extends MessageChannelTOP{
             byte[] bytes = outputStream.toByteArray();
             send(bytes, title+".png");
         }catch(IOException e){
-            e.printStackTrace();
+            //ByteArrayOutputStream shouldn't be able to trigger an IO exception
+            throw new RuntimeException(e);
         }
     }
 

@@ -19,14 +19,12 @@ package vartas.discord.blanc.mock;
 
 import com.google.common.base.Preconditions;
 import vartas.discord.blanc.$factory.GuildFactory;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.TitleFactory;
 import vartas.discord.blanc.*;
-import vartas.discord.blanc.activity.Activity;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class GuildMock extends Guild {
     public Map<Long, Member> members = new HashMap<>();
@@ -37,7 +35,7 @@ public class GuildMock extends Guild {
     public GuildMock(){}
 
     public GuildMock(long id, String name){
-        GuildFactory.create(() -> this, new Activity(), id, name);
+        GuildFactory.create(() -> this, new ActivityMock(), id, name);
     }
 
     @Override
@@ -54,15 +52,25 @@ public class GuildMock extends Guild {
     public boolean canInteract(@Nonnull Member member, @Nonnull TextChannel textChannel) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public MessageEmbed toMessageEmbed(){
+        return MessageEmbedFactory.create(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(TitleFactory.create("Guild")),
+                Optional.of(Long.toUnsignedString(getId())),
+                Optional.empty(),
+                Optional.empty(),
+                Collections.emptyList()
+        );
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
     @Override
-    public Member retrieveMember(long id) {
-        if(!members.containsKey(id))
-            throw new NoSuchElementException();
-
-        return members.get(id);
+    public Optional<Member> retrieveMember(long id) {
+        return Optional.ofNullable(members.get(id));
     }
 
     @Override
@@ -71,11 +79,8 @@ public class GuildMock extends Guild {
     }
 
     @Override
-    public TextChannel retrieveTextChannel(long id) {
-        if(!channels.containsKey(id))
-            throw new NoSuchElementException();
-
-        return channels.get(id);
+    public Optional<TextChannel> retrieveTextChannel(long id) {
+        return Optional.ofNullable(channels.get(id));
     }
 
     @Override
@@ -84,11 +89,8 @@ public class GuildMock extends Guild {
     }
 
     @Override
-    public Role retrieveRole(long id) {
-        if(!roles.containsKey(id))
-            throw new NoSuchElementException();
-
-        return roles.get(id);
+    public Optional<Role> retrieveRole(long id) {
+        return Optional.ofNullable(roles.get(id));
     }
 
     @Override

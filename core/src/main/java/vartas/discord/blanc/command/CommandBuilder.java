@@ -301,8 +301,8 @@ public abstract class CommandBuilder extends CommandBuilderTOP {
             //A guild command needs a guild
             Preconditions.checkNotNull(guild);
 
-            command.set$Author(guild.retrieveMember(author.getId()));
-            command.set$TextChannel(guild.retrieveTextChannel(messageChannel.getId()));
+            command.set$Author(guild.retrieveMember(author.getId()).orElseThrow());
+            command.set$TextChannel(guild.retrieveTextChannel(messageChannel.getId()).orElseThrow());
             command.set$Guild(guild);
             command.set$Shard(shard);
             command.set$Message(message);

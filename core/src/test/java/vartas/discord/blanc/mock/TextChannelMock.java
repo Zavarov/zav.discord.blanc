@@ -22,10 +22,12 @@ import vartas.discord.blanc.Message;
 import vartas.discord.blanc.TextChannel;
 import vartas.discord.blanc.Webhook;
 
+import java.io.ByteArrayInputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TextChannelMock extends TextChannel {
     public Map<Long, Message> messages = new HashMap<>();
@@ -37,10 +39,8 @@ public class TextChannelMock extends TextChannel {
     }
 
     @Override
-    public Message retrieveMessage(long id) {
-        if(!messages.containsKey(id))
-            throw new NoSuchElementException();
-        return messages.get(id);
+    public Optional<Message> retrieveMessage(long id) {
+        return Optional.ofNullable(messages.get(id));
     }
 
     @Override
@@ -55,12 +55,23 @@ public class TextChannelMock extends TextChannel {
 
     @Override
     public void send(byte[] bytes, String qualifiedName) {
+        ByteArrayInputStream content = new ByteArrayInputStream(bytes);
+        Message message = new MessageMock();
+        AttachmentMock attachment = new AttachmentMock();
+        attachment.content = content;
+
+        message.addAttachments(attachment);
+        send(message);
+    }
+
+    @Override
+    public Webhook createWebhook(String name) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Webhook retrieveWebhook(String name) {
-        return retrieveWebhooks().stream().filter(webhook -> webhook.getName().equals(name)).findAny().orElseThrow();
+    public Collection<Webhook> retrieveWebhooks(String name) {
+        return retrieveWebhooks().stream().filter(webhook -> webhook.getName().equals(name)).collect(Collectors.toList());
     }
 
     @Override

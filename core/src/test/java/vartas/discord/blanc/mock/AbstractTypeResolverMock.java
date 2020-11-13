@@ -53,9 +53,4 @@ public class AbstractTypeResolverMock extends AbstractTypeResolver {
     public Role resolveRole(Argument argument) throws NoSuchElementException {
         throw new UnsupportedOperationException();
     }
-
-    @Override
-    public AbstractTypeResolver getRealThis() {
-        return this;
-    }
 }

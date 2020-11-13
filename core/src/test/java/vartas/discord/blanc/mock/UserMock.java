@@ -18,10 +18,16 @@
 package vartas.discord.blanc.mock;
 
 import com.google.common.base.Preconditions;
+import vartas.discord.blanc.$factory.MessageEmbedFactory;
+import vartas.discord.blanc.$factory.TitleFactory;
 import vartas.discord.blanc.$factory.UserFactory;
+import vartas.discord.blanc.MessageEmbed;
 import vartas.discord.blanc.OnlineStatus;
 import vartas.discord.blanc.PrivateChannel;
 import vartas.discord.blanc.User;
+
+import java.util.Collections;
+import java.util.Optional;
 
 public class UserMock extends User {
     public PrivateChannel privateChannel;
@@ -39,5 +45,18 @@ public class UserMock extends User {
     @Override
     public String getAsMention() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MessageEmbed toMessageEmbed(){
+        return MessageEmbedFactory.create(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(TitleFactory.create("User")),
+                Optional.of(Long.toUnsignedString(getId())),
+                Optional.empty(),
+                Optional.empty(),
+                Collections.emptyList()
+        );
     }
 }

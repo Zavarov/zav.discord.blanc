@@ -17,15 +17,15 @@
 
 package vartas.discord.blanc.mock;
 
-import vartas.reddit.Client;
-import vartas.reddit.Subreddit;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.activity.Activity;
+import vartas.discord.blanc.activity.GuildActivity;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.time.LocalDateTime;
 
-public class ClientMock extends Client {
+public class ActivityMock extends Activity {
     @Override
-    public Subreddit getSubreddits(String key){
-        return Optional.of(getIfPresentSubreddits(key)).orElseThrow(NoSuchElementException::new);
+    public void update(Guild guild) {
+        putActivity(LocalDateTime.now(), new GuildActivity());
     }
 }

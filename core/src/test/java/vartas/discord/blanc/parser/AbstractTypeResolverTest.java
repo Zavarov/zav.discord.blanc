@@ -28,6 +28,8 @@ import vartas.discord.blanc.mock.StringArgumentMock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,5 +85,25 @@ public class AbstractTypeResolverTest {
     public void testResolveInterval(){
         assertThat(resolver.resolveChronoUnit(intervalArgument)).isEqualTo(ChronoUnit.HOURS);
         assertThrows(NoSuchElementException.class, () -> resolver.resolveChronoUnit(dummyArgument));
+    }
+
+    @Test
+    public void testResolveMany(){
+        List<Argument> data = Collections.singletonList(bigDecimalArgument);
+
+        assertThat(resolver.resolveMany(data, resolver::resolveBigDecimal)).containsExactly(BigDecimal.TEN);
+    }
+
+    @Test
+    public void testResolveOptional(){
+        List<Argument> data = Collections.singletonList(bigDecimalArgument);
+
+        assertThat(resolver.resolveOptional(data, 0, resolver::resolveBigDecimal)).contains(BigDecimal.TEN);
+        assertThat(resolver.resolveOptional(data, 1, resolver::resolveBigDecimal)).isEmpty();
+    }
+
+    @Test
+    public void testGetRealThis(){
+        assertThat(resolver.getRealThis()).isEqualTo(resolver);
     }
 }

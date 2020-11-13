@@ -23,7 +23,7 @@ public classdiagram Activity {
         <<initializer="P1D">>
         - Cache<LocalDateTime, GuildActivity> activity;
         + BufferedImage build(List<TextChannel> channels, Rectangle bounds);
-        + void update(Guild guild);
+        + abstract void update(Guild guild);
     }
 
     /**
