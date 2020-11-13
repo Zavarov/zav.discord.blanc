@@ -111,7 +111,7 @@ public classdiagram Architecture {
         - Instant created;
         - User author;
         - Optional<String> content;
-        - Optional<MessageEmbed> messageEmbed;
+        - List<MessageEmbed> messageEmbeds;
         - List<Attachment> attachments;
 
         + void delete();

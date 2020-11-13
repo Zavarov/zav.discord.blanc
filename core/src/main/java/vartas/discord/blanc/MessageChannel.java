@@ -57,7 +57,7 @@ public abstract class MessageChannel extends MessageChannelTOP{
         }
 
         Message message = MessageFactory.create(0, Instant.now(), null);
-        message.setMessageEmbed(messageEmbed);
+        message.addMessageEmbeds(messageEmbed);
         message.setContent(String.format("New submission from %s in `r/%s`:\n\n<%s>", submission.getAuthor(), subreddit.getName(), submission.getShortLink()));
 
         send(message);
@@ -71,7 +71,7 @@ public abstract class MessageChannel extends MessageChannelTOP{
     public void send(@Nonnull MessageEmbed messageEmbed) {
         Message message = MessageFactory.create(0, Instant.now(), null);
 
-        message.setMessageEmbed(Optional.of(messageEmbed));
+        message.addMessageEmbeds(messageEmbed);
 
         send(message);
     }

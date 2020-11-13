@@ -102,7 +102,7 @@ public class MessageChannelTest extends AbstractTest{
 
         Message message = getSendMessage();
         assertThat(message.getContent().orElseThrow()).contains(subreddit.getName());
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getColor()).contains(Color.RED);
     }
 
@@ -112,7 +112,7 @@ public class MessageChannelTest extends AbstractTest{
 
         Message message = getSendMessage();
         assertThat(message.getContent().orElseThrow()).contains(subreddit.getName());
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getColor()).contains(Color.BLACK);
     }
 
@@ -121,9 +121,8 @@ public class MessageChannelTest extends AbstractTest{
         textChannel.send(messageEmbed);
 
         Message message = getSendMessage();
-        assertThat(message.getMessageEmbed()).isPresent();
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
-        assertThat(message.getMessageEmbed()).contains(messageEmbed);
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
+        assertThat(message.containsMessageEmbeds(messageEmbed)).isTrue();
     }
 
     @Test
@@ -131,8 +130,7 @@ public class MessageChannelTest extends AbstractTest{
         textChannel.send(guild);
 
         Message message = getSendMessage();
-        assertThat(message.getMessageEmbed()).isPresent();
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getTitle()).map(Title::getName).contains("Guild");
         assertThat(messageEmbed.getContent()).contains(Long.toUnsignedString(guild.getId()));
     }
@@ -142,8 +140,7 @@ public class MessageChannelTest extends AbstractTest{
         textChannel.send(role);
 
         Message message = getSendMessage();
-        assertThat(message.getMessageEmbed()).isPresent();
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getTitle()).map(Title::getName).contains("Role");
         assertThat(messageEmbed.getContent()).contains(Long.toUnsignedString(role.getId()));
     }
@@ -153,8 +150,7 @@ public class MessageChannelTest extends AbstractTest{
         textChannel.send(member);
 
         Message message = getSendMessage();
-        assertThat(message.getMessageEmbed()).isPresent();
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getTitle()).map(Title::getName).contains("Member");
         assertThat(messageEmbed.getContent()).contains(Long.toUnsignedString(member.getId()));
     }
@@ -164,8 +160,7 @@ public class MessageChannelTest extends AbstractTest{
         textChannel.send(user);
 
         Message message = getSendMessage();
-        assertThat(message.getMessageEmbed()).isPresent();
-        MessageEmbed messageEmbed = message.getMessageEmbed().orElseThrow();
+        MessageEmbed messageEmbed = message.getMessageEmbeds(0);
         assertThat(messageEmbed.getTitle()).map(Title::getName).contains("User");
         assertThat(messageEmbed.getContent()).contains(Long.toUnsignedString(user.getId()));
     }
