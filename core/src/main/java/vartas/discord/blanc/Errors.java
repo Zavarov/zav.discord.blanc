@@ -39,8 +39,8 @@ public enum Errors {
     UNKNOWN_ENTITY(0x3000, "The given entity could not be resolved."),
     MULTIPLE_ENTITIES_BY_NAME(0x3001, "Multiple entities with the same name were found."),
     //Commands
-    INSUFFICIENT_RANK(0x4000, "The command couldn't be created due to an insufficient rank."),
-    INSUFFICIENT_PERMISSION(0x4001, "The command couldn't be created due to insufficient permissions."),
+    INSUFFICIENT_RANK(0x4000, "The command couldn't be executed due to an insufficient rank."),
+    INSUFFICIENT_PERMISSION(0x4001, "The command couldn't be execute due to insufficient permissions."),
     INSUFFICIENT_ATTACHMENTS(0x4002, "The command requires at least one attachment."),
     //Resolve Discord Entities
     UNKNOWN_GUILD(0x5000, "The specified guild couldn't be found."),
