@@ -20,35 +20,79 @@ package vartas.discord.blanc.listener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
+import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.*;
 
 import javax.annotation.Nonnull;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class BlacklistListener extends ShardListener {
+public class BlacklistListener extends AbstractCommandListener {
     public BlacklistListener(@Nonnull Shard shard){
         super(shard);
     }
 
     @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event){
-        //Exclude this bot from the blacklist & only proceed when the bot has the required permissions
-        if(!isSelf(event.getAuthor()) && canDelete(event.getGuild(), event.getChannel())){
-            Guild guild = shard.getUncheckedGuilds(event.getGuild().getIdLong());
+        //Exclude the bot itself from the blacklist
+        //Required in order to display all blacklisted words, for example.
+        if(isSelfUser(event.getAuthor()))
+            return;
+        //Only proceed when the bot has the required permissions for deleting messages
+        if(!hasRequiredPermissions(event.getGuild(), event.getChannel()))
+            return;
 
-            //Only proceed if a blacklist has been defined
-            guild.getPattern().ifPresent(pattern -> {
-                //Does the message contain the pattern?
-                if(pattern.matcher(event.getMessage().getContentRaw()).find())
-                    event.getMessage().delete().complete();
-            });
-        }
+        Guild guild = shard.retrieveGuild(event.getGuild().getIdLong()).orElseThrow();
+        //Only proceed if a pattern has been declared for this guild
+        guild.getPattern().ifPresent(pattern -> {
+            Message message = JDAMessage.create(event.getMessage());
+            if(MessageChecker.checkMessage(pattern, message))
+                message.delete();
+        });
     }
 
-    private boolean isSelf(net.dv8tion.jda.api.entities.User author){
-        return author.getIdLong() == shard.getSelfUser().getId();
+    private boolean isSelfUser(net.dv8tion.jda.api.entities.User author){
+        return author.getIdLong() == shard.retrieveSelfUser().getId();
     }
 
-    private boolean canDelete(net.dv8tion.jda.api.entities.Guild guild, net.dv8tion.jda.api.entities.TextChannel channel){
+    private boolean hasRequiredPermissions(net.dv8tion.jda.api.entities.Guild guild, net.dv8tion.jda.api.entities.TextChannel channel){
         return PermissionUtil.checkPermission(channel, guild.getSelfMember(), Permission.MESSAGE_MANAGE);
+    }
+
+    private static class MessageChecker implements ArchitectureVisitor {
+        @Nonnull
+        private final Pattern pattern;
+        private boolean shouldDelete = false;
+
+        private MessageChecker(@Nonnull Pattern pattern){
+            this.pattern = pattern;
+        }
+
+        public static boolean checkMessage(@Nonnull Pattern pattern, @Nonnull Message message){
+            MessageChecker checker = new MessageChecker(pattern);
+            message.accept(checker);
+            return checker.shouldDelete;
+        }
+
+        @Override
+        public void visit(Field field){
+            shouldDelete |= pattern.matcher(field.getTitle()).find();
+            shouldDelete |= pattern.matcher(field.getContent().toString()).find();
+        }
+
+        @Override
+        public void visit(Author author){
+            shouldDelete |= pattern.matcher(author.getName()).find();
+        }
+
+        @Override
+        public void visit(Title title){
+            shouldDelete |= pattern.matcher(title.getName()).find();
+        }
+
+        @Override
+        public void visit(Message message){
+            shouldDelete |= message.getContent().map(pattern::matcher).map(Matcher::find).orElse(false);
+        }
     }
 }
