@@ -19,12 +19,19 @@ package vartas.discord.blanc.mock;
 
 import vartas.discord.blanc.$factory.UserFactory;
 import vartas.discord.blanc.OnlineStatus;
+import vartas.discord.blanc.PrivateChannel;
 import vartas.discord.blanc.User;
 
 public class UserMock extends User {
     public UserMock(int id, String name){
         UserFactory.create(() -> this, OnlineStatus.UNKNOWN, id, name);
     }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public String getAsMention(){
         throw new UnsupportedOperationException();
