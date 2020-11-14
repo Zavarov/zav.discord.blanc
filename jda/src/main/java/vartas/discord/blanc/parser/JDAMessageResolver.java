@@ -51,7 +51,7 @@ public class JDAMessageResolver extends AbstractJDAGuildResolver<net.dv8tion.jda
         Message message = null;
 
         try {
-            message = textChannel.getUncheckedMessages(snowflake.getIdLong());
+            message = textChannel.retrieveMessage(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             log.error(snowflake.getId(), e);
         }

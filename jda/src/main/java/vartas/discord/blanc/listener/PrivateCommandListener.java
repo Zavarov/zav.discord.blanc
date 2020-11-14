@@ -26,7 +26,7 @@ import vartas.discord.blanc.command.CommandBuilder;
 
 import javax.annotation.Nonnull;
 
-public class PrivateCommandListener extends ShardListener {
+public class PrivateCommandListener extends AbstractCommandListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 
@@ -41,7 +41,7 @@ public class PrivateCommandListener extends ShardListener {
             return;
 
         Message message = JDAMessage.create(event.getMessage());
-        PrivateChannel channel = message.getAuthor().getChannel().orElseThrow();
+        PrivateChannel channel = message.getAuthor().retrievePrivateChannel();
 
         submit(channel, () -> commandBuilder.build(message, channel));
     }

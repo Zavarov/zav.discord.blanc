@@ -53,7 +53,7 @@ public class JDARoleResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.ap
         Role role = null;
 
         try {
-            role = guild.getUncheckedRoles(snowflake.getIdLong());
+            role = guild.retrieveRole(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             //TODO Error message
             log.error(snowflake.getId(), e);

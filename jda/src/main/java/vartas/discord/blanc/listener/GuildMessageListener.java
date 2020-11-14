@@ -19,7 +19,9 @@ package vartas.discord.blanc.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 
@@ -32,11 +34,9 @@ public class GuildMessageListener extends ListenerAdapter {
     }
     @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event){
-        Guild guild = shard.getUncheckedGuilds(event.getGuild().getIdLong());
-        TextChannel textChannel = guild.getUncheckedChannels(event.getChannel().getIdLong());
-        Message message = JDAMessage.create(event.getMessage());
+        Guild guild = shard.retrieveGuild(event.getGuild().getIdLong()).orElseThrow();
+        TextChannel textChannel = guild.retrieveTextChannel(event.getChannel().getIdLong()).orElseThrow();
 
         guild.getActivity().countMessage(textChannel);
-        textChannel.putMessages(message.getId(), message);
     }
 }

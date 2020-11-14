@@ -40,6 +40,7 @@ public final class WebhookMessageBuilder {
 
         //Set content
         message.ifPresentContent(messageBuilder::setContent);
+        //TODO I'm pretty sure messages allow multiple embeds
         buildMessageEmbed(message).ifPresent(messageBuilder::addEmbeds);
 
         return messageBuilder.build();
@@ -47,7 +48,7 @@ public final class WebhookMessageBuilder {
 
     @Nonnull
     public static Optional<WebhookEmbed> buildMessageEmbed(@Nonnull Message message){
-        return message.getMessageEmbed().map(messageEmbed -> {
+        return message.streamMessageEmbeds().map(messageEmbed -> {
             WebhookEmbedBuilder embedBuilder = new WebhookEmbedBuilder();
 
             messageEmbed.getColor().map(Color::getRGB).ifPresent(embedBuilder::setColor);
@@ -88,6 +89,6 @@ public final class WebhookMessageBuilder {
             );
 
             return embedBuilder.build();
-        });
+        }).findFirst();
     }
 }

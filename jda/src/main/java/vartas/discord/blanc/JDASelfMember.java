@@ -53,18 +53,13 @@ public class JDASelfMember extends SelfMember{
 
     @Nonnull
     @Override
-    public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
+    public Set<Permission> getPermissions(@Nonnull TextChannel textChannel) {
         net.dv8tion.jda.api.entities.TextChannel jdaTextChannel = member.getGuild().getTextChannelById(textChannel.getId());
 
         if(jdaTextChannel == null)
-            return Collections.emptyList();
+            return Collections.emptySet();
         else
-            return member.getPermissions(jdaTextChannel).stream().map(JDAPermission::transform).collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<PrivateChannel> getChannel(){
-        return Optional.of(JDAPrivateChannel.create(member.getUser().openPrivateChannel().complete()));
+            return member.getPermissions(jdaTextChannel).stream().map(JDAPermission::transform).collect(Collectors.toSet());
     }
 
     @Override
@@ -113,6 +108,11 @@ public class JDASelfMember extends SelfMember{
     @Override
     public Optional<String> retrieveNickname(){
         return Optional.ofNullable(member.getNickname());
+    }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        return JDAPrivateChannel.create(member.getUser().openPrivateChannel().complete());
     }
 
     @Override

@@ -30,6 +30,7 @@ public final class MessageBuilder {
     public static net.dv8tion.jda.api.entities.Message buildMessage(@Nonnull Message message){
         net.dv8tion.jda.api.MessageBuilder messageBuilder = new net.dv8tion.jda.api.MessageBuilder(message.getContent().orElse(""));
 
+        //TODO I'm pretty sure messages allow multiple embeds
         buildMessageEmbed(message).ifPresent(messageBuilder::setEmbed);
 
         return messageBuilder.build();
@@ -37,7 +38,7 @@ public final class MessageBuilder {
 
     @Nonnull
     public static Optional<MessageEmbed> buildMessageEmbed(@Nonnull Message message){
-        return message.getMessageEmbed().map(messageEmbed -> {
+        return message.streamMessageEmbeds().map(messageEmbed -> {
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
             messageEmbed.ifPresentColor(embedBuilder::setColor);
@@ -56,6 +57,6 @@ public final class MessageBuilder {
             );
 
             return embedBuilder.build();
-        });
+        }).findFirst();
     }
 }

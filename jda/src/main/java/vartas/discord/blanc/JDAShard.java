@@ -17,12 +17,14 @@
 
 package vartas.discord.blanc;
 
-import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import vartas.discord.blanc.visitor.RedditVisitor;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.ExecutionException;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JDAShard extends Shard {
     private final JDA jda;
@@ -49,32 +51,37 @@ public class JDAShard extends Shard {
     }
 
     @Override
-    @Nonnull
-    public User getUsers(@Nonnull Long key) throws ExecutionException{
-        return getUsers(key, () -> {
-            net.dv8tion.jda.api.entities.User user;
-            user = jda.getUserById(key);
-            if(user == null)
-                user = jda.retrieveUserById(key).complete();
-            Preconditions.checkNotNull(user);
-            return JDAUser.create(user);
-        });
-    }
-
-    @Override
-    @Nonnull
-    public Guild getGuilds(@Nonnull Long key) throws ExecutionException{
-        return getGuilds(key, () -> {
-            net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(key);
-            //TODO Internal Error
-            Preconditions.checkNotNull(guild);
-            return JDAGuild.create(guild);
-        });
-    }
-
-    @Override
     public void shutdown(){
         jda.shutdownNow();
         super.shutdown();
+    }
+
+    @Override
+    public SelfUser retrieveSelfUser() {
+        return JDASelfUser.create(jda.getSelfUser());
+    }
+
+    @Override
+    public Optional<User> retrieveUser(long id) {
+        try{
+            return Optional.of(JDAUser.create(jda.retrieveUserById(id).complete()));
+        }catch(ErrorResponseException e){
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Collection<User> retrieveUsers() {
+        return jda.getUserCache().stream().map(JDAUser::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Guild> retrieveGuild(long id) {
+        return Optional.ofNullable(jda.getGuildById(id)).map(JDAGuild::create);
+    }
+
+    @Override
+    public Collection<Guild> retrieveGuilds() {
+        return jda.getGuildCache().stream().map(JDAGuild::create).collect(Collectors.toList());
     }
 }

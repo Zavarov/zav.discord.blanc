@@ -28,13 +28,24 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Optional;
 
 public class JDAUser extends User{
     /**
      * The formatter for the dates.
      */
+    @Nonnull
     private static final SimpleDateFormat DATE = new SimpleDateFormat("EEE, d MMM ''yy z", Locale.ENGLISH);
+
+    @Nonnull
+    public static User create(net.dv8tion.jda.api.entities.User user){
+        return UserFactory.create(
+                () -> new JDAUser(user),
+                OnlineStatus.UNKNOWN,
+                JSONRanks.RANKS.getRanks().get(user.getIdLong()),
+                user.getIdLong(),
+                user.getName()
+        );
+    }
 
     @Nonnull
     private final net.dv8tion.jda.api.entities.User user;
@@ -43,21 +54,9 @@ public class JDAUser extends User{
         this.user = user;
     }
 
-    @Nonnull
-    public static User create(net.dv8tion.jda.api.entities.User user){
-        return UserFactory.create(
-                () -> new JDAUser(user),
-                OnlineStatus.UNKNOWN,
-                Optional.empty(),                           //Private Channel
-                JSONRanks.RANKS.getRanks().get(user.getIdLong()),
-                user.getIdLong(),
-                user.getName()
-        );
-    }
-
     @Override
-    public Optional<PrivateChannel> getChannel(){
-        return Optional.of(JDAPrivateChannel.create(user.openPrivateChannel().complete()));
+    public PrivateChannel retrievePrivateChannel(){
+        return JDAPrivateChannel.create(user.openPrivateChannel().complete());
     }
 
     @Override

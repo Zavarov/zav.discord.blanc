@@ -51,7 +51,7 @@ public class JDAGuildResolver extends AbstractJDAResolver<net.dv8tion.jda.api.en
         Guild guild = null;
 
         try {
-            guild = shard.getUncheckedGuilds(snowflake.getIdLong());
+            guild = shard.retrieveGuild(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             //TODO Error message
             log.error(snowflake.getId(), e);

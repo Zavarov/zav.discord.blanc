@@ -53,7 +53,7 @@ public class JDAMemberResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.
         Member member = null;
 
         try {
-            member = guild.getUncheckedMembers(snowflake.getIdLong());
+            member = guild.retrieveMember(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             log.error(snowflake.getId(), e);
         }

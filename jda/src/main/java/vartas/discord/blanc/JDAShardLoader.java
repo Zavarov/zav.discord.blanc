@@ -25,12 +25,9 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.ShardFactory;
-import vartas.discord.blanc.$json.JSONGuild;
 import vartas.discord.blanc.command.CommandBuilder;
 import vartas.discord.blanc.io.Credentials;
 import vartas.discord.blanc.listener.BlacklistListener;
@@ -43,10 +40,6 @@ import vartas.reddit.Client;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
@@ -112,9 +105,9 @@ public class JDAShardLoader extends ShardLoader{
             //Only the master shard has to modify the status messages
             if(shardId == 0) {
                 StatusMessageRunnable statusMessageRunnable = createStatusMessageRunnable(selfUser);
-                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, statusMessageRunnable, currentJda), shardId, selfUser);
+                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, statusMessageRunnable, currentJda), shardId);
             }else{
-                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, currentJda), shardId, selfUser);
+                shard = ShardFactory.create(() -> new JDAShard(redditVisitor, currentJda), shardId);
             }
 
             shard.accept(this);
@@ -133,42 +126,6 @@ public class JDAShardLoader extends ShardLoader{
         }
     }
 
-    @Override
-    public Optional<Guild> load(@Nonnull Path guildPath) {
-        try{
-            log.info("Loading guild {}.", guildPath);
-            JSONObject jsonGuild = new JSONObject(Files.readString(guildPath));
-            //TODO Magic guild number
-            long guildId = jsonGuild.getLong("id");
-
-            if(currentJda != null) {
-                net.dv8tion.jda.api.entities.Guild jdaGuild = currentJda.getGuildById(guildId);
-                if (jdaGuild != null) {
-                    log.info("Guild {} loaded.", jdaGuild.getName());
-                    return Optional.of(JSONGuild.fromJson(JDAGuild.create(jdaGuild), jsonGuild));
-                }
-            }
-
-            return Optional.empty();
-        }catch(IOException e){
-            log.error(Errors.INVALID_FILE.toString());
-            return Optional.empty();
-        }catch(JSONException e){
-            log.error(Errors.INVALID_JSON_FILE.toString());
-            return Optional.empty();
-        }
-    }
-
-    /*
-    private void setGuildFunction(JDA jda){
-        super.defaultGuild = (guildId) -> {
-            //TODO Error Messages
-            net.dv8tion.jda.api.entities.Guild guild = jda.getGuildById(guildId);
-            Preconditions.checkNotNull(guild, new NullPointerException(Long.toUnsignedString(guildId)));
-            return JDAGuild.create(guild);
-        };
-    }
-     */
     private StatusMessageRunnable createStatusMessageRunnable(SelfUser selfUser){
         return new StatusMessageRunnable(selfUser);
     }

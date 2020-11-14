@@ -42,6 +42,18 @@ public class JDAMember extends Member{
     static{
         DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
+
+    @Nonnull
+    public static Member create(net.dv8tion.jda.api.entities.Member member){
+        return MemberFactory.create(
+                () -> new JDAMember(member),
+                JDAOnlineStatus.transform(member.getOnlineStatus()),
+                JSONRanks.RANKS.getRanks().get(member.getIdLong()),
+                member.getIdLong(),
+                member.getUser().getName()
+        );
+    }
+
     @Nonnull
     private final net.dv8tion.jda.api.entities.Member member;
 
@@ -50,35 +62,18 @@ public class JDAMember extends Member{
     }
 
     @Nonnull
-    public static Member create(net.dv8tion.jda.api.entities.Member member){
-        return MemberFactory.create(
-                () -> new JDAMember(member),
-                JDAOnlineStatus.transform(member.getOnlineStatus()),
-                Optional.empty(),                           //Private Channel
-                JSONRanks.RANKS.getRanks().get(member.getIdLong()),
-                member.getIdLong(),
-                member.getUser().getName()
-        );
-    }
-
-    @Nonnull
     @Override
-    public List<Permission> getPermissions(@Nonnull TextChannel textChannel) {
+    public Set<Permission> getPermissions(@Nonnull TextChannel textChannel) {
         net.dv8tion.jda.api.entities.TextChannel jdaTextChannel = member.getGuild().getTextChannelById(textChannel.getId());
 
         if(jdaTextChannel == null)
-            return Collections.emptyList();
+            return Collections.emptySet();
         else
-            return member.getPermissions(jdaTextChannel).stream().map(JDAPermission::transform).collect(Collectors.toList());
+            return member.getPermissions(jdaTextChannel).stream().map(JDAPermission::transform).collect(Collectors.toSet());
     }
 
     @Override
-    public Optional<PrivateChannel> getChannel(){
-        return Optional.of(JDAPrivateChannel.create(member.getUser().openPrivateChannel().complete()));
-    }
-
-    @Override
-    public List<Role> retrieveRoles(){
+    public Collection<Role> retrieveRoles(){
         return member.getRoles().stream().map(JDARole::create).collect(Collectors.toList());
     }
 
@@ -102,6 +97,11 @@ public class JDAMember extends Member{
     @Override
     public Optional<String> retrieveNickname(){
         return Optional.ofNullable(member.getNickname());
+    }
+
+    @Override
+    public PrivateChannel retrievePrivateChannel() {
+        return JDAPrivateChannel.create(member.getUser().openPrivateChannel().complete());
     }
 
     @Override

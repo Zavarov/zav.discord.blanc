@@ -24,7 +24,7 @@ import vartas.discord.blanc.command.CommandBuilder;
 import javax.annotation.Nonnull;
 
 @Nonnull
-public class GuildCommandListener extends ShardListener {
+public class GuildCommandListener extends AbstractCommandListener {
     @Nonnull
     private final CommandBuilder commandBuilder;
 
@@ -35,12 +35,13 @@ public class GuildCommandListener extends ShardListener {
 
     @Override
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event){
+        //Ignore bots
         if(event.getAuthor().isBot())
             return;
 
         Message message = JDAMessage.create(event.getMessage());
-        Guild guild = shard.getUncheckedGuilds(event.getGuild().getIdLong());
-        TextChannel textChannel = guild.getUncheckedChannels(event.getChannel().getIdLong());
+        Guild guild = shard.retrieveGuild(event.getGuild().getIdLong()).orElseThrow();
+        TextChannel textChannel = guild.retrieveTextChannel(event.getChannel().getIdLong()).orElseThrow();
 
         submit(textChannel, () -> commandBuilder.build(message, guild, textChannel));
     }

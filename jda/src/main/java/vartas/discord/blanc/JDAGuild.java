@@ -17,24 +17,29 @@
 
 package vartas.discord.blanc;
 
-import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.atteo.evo.inflector.English;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.GuildFactory;
+import vartas.discord.blanc.$json.JSONGuild;
 import vartas.discord.blanc.activity.JDAActivity;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Nonnull
 public class JDAGuild extends Guild{
+    private static final Cache<Long, Guild> GUILDS = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).build();
+
+    private static final Logger log = LoggerFactory.getLogger(JDAGuild.class.getSimpleName());
     /**
      * A moderator is every user that has as least one of the listed permissions.
      */
@@ -56,6 +61,37 @@ public class JDAGuild extends Guild{
      * The date pretty printer.
      */
     protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
+
+    @Nonnull
+    public static Guild create(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild){
+        Guild guild = GUILDS.getIfPresent(jdaGuild.getIdLong());
+
+        //Guild is still cached?
+        if(guild != null)
+            return guild;
+
+        //Load a new guild instance into cache
+        guild = GuildFactory.create(
+                () -> new JDAGuild(jdaGuild),
+                new JDAActivity(jdaGuild),
+                jdaGuild.getIdLong(),
+                jdaGuild.getName()
+        );
+
+        //Load additional parameter from the corresponding JSON file.
+        try{
+            JSONGuild.fromJson(guild, jdaGuild.getIdLong());
+            log.info("Successfully loaded the JSON file for the guild {}.", jdaGuild.getName());
+        }catch(IOException e){
+            log.warn("Failed loading the JSON file for the guild {} : {}", jdaGuild.getName(), e.toString());
+        }finally{
+            //Update cache
+            GUILDS.put(jdaGuild.getIdLong(), guild);
+        }
+
+        return guild;
+    }
+
     @Nonnull
     private final net.dv8tion.jda.api.entities.Guild guild;
 
@@ -64,38 +100,43 @@ public class JDAGuild extends Guild{
     }
 
     @Override
+    public Optional<Member> retrieveMember(long id) {
+        return Optional.ofNullable(guild.getMemberById(id)).map(JDAMember::create);
+    }
+
+    @Override
+    public Collection<Member> retrieveMembers() {
+        return guild.getMemberCache().stream().map(JDAMember::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<TextChannel> retrieveTextChannel(long id) {
+        return Optional.ofNullable(guild.getTextChannelById(id)).map(JDATextChannel::create);
+    }
+
+    @Override
+    public Collection<TextChannel> retrieveTextChannels() {
+        return guild.getTextChannelCache().stream().map(JDATextChannel::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Role> retrieveRole(long id) {
+        return Optional.ofNullable(guild.getRoleById(id)).map(JDARole::create);
+    }
+
+    @Override
+    public Collection<Role> retrieveRoles() {
+        return guild.getRoleCache().stream().map(JDARole::create).collect(Collectors.toList());
+    }
+
+    @Override
+    public SelfMember retrieveSelfMember() {
+        return JDASelfMember.create(guild.getSelfMember());
+    }
+
+    @Override
     public void leave(){
         guild.leave().complete();
-    }
-
-    @Override
-    @Nonnull
-    public TextChannel getChannels(@Nonnull Long key) throws ExecutionException{
-        return getChannels(key, () -> {
-            net.dv8tion.jda.api.entities.TextChannel textChannel = guild.getTextChannelById(key);
-            Preconditions.checkNotNull(textChannel, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-            return JDATextChannel.create(textChannel);
-        });
-    }
-
-    @Override
-    @Nonnull
-    public Role getRoles(@Nonnull Long key) throws ExecutionException{
-        return getRoles(key, () -> {
-            net.dv8tion.jda.api.entities.Role role = guild.getRoleById(key);
-            Preconditions.checkNotNull(role, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-            return JDARole.create(role);
-        });
-    }
-
-    @Override
-    @Nonnull
-    public Member getMembers(@Nonnull Long key) throws ExecutionException{
-        return getMembers(key, () -> {
-            net.dv8tion.jda.api.entities.Member member = guild.getMemberById(key);
-            Preconditions.checkNotNull(member, TypeResolverException.of(Errors.UNKNOWN_ENTITY));
-            return JDAMember.create(member);
-        });
     }
 
     @Override
@@ -118,16 +159,6 @@ public class JDAGuild extends Guild{
             return false;
         else
             return jdaMember.canInteract(jdaRole);
-    }
-
-    public static Guild create(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild){
-        return GuildFactory.create(
-                () -> new JDAGuild(jdaGuild),
-                JDASelfMember.create(jdaGuild.getSelfMember()),
-                new JDAActivity(jdaGuild),
-                jdaGuild.getIdLong(),
-                jdaGuild.getName()
-        );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -217,13 +248,10 @@ public class JDAGuild extends Guild{
 
     private void addMembers(MessageEmbed messageEmbed){
         int online = (int)guild.getMembers().stream()
-                .filter(e -> !e.getUser().isBot())
                 .filter(e -> !e.getOnlineStatus().equals(OnlineStatus.OFFLINE))
                 .count();
 
-        int total = (int)guild.getMembers().stream()
-                .filter(e -> !e.getUser().isBot())
-                .count();
+        int total = guild.getMembers().size();
 
         messageEmbed.addFields(English.plural("#Member",total), String.format("%d / %d",online,total), true);
 

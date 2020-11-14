@@ -20,24 +20,21 @@ package vartas.discord.blanc.listener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vartas.discord.blanc.Killable;
 import vartas.discord.blanc.MessageChannel;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.command.Command;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
-public abstract class ShardListener extends ListenerAdapter {
+public abstract class AbstractCommandListener extends ListenerAdapter {
     @Nonnull
     private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
     @Nonnull
     protected final Shard shard;
 
-    protected ShardListener(@Nonnull Shard shard){
+    protected AbstractCommandListener(@Nonnull Shard shard){
         this.shard = shard;
     }
 
@@ -46,19 +43,11 @@ public abstract class ShardListener extends ListenerAdapter {
             try {
                 Optional<? extends Command> commandOpt = commandSupplier.get();
                 commandOpt.ifPresent(command -> {
-                    try {
                         command.validate();
                         command.run();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        //Thrown upon errors within the command
-                        log.error(e.toString(), e);
-                        messageChannel.send(e);
-                    }
                 });
             }catch(Exception e){
                 e.printStackTrace();
-                //Thrown upon invalid parameters
                 log.error(e.toString(), e);
                 messageChannel.send(e);
             }

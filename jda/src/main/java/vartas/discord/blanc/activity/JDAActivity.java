@@ -17,44 +17,54 @@
 
 package vartas.discord.blanc.activity;
 
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.OnlineStatus;
 import vartas.discord.blanc.$visitor.ArchitectureVisitor;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.TextChannel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 
 import static vartas.discord.blanc.Shard.ACTIVITY_RATE;
 
+@Nonnull
 public class JDAActivity extends Activity{
+    @Nonnull
     private final net.dv8tion.jda.api.entities.Guild jdaGuild;
-    public JDAActivity(net.dv8tion.jda.api.entities.Guild jdaGuild){
+
+    public JDAActivity(@Nonnull net.dv8tion.jda.api.entities.Guild jdaGuild){
         this.jdaGuild = jdaGuild;
     }
 
     @Override
-    public void update(Guild guild){
+    public void update(@Nonnull Guild guild){
         putActivity(LocalDateTime.now(), new GuildVisitor().gather(guild));
         messages.clear();
     }
 
+    @Nonnull
     private class GuildVisitor implements ArchitectureVisitor{
-        GuildActivity data = new GuildActivity();
+        @Nullable
+        GuildActivity data;
 
-        private GuildVisitor(){}
-
-        public GuildActivity gather(Guild guild){
+        @Nonnull
+        public GuildActivity gather(@Nonnull Guild guild){
+            data = new GuildActivity();
             guild.accept(this);
             return data;
         }
 
         @Override
-        public void visit(TextChannel channel){
+        public void visit(@Nonnull TextChannel channel){
+            Preconditions.checkNotNull(data);
             data.putChannelActivity(channel, messages.getOrDefault(channel, 0L) / (double)ACTIVITY_RATE.toMinutes());
         }
 
         @Override
-        public void endVisit(Guild guild){
+        public void endVisit(@Nonnull Guild guild){
+            Preconditions.checkNotNull(data);
             data.setMembersOnline(jdaGuild.getMembers().stream().filter(member -> member.getOnlineStatus() == OnlineStatus.ONLINE).count());
             data.setMembersCount(jdaGuild.getMemberCount());
             data.setActivity(data.valuesChannelActivity().stream().mapToDouble(x -> x).sum());

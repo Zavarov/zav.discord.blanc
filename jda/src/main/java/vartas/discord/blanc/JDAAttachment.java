@@ -21,24 +21,28 @@ package vartas.discord.blanc;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.AttachmentFactory;
 
+import java.io.InputStream;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 public class JDAAttachment extends Attachment{
+        public static Attachment create(net.dv8tion.jda.api.entities.Message.Attachment attachment){
+        return AttachmentFactory.create(() -> new JDAAttachment(attachment));
+    }
+
     private final net.dv8tion.jda.api.entities.Message.Attachment attachment;
+
     private JDAAttachment(net.dv8tion.jda.api.entities.Message.Attachment attachment){
         this.attachment = attachment;
     }
 
-    public static Attachment create(net.dv8tion.jda.api.entities.Message.Attachment attachment){
-        return AttachmentFactory.create(() -> new JDAAttachment(attachment));
-    }
-
     @Override
-    public void download() {
+    public InputStream retrieveContent() {
         try {
-            setContent(attachment.retrieveInputStream().get());
+            return attachment.retrieveInputStream().get();
         }catch(InterruptedException | ExecutionException e){
             LoggerFactory.getLogger(this.getClass().getSimpleName()).error(e.toString());
+            throw new NoSuchElementException();
         }
     }
 

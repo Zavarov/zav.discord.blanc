@@ -17,17 +17,18 @@
 
 package vartas.discord.blanc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.PrivateChannelFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JDAPrivateChannel extends PrivateChannel{
-    @Nonnull
-    private final net.dv8tion.jda.api.entities.PrivateChannel privateChannel;
-    @Nonnull
-    private JDAPrivateChannel(@Nonnull net.dv8tion.jda.api.entities.PrivateChannel privateChannel){
-        this.privateChannel = privateChannel;
-    }
+    private static final Logger log = LoggerFactory.getLogger(JDATextChannel.class.getSimpleName());
 
     public static PrivateChannel create(net.dv8tion.jda.api.entities.PrivateChannel privateChannel){
         return PrivateChannelFactory.create(
@@ -37,13 +38,49 @@ public class JDAPrivateChannel extends PrivateChannel{
         );
     }
 
+    @Nonnull
+    private final net.dv8tion.jda.api.entities.PrivateChannel privateChannel;
+
+    @Nonnull
+    private JDAPrivateChannel(@Nonnull net.dv8tion.jda.api.entities.PrivateChannel privateChannel){
+        this.privateChannel = privateChannel;
+    }
+
+    @Override
+    public Optional<Message> retrieveMessage(long id) {
+        try {
+            return Optional.of(JDAMessage.create(privateChannel.retrieveMessageById(id).complete()));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Collection<Message> retrieveMessages() {
+        try {
+            return privateChannel.getHistory().getRetrievedHistory().stream().map(JDAMessage::create).collect(Collectors.toList());
+        }catch(Exception e){
+            log.error(e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     @Override
     public void send(Message message) {
-        privateChannel.sendMessage(MessageBuilder.buildMessage(message)).complete();
+        try {
+            privateChannel.sendMessage(MessageBuilder.buildMessage(message)).complete();
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 
     @Override
     public void send(byte[] bytes, String qualifiedName) {
-        privateChannel.sendFile(bytes, qualifiedName).complete();
+        try {
+            privateChannel.sendFile(bytes, qualifiedName).complete();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

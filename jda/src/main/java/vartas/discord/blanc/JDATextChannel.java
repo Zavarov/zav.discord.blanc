@@ -17,79 +17,101 @@
 
 package vartas.discord.blanc;
 
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.TextChannelFactory;
+import vartas.discord.blanc.$json.JSONTextChannel;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JDATextChannel extends TextChannel{
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private static final Cache<Long, TextChannel> TEXT_CHANNELS = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).build();
+
+    private static final Logger log = LoggerFactory.getLogger(JDATextChannel.class.getSimpleName());
+
+    public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel){
+        TextChannel textChannel = TEXT_CHANNELS.getIfPresent(jdaTextChannel.getIdLong());
+
+        //Text channel cached?
+        if(textChannel != null)
+            return textChannel;
+
+        textChannel = TextChannelFactory.create(
+                () -> new JDATextChannel(jdaTextChannel),
+                jdaTextChannel.getIdLong(),
+                jdaTextChannel.getName()
+        );
+
+        try{
+            Guild guild = JDAGuild.create(jdaTextChannel.getGuild());
+            JSONTextChannel.fromJson(textChannel, guild, jdaTextChannel.getIdLong());
+            log.info("Successfully loaded the JSON file for the text channel {}.", jdaTextChannel.getName());
+        }catch(IOException e){
+            log.warn("Failed loading the JSON file for the text channel {} : {}", jdaTextChannel.getName(), e.toString());
+        }finally {
+            TEXT_CHANNELS.put(jdaTextChannel.getIdLong(), textChannel);
+        }
+
+        return textChannel;
+    }
+
     @Nonnull
     private final net.dv8tion.jda.api.entities.TextChannel textChannel;
+
     @Nonnull
     private JDATextChannel(@Nonnull net.dv8tion.jda.api.entities.TextChannel textChannel){
         this.textChannel = textChannel;
     }
 
     @Override
-    public Message getMessages(Long key) throws ExecutionException{
-        return getMessages(key, () -> JDAMessage.create(textChannel.retrieveMessageById(key).complete()));
+    public Optional<Message> retrieveMessage(long id) {
+        return Optional.of(JDAMessage.create(textChannel.retrieveMessageById(id).complete()));
     }
 
     @Override
-    public Webhook getWebhooks(String key) throws ExecutionException{
+    public Collection<Message> retrieveMessages() {
         try {
-            return getWebhooks(key, () -> {
-                List<net.dv8tion.jda.api.entities.Webhook> webhooks = textChannel.retrieveWebhooks().complete();
-
-                return JDAWebhook.create(
-                        webhooks.stream()
-                                .filter(w -> w.getName().equals(key))
-                                .findAny()
-                                .orElse(textChannel.createWebhook(key).complete())
-                );
-            });
-        } catch(net.dv8tion.jda.api.exceptions.PermissionException e){
-            log.error(Errors.INSUFFICIENT_PERMISSION.toString(), e);
-            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
+            return textChannel.getHistory().getRetrievedHistory().stream().map(JDAMessage::create).collect(Collectors.toList());
+        }catch(PermissionException e){
+            return Collections.emptyList();
         }
-    }
-
-    public static TextChannel create(net.dv8tion.jda.api.entities.TextChannel jdaTextChannel){
-        TextChannel textChannel = TextChannelFactory.create(
-                () -> new JDATextChannel(jdaTextChannel),
-                jdaTextChannel.getIdLong(),
-                jdaTextChannel.getName()
-        );
-
-        if(jdaTextChannel.canTalk()) {
-            jdaTextChannel.retrieveWebhooks().complete().forEach(webhook ->
-                textChannel.putWebhooks(webhook.getName(), JDAWebhook.create(webhook))
-            );
-        }
-
-        return textChannel;
     }
 
     @Override
     public void send(Message message) {
-        try {
-            textChannel.sendMessage(MessageBuilder.buildMessage(message)).complete();
-        } catch(InsufficientPermissionException e){
-            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
-        }
+        textChannel.sendMessage(MessageBuilder.buildMessage(message)).complete();
     }
 
     @Override
     public void send(byte[] bytes, String qualifiedName) {
+        textChannel.sendFile(bytes, qualifiedName).complete();
+    }
+
+    @Override
+    public Webhook createWebhook(String name) {
+        return JDAWebhook.create(textChannel.createWebhook(name).complete());
+    }
+
+    @Override
+    public Collection<Webhook> retrieveWebhooks(String name) {
+        return retrieveWebhooks().stream().filter(webhook -> webhook.getName().equals(name)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Webhook> retrieveWebhooks() {
         try {
-            textChannel.sendFile(bytes, qualifiedName).complete();
-        } catch(InsufficientPermissionException e){
-            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
+            return textChannel.retrieveWebhooks().complete().stream().map(JDAWebhook::create).collect(Collectors.toList());
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
     }
 

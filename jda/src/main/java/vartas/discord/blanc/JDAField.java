@@ -22,16 +22,10 @@ import vartas.discord.blanc.$factory.FieldFactory;
 import javax.annotation.Nonnull;
 
 public class JDAField extends Field{
-    private final net.dv8tion.jda.api.entities.MessageEmbed.Field jdaField;
-
-    private JDAField(net.dv8tion.jda.api.entities.MessageEmbed.Field jdaField){
-        this.jdaField = jdaField;
-    }
-
     @Nonnull
     public static Field create(net.dv8tion.jda.api.entities.MessageEmbed.Field field){
         return FieldFactory.create(
-                () -> new JDAField(field),
+                JDAField::new,
                 field.getName(),
                 field.getValue(),
                 field.isInline()

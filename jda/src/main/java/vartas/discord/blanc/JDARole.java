@@ -17,39 +17,67 @@
 
 package vartas.discord.blanc;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.atteo.evo.inflector.English;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import vartas.discord.blanc.$factory.MessageEmbedFactory;
 import vartas.discord.blanc.$factory.RoleFactory;
+import vartas.discord.blanc.$json.JSONRole;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class JDARole extends Role{
+    private static final Cache<Long, Role> ROLES = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).build();
+
+    private static final Logger log = LoggerFactory.getLogger(JDAGuild.class.getSimpleName());
     /**
      * The date pretty printer.
      */
     protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
+
+    @Nonnull
+    public static Role create(@Nonnull net.dv8tion.jda.api.entities.Role jdaRole){
+        Role role = ROLES.getIfPresent(jdaRole.getIdLong());
+
+        //Role is cached?
+        if(role != null)
+            return role;
+
+        role = RoleFactory.create(
+                () -> new JDARole(jdaRole),
+                jdaRole.getIdLong(),
+                jdaRole.getName()
+        );
+
+        try{
+            Guild guild = JDAGuild.create(jdaRole.getGuild());
+            JSONRole.fromJson(role, guild, jdaRole.getIdLong());
+            log.info("Successfully loaded the JSON file for the role {}.", jdaRole.getName());
+        }catch(IOException e){
+            log.warn("Failed loading the JSON file for the role {} : {}", jdaRole.getName(), e.toString());
+        }finally{
+            ROLES.put(jdaRole.getIdLong(), role);
+        }
+
+        return role;
+    }
     @Nonnull
     private final net.dv8tion.jda.api.entities.Role role;
+
     @Nonnull
     private JDARole(@Nonnull net.dv8tion.jda.api.entities.Role role){
         this.role = role;
-    }
-
-    public static Role create(@Nonnull net.dv8tion.jda.api.entities.Role role){
-        return RoleFactory.create(
-                () -> new JDARole(role),
-                Optional.empty(),
-                role.getIdLong(),
-                role.getName()
-        );
     }
 
     @Override

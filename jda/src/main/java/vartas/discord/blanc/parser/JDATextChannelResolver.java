@@ -56,7 +56,7 @@ public class JDATextChannelResolver extends AbstractJDAGuildResolver<net.dv8tion
         TextChannel channel = null;
 
         try {
-            channel = guild.getUncheckedChannels(snowflake.getIdLong());
+            channel = guild.retrieveTextChannel(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             //TODO Error message
             log.error(snowflake.getId(), e);

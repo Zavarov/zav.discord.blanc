@@ -27,17 +27,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JDAMessageEmbed extends MessageEmbed{
-    private final net.dv8tion.jda.api.entities.MessageEmbed jdaMessageEmbed;
-
-    private JDAMessageEmbed(net.dv8tion.jda.api.entities.MessageEmbed jdaMessageEmbed){
-        this.jdaMessageEmbed = jdaMessageEmbed;
-    }
-
     @Nonnull
     public static MessageEmbed create(net.dv8tion.jda.api.entities.MessageEmbed messageEmbed){
-        //Optional<Instant> timestamp,  Optional<Author> author,  List<Field> fields){
         return MessageEmbedFactory.create(
-                () -> new JDAMessageEmbed(messageEmbed),
+                JDAMessageEmbed::new,
                 Optional.ofNullable(messageEmbed.getColor()),
                 Optional.ofNullable(messageEmbed.getThumbnail()).map(net.dv8tion.jda.api.entities.MessageEmbed.Thumbnail::getUrl),
                 Optional.ofNullable(messageEmbed.getTitle()).map(TitleFactory::create),

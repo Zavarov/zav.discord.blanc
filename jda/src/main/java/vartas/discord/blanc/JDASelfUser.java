@@ -67,6 +67,11 @@ public class JDASelfUser extends SelfUser{
     }
 
     @Override
+    public PrivateChannel retrievePrivateChannel() {
+        return JDAPrivateChannel.create(selfUser.openPrivateChannel().complete());
+    }
+
+    @Override
     public String getAsMention(){
         return selfUser.getAsMention();
     }

@@ -52,7 +52,7 @@ public class JDAUserResolver extends AbstractJDAResolver<net.dv8tion.jda.api.ent
         User user = null;
 
         try {
-            user = shard.getUncheckedUsers(snowflake.getIdLong());
+            user = shard.retrieveUser(snowflake.getIdLong()).orElse(null);
         } catch(TypeResolverException e){
             log.error(snowflake.getId(), e);
         }
