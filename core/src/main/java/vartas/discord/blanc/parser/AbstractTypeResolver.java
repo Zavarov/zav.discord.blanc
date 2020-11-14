@@ -17,9 +17,7 @@
 
 package vartas.discord.blanc.parser;
 
-import vartas.discord.blanc.ConfigurationModule;
-import vartas.discord.blanc.Guild;
-import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.*;
 import vartas.discord.blanc.command.Command;
 import vartas.discord.blanc.prettyprint.ArgumentPrettyPrinter;
 
@@ -92,7 +90,7 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
     @Nonnull
     public String resolveString(@Nonnull Argument argument) throws NoSuchElementException {
         return new StringResolver().apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -112,7 +110,7 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
     @Nonnull
     public LocalDate resolveLocalDate(@Nonnull Argument argument) throws NoSuchElementException {
         return new LocalDateResolver().apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -130,7 +128,7 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
     @Nonnull
     public BigDecimal resolveBigDecimal(@Nonnull Argument argument) throws NoSuchElementException {
         return new BigDecimalResolver().apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -148,7 +146,7 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
     @Nonnull
     public ConfigurationModule resolveConfigurationModule(@Nonnull Argument argument) throws NoSuchElementException {
         return new ConfigurationModuleResolver().apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -166,7 +164,7 @@ public abstract class AbstractTypeResolver extends AbstractTypeResolverTOP {
     @Nonnull
     public ChronoUnit resolveChronoUnit(@Nonnull Argument argument) throws NoSuchElementException {
         return new ChronoUnitResolver().apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 

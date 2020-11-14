@@ -20,12 +20,18 @@ package vartas.discord.blanc;
 import javax.annotation.Nonnull;
 
 public class TypeResolverException extends RuntimeException{
-    private TypeResolverException(@Nonnull Errors error){
-        super(error.toString());
+    @Nonnull
+    protected TypeResolverException(@Nonnull Errors error, @Nonnull Object... arguments){
+        super(error.toString(arguments));
     }
 
     @Nonnull
     public static TypeResolverException of(@Nonnull Errors error){
-        return new TypeResolverException(error);
+        return of(error, new Object[0]);
+    }
+
+    @Nonnull
+    public static TypeResolverException of(@Nonnull Errors error, @Nonnull Object... arguments){
+        return new TypeResolverException(error, arguments);
     }
 }

@@ -23,9 +23,10 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class JDAMessage extends Message {    @Nonnull
-public static Message create(net.dv8tion.jda.api.entities.Message message){
-    return MessageFactory.create(
+public class JDAMessage extends Message {
+    @Nonnull
+    public static Message create(net.dv8tion.jda.api.entities.Message message){
+        return MessageFactory.create(
             () -> new JDAMessage(message),
             message.getIdLong(),
             message.getTimeCreated().toInstant(),
@@ -33,8 +34,8 @@ public static Message create(net.dv8tion.jda.api.entities.Message message){
             message.getContentRaw().isEmpty() ? Optional.empty() : Optional.of(message.getContentRaw()),
             message.getEmbeds().stream().map(JDAMessageEmbed::create).collect(Collectors.toList()),
             message.getAttachments().stream().map(JDAAttachment::create).collect(Collectors.toList())
-    );
-}
+        );
+    }
 
     private final net.dv8tion.jda.api.entities.Message jdaMessage;
 

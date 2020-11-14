@@ -19,20 +19,19 @@ package vartas.discord.blanc;
 
 import javax.annotation.Nonnull;
 
-@Nonnull
-public class PermissionException extends CommandException{
+public class CommandException extends RuntimeException{
     @Nonnull
-    private PermissionException(@Nonnull Errors error, @Nonnull Object... arguments){
-        super(error, arguments);
+    protected CommandException(@Nonnull Errors error, @Nonnull Object... arguments){
+        super(error.toString(arguments));
     }
 
     @Nonnull
-    public static PermissionException of(@Nonnull Errors error){
+    public static CommandException of(@Nonnull Errors error){
         return of(error, new Object[0]);
     }
 
     @Nonnull
-    public static PermissionException of(@Nonnull Errors error, @Nonnull Object... arguments){
-        return new PermissionException(error, arguments);
+    public static CommandException of(@Nonnull Errors error, @Nonnull Object... arguments){
+        return new CommandException(error, arguments);
     }
 }

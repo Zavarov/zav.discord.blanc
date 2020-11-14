@@ -18,6 +18,7 @@
 package vartas.discord.blanc;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 /**
  * A collection of all error types that are logged by this application.
@@ -42,6 +43,7 @@ public enum Errors {
     INSUFFICIENT_RANK(0x4000, "The command couldn't be executed due to an insufficient rank."),
     INSUFFICIENT_PERMISSION(0x4001, "The command couldn't be execute due to insufficient permissions."),
     INSUFFICIENT_ATTACHMENTS(0x4002, "The command requires at least one attachment."),
+    UNKNOWN_COMMAND(0x4003, "A command with the specified name doesn't exist."),
     //Resolve Discord Entities
     UNKNOWN_GUILD(0x5000, "The specified guild couldn't be found."),
     UNKNOWN_TEXTCHANNEL(0x5001, "The specified text channel couldn't be found."),
@@ -64,9 +66,14 @@ public enum Errors {
         this.description = description;
     }
 
+    @Nonnull
+    public String toString(Object... arguments){
+        return String.format("0x%s %s\n%s", Long.toHexString(code), description, Arrays.toString(arguments));
+    }
+
     @Override
     @Nonnull
     public String toString(){
-        return String.format("0x%s (%s)", Long.toHexString(code), description);
+        return toString(new Object[0]);
     }
 }

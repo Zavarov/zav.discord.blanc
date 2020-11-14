@@ -19,7 +19,6 @@ package vartas.discord.blanc.parser;
 
 import net.dv8tion.jda.api.JDA;
 import vartas.discord.blanc.Shard;
-import vartas.discord.blanc.TypeResolverException;
 import vartas.discord.blanc.User;
 
 import javax.annotation.Nonnull;
@@ -49,14 +48,6 @@ public class JDAUserResolver extends AbstractJDAResolver<net.dv8tion.jda.api.ent
     @Nonnull
     @Override
     protected Optional<User> map(net.dv8tion.jda.api.entities.User snowflake) {
-        User user = null;
-
-        try {
-            user = shard.retrieveUser(snowflake.getIdLong()).orElse(null);
-        } catch(TypeResolverException e){
-            log.error(snowflake.getId(), e);
-        }
-
-        return Optional.ofNullable(user);
+        return shard.retrieveUser(snowflake.getIdLong());
     }
 }

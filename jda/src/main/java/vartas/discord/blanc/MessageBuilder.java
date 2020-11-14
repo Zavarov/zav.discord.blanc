@@ -18,14 +18,36 @@
 package vartas.discord.blanc;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.time.Instant;
 import java.util.Optional;
 
 public final class MessageBuilder {
     private MessageBuilder(){}
+
+    @Nonnull
+    public static Message buildMessage(@Nonnull Exception exception){
+        Message message = new Message();
+
+        message.addMessageEmbeds(buildMessageEmbed(exception));
+
+        return message;
+    }
+
+    @Nonnull
+    public static MessageEmbed buildMessageEmbed(@Nonnull Exception exception){
+        MessageEmbed messageEmbed = new MessageEmbed();
+
+        messageEmbed.setColor(Color.RED);
+        messageEmbed.setTimestamp(Instant.now());
+        messageEmbed.addFields(exception.getClass().getSimpleName(), exception.getMessage());
+
+        return messageEmbed;
+    }
+
     @Nonnull
     public static net.dv8tion.jda.api.entities.Message buildMessage(@Nonnull Message message){
         net.dv8tion.jda.api.MessageBuilder messageBuilder = new net.dv8tion.jda.api.MessageBuilder(message.getContent().orElse(""));
@@ -37,7 +59,7 @@ public final class MessageBuilder {
     }
 
     @Nonnull
-    public static Optional<MessageEmbed> buildMessageEmbed(@Nonnull Message message){
+    public static Optional<net.dv8tion.jda.api.entities.MessageEmbed> buildMessageEmbed(@Nonnull Message message){
         return message.streamMessageEmbeds().map(messageEmbed -> {
             EmbedBuilder embedBuilder = new EmbedBuilder();
 
@@ -46,12 +68,12 @@ public final class MessageBuilder {
             messageEmbed.ifPresentThumbnail(embedBuilder::setThumbnail);
 
             messageEmbed.getContent()
-                    .map(content -> StringUtils.abbreviate(content, MessageEmbed.TEXT_MAX_LENGTH))
+                    .map(content -> StringUtils.abbreviate(content, net.dv8tion.jda.api.entities.MessageEmbed.TEXT_MAX_LENGTH))
                     .ifPresent(embedBuilder::setDescription);
             messageEmbed.ifPresentAuthor(author ->
-                    embedBuilder.setAuthor(StringUtils.abbreviate(author.getName(), MessageEmbed.TITLE_MAX_LENGTH), author.getUrl().orElse(null)));
+                    embedBuilder.setAuthor(StringUtils.abbreviate(author.getName(), net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH), author.getUrl().orElse(null)));
             messageEmbed.ifPresentTitle(title ->
-                    embedBuilder.setTitle(StringUtils.abbreviate(title.getName(), MessageEmbed.TITLE_MAX_LENGTH), title.getUrl().orElse(null)));
+                    embedBuilder.setTitle(StringUtils.abbreviate(title.getName(), net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH), title.getUrl().orElse(null)));
             messageEmbed.getFields().forEach(field ->
                     embedBuilder.addField(field.getTitle(), field.getContent().toString(), field.getInline())
             );

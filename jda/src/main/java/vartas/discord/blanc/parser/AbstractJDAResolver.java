@@ -58,10 +58,8 @@ public abstract class AbstractJDAResolver<U, V> extends TypeResolver<V> {
         snowflakes = resolveByName(argument.getContent());
 
         if(snowflakes.size() == 0){
-            //TODO Error message
             log.error(argument.getContent(), TypeResolverException.of(Errors.UNKNOWN_ENTITY));
         }else if(snowflakes.size() > 1){
-            //TODO Error message
             log.error(argument.getContent(), TypeResolverException.of(Errors.MULTIPLE_ENTITIES_BY_NAME));
         }else{
             snowflake = snowflakes.iterator().next();

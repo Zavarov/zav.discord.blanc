@@ -58,7 +58,7 @@ public abstract class Command extends CommandTOP {
      */
     protected void checkRank(@Nonnull User user, @Nonnull Rank rank) throws PermissionException{
         if(!getEffectiveRanks(user).contains(rank))
-            throw PermissionException.of(Errors.INSUFFICIENT_RANK);
+            throw PermissionException.of(Errors.INSUFFICIENT_RANK, rank);
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class Command extends CommandTOP {
      */
     protected void checkAttachment(@Nonnull Message message) throws NoSuchElementException{
         if(message.isEmptyAttachments())
-            throw new NoSuchElementException(Errors.INSUFFICIENT_ATTACHMENTS.toString());
+            throw CommandException.of(Errors.INSUFFICIENT_ATTACHMENTS);
     }
 
     /**

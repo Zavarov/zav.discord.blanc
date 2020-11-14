@@ -42,7 +42,7 @@ public abstract class GuildCommand extends GuildCommandTOP{
      */
     protected void checkPermission(@Nonnull Member member, @Nonnull TextChannel textChannel, @Nonnull Permission permission){
         if(!member.getPermissions(textChannel).contains(permission))
-            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION);
+            throw PermissionException.of(Errors.INSUFFICIENT_PERMISSION, permission);
     }
 
     /**

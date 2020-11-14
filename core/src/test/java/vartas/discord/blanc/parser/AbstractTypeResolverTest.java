@@ -20,6 +20,7 @@ package vartas.discord.blanc.parser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vartas.discord.blanc.ConfigurationModule;
+import vartas.discord.blanc.TypeResolverException;
 import vartas.discord.blanc.mock.AbstractTypeResolverMock;
 import vartas.discord.blanc.mock.ArithmeticArgumentMock;
 import vartas.discord.blanc.mock.MentionArgumentMock;
@@ -30,7 +31,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,31 +60,31 @@ public class AbstractTypeResolverTest {
     @Test
     public void testResolveString(){
         assertThat(resolver.resolveString(stringArgument)).contains("Content");
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveString(dummyArgument));
+        assertThrows(TypeResolverException.class, () -> resolver.resolveString(dummyArgument));
     }
 
     @Test
     public void testResolveLocalDate(){
         assertThat(resolver.resolveLocalDate(localDateArgument)).isEqualTo(LocalDate.ofEpochDay(1337));
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveLocalDate(dummyArgument));
+        assertThrows(TypeResolverException.class, () -> resolver.resolveLocalDate(dummyArgument));
     }
 
     @Test
     public void testResolveBigDecimal(){
         assertThat(resolver.resolveBigDecimal(bigDecimalArgument)).isEqualTo(BigDecimal.TEN);
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveBigDecimal(dummyArgument));
+        assertThrows(TypeResolverException.class, () -> resolver.resolveBigDecimal(dummyArgument));
     }
 
     @Test
     public void testResolveConfigurationModule(){
         assertThat(resolver.resolveConfigurationModule(configurationModuleArgument)).isEqualTo(ConfigurationModule.BLACKLIST);
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveConfigurationModule(dummyArgument));
+        assertThrows(TypeResolverException.class, () -> resolver.resolveConfigurationModule(dummyArgument));
     }
 
     @Test
     public void testResolveInterval(){
         assertThat(resolver.resolveChronoUnit(intervalArgument)).isEqualTo(ChronoUnit.HOURS);
-        assertThrows(NoSuchElementException.class, () -> resolver.resolveChronoUnit(dummyArgument));
+        assertThrows(TypeResolverException.class, () -> resolver.resolveChronoUnit(dummyArgument));
     }
 
     @Test

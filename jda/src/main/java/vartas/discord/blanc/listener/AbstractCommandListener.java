@@ -20,6 +20,7 @@ package vartas.discord.blanc.listener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vartas.discord.blanc.MessageBuilder;
 import vartas.discord.blanc.MessageChannel;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.command.Command;
@@ -49,7 +50,7 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
             }catch(Exception e){
                 e.printStackTrace();
                 log.error(e.toString(), e);
-                messageChannel.send(e);
+                messageChannel.send(MessageBuilder.buildMessage(e));
             }
         });
     }

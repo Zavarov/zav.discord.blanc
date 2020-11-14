@@ -19,15 +19,10 @@ package vartas.discord.blanc.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import vartas.discord.blanc.AbstractTest;
-import vartas.discord.blanc.Message;
-import vartas.discord.blanc.PermissionException;
-import vartas.discord.blanc.Rank;
+import vartas.discord.blanc.*;
 import vartas.discord.blanc.mock.AttachmentMock;
 import vartas.discord.blanc.mock.MessageCommandMock;
 import vartas.discord.blanc.mock.MessageMock;
-
-import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -69,7 +64,7 @@ public class CommandTest extends AbstractTest {
 
     @Test
     public void testCheckMissingAttachment(){
-        assertThrows(NoSuchElementException.class, () -> command.checkAttachment(message));
+        assertThrows(CommandException.class, () -> command.checkAttachment(message));
     }
 
     @Test

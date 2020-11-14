@@ -18,7 +18,10 @@
 package vartas.discord.blanc.parser;
 
 import net.dv8tion.jda.api.JDA;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Role;
+import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,15 +53,6 @@ public class JDARoleResolver extends AbstractJDAGuildResolver<net.dv8tion.jda.ap
     @Nonnull
     @Override
     protected Optional<Role> map(Guild guild, TextChannel textChannel, net.dv8tion.jda.api.entities.Role snowflake) {
-        Role role = null;
-
-        try {
-            role = guild.retrieveRole(snowflake.getIdLong()).orElse(null);
-        } catch(TypeResolverException e){
-            //TODO Error message
-            log.error(snowflake.getId(), e);
-        }
-
-        return Optional.ofNullable(role);
+        return guild.retrieveRole(snowflake.getIdLong());
     }
 }

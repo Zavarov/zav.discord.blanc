@@ -52,7 +52,7 @@ public class JDATypeResolver extends AbstractTypeResolver{
     @Override
     public Guild resolveGuild(@Nonnull Argument argument) throws NoSuchElementException {
         return new JDAGuildResolver(shard, jda).apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -66,7 +66,7 @@ public class JDATypeResolver extends AbstractTypeResolver{
     @Override
     public TextChannel resolveTextChannel(@Nonnull Argument argument) throws NoSuchElementException{
         return new JDATextChannelResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -80,7 +80,7 @@ public class JDATypeResolver extends AbstractTypeResolver{
     @Override
     public User resolveUser(@Nonnull Argument argument) throws NoSuchElementException{
         return new JDAUserResolver(shard, jda).apply(argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -94,7 +94,7 @@ public class JDATypeResolver extends AbstractTypeResolver{
     @Override
     public Role resolveRole(@Nonnull Argument argument) throws NoSuchElementException{
         return new JDARoleResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
@@ -108,14 +108,14 @@ public class JDATypeResolver extends AbstractTypeResolver{
     @Override
     public Member resolveMember(@Nonnull Argument argument) throws NoSuchElementException{
         return new JDAMemberResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 
     @Override
     public Message resolveMessage(Argument argument) throws NoSuchElementException {
         return new JDAMessageResolver(shard, jda).apply(guild, textChannel, argument).orElseThrow(
-                () -> new NoSuchElementException(ArgumentPrettyPrinter.printPretty(argument))
+                () -> TypeResolverException.of(Errors.UNKNOWN_ENTITY, ArgumentPrettyPrinter.printPretty(argument))
         );
     }
 }

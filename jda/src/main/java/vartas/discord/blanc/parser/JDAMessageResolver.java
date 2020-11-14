@@ -18,7 +18,10 @@
 package vartas.discord.blanc.parser;
 
 import net.dv8tion.jda.api.JDA;
-import vartas.discord.blanc.*;
+import vartas.discord.blanc.Guild;
+import vartas.discord.blanc.Message;
+import vartas.discord.blanc.Shard;
+import vartas.discord.blanc.TextChannel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,14 +51,6 @@ public class JDAMessageResolver extends AbstractJDAGuildResolver<net.dv8tion.jda
     @Nonnull
     @Override
     protected Optional<Message> map(Guild guild, TextChannel textChannel, net.dv8tion.jda.api.entities.Message snowflake) {
-        Message message = null;
-
-        try {
-            message = textChannel.retrieveMessage(snowflake.getIdLong()).orElse(null);
-        } catch(TypeResolverException e){
-            log.error(snowflake.getId(), e);
-        }
-
-        return Optional.ofNullable(message);
+        return textChannel.retrieveMessage(snowflake.getIdLong());
     }
 }

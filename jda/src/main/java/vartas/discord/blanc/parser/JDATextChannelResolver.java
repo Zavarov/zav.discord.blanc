@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.JDA;
 import vartas.discord.blanc.Guild;
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.TextChannel;
-import vartas.discord.blanc.TypeResolverException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,15 +52,6 @@ public class JDATextChannelResolver extends AbstractJDAGuildResolver<net.dv8tion
     @Nonnull
     @Override
     protected Optional<TextChannel> map(Guild guild, TextChannel textChannel, net.dv8tion.jda.api.entities.TextChannel snowflake) {
-        TextChannel channel = null;
-
-        try {
-            channel = guild.retrieveTextChannel(snowflake.getIdLong()).orElse(null);
-        } catch(TypeResolverException e){
-            //TODO Error message
-            log.error(snowflake.getId(), e);
-        }
-
-        return Optional.ofNullable(channel);
+        return guild.retrieveTextChannel(snowflake.getIdLong());
     }
 }
