@@ -29,7 +29,7 @@ public class InviteCommand extends InviteCommandTOP{
     public void run() {
         StringBuilder stringBuilder = new StringBuilder()
                 .append("Use this link if you want to add this bot to your server:\n")
-                .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", get$Shard().getSelfUser().getId()));
+                .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", get$Shard().retrieveSelfUser().getId()));
         get$MessageChannel().send(stringBuilder);
     }
 }

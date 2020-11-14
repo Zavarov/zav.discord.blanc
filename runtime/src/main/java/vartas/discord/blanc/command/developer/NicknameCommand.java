@@ -26,6 +26,6 @@ public class NicknameCommand extends NicknameCommandTOP{
      */
     @Override
     public void run(){
-        get$Guild().getSelfMember().modifyNickname(getNickname().orElse(""));
+        get$Guild().retrieveSelfMember().modifyNickname(getNickname().orElse(""));
     }
 }

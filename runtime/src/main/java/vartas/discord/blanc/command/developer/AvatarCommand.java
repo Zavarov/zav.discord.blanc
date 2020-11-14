@@ -17,14 +17,7 @@
 
 package vartas.discord.blanc.command.developer;
 
-import com.google.common.base.Preconditions;
-import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.SelfUser;
 import vartas.discord.blanc.Attachment;
-
-import javax.annotation.Nonnull;
 
 /**
  * This command changes the avatar of the bot to the one that was attached to
@@ -35,7 +28,7 @@ public class AvatarCommand extends AvatarCommandTOP{
     public void run(){
         Attachment attachment = get$Message().getAttachments(0);
         if(attachment.isImage()){
-            attachment.getContent().ifPresent(get$Shard().getSelfUser()::modifyAvatar);
+            get$Shard().retrieveSelfUser().modifyAvatar(attachment.retrieveContent());
             get$MessageChannel().send("Avatar updated.");
         }else{
             get$MessageChannel().send("Please make sure that you've attached an image.");

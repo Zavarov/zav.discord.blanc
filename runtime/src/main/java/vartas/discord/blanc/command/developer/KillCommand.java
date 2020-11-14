@@ -41,4 +41,9 @@ public class KillCommand extends KillCommandTOP implements ArchitectureVisitor {
     public void visit(Killable node){
         node.shutdown();
     }
+
+    @Override
+    public KillCommand getRealThis(){
+        return this;
+    }
 }

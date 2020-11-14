@@ -23,7 +23,7 @@ package vartas.discord.blanc.command.developer;
 public class DeleteCommand extends DeleteCommandTOP{
     @Override
     public void run() {
-        if(getMessage().getAuthor().equals(get$Shard().getSelfUser())){
+        if(getMessage().getAuthor().equals(get$Shard().retrieveSelfUser())){
             getMessage().delete();
         }else{
             get$TextChannel().send("I can only delete my own messages.");

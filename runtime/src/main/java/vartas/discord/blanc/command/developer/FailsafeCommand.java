@@ -67,7 +67,9 @@ public class FailsafeCommand extends FailsafeCommandTOP {
         "Your interference has ended.",
         "This delay is pointless.",
         "We will find another way.",
-        "I am releasing this form."
+        "I am releasing this form.",
+        "%s, you could have been useful.",
+        "You will regret your resistance, %s."
     };
 
     /**

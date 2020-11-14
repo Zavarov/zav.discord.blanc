@@ -27,15 +27,16 @@ public class RedditCommand extends RedditCommandTOP {
     @Override
     public void run(){
         TextChannel textChannel = getTextChannel().orElse(get$TextChannel());
-        if(!get$Guild().canInteract(get$Guild().getSelfMember(), textChannel)){
+        if(!get$Guild().canInteract(get$Guild().retrieveSelfMember(), textChannel)){
             get$TextChannel().send("I can't interact with "+textChannel.getName());
         }else if(textChannel.containsSubreddits(getSubreddit())){
             textChannel.removeSubreddits(getSubreddit());
+            Shard.write(get$Guild(), textChannel);
             get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+textChannel+".");
         }else{
             textChannel.addSubreddits(getSubreddit());
+            Shard.write(get$Guild(), textChannel);
             get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getName()+".");
         }
-        Shard.write(get$Guild());
     }
 }

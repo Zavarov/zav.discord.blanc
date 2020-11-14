@@ -66,7 +66,7 @@ public class ConfigurationCommand extends ConfigurationCommandTOP{
     private void showSubredditFeeds(){
         MessageEmbed messageEmbed = MessageEmbedFactory.create();
 
-        for(TextChannel textChannel : get$Guild().valuesChannels()){
+        for(TextChannel textChannel : get$Guild().retrieveTextChannels()){
             String value = textChannel.getSubreddits().stream().reduce((u,v) -> u + "\n" + v).orElse("");
             //Only print channels that link to at least one subreddit
             if(!value.isBlank())
@@ -79,7 +79,7 @@ public class ConfigurationCommand extends ConfigurationCommandTOP{
     private void showSelfassignableRoles(){
         MessageEmbed messageEmbed = MessageEmbedFactory.create();
 
-        for(Role role : get$Guild().valuesRoles()){
+        for(Role role : get$Guild().retrieveRoles()){
             if(role.isPresentGroup()){
                 messageEmbed.addFields(role.getName(), role.getGroup().orElseThrow());
             }

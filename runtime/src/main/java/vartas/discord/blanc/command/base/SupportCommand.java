@@ -26,7 +26,7 @@ public class SupportCommand extends SupportCommandTOP{
     @Override
     public void run(){
         StringBuilder stringBuilder = new StringBuilder()
-                .append("Use this link if you want to join the support server for this bot:\n")
+                .append("If you have any questions, hit me up in the support server:\n")
                 .append(JSONCredentials.CREDENTIALS.getInviteSupportServer());
         get$MessageChannel().send(stringBuilder);
     }

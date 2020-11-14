@@ -22,7 +22,6 @@ import vartas.discord.blanc.Role;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
@@ -50,12 +49,12 @@ public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
                     get$TextChannel().send("Removed role %s.", getRole().getName());
                 }else{
                     Set<Role> rolesInGroup = get$Guild()
-                            .valuesRoles()
+                            .retrieveRoles()
                             .stream()
                             .filter(role -> role.getGroup().equals(getRole().getGroup()))
                             .collect(Collectors.toSet());
 
-                    List<Role> memberRoles = get$Author().retrieveRoles();
+                    Collection<Role> memberRoles = get$Author().retrieveRoles();
 
                     Collection<Role> conflictingRoles = CollectionUtils.intersection(rolesInGroup, memberRoles);
 

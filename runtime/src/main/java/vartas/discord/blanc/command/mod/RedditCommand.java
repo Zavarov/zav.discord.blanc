@@ -19,6 +19,9 @@ package vartas.discord.blanc.command.mod;
 
 import vartas.discord.blanc.Shard;
 import vartas.discord.blanc.TextChannel;
+import vartas.discord.blanc.Webhook;
+
+import java.util.Collection;
 
 /**
  * This command allows to link subreddits to channels.
@@ -29,15 +32,37 @@ public class RedditCommand extends RedditCommandTOP {
     @Override
     public void run(){
         TextChannel textChannel = getTextChannel().orElse(get$TextChannel());
-        if(!get$Guild().canInteract(get$Guild().getSelfMember(), textChannel)){
+        Collection<Webhook> webhooks = textChannel.retrieveWebhooks(WEBHOOK_NAME);
+
+        //Cancel the feed if the bot can't post them in the targeted channel
+        if(!get$Guild().canInteract(get$Guild().retrieveSelfMember(), textChannel)){
             get$TextChannel().send("I can't interact with "+textChannel.getName());
-        }else if(textChannel.asMapWebhooks().containsKey(WEBHOOK_NAME)){
-            textChannel.getUncheckedWebhooks(WEBHOOK_NAME).removeSubreddits(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will no longer be posted in "+textChannel.getName()+".");
+        //Attempt to remove the subreddit from all webhooks
+        }else if(removeSubmissions(webhooks)){
+            get$TextChannel().send("Submissions from r/" + subreddit + " will no longer be posted in " + textChannel.getAsMention() + ".");
+        //Bind the submission to one of the webhooks, in case none were removed.
         }else{
-            textChannel.getUncheckedWebhooks(WEBHOOK_NAME).addSubreddits(getSubreddit());
-            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getName()+".");
+            addSubmission(webhooks, textChannel);
+            get$TextChannel().send("Submissions from r/"+subreddit+" will be posted in "+textChannel.getAsMention()+".");
         }
-        Shard.write(get$Guild());
+    }
+
+    private boolean removeSubmissions(Collection<Webhook> webhooks){
+        boolean modified = false;
+
+        for(Webhook webhook : webhooks){
+            if(webhook.removeSubreddits(getSubreddit())){
+                modified = true;
+                Shard.write(get$Guild(), webhook);
+            }
+        }
+
+        return modified;
+    }
+
+    private void addSubmission(Collection<Webhook> webhooks, TextChannel textChannel){
+        Webhook webhook = webhooks.stream().findAny().orElse(textChannel.createWebhook(WEBHOOK_NAME));
+        webhook.addSubreddits(getSubreddit());
+        Shard.write(get$Guild(), webhook);
     }
 }

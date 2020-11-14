@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Zavarov
+ * Copyright (c) 2020 Zavarov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package vartas.discord.blanc.command.mod;
 
-import com.google.common.base.Preconditions;
 import vartas.discord.blanc.Shard;
 
 import java.util.Optional;
@@ -31,21 +30,22 @@ public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
         //The role is in this group -> Ungroup
         if(getRole().getGroup().map(group -> group.equals(getGroup())).orElse(false)){
             getRole().setGroup(Optional.empty());
-            get$TextChannel().send("Ungrouped "+role.getName()+".");
+            Shard.write(get$Guild(), getRole());
+            get$TextChannel().send("Ungrouped \"%s\".", getRole().getName());
         //The role is in a different group
         }else if(getRole().isPresentGroup()){
-            get$TextChannel().send("The role is already grouped under "+getRole().getGroup().get()+".");
+            get$TextChannel().send("The role is already grouped under \"%s\".", getRole().getGroup().get());
         //The person executing this command can't interact with the role
         }else if(!get$Guild().canInteract(get$Author(), getRole())){
             get$TextChannel().send("You need to be able to interact with roles you want to be self-assignable.");
         //This bot can't interact with the role
-        }else if(!get$Guild().canInteract(get$Guild().getSelfMember(), getRole())){
+        }else if(!get$Guild().canInteract(get$Guild().retrieveSelfMember(), getRole())){
             get$TextChannel().send("I need to be able to interact with roles you want to be self-assignable.");
         //Everything OK, make role self-assignable
         }else{
             getRole().setGroup(getGroup());
-            get$TextChannel().send("The role "+role.getName()+" has been grouped under "+getGroup()+".");
+            Shard.write(get$Guild(), getRole());
+            get$TextChannel().send("The role \"%s\" has been grouped under \"%s\".", getRole().getName(), getGroup());
         }
-        Shard.write(get$Guild());
     }
 }
