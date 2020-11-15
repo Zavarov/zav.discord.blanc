@@ -46,7 +46,7 @@ public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
             if(getRole().isPresentGroup()){
                 if(get$Author().retrieveRoles().contains(getRole())){
                     get$Author().modifyRoles(Collections.emptySet(), Collections.singleton(getRole()));
-                    get$TextChannel().send("Removed role %s.", getRole().getName());
+                    get$TextChannel().send("You no longer have the role %s from group %s.", getRole().getName(), getRole().getGroup().orElseThrow());
                 }else{
                     Set<Role> rolesInGroup = get$Guild()
                             .retrieveRoles()
@@ -60,7 +60,7 @@ public class SelfAssignableRoleCommand extends SelfAssignableRoleCommandTOP{
 
                     get$Author().modifyRoles(Collections.singleton(getRole()), conflictingRoles);
 
-                    get$TextChannel().send("Added role %s.", getRole().getName());
+                    get$TextChannel().send("You now have the role %s from group %s.", getRole().getName(), getRole().getGroup().orElseThrow());
                 }
             }else{
                 get$TextChannel().send("The specified role isn't self-assignable.");
