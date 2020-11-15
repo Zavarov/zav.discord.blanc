@@ -32,7 +32,14 @@ public class PingCommand extends PingCommandTOP{
             "Hm... What's this?",
             "That's it?",
             "Another one?",
-            "I feel great!"
+            "I feel great!",
+            "I'll do my Blanny best!",
+            "The fuck 's going on?",
+            "What a pain!",
+            "Let's go crazy!",
+            "Leave it to me!",
+            "It's too late to apologize!",
+            "Just let me handle it!"
     );
 
     @Override
