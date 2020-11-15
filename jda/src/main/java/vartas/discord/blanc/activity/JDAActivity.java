@@ -41,6 +41,7 @@ public class JDAActivity extends Activity{
     @Override
     public void update(@Nonnull Guild guild){
         putActivity(LocalDateTime.now(), new GuildVisitor().gather(guild));
+        //Clear all messages from the current interval, so that they're excluded from future cycles.
         messages.clear();
     }
 
