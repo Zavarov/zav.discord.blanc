@@ -1,0 +1,51 @@
+package vartas.discord.blanc.activity;
+
+import java.awt.image.BufferedImage.BufferedImage;
+import java.awt.Rectangle.Rectangle;
+import java.lang.Double.Double;
+import java.util.Map.Map;
+import java.util.List.List;
+import java.time.LocalDateTime.LocalDateTime;
+import vartas.discord.blanc.Architecture.TextChannel;
+import vartas.discord.blanc.Architecture.Guild;
+import com.google.common.cache.Cache.Cache;
+
+public classdiagram Activity {
+    /**
+     * This class is used for plotting the activity in a guild over time. It consists of both the member count and
+     * the number of messages that have been sent per minute.
+     */
+    public abstract class Activity{
+        /**
+         * A cache containing previous guild snapshots. Each snapshot represents the state of a guild at an arbitrary point
+         * in history.
+         */
+        <<initializer="P1D">>
+        - Cache<LocalDateTime, GuildActivity> activity;
+        + BufferedImage build(List<TextChannel> channels, Rectangle bounds);
+        + abstract void update(Guild guild);
+    }
+
+    /**
+     * A representation of the guild at an arbitrary point in time.
+     */
+    public class GuildActivity {
+        /**
+         * The total number of members.
+         */
+        - long membersCount;
+        /**
+         * The number of members that are online.
+         */
+        - long membersOnline;
+        /**
+         * The overall activity in a guild is measured by the total number of messages
+         * per minute. It can be described as the sum over all channel activities.
+         */
+        - double activity;
+        /**
+         * The text channels and their load, i.e. the number of messages per minute.
+         */
+        - Map<TextChannel, Double> channelActivity;
+    }
+}

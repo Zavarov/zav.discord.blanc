@@ -1,3 +1,0 @@
-rank {
-    user : 3L has rank Developer, Reddit
-}

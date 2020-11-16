@@ -1,0 +1,56 @@
+package vartas.discord.blanc.parser;
+
+import java.math.BigDecimal.BigDecimal;
+import java.time.LocalDate.LocalDate;
+import java.time.temporal.ChronoUnit.ChronoUnit;
+import java.util.List.List;
+import java.util.NoSuchElementException.NoSuchElementException;
+import java.util.Optional.Optional;
+import vartas.discord.blanc.Architecture.Guild;
+import vartas.discord.blanc.Architecture.Member;
+import vartas.discord.blanc.Architecture.Message;
+import vartas.discord.blanc.Architecture.Role;
+import vartas.discord.blanc.Architecture.TextChannel;
+import vartas.discord.blanc.Architecture.User;
+import vartas.discord.blanc.Architecture.ConfigurationModule;
+
+public classdiagram Parser {
+    public interface Parser {
+        abstract Optional<? extends IntermediateCommand> parse(Message message);
+    }
+
+    public interface IntermediateCommand {
+        abstract Optional<String> getPrefix();
+        abstract String getName();
+        abstract List<String> getFlags();
+        abstract List<? extends Argument> getArguments();
+    }
+
+    public interface Argument{}
+
+    public interface ArithmeticArgument extends Argument{
+        abstract BigDecimal getValue();
+    }
+
+    public interface StringArgument extends Argument{
+        abstract String getContent();
+    }
+
+    public interface MentionArgument extends Argument{
+        abstract Number getNumber();
+    }
+
+    public abstract class AbstractTypeResolver{
+        public abstract ChronoUnit resolveChronoUnit(Argument argument) throws NoSuchElementException;
+        public abstract String resolveString(Argument argument) throws NoSuchElementException;
+        public abstract LocalDate resolveLocalDate(Argument argument) throws NoSuchElementException;
+        public abstract BigDecimal resolveBigDecimal(Argument argument) throws NoSuchElementException;
+        public abstract Guild resolveGuild(Argument argument) throws NoSuchElementException;
+        public abstract User resolveUser(Argument argument) throws NoSuchElementException;
+        public abstract Member resolveMember(Argument argument) throws NoSuchElementException;
+        public abstract Message resolveMessage(Argument argument) throws NoSuchElementException;
+        public abstract TextChannel resolveTextChannel(Argument argument) throws NoSuchElementException;
+        public abstract Role resolveRole(Argument argument) throws NoSuchElementException;
+        public abstract ConfigurationModule resolveConfigurationModule(Argument argument) throws NoSuchElementException;
+    }
+}

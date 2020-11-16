@@ -1,0 +1,306 @@
+package vartas.discord.blanc;
+
+import com.google.common.cache.Cache.Cache;
+import java.awt.Color.Color;
+import java.awt.image.BufferedImage.BufferedImage;
+import java.io.InputStream.InputStream;
+import java.lang.String.String;
+import java.lang.Object.Object;
+import java.lang.RuntimeException.RuntimeException;
+import java.nio.file.Path.Path;
+import java.time.Instant.Instant;
+import java.util.Collection.Collection;
+import java.util.List.List;
+import java.util.Optional.Optional;
+import java.util.Set.Set;
+import vartas.reddit.Submission.Submission;
+import vartas.reddit.Subreddit.Subreddit;
+import vartas.discord.blanc.activity.Activity.Activity;
+
+public classdiagram Architecture {
+    /**
+     * A snowflake is the base class for every Discord entity.
+     */
+    public abstract class Snowflake{
+        /**
+         * Each snowflake can be uniquely identified by their id.
+         */
+        - long id;
+        /**
+         * Each snowflake has a name that is displayed on the client.
+         */
+        - String name;
+    }
+
+    /**
+     * The client is the overarching structure managing the individual shards. Additionally it is also
+     * responsible for initializing the application.
+     */
+    public class Client {
+        /**
+         * A collection of all managed shards.
+         */
+        - List<Shard> shards;
+    }
+
+    /**
+     * In order to distribute the workload, the application is split into multiple subprocesses, each operating
+     * on an mutually exclusive part of Discord.
+     */
+    public abstract class Shard implements Killable{
+        /**
+         * Each shard is uniquely identified by its ID.
+         */
+        - int id;
+
+        + abstract SelfUser retrieveSelfUser();
+        + abstract Optional<User> retrieveUser(long id);
+        + abstract Collection<User> retrieveUsers();
+        + abstract Optional<Guild> retrieveGuild(long id);
+        + abstract Collection<Guild> retrieveGuilds();
+    }
+
+    public abstract class User extends Snowflake implements Printable {
+        - OnlineStatus onlineStatus;
+        - Collection<Rank> ranks;
+
+        + abstract PrivateChannel retrievePrivateChannel();
+        + abstract String getAsMention();
+    }
+
+    public enum OnlineStatus{
+        ONLINE,
+        OFFLINE,
+        BUSY,
+        IDLE,
+        UNKNOWN;
+    }
+
+    public abstract class SelfUser extends User{
+        + abstract void modifyStatusMessage(String statusMessage);
+        + abstract void modifyAvatar(InputStream avatar);
+    }
+
+    public abstract class MessageChannel extends Snowflake{
+        + abstract Optional<Message> retrieveMessage(long id);
+        + abstract Collection<Message> retrieveMessages();
+
+        + abstract void send(Message message);
+        + abstract void send(MessageEmbed messageEmbed);
+        + abstract void send(Subreddit subreddit, Submission submission);
+        + abstract void send(byte[] bytes, String qualifiedName);
+        + abstract void send(Role role);
+        + abstract void send(User user);
+        + abstract void send(Member member);
+        + abstract void send(Guild guild);
+        + abstract void send(Object object);
+        + abstract void send(BufferedImage image, String title);
+    }
+
+    public abstract class PrivateChannel extends MessageChannel{
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Message
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    public class Message {
+        - long id;
+        - Instant created;
+        - User author;
+        - Optional<String> content;
+        - List<MessageEmbed> messageEmbeds;
+        - List<Attachment> attachments;
+
+        + void delete();
+        + void react(String emote);
+    }
+
+    public class MessageEmbed {
+        - Optional<Color> color;
+        - Optional<String> thumbnail;
+        - Optional<Title> title;
+        - Optional<String> content;
+        - Optional<Instant> timestamp;
+        - Optional<Author> author;
+        - List<Field> fields;
+    }
+
+    public class Author {
+        - String name;
+        - Optional<String> url;
+    }
+
+    public class Title {
+        - String name;
+        - Optional<String> url;
+    }
+
+    public class Field {
+        - String title;
+        - Object content;
+        - boolean inline;
+    }
+
+    public abstract class Attachment{
+        + abstract InputStream retrieveContent();
+        + abstract boolean isImage();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Guild
+    //
+    //------------------------------------------------------------------------------------------------------------------
+    public abstract class Guild extends Snowflake implements Printable{
+        - Optional<String> prefix;
+        - List<String> blacklist;
+        - Activity activity;
+
+        + abstract Optional<Member> retrieveMember(long id);
+        + abstract Collection<Member> retrieveMembers();
+        + abstract Optional<TextChannel> retrieveTextChannel(long id);
+        + abstract Collection<TextChannel> retrieveTextChannels();
+        + abstract Optional<Role> retrieveRole(long id);
+        + abstract Collection<Role> retrieveRoles();
+        + abstract SelfMember retrieveSelfMember();
+        + abstract void leave();
+    }
+
+    public abstract class Role extends Snowflake implements Printable {
+        - Optional<String> group;
+        + abstract String getAsMention();
+    }
+
+    public abstract class Member extends User{
+        + abstract Optional<String> retrieveNickname();
+        + abstract Collection<Role> retrieveRoles();
+        + abstract void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove);
+        + abstract Set<Permission> getPermissions(TextChannel textChannel);
+    }
+
+    //SelfMember should also inherit from SelfUser, but inheriting from multiple classes is not allowed in Java
+    public abstract class SelfMember extends Member{
+        + abstract void modifyStatusMessage(String statusMessage);
+        + abstract void modifyAvatar(InputStream avatar);
+        + abstract void modifyNickname(String nickname);
+    }
+
+    public abstract class TextChannel extends MessageChannel{
+        - Set<String> subreddits;
+
+        + abstract Webhook createWebhook(String name);
+        + abstract Collection<Webhook> retrieveWebhooks(String name);
+        + abstract Collection<Webhook> retrieveWebhooks();
+        + abstract String getAsMention();
+    }
+
+    public abstract class Webhook extends MessageChannel implements Killable {
+        + Set<String> subreddits;
+    }
+
+    public class WebhookException extends RuntimeException{}
+
+    /**
+     * This enumeration contains the different modules of a guild.
+     */
+    public enum ConfigurationModule {
+        /**
+         * Each guild can have a custom prefix. This is to avoid collisions with other bots.
+         */
+        PREFIX,
+        /**
+         * Each guild can ban usage of certain expressions, such as invitation links or profanity.
+         */
+        BLACKLIST,
+        /**
+         * Self-assignable roles can be grouped together. For each group, a member can have at most
+         * one of its roles assigned at a time.
+         */
+        GROUP,
+        /**
+         * Each text channel can be linked to one or more subreddits. Any new submission will then be posted
+         * in that channel.
+         */
+        SUBREDDIT;
+    }
+
+    /**
+     * This enumeration contains all possible ranks for the individual users.
+     * Unless specified otherwise, every user has the USER rank, by default.
+     */
+    public enum Rank {
+        /**
+         * An additional rank required for communicating with the Reddit API.
+         */
+        REDDIT,
+        /**
+         * The default rank of every user. Those are not able to access the internal functions of the program.
+         */
+        USER,
+        /**
+         * Users with this rank are able to access the internal functions of the program, but are not able to interact
+         * with anything that would interfere with the guilds the program is associated with.
+         */
+        DEVELOPER,
+        /**
+         * Users with this rank are able to access the whole functionality of the bot. Every internal permission check
+         * will be ignored, meaning that this rank should be exclusive to trusted users.
+         */
+        ROOT;
+    }
+
+    /**
+     * A (possibly incomplete) collection of all permissions according to
+     * https://discordapp.com/developers/docs/topics/permissions
+     */
+    public enum Permission{
+        CREATE_INSTANT_INVITE,
+        KICK_MEMBERS,
+        BAN_MEMBERS,
+        ADMINISTRATOR,
+        MANAGE_CHANNELS,
+        MANAGE_GUILD,
+        ADD_REACTIONS,
+        VIEW_AUDIT_LOG,
+        PRIORITY_SPEAKER,
+        STREAM,
+        VIEW_CHANNEL,
+        SEND_MESSAGES,
+        SEND_TTS_MESSAGES,
+        MANAGE_MESSAGES,
+        EMBED_LINKS,
+        ATTACH_FILES,
+        READ_MESSAGE_HISTORY,
+        MENTION_EVERYONE,
+        USE_EXTERNAL_EMOJIS,
+        VIEW_GUILD_INSIGHTS,
+        CONNECT,
+        SPEAK,
+        MUTE_MEMBERS,
+        DEAFEN_MEMBERS,
+        MOVE_MEMBERS,
+        USE_VAD,
+        CHANGE_NICKNAME,
+        MANAGE_NICKNAMES,
+        MANAGE_ROLES,
+        MANAGE_WEBHOOKS,
+        MANAGE_EMOJIS;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //
+    //      Utils
+    //
+    //------------------------------------------------------------------------------------------------------------------
+
+    public interface Killable {
+        void shutdown();
+    }
+
+    public interface Printable {
+        MessageEmbed toMessageEmbed();
+    }
+}

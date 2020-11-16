@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 Zavarov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>blanc</artifactId>
+        <groupId>vartas.discord.blanc</groupId>
+        <version>4.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>monticore</artifactId>
+
+    <properties>
+        <generator.models.path>${project.basedir}/src/main/models</generator.models.path>
+        <generator.resources.path>${project.basedir}/src/main/resources/templates</generator.resources.path>
+        <generator.classes.path>${project.build.directory}/classes-resources</generator.classes.path>
+        <generator.templates.path>${project.build.directory}/templates-resources</generator.templates.path>
+    </properties>
+
+    <!-- == Dependencies ==================================================== -->
+
+    <dependencies>
+        <!-- Numbers -->
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>numbers</artifactId>
+            <version>${cd4code.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>numbers</artifactId>
+            <classifier>${grammars.classifier}</classifier>
+            <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- CD4Code -->
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <classifier>${grammars.classifier}</classifier>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <classifier>${templates.classifier}</classifier>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Core -->
+        <dependency>
+            <groupId>vartas.discord.blanc</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- MontiCore dependency -->
+        <dependency>
+            <groupId>de.monticore</groupId>
+            <artifactId>monticore-grammar</artifactId>
+            <classifier>${grammars.classifier}</classifier>
+            <version>${monticore.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore</groupId>
+            <artifactId>monticore-grammar</artifactId>
+            <version>${monticore.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore</groupId>
+            <artifactId>monticore-runtime</artifactId>
+            <version>${monticore.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-templates</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${generator.resources.path}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-models</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${generator.models.path}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Load the templates for the generator-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>cd4code-models</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <classifier>${models.classifier}</classifier>
+                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
+                            <includeArtifactIds>cd4code</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>blanc-models</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <classifier>${models.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>core</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cd4code-templates</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <classifier>${templates.classifier}</classifier>
+                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
+                            <includeArtifactIds>cd4code</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>blanc-templates</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <classifier>${templates.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>core</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- MontiCore Generation -->
+            <plugin>
+                <groupId>de.monticore.mojo</groupId>
+                <artifactId>monticore-maven-plugin</artifactId>
+                <version>${monticore.version}</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <script>de/monticore/monticore_noemf.groovy</script>
+                        </configuration>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- create grammar & template jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <executions>
+                    <!-- grammars -->
+                    <execution>
+                        <id>generate-grammars</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>${grammars.classifier}</classifier>
+                            <classesDirectory>src/main/grammars</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

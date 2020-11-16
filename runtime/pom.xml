@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 Zavarov
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>blanc</artifactId>
+        <groupId>vartas.discord.blanc</groupId>
+        <version>4.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>runtime</artifactId>
+
+
+    <properties>
+        <!-- .. Generator Arguments ..................................................... -->
+        <generator.main>vartas.discord.blanc.command.CommandGeneratorMain</generator.main>
+        <generator.models.path>${project.basedir}/src/main/models</generator.models.path>
+        <generator.classes.path>${project.build.directory}/classes-resources</generator.classes.path>
+        <generator.templates.path>${project.build.directory}/templates-resources</generator.templates.path>
+        <generator.sources.directory>${project.basedir}/src/main/java/</generator.sources.directory>
+        <generator.output.directory>${project.basedir}/target/generated-sources/</generator.output.directory>
+        <base.cmd>vartas.discord.blanc.command.base.Base</base.cmd>
+        <developer.cmd>vartas.discord.blanc.command.developer.Developer</developer.cmd>
+        <mod.cmd>vartas.discord.blanc.command.mod.Mod</mod.cmd>
+        <legacy.cmd>vartas.discord.blanc.command.legacy.Legacy</legacy.cmd>
+        <reddit.cmd>vartas.discord.blanc.command.reddit.Reddit</reddit.cmd>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>vartas.discord.blanc</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.discord.blanc</groupId>
+            <artifactId>jda</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.reddit</groupId>
+            <artifactId>pushshift</artifactId>
+            <version>${reddit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.reddit</groupId>
+            <artifactId>json</artifactId>
+            <version>${reddit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.discord.blanc</groupId>
+            <artifactId>monticore</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${oshi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.steppschuh.markdowngenerator</groupId>
+            <artifactId>markdowngenerator</artifactId>
+            <version>${markdown.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>vartas.monticore-commons</groupId>
+            <artifactId>cd4code</artifactId>
+            <version>${cd4code.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Load the templates for the generator-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>cd4code-models</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <classifier>${models.classifier}</classifier>
+                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
+                            <includeArtifactIds>cd4code</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>blanc-models</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <classifier>${models.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>core</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>monticore-models</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.classes.path}</outputDirectory>
+                            <classifier>${models.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>monticore</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cd4code-templates</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <classifier>${templates.classifier}</classifier>
+                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
+                            <includeArtifactIds>cd4code</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>monticore-templates</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <classifier>${templates.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>core</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>blanc-templates</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <outputDirectory>${generator.templates.path}</outputDirectory>
+                            <classifier>${templates.classifier}</classifier>
+                            <includeGroupIds>vartas.discord.blanc</includeGroupIds>
+                            <includeArtifactIds>monticore</includeArtifactIds>
+                            <includeTypes>jar</includeTypes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Code Generation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${maven-exec-plugin.version}</version>
+                <executions>
+                    <!-- Generate command classes-->
+                    <execution>
+                        <id>parser</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <includeProjectDependencies>true</includeProjectDependencies>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <mainClass>${generator.main}</mainClass>
+                            <arguments>
+                                <argument>${generator.models.path}</argument>
+                                <argument>${generator.classes.path}</argument>
+                                <argument>${generator.templates.path}</argument>
+                                <argument>${generator.sources.directory}</argument>
+                                <argument>${generator.output.directory}</argument>
+                                <argument>${base.cmd}</argument>
+                                <argument>${developer.cmd}</argument>
+                                <argument>${mod.cmd}</argument>
+                                <argument>${legacy.cmd}</argument>
+                                <argument>${reddit.cmd}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Including the generated source files -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven-builder-helper-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${generator.output.directory}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
