@@ -20,8 +20,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>blanc</artifactId>
-        <groupId>vartas.discord.blanc</groupId>
+        <artifactId>root</artifactId>
+        <groupId>zav.discord.blanc</groupId>
         <version>5.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -38,10 +38,10 @@
         <generator.sources.directory>${project.basedir}/src/main/java/</generator.sources.directory>
         <generator.output.directory>${project.basedir}/target/generated-sources/</generator.output.directory>
         <architecture.cd>vartas.discord.blanc.Architecture</architecture.cd>
-        <command.cd>vartas.discord.blanc.command.Command</command.cd>
+        <command.cd>zav.discord.blanc.command.Command</command.cd>
         <io.cd>vartas.discord.blanc.io.IO</io.cd>
         <parser.cd>vartas.discord.blanc.parser.Parser</parser.cd>
-        <activity.cd>vartas.discord.blanc.activity.Activity</activity.cd>
+        <activity.cd>zav.discord.blanc.activity.Activity</activity.cd>
     </properties>
 
     <dependencies>
