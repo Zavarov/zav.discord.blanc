@@ -43,7 +43,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * by the duration to get the number of messages per minute.
  */
 @Nonnull
-public abstract class Activity extends ActivityTOP{
+public abstract class Activity extends ActivityTOP {
+    /**
+     * The time in minutes between each update of the {@link Guild} activity.
+     */
+    public static final int ACTIVITY_RATE = 30;
     /**
      * This map keeps track of all messages that have been received in the individual text channels. One may be tempted
      * to use the internal cache via {@link TextChannel#retrieveMessages()} ()}, but the we are left to the mercy of its
