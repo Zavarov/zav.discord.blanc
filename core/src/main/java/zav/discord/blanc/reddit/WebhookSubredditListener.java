@@ -1,0 +1,44 @@
+package zav.discord.blanc.reddit;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.Guild;
+import zav.discord.blanc.Shard;
+import zav.discord.blanc.Webhook;
+import zav.discord.blanc.exceptions.WebhookException;
+import zav.jra.Link;
+import zav.jra.Subreddit;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+
+public class WebhookSubredditListener implements RedditListener {
+    private static final Logger LOGGER = LogManager.getLogger(WebhookSubredditListener.class);
+    private final Guild guild;
+    private final Webhook webhook;
+
+    public WebhookSubredditListener(Guild guild, Webhook webhook){
+        this.guild = guild;
+        this.webhook = webhook;
+    }
+
+    @Override
+    public void newLink(@Nonnull Subreddit subreddit, @Nonnull Link link) throws InvalidListenerException{
+        try {
+            webhook.send(subreddit, link);
+            //This exception indicates that we're never able to post the link
+        } catch(WebhookException e){
+            destroy(subreddit);
+            throw new InvalidListenerException();
+        } catch(IOException e){
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void destroy(String subredditName) {
+        //Remove subreddit from webhook and update persistence file
+        webhook.removeSubreddits(subredditName);
+        Shard.write(guild, webhook);
+    }
+}

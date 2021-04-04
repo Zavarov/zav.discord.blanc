@@ -29,19 +29,8 @@
     <artifactId>core</artifactId>
 
     <properties>
-        <!-- .. Generator Arguments ................................................................................ -->
-        <generator.main>vartas.monticore.cd4code.Main</generator.main>
-        <generator.models.path>${project.build.directory}/models-resources</generator.models.path>
-        <generator.local-models.path>${project.basedir}/src/main/models</generator.local-models.path>
-        <generator.templates.path>${project.build.directory}/template-resources</generator.templates.path>
-        <generator.local-templates.path>${project.basedir}/src/main/resources/templates</generator.local-templates.path>
-        <generator.sources.directory>${project.basedir}/src/main/java/</generator.sources.directory>
-        <generator.output.directory>${project.basedir}/target/generated-sources/</generator.output.directory>
-        <architecture.cd>vartas.discord.blanc.Architecture</architecture.cd>
-        <command.cd>zav.discord.blanc.command.Command</command.cd>
-        <io.cd>vartas.discord.blanc.io.IO</io.cd>
-        <parser.cd>vartas.discord.blanc.parser.Parser</parser.cd>
-        <activity.cd>zav.discord.blanc.activity.Activity</activity.cd>
+        <src.path>${project.basedir}/buildSrc/build/src/main/java</src.path>
+        <model.path>${project.basedir}/buildSrc/src/main/models</model.path>
     </properties>
 
     <dependencies>
@@ -52,22 +41,9 @@
         </dependency>
 
         <dependency>
-            <groupId>vartas.reddit</groupId>
-            <artifactId>jraw</artifactId>
-            <version>${reddit.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <!-- MontiCore depends on CharMatcher.WHITESPACE, which was removed June 2018 -->
-            <version>${monticore.guava.version}</version>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
@@ -77,179 +53,36 @@
         </dependency>
 
         <dependency>
-            <groupId>vartas.monticore-commons</groupId>
-            <artifactId>cd4code</artifactId>
-            <version>${cd4code.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>vartas.monticore-commons</groupId>
-            <artifactId>cd4code</artifactId>
-            <version>${cd4code.version}</version>
-            <classifier>${templates.classifier}</classifier>
-            <optional>true</optional>
+            <groupId>zav.jra</groupId>
+            <artifactId>listener</artifactId>
+            <version>${jra.version}</version>
         </dependency>
     </dependencies>
 
+    <!-- == DEFAULT BUILD SETTINGS =========================================== -->
     <build>
         <plugins>
-            <!-- Load the templates for the generator-->
+            <!-- create model jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
                 <executions>
+                    <!-- models -->
                     <execution>
-                        <id>unpack-templates</id>
+                        <id>generate-models</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>jar</goal>
                         </goals>
-                        <phase>initialize</phase>
                         <configuration>
-                            <outputDirectory>${generator.templates.path}</outputDirectory>
-                            <classifier>${templates.classifier}</classifier>
-                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
-                            <includeArtifactIds>cd4code</includeArtifactIds>
-                            <includeTypes>jar</includeTypes>
-                            <excludes>${java.lang.init.path},${java.util.init.path},${com.google.common.cache.init.path}</excludes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-models</id>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <outputDirectory>${generator.models.path}</outputDirectory>
                             <classifier>${models.classifier}</classifier>
-                            <includeGroupIds>vartas.monticore-commons</includeGroupIds>
-                            <includeArtifactIds>cd4code</includeArtifactIds>
-                            <includeTypes>jar</includeTypes>
+                            <classesDirectory>${models.path}</classesDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!-- Code Generation -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${maven-exec-plugin.version}</version>
-                <executions>
-                    <!-- Generate architecture classes-->
-                    <execution>
-                        <id>architecture</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>${generator.main}</mainClass>
-                            <arguments>
-                                <argument>${generator.models.path}</argument>
-                                <argument>${generator.local-models.path}</argument>
-                                <argument>${generator.templates.path}</argument>
-                                <argument>${generator.local-templates.path}</argument>
-                                <argument>${generator.sources.directory}</argument>
-                                <argument>${generator.output.directory}</argument>
-                                <argument>${architecture.cd}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Generate io classes-->
-                    <execution>
-                        <id>io</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>${generator.main}</mainClass>
-                            <arguments>
-                                <argument>${generator.models.path}</argument>
-                                <argument>${generator.local-models.path}</argument>
-                                <argument>${generator.templates.path}</argument>
-                                <argument>${generator.local-templates.path}</argument>
-                                <argument>${generator.sources.directory}</argument>
-                                <argument>${generator.output.directory}</argument>
-                                <argument>${io.cd}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Generate command classes-->
-                    <execution>
-                        <id>command</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>${generator.main}</mainClass>
-                            <arguments>
-                                <argument>${generator.models.path}</argument>
-                                <argument>${generator.local-models.path}</argument>
-                                <argument>${generator.templates.path}</argument>
-                                <argument>${generator.local-templates.path}</argument>
-                                <argument>${generator.sources.directory}</argument>
-                                <argument>${generator.output.directory}</argument>
-                                <argument>${command.cd}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Generate parser classes-->
-                    <execution>
-                        <id>parser</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>${generator.main}</mainClass>
-                            <arguments>
-                                <argument>${generator.models.path}</argument>
-                                <argument>${generator.local-models.path}</argument>
-                                <argument>${generator.templates.path}</argument>
-                                <argument>${generator.local-templates.path}</argument>
-                                <argument>${generator.sources.directory}</argument>
-                                <argument>${generator.output.directory}</argument>
-                                <argument>${parser.cd}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <!-- Generate activity classes-->
-                    <execution>
-                        <id>activity</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <mainClass>${generator.main}</mainClass>
-                            <arguments>
-                                <argument>${generator.models.path}</argument>
-                                <argument>${generator.local-models.path}</argument>
-                                <argument>${generator.templates.path}</argument>
-                                <argument>${generator.local-templates.path}</argument>
-                                <argument>${generator.sources.directory}</argument>
-                                <argument>${generator.output.directory}</argument>
-                                <argument>${activity.cd}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Including the generated source files -->
+            <!-- Include the generated source files -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -262,25 +95,11 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${generator.output.directory}</source>
+                                <source>${src.path}</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- Include the project version in the executable -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
             </plugin>
         </plugins>
     </build>

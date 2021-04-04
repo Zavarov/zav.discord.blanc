@@ -1,0 +1,49 @@
+package zav.discord.blanc.command;
+
+import java.lang.Runnable.Runnable;
+import java.util.List.List;
+import java.util.Optional.Optional;
+import java.util.function.BiFunction.BiFunction;
+import zav.discord.blanc.Architecture.Guild;
+import zav.discord.blanc.Architecture.Member;
+import zav.discord.blanc.Architecture.Message;
+import zav.discord.blanc.Architecture.MessageChannel;
+import zav.discord.blanc.Architecture.MessageEmbed;
+import zav.discord.blanc.Architecture.Role;
+import zav.discord.blanc.Architecture.TextChannel;
+import zav.discord.blanc.Architecture.User;
+import zav.discord.blanc.Architecture.SelfUser;
+import zav.discord.blanc.Architecture.Shard;
+import zav.discord.blanc.Architecture.Permission;
+import zav.discord.blanc.parser.Parser.Argument;
+import zav.discord.blanc.parser.Parser.AbstractTypeResolver;
+
+public classdiagram Command {
+    public abstract class Command implements Runnable {
+        - Shard $Shard;
+        - Message $Message;
+        - List<String> $Flags;
+
+        public abstract void validate();
+    }
+
+    public abstract class MessageCommand extends Command {
+        - User $Author;
+        - MessageChannel $MessageChannel;
+    }
+
+    public abstract class GuildCommand extends Command {
+        - Member $Author;
+        - TextChannel $TextChannel;
+        - Guild $Guild;
+    }
+
+    public abstract class CommandBuilder {
+        # AbstractTypeResolver typeResolver;
+        # Shard shard;
+        public CommandBuilder(BiFunction<? super Guild, ? super TextChannel, ? extends AbstractTypeResolver> typeResolverFunction, Shard shard);
+        protected abstract Optional<Command> build(String name, List<? extends Argument> arguments, List<String> flags);
+        public abstract Optional<Command> build(Message message, MessageChannel channel);
+        public abstract Optional<Command> build(Message message, Guild guild, TextChannel textChannel);
+    }
+}
