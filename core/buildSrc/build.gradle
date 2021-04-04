@@ -39,6 +39,7 @@ task unpackDependencies(type: Sync) {
 		exclude "initializer/java/util/List.ftl"
 		exclude "initializer/java/util/Map.ftl"
 		exclude "initializer/java/util/Set.ftl"
+		exclude "META-INF/**"
 		configurations.codegen.collect {
 			zipTree(it)
 		}
