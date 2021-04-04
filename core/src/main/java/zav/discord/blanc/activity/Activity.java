@@ -27,6 +27,7 @@ import zav.discord.blanc.TextChannel;
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public abstract class Activity extends ActivityTOP {
     /**
      * The time in minutes between each update of the {@link Guild} activity.
      */
-    public static final int ACTIVITY_RATE = 30;
+    public static final Duration ACTIVITY_RATE = Duration.ofMinutes(30);
     /**
      * This map keeps track of all messages that have been received in the individual text channels. One may be tempted
      * to use the internal cache via {@link TextChannel#retrieveMessages()} ()}, but the we are left to the mercy of its
