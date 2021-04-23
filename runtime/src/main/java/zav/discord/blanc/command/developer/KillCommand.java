@@ -21,20 +21,21 @@ import zav.discord.blanc._visitor.ArchitectureVisitor;
 import zav.discord.blanc.Killable;
 import zav.discord.blanc.Main;
 
+import java.io.IOException;
+
 /**
  * This command terminates the whole instance by halting all threads.
  */
 public class KillCommand extends KillCommandTOP implements ArchitectureVisitor {
     @Override
-    public void run(){
-        Main.CLIENT.accept(this);
-
-        //Give commands time to finish
-        try{
+    public void run() throws IOException {
+        try {
+            Main.REDDIT_CLIENT.logout();
+            Main.CLIENT.accept(this);
+            //Give asynchronous tasks some time to finish
             Thread.sleep(5000);
-        }catch(InterruptedException ignored){}
-
-        System.exit(0);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     @Override
