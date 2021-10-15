@@ -15,21 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.parser;
+package zav.discord.blanc.command.resolver;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.command.parser.NumberArgument;
 
+import java.math.BigDecimal;
 /**
- * Resolves the provided {@link Argument} into a {@link String}.
+ * Resolves the provided {@link Argument} into a {@link BigDecimal}.
  */
-@Nonnull
-public class StringResolver extends TypeResolver<String> {
+@NonNull
+public class BigDecimalResolver extends TypeResolver<BigDecimal> {
     /**
-     * Extracts the content of the provided {@link StringArgument}.
-     * @param argument The {@link StringArgument} associated with the {@link String}.
+     * Extracts the result when evaluation the {@link NumberArgument}.
+     * @param argument The {@link Argument} associated with the {@link BigDecimal}.
      */
     @Override
-    public void visit(@Nonnull StringArgument argument){
-        this.type = argument.getContent();
+    public BigDecimal apply(@NonNull Argument  argument){
+        return argument.asNumber().orElseThrow();
     }
 }

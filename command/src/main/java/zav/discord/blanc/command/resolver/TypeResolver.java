@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.parser;
+package zav.discord.blanc.command.resolver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import zav.discord.blanc.parser._visitor.ParserVisitor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.command.parser.Argument;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,13 +31,13 @@ import java.util.function.Function;
  * This class is used to resolve an arbitrary data type.
  * @param <T> The resolved type.
  */
-@Nonnull
-public abstract class TypeResolver <T> implements Function<Argument, Optional<T>>, ParserVisitor {
+@NonNull
+public abstract class TypeResolver <T> implements Function<Argument, T> {
     /**
      * This class's {@link Logger}.
      */
-    @Nonnull
-    protected final Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
+    @NonNull
+    protected final Logger log = LogManager.getLogger(getClass().getSimpleName());
     /**
      * The resolved {@link LocalDate}
      */
@@ -51,9 +51,5 @@ public abstract class TypeResolver <T> implements Function<Argument, Optional<T>
      *         {@link Optional#empty()} is returned.
      */
     @Override
-    public Optional<T> apply(Argument argument) {
-        type = null;
-        argument.accept(this);
-        return Optional.ofNullable(type);
-    }
+    public abstract T apply(Argument argument);
 }

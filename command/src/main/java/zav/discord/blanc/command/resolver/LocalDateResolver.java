@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.parser;
+package zav.discord.blanc.command.resolver;
 
 import org.apache.commons.lang3.StringUtils;
-import zav.discord.blanc.Errors;
+import org.eclipse.jdt.annotation.NonNull;
+import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.command.parser.StringArgument;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -28,7 +29,7 @@ import java.time.format.DateTimeParseException;
 /**
  * Resolves the provided {@link Argument} into a {@link LocalDate}.
  */
-@Nonnull
+@NonNull
 public class LocalDateResolver extends TypeResolver<LocalDate>{
     /**
      * Parses the value contained in the provided {@link StringArgument}.
@@ -39,11 +40,14 @@ public class LocalDateResolver extends TypeResolver<LocalDate>{
      * @param argument the {@link Argument} associated with the {@link LocalDate}.
      */
     @Override
-    public void visit(@Nonnull StringArgument argument){
+    public LocalDate apply(@NonNull Argument argument){
         try {
-            this.type = LocalDate.parse(StringUtils.deleteWhitespace(argument.getContent()));
+            return argument.asString()
+                  .map(StringUtils::deleteWhitespace)
+                  .map(LocalDate::parse)
+                  .orElseThrow();
         } catch(DateTimeParseException e) {
-            log.error(Errors.UNKNOWN_ENTITY.toString(), e);
+            throw new RuntimeException(e);
         }
     }
 }
