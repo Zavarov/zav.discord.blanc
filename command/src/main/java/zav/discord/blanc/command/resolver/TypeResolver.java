@@ -17,13 +17,9 @@
 
 package zav.discord.blanc.command.resolver;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.parser.Argument;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -33,16 +29,6 @@ import java.util.function.Function;
  */
 @NonNull
 public abstract class TypeResolver <T> implements Function<Argument, T> {
-    /**
-     * This class's {@link Logger}.
-     */
-    @NonNull
-    protected final Logger log = LogManager.getLogger(getClass().getSimpleName());
-    /**
-     * The resolved {@link LocalDate}
-     */
-    @Nullable
-    protected T type;
 
     /**
      * Transforms the {@link Argument} into an instance of {@link T}
