@@ -19,20 +19,20 @@ package zav.discord.blanc.mc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.command.parser.IntermediateCommand;
-import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.Message;
 import zav.discord.blanc.mc.callable._parser.CallableParser;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class MontiCoreCommandParser implements Parser {
+public class MontiCoreCommandParser extends AbstractParser {
     private static final Logger LOGGER = LogManager.getLogger(MontiCoreCommandParser.class);
     private final CallableParser parser = new CallableParser();
 
     @Override
-    public Optional<? extends IntermediateCommand> parse(Message message) {
+    public IntermediateCommand parse(Message message) {
         try {
             Optional<String> content = Optional.ofNullable(message.getContent());
             
@@ -40,13 +40,13 @@ public class MontiCoreCommandParser implements Parser {
 
             //images/files-only messages might not have any text content
             if(content.isEmpty())
-                return Optional.empty();
+                return null;
             else
-                return parser.parse_String(content.get());
+                return parser.parse_String(content.get()).orElse(null);
         }catch(IOException e){
             //TODO Error message
             LOGGER.error(e.getMessage(), e);
-            return Optional.empty();
+            return null;
         }
     }
 }

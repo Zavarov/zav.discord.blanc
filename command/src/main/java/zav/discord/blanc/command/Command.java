@@ -1,4 +1,4 @@
 package zav.discord.blanc.command;
 
-public interface Command extends Runnable{
+public interface Command extends Runnable {
 }

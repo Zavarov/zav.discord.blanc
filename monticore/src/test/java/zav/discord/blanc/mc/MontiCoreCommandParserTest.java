@@ -41,13 +41,13 @@ public class MontiCoreCommandParserTest {
 
     @Test
     public void testParseEmpty(){
-        assertThat(parser.parse(message)).isEmpty();
+        assertThat(parser.parse(message)).isNull();
     }
 
     @Test
     public void testParseName(){
         message.setContent("b: command Argument");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
@@ -61,7 +61,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseString(){
         message.setContent("b: command \"12345\"");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTStringArgument.class);
@@ -75,7 +75,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseRole(){
         message.setContent("b: command <@&12345>");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTRoleArgument.class);
@@ -89,7 +89,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseTextChannel(){
         message.setContent("b: command <#12345>");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTTextChannelArgument.class);
@@ -103,7 +103,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseUser(){
         message.setContent("b: command <@12345>");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTUserArgument.class);
@@ -117,7 +117,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseExpression(){
         message.setContent("b: command 5+3");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
@@ -131,7 +131,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseMathFunction(){
         message.setContent("b: command sqrt(5)");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getArguments()).hasSize(1);
         assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
@@ -145,7 +145,7 @@ public class MontiCoreCommandParserTest {
     @Test
     public void testParseFlags(){
         message.setContent("b: command -Flag Argument");
-        IntermediateCommand command = parser.parse(message).orElseThrow();
+        IntermediateCommand command = parser.parse(message);
 
         assertThat(command.getFlags()).containsExactly("Flag");
         assertThat(command.getName()).isEqualTo("command");
