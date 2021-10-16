@@ -35,8 +35,6 @@ public class MontiCoreCommandParser extends AbstractParser {
     public IntermediateCommand parse(Message message) {
         try {
             Optional<String> content = Optional.ofNullable(message.getContent());
-            
-            System.out.println(parser.parse_StringArgument("1+2"));
 
             //images/files-only messages might not have any text content
             if(content.isEmpty())
