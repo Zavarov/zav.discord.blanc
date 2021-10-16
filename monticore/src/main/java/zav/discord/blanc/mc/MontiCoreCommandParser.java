@@ -15,11 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc;
+package zav.discord.blanc.mc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.Message;
