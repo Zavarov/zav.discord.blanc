@@ -1,0 +1,27 @@
+{
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "description" : "Unique message id.",
+      "type" : "integer"
+    },
+    "author" : {
+      "description" : "Display name of the author.",
+      "type" : "string"
+    },
+    "author_id" : {
+      "description" : "Unique author id.",
+      "javaType" : "authorId",
+      "type" : "integer"
+    },
+    "content" : {
+      "description" : "The raw message content.",
+      "type" : "string"
+    },
+    "attachment" : {
+      "description" : "An optional file encoded in Base64.",
+      "type" : "string"
+    }
+  },
+  "required" : ["id", "author", "author_id", "content"]
+}
