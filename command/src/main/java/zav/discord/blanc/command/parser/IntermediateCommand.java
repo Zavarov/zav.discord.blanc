@@ -6,5 +6,6 @@ import java.util.Optional;
 public interface IntermediateCommand {
   Optional<String> getPrefix();
   String getName();
-  List<Argument> getArguments();
+  List<String> getFlags();
+  List<? extends Argument> getArguments();
 }
