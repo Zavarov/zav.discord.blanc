@@ -1,1 +1,0 @@
-        checkPermission(get$Author(), get$TextChannel(), Permission.${ast.getName()});

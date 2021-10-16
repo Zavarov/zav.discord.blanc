@@ -1,1 +1,0 @@
-        checkAttachment(get$Message());
