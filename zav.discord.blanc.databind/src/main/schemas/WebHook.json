@@ -2,15 +2,15 @@
   "type" : "object",
   "properties" : {
     "id" : {
-      "description" : "Unique 64bit long id of the channel.",
+      "description" : "Unique 64bit long id of the webhook.",
       "type" : "integer"
     },
     "name" : {
-      "description" : "Human-readable name of the channel.",
+      "description" : "Human-readable name of the webhook.",
       "type" : "string"
     },
     "subreddits" : {
-      "description" : "Names of subreddits associated with this channel.",
+      "description" : "Names of subreddits associated with this webhook.",
       "type" : "array",
       "items": {
         "type": "string"

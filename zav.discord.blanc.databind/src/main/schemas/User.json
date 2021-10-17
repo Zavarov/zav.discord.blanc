@@ -2,9 +2,19 @@
   "type" : "object",
   "properties" : {
     "id" : {
+      "description" : "Unique 64bit long id of the user.",
       "type" : "integer"
     },
     "name" : {
+      "description" : "Human-readable name of the user.",
+      "type" : "string"
+    },
+    "discriminator" : {
+      "description" : "Discriminator.",
+      "type" : "integer"
+    },
+    "rank" : {
+      "description" : "Program-specific user rank.",
       "type" : "string"
     }
   }

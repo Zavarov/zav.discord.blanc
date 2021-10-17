@@ -1,0 +1,6 @@
+{
+  "id" : 1,
+  "name" : "Guild",
+  "discriminator" : 1234,
+  "rank" : "USER"
+}

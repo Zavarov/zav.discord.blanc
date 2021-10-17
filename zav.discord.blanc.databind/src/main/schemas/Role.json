@@ -2,9 +2,15 @@
   "type" : "object",
   "properties" : {
     "id" : {
+      "description" : "Unique 64bit long id of the role.",
       "type" : "integer"
     },
     "name" : {
+      "description" : "Human-readable name of the role.",
+      "type" : "string"
+    },
+    "group" : {
+      "description" : "Self-assignable role-group.",
       "type" : "string"
     }
   }
