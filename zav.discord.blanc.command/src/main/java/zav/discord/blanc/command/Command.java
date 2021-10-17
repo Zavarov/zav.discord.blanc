@@ -1,4 +1,6 @@
 package zav.discord.blanc.command;
 
-public interface Command extends Runnable {
+import zav.discord.blanc.job.Job;
+
+public interface Command extends Job {
 }
