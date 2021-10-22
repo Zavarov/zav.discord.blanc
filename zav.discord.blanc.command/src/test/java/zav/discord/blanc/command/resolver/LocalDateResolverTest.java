@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -30,5 +31,12 @@ public class LocalDateResolverTest {
     assertThat(date.getDayOfMonth()).isEqualTo(13);
     assertThat(date.getMonthValue()).isEqualTo(7);
     assertThat(date.getYear()).isEqualTo(1991);
+  }
+  
+  @Test
+  public void testApplyInvalidDate() {
+    when(argument.asString()).thenReturn(Optional.of("x"));
+    
+    assertThrows(IllegalArgumentException.class, () -> resolver.apply(argument));
   }
 }

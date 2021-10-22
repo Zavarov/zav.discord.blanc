@@ -45,9 +45,9 @@ public class LocalDateResolver extends TypeResolver<LocalDate>{
             return argument.asString()
                   .map(StringUtils::deleteWhitespace)
                   .map(LocalDate::parse)
-                  .orElseThrow();
+                  .orElseThrow(IllegalArgumentException::new);
         } catch(DateTimeParseException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 }

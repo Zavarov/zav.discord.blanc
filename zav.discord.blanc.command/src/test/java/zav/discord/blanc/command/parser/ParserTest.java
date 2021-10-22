@@ -22,6 +22,8 @@ public class ParserTest {
   private Parser parser;
   private GuildMessageView guildView;
   private PrivateMessageView privateView;
+  private Message privateMessage;
+  private Message guildMessage;
   
   @BeforeClass
   public static void setUpAll() {
@@ -38,7 +40,7 @@ public class ParserTest {
   public void setUp() {
     // Mock private command
   
-    Message privateMessage = mock(Message.class);
+    privateMessage = mock(Message.class);
     
     IntermediateCommand privateCommand = mock(IntermediateCommand.class);
     when(privateCommand.getPrefix()).thenReturn(Optional.of("b"));
@@ -49,11 +51,12 @@ public class ParserTest {
     privateView = mock(PrivateMessageView.class);
     when(privateView.getAuthor()).thenReturn(mock(UserView.class));
     when(privateView.getMessageChannel()).thenReturn(mock(PrivateChannelView.class));
+    when(privateView.getShard()).thenReturn(mock(ShardView.class));
     when(privateView.getAbout()).thenReturn(privateMessage);
   
     // Mock guild command
   
-    Message guildMessage = mock(Message.class);
+    guildMessage = mock(Message.class);
     
     IntermediateCommand guildCommand = mock(IntermediateCommand.class);
     when(guildCommand.getPrefix()).thenReturn(Optional.of("b"));
@@ -65,6 +68,7 @@ public class ParserTest {
     when(guildView.getAuthor()).thenReturn(mock(MemberView.class));
     when(guildView.getMessageChannel()).thenReturn(mock(TextChannelView.class));
     when(guildView.getGuild()).thenReturn(mock(GuildView.class));
+    when(guildView.getShard()).thenReturn(mock(ShardView.class));
     when(guildView.getAbout()).thenReturn(guildMessage);
   
     // Mock parser
@@ -91,6 +95,18 @@ public class ParserTest {
     
     assertThat(result).isPresent();
     assertThat(result.orElseThrow()).isInstanceOf(PrivateCommand.class);
+  }
+  
+  @Test
+  public void testParseInvalidCommand() {
+    when(parser.parse(privateMessage)).thenReturn(null);
+    when(parser.parse(guildMessage)).thenReturn(null);
+    
+    Optional<? extends Command> result = parser.parse(guildView);
+    assertThat(result).isEmpty();
+    
+    result = parser.parse(privateView);
+    assertThat(result).isEmpty();
   }
   
   // -------------------------------------------------------------------------------------------- //

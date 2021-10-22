@@ -1,10 +1,7 @@
 package zav.discord.blanc.command.guice;
 
 import com.google.inject.AbstractModule;
-import zav.discord.blanc.view.GuildMessageView;
-import zav.discord.blanc.view.GuildView;
-import zav.discord.blanc.view.MemberView;
-import zav.discord.blanc.view.TextChannelView;
+import zav.discord.blanc.view.*;
 
 public class GuildCommandModule extends AbstractModule {
   private final GuildMessageView msg;
@@ -17,5 +14,6 @@ public class GuildCommandModule extends AbstractModule {
     bind(MemberView.class).toInstance(msg.getAuthor());
     bind(TextChannelView.class).toInstance(msg.getMessageChannel());
     bind(GuildView.class).toInstance(msg.getGuild());
+    bind(ShardView.class).toInstance(msg.getShard());
   }
 }

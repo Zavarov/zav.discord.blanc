@@ -32,6 +32,6 @@ public class StringResolver extends TypeResolver<String> {
      */
     @Override
     public String apply(@NonNull Argument argument){
-        return argument.asString().orElseThrow();
+        return argument.asString().orElseThrow(IllegalArgumentException::new);
     }
 }

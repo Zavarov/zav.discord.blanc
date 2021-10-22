@@ -33,6 +33,6 @@ public class BigDecimalResolver extends TypeResolver<BigDecimal> {
      */
     @Override
     public BigDecimal apply(@NonNull Argument  argument){
-        return argument.asNumber().orElseThrow();
+        return argument.asNumber().orElseThrow(IllegalArgumentException::new);
     }
 }
