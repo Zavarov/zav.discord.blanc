@@ -1,4 +1,5 @@
 {
+  "javaType": "DataPointTOP",
   "type" : "object",
   "properties" : {
     "membersCount" : {
@@ -12,13 +13,6 @@
     "activity" : {
       "description" : "The overall activity in a guild is measured by the total number of messages per minute. It can be described as the sum over all channel activities.",
       "type" : "number"
-    },
-    "channelActivity" : {
-      "description" : "The text channels and their load, i.e. the number of messages per minute.",
-      "type" : "object",
-      "additionalProperties" : {
-        "type" : "number"
-      }
     }
   }
 }
