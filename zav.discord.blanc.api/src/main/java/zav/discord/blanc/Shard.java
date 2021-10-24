@@ -1,4 +1,5 @@
 package zav.discord.blanc;
 
-public class Shard {
+public interface Shard {
+  String getInviteSupportServer();
 }
