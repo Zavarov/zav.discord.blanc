@@ -16,10 +16,11 @@ public final class Arguments {
     return arguments.put(key, argument) != null;
   }
   
-  public static <T> Optional<T> get(Class<T> key, Argument argument) {
+  public static <T> T get(Class<T> key, Argument argument) {
     return Optional.ofNullable(arguments.get(key))
           .map(factory -> factory.apply(argument))
-          .map(key::cast);
+          .map(key::cast)
+          .orElseThrow();
   }
   
   public static void clear() {
