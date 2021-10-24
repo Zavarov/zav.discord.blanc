@@ -1,4 +1,4 @@
-package zav.discord.blanc.command.guice;
+package zav.discord.blanc.command.internal.guice;
 
 import com.google.inject.AbstractModule;
 import zav.discord.blanc.view.*;
