@@ -29,13 +29,17 @@ public abstract class AbstractParser implements Parser {
     IntermediateCommand cmd = parse(msg.getAbout());
     
     // Input is not a valid command
-    if (cmd == null ) {
+    if (cmd == null) {
       return Optional.empty();
     }
     
     IntermediateCommandModule cmdModule = new IntermediateCommandModule(cmd);
     Injector injector = Guice.createInjector(msgModule, cmdModule);
-  
-    return Commands.get(cmd.getName()).map(injector::getInstance);
+    
+    Optional<Command> result = Commands.get(cmd.getName(), cmd.getArguments());
+    
+    result.ifPresent(injector::injectMembers);
+    
+    return result;
   }
 }

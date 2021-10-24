@@ -12,6 +12,7 @@ import zav.discord.blanc.databind.Message;
 import zav.discord.blanc.view.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +28,8 @@ public class ParserTest {
   
   @BeforeClass
   public static void setUpAll() {
-    Commands.bind("guildCommand", GuildCommand.class);
-    Commands.bind("privateCommand", PrivateCommand.class);
+    Commands.bind("guildCommand", GuildCommand::new);
+    Commands.bind("privateCommand", PrivateCommand::new);
   }
   
   @AfterClass
@@ -114,11 +115,13 @@ public class ParserTest {
   // -------------------------------------------------------------------------------------------- //
   
   private static class GuildCommand extends AbstractGuildCommand {
+    public GuildCommand(List<? extends Argument> args){}
     @Override
     public void run() { }
   }
   
   private static class PrivateCommand extends AbstractPrivateCommand {
+    public PrivateCommand(List<? extends Argument> args){}
     @Override
     public void run() { }
   }
