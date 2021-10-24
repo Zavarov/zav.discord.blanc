@@ -1,15 +1,17 @@
 package zav.discord.blanc.db;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.TextChannel;
 import zav.discord.blanc.databind.WebHook;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
-
+/**
+ * Utility class for communicating with the {@code WebHook} database.
+ */
 public abstract class WebHookTable {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.WEBHOOK_DB);
   private WebHookTable() {}

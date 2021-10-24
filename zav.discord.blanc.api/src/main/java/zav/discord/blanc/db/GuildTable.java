@@ -1,15 +1,18 @@
 package zav.discord.blanc.db;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
-
+/**
+ * Utility class for communicating with the {@code Guild} database.
+ */
 public abstract class GuildTable {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.GUILD_DB);
+  
   private GuildTable() {}
   
   public static void create() throws SQLException {
@@ -25,6 +28,16 @@ public abstract class GuildTable {
     
   }
   
+  /**
+   * Serializes the guild and stores its value in the database.<br>
+   * Guilds are identified by their id.<br>
+   * If the database doesn't contain an entry for the guild, a new one is created. Otherwise the
+   * old entry is overwritten.
+   *
+   * @param guild The {@code guild} instance stored in the database.
+   * @return The number of lines modified. Should be {@code 1}.
+   * @throws SQLException If a database error occurred.
+   */
   public static int put(Guild guild) throws SQLException {
     return SQL.insert("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
@@ -35,6 +48,17 @@ public abstract class GuildTable {
     });
   }
   
+  /**
+   * Retrieves the database entry corresponding to the requested {@code guild} and deserializes its
+   * content.
+   * Guilds are identified by their id.<br>
+   * If no such entry exists, an {@link NoSuchElementException} is thrown.
+   *
+   * @param guildId The id of the requested {@code guild}.
+   * @return The deserialized {@code guild} instance retrieved from the database.
+   * @throws SQLException If a database error occurred.
+   * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
+   */
   public static Guild get(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("guild/SelectGuild.sql", guildId);
       
@@ -45,7 +69,7 @@ public abstract class GuildTable {
     SqlObject guild = result.get(0);
   
     // Serialize String to List<String>
-    guild.computeIfPresent("blacklist", (k,v) -> SqlQuery.deserialize(v));
+    guild.computeIfPresent("blacklist", (k, v) -> SqlQuery.deserialize(v));
       
     return SqlQuery.unmarshal(guild, Guild.class);
   }

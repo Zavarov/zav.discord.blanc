@@ -1,13 +1,15 @@
 package zav.discord.blanc.db;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import zav.discord.blanc.databind.User;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
-
+/**
+ * Utility class for communicating with the {@code User} database.
+ */
 public abstract class UserTable {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.USER_DB);
   private UserTable() {}
