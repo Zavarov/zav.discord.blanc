@@ -43,7 +43,7 @@ public abstract class AbstractGuildCommand implements Command {
     }
     
     // Does the user have the required permissions?
-    if (!permissions.containsAll(author.getPermissions())) {
+    if (!author.getPermissions().containsAll(permissions)) {
       throw new InsufficientPermissionException();
     }
   }
