@@ -6,12 +6,9 @@ import zav.discord.blanc.Permission;
 import zav.discord.blanc.Rank;
 import zav.discord.blanc.view.GuildView;
 import zav.discord.blanc.view.MemberView;
-import zav.discord.blanc.view.ShardView;
 import zav.discord.blanc.view.TextChannelView;
 
-public abstract class AbstractGuildCommand implements Command {
-  @Inject
-  protected ShardView shard;
+public abstract class AbstractGuildCommand extends AbstractCommand {
   @Inject
   protected GuildView guild;
   @Inject

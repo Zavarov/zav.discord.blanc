@@ -1,10 +1,7 @@
 package zav.discord.blanc.command.internal;
 
 import com.google.inject.AbstractModule;
-import zav.discord.blanc.view.PrivateChannelView;
-import zav.discord.blanc.view.PrivateMessageView;
-import zav.discord.blanc.view.ShardView;
-import zav.discord.blanc.view.UserView;
+import zav.discord.blanc.view.*;
 
 public class PrivateCommandModule extends AbstractModule {
   private final PrivateMessageView msg;
@@ -14,8 +11,12 @@ public class PrivateCommandModule extends AbstractModule {
   
   @Override
   protected void configure() {
-    bind(UserView.class).toInstance(msg.getAuthor());
+    // AbstractPrivateCommand
     bind(PrivateChannelView.class).toInstance(msg.getMessageChannel());
+  
+    // AbstractCommand
     bind(ShardView.class).toInstance(msg.getShard());
+    bind(UserView.class).toInstance(msg.getAuthor());
+    bind(MessageChannelView.class).toInstance(msg.getMessageChannel());
   }
 }

@@ -11,9 +11,14 @@ public class GuildCommandModule extends AbstractModule {
   
   @Override
   protected void configure() {
+    // AbstractGuildCommand
     bind(MemberView.class).toInstance(msg.getAuthor());
     bind(TextChannelView.class).toInstance(msg.getMessageChannel());
     bind(GuildView.class).toInstance(msg.getGuild());
+  
+    // AbstractCommand
     bind(ShardView.class).toInstance(msg.getShard());
+    bind(UserView.class).toInstance(msg.getAuthor());
+    bind(MessageChannelView.class).toInstance(msg.getMessageChannel());
   }
 }
