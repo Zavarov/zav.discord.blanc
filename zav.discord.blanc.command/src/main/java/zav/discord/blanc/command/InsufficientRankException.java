@@ -1,4 +1,4 @@
 package zav.discord.blanc.command;
 
-public class InsufficientRankException extends Exception{
+public class InsufficientRankException extends InvalidCommandException {
 }
