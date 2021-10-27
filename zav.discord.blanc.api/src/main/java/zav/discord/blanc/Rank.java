@@ -1,4 +1,4 @@
-package zav.discord.blanc.command;
+package zav.discord.blanc;
 
 public enum Rank {
   REDDIT,
