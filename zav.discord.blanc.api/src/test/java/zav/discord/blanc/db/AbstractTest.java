@@ -1,8 +1,8 @@
 package zav.discord.blanc.db;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import zav.discord.blanc.databind.*;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public abstract class AbstractTest {
   protected WebHook hook;
   protected User user;
   
-  @Before
+  @BeforeEach
   public void setUp() throws SQLException {
     guild = read("Guild.json", Guild.class);
     role = read("Role.json", Role.class);
