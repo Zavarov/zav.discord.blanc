@@ -15,7 +15,10 @@
     },
     "rank" : {
       "description" : "Program-specific user rank.",
-      "type" : "string"
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

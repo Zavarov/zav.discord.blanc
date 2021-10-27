@@ -32,7 +32,8 @@ public abstract class UserTable {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
       stmt.setLong(3, user.getDiscriminator());
-      stmt.setString(4, user.getRank());
+      // Serialize List<String> to String
+      stmt.setString(4, SqlQuery.serialize(user.getRank()));
     });
   }
   
@@ -42,6 +43,11 @@ public abstract class UserTable {
     if (result.isEmpty()) {
       throw new NoSuchElementException();
     }
+  
+    SqlObject guild = result.get(0);
+  
+    // Serialize String to List<String>
+    guild.computeIfPresent("rank", (k, v) -> SqlQuery.deserialize(v));
     
     return SqlQuery.unmarshal(result.get(0), User.class);
   }

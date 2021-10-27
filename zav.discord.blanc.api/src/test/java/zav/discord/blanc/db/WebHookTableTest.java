@@ -24,7 +24,7 @@ public class WebHookTableTest extends AbstractTest {
     assertThat(WebHookTable.put(guild, channel, hook)).isEqualTo(1);
     assertThat(WebHookTable.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
     // Should not replace the existing DB
-    GuildTable.create();
+    WebHookTable.create();
     assertThat(WebHookTable.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
   }
   

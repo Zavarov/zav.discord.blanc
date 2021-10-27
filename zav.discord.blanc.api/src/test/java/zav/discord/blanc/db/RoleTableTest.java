@@ -24,7 +24,7 @@ public class RoleTableTest extends AbstractTest {
     assertThat(RoleTable.put(guild, role)).isEqualTo(1);
     assertThat(RoleTable.contains(guild.getId(), role.getId())).isTrue();
     // Should not replace the existing DB
-    GuildTable.create();
+    RoleTable.create();
     assertThat(RoleTable.contains(guild.getId(), role.getId())).isTrue();
   }
   

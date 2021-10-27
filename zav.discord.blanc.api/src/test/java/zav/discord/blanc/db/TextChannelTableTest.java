@@ -24,7 +24,7 @@ public class TextChannelTableTest extends AbstractTest {
     assertThat(TextChannelTable.put(guild, channel)).isEqualTo(1);
     assertThat(TextChannelTable.contains(guild.getId(), channel.getId())).isTrue();
     // Should not replace the existing DB
-    GuildTable.create();
+    TextChannelTable.create();
     assertThat(TextChannelTable.contains(guild.getId(), channel.getId())).isTrue();
   }
   
