@@ -21,6 +21,10 @@ public abstract class AbstractCommand implements Command {
     this.rank = rank;
   }
   
+  public AbstractCommand() {
+    this(Rank.USER);
+  }
+  
   @Override
   public void validate() throws InvalidCommandException {
     // Does the user have the required rank?
