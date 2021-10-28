@@ -33,10 +33,7 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   
   @Override
   public void validate() throws InvalidCommandException {
-    // Does the user have the required rank?
-    if (!author.getRanks().contains(rank)) {
-      throw new InsufficientRankException();
-    }
+    super.validate();
     
     // Does the user have the required permissions?
     if (!author.getPermissions().containsAll(permissions)) {

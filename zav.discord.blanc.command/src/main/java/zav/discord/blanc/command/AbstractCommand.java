@@ -20,4 +20,12 @@ public abstract class AbstractCommand implements Command {
   public AbstractCommand(Rank rank) {
     this.rank = rank;
   }
+  
+  @Override
+  public void validate() throws InvalidCommandException {
+    // Does the user have the required rank?
+    if (!author.getRanks().contains(rank)) {
+      throw new InsufficientRankException();
+    }
+  }
 }
