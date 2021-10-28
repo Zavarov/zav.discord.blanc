@@ -17,7 +17,6 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   protected MemberView author;
   
   private final Set<Permission> permissions;
-  private final Rank rank;
   
   protected AbstractGuildCommand(Permission... permissions) {
     this(Rank.USER, permissions);
@@ -28,8 +27,8 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   }
   
   protected AbstractGuildCommand(Rank rank, Permission... permissions) {
+    super(rank);
     this.permissions = Set.of(permissions);
-    this.rank = rank;
   }
   
   @Override
