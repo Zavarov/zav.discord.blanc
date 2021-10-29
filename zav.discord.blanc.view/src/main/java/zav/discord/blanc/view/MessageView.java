@@ -7,4 +7,5 @@ public interface MessageView {
   ShardView getShard();
   Message getAbout();
   void delete();
+  void react(String reaction);
 }
