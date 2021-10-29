@@ -6,4 +6,5 @@ public interface MessageView {
   MessageChannelView getMessageChannel();
   ShardView getShard();
   Message getAbout();
+  void delete();
 }
