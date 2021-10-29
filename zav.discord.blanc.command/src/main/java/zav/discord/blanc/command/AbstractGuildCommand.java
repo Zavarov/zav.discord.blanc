@@ -4,6 +4,7 @@ import javax.inject.Inject;
 import java.util.Set;
 import zav.discord.blanc.Permission;
 import zav.discord.blanc.Rank;
+import zav.discord.blanc.view.GuildMessageView;
 import zav.discord.blanc.view.GuildView;
 import zav.discord.blanc.view.MemberView;
 import zav.discord.blanc.view.TextChannelView;
@@ -15,6 +16,8 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   protected TextChannelView channel;
   @Inject
   protected MemberView author;
+  @Inject
+  protected GuildMessageView message;
   
   private final Set<Permission> permissions;
   

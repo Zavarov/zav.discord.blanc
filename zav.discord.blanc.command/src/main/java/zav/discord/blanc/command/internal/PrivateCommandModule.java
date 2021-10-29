@@ -13,10 +13,12 @@ public class PrivateCommandModule extends AbstractModule {
   protected void configure() {
     // AbstractPrivateCommand
     bind(PrivateChannelView.class).toInstance(msg.getMessageChannel());
+    bind(PrivateMessageView.class).toInstance(msg);
   
     // AbstractCommand
     bind(ShardView.class).toInstance(msg.getShard());
     bind(UserView.class).toInstance(msg.getAuthor());
     bind(MessageChannelView.class).toInstance(msg.getMessageChannel());
+    bind(MessageView.class).toInstance(msg);
   }
 }
