@@ -31,7 +31,7 @@ public abstract class AbstractCommand implements Command {
   @Override
   public void validate() throws InvalidCommandException {
     // Does the user have the required rank?
-    if (!author.getRanks().contains(rank)) {
+    if (!author.getAbout().getRanks().contains(rank.name())) {
       throw new InsufficientRankException();
     }
   }
