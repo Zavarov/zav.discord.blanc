@@ -17,7 +17,7 @@ public interface GuildView {
   boolean canInteract(MemberView member, Role role);
   BufferedImage getActivity(List<TextChannel> channels);
   MemberView getMember(long id);
-  MemberView getSelfMember();
+  SelfMemberView getSelfMember();
   TextChannelView getTextChannel(long id);
   Collection<RoleView> getRoles();
   RoleView getRole(long id);
