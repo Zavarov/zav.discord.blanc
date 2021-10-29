@@ -4,4 +4,5 @@ import zav.discord.blanc.databind.User;
 
 public interface SelfUserView extends UserView {
   User getAbout();
+  void setAvatar(String data);
 }
