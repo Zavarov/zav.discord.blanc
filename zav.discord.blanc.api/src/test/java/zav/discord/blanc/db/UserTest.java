@@ -80,7 +80,7 @@ public class UserTest extends AbstractTest {
     assertThat(response.getId()).isEqualTo(user.getId());
     assertThat(response.getName()).isEqualTo(user.getName());
     assertThat(response.getDiscriminator()).isEqualTo(user.getDiscriminator());
-    assertThat(response.getRank()).isEqualTo(user.getRank());
+    assertThat(response.getRanks()).isEqualTo(user.getRanks());
   }
   
   @Test

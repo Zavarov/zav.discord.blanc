@@ -13,7 +13,7 @@
       "description" : "Discriminator.",
       "type" : "integer"
     },
-    "rank" : {
+    "ranks" : {
       "description" : "Program-specific user rank.",
       "type" : "array",
       "items": {
