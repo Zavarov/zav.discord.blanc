@@ -1,5 +1,7 @@
 package zav.discord.blanc.command.parser;
 
+import zav.discord.blanc.Argument;
+
 import java.util.List;
 import java.util.Optional;
 

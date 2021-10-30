@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 
 public final class Commands {
   private static final Map<String, Function<List<? extends Argument>, Command>> commands = new HashMap<>();

@@ -19,7 +19,7 @@ package zav.discord.blanc.command.resolver;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.StringArgument;
 
 import java.time.LocalDate;

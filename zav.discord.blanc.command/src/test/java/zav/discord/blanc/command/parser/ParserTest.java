@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
 import zav.discord.blanc.command.Command;

@@ -2,7 +2,7 @@ package zav.discord.blanc.command.resolver;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 
 import java.util.Optional;
 

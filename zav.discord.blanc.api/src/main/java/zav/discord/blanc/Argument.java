@@ -1,4 +1,4 @@
-package zav.discord.blanc.command.parser;
+package zav.discord.blanc;
 
 import java.math.BigDecimal;
 import java.util.Optional;

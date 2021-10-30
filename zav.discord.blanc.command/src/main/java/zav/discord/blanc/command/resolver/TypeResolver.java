@@ -18,7 +18,7 @@
 package zav.discord.blanc.command.resolver;
 
 import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 
 import java.util.Optional;
 import java.util.function.Function;

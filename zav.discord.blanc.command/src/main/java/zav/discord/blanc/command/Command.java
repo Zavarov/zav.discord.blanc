@@ -1,6 +1,6 @@
 package zav.discord.blanc.command;
 
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.job.Job;
 
 import java.util.List;

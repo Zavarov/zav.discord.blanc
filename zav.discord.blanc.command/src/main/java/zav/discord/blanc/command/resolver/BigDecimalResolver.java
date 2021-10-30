@@ -18,7 +18,7 @@
 package zav.discord.blanc.command.resolver;
 
 import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.NumberArgument;
 
 import java.math.BigDecimal;

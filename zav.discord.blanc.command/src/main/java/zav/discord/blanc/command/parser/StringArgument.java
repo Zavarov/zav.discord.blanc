@@ -2,6 +2,7 @@ package zav.discord.blanc.command.parser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.Argument;
 
 import java.math.BigDecimal;
 import java.util.Optional;
