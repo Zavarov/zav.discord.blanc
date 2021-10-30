@@ -18,13 +18,12 @@ public abstract class UserTable {
     SQL.update("user/CreateUserTable.sql");
   }
   
-  public static boolean contains(long guildId) throws SQLException {
-    return !SQL.query("user/SelectUser.sql", guildId).isEmpty();
+  public static boolean contains(long userId) throws SQLException {
+    return !SQL.query("user/SelectUser.sql", userId).isEmpty();
   }
   
-  public static int delete(long guildId) throws SQLException {
-    return SQL.update("user/DeleteUser.sql", guildId);
-    
+  public static int delete(long userId) throws SQLException {
+    return SQL.update("user/DeleteUser.sql", userId);
   }
   
   public static int put(User user) throws SQLException {
@@ -37,8 +36,8 @@ public abstract class UserTable {
     });
   }
   
-  public static User get(long guildId) throws SQLException {
-    List<SqlObject> result = SQL.query("user/SelectUser.sql", guildId);
+  public static User get(long userId) throws SQLException {
+    List<SqlObject> result = SQL.query("user/SelectUser.sql", userId);
     
     if (result.isEmpty()) {
       throw new NoSuchElementException();

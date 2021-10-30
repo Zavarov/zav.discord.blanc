@@ -66,6 +66,15 @@ public class TextChannelTableTest extends AbstractTest {
   }
   
   @Test
+  public void testDeleteAll() throws SQLException {
+    assertThat(TextChannelTable.contains(guild.getId(), channel.getId())).isFalse();
+    assertThat(TextChannelTable.put(guild, channel)).isEqualTo(1);
+    assertThat(TextChannelTable.contains(guild.getId(), channel.getId())).isTrue();
+    assertThat(TextChannelTable.deleteAll(guild.getId())).isEqualTo(1);
+    assertThat(TextChannelTable.contains(guild.getId(), channel.getId())).isFalse();
+  }
+  
+  @Test
   public void testDeleteUnknownChannel() throws SQLException {
     // channel doesn't exist => Nothing to remove
     assertThat(TextChannelTable.delete(guild.getId(), channel.getId())).isEqualTo(0);

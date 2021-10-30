@@ -66,6 +66,15 @@ public class RoleTableTest extends AbstractTest {
   }
   
   @Test
+  public void testDeleteAll() throws SQLException {
+    assertThat(RoleTable.contains(guild.getId(), role.getId())).isFalse();
+    assertThat(RoleTable.put(guild, role)).isEqualTo(1);
+    assertThat(RoleTable.contains(guild.getId(), role.getId())).isTrue();
+    assertThat(RoleTable.deleteAll(guild.getId())).isEqualTo(1);
+    assertThat(RoleTable.contains(guild.getId(), role.getId())).isFalse();
+  }
+  
+  @Test
   public void testDeleteUnknownRole() throws SQLException {
     // Role doesn't exist => Nothing to remove
     assertThat(RoleTable.delete(guild.getId(), role.getId())).isEqualTo(0);

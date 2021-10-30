@@ -26,7 +26,10 @@ public abstract class WebHookTable {
   
   public static int delete(long guildId, long channelId, long hookId) throws SQLException {
     return SQL.update("webhook/DeleteWebHook.sql", guildId, channelId, hookId);
-    
+  }
+  
+  public static int deleteAll(long guildId) throws SQLException {
+    return SQL.update("webhook/DeleteAllWebHook.sql", guildId);
   }
   
   public static int put(Guild guild, TextChannel channel, WebHook hook) throws SQLException {

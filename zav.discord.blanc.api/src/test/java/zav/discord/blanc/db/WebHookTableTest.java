@@ -66,6 +66,15 @@ public class WebHookTableTest extends AbstractTest {
   }
   
   @Test
+  public void testDeleteAll() throws SQLException {
+    assertThat(WebHookTable.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
+    assertThat(WebHookTable.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookTable.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
+    assertThat(WebHookTable.deleteAll(guild.getId())).isEqualTo(1);
+    assertThat(WebHookTable.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
+  }
+  
+  @Test
   public void testDeleteUnknownHook() throws SQLException {
     // hook doesn't exist => Nothing to remove
     assertThat(WebHookTable.delete(guild.getId(), channel.getId(), hook.getId())).isEqualTo(0);

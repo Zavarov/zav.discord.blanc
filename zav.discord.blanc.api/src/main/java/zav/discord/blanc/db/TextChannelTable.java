@@ -25,7 +25,10 @@ public abstract class TextChannelTable {
   
   public static int delete(long guildId, long channelId) throws SQLException {
     return SQL.update("textchannel/DeleteTextChannel.sql", guildId, channelId);
-    
+  }
+  
+  public static int deleteAll(long guildId) throws SQLException {
+    return SQL.update("textchannel/DeleteAllTextChannel.sql", guildId);
   }
   
   public static int put(Guild guild, TextChannel channel) throws SQLException {

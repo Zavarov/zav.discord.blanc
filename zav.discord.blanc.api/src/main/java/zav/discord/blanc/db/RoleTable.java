@@ -26,7 +26,10 @@ public abstract class RoleTable {
   
   public static int delete(long guildId, long roleId) throws SQLException {
     return SQL.update("role/DeleteRole.sql", guildId, roleId);
-    
+  }
+  
+  public static int deleteAll(long guildId) throws SQLException {
+    return SQL.update("role/DeleteAllRole.sql", guildId);
   }
   
   /**
