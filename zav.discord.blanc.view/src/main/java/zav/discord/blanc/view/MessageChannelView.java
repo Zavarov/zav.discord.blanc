@@ -5,6 +5,7 @@ import zav.discord.blanc.databind.User;
 import java.awt.image.BufferedImage;
 
 public interface MessageChannelView {
+  MessageView getMessage(long id);
   default void send(String format, Object... args) {
     send(String.format(format, args));
   }
