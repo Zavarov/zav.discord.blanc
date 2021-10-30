@@ -19,7 +19,7 @@ package zav.discord.blanc.mc;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.Message;

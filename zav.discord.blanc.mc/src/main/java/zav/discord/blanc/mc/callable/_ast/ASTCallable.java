@@ -17,7 +17,7 @@
 
 package zav.discord.blanc.mc.callable._ast;
 
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 
 import java.util.List;

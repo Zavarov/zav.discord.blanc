@@ -17,7 +17,7 @@
 
 package zav.discord.blanc.mc.argument._ast;
 
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 
 public interface ASTArgument extends ASTArgumentTOP, Argument {
 }

@@ -18,7 +18,7 @@
 package zav.discord.blanc.mc.argument._ast;
 
 import de.monticore.prettyprint.IndentPrinter;
-import zav.discord.blanc.command.parser.Argument;
+import zav.discord.blanc.Argument;
 import zav.mc.math.ArithmeticExpressionsPrettyPrinter;
 import zav.mc.math.ArithmeticExpressionsValueCalculator;
 
