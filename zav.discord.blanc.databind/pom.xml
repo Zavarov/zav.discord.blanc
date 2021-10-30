@@ -36,6 +36,9 @@
                     <targetPackage>zav.discord.blanc.databind</targetPackage>
                     <includeAdditionalProperties>false</includeAdditionalProperties>
                     <useLongIntegers>true</useLongIntegers>
+                    <generateBuilders>true</generateBuilders>
+                    <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                    <usePrimitives>true</usePrimitives>
                 </configuration>
                 <executions>
                     <execution>
