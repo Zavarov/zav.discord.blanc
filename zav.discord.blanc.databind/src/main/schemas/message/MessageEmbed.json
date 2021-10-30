@@ -1,4 +1,5 @@
 {
+  "javaType" : "MessageEmbedTOP",
   "type" : "object",
   "properties" : {
     "color" : {
