@@ -34,12 +34,15 @@ public abstract class AbstractParser implements Parser {
     }
     
     IntermediateCommandModule cmdModule = new IntermediateCommandModule(cmd);
-    Injector injector = Guice.createInjector(msgModule, cmdModule);
     
-    Optional<Command> result = Commands.get(cmd.getName(), cmd.getArguments());
-    
-    result.ifPresent(injector::injectMembers);
-    
-    return result;
+    return Commands.get(cmd.getName()).map(cmdClass -> {
+      Injector injector = Guice.createInjector(msgModule, cmdModule);
+      
+      Command result = injector.getInstance(cmdClass);
+      
+      result.postConstruct(cmd.getArguments());
+      
+      return result;
+    });
   }
 }
