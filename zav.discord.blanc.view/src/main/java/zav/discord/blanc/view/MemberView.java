@@ -1,5 +1,6 @@
 package zav.discord.blanc.view;
 
+import zav.discord.blanc.Argument;
 import zav.discord.blanc.Permission;
 import zav.discord.blanc.databind.Role;
 
@@ -8,8 +9,10 @@ import java.util.Collections;
 import java.util.Set;
 
 public interface MemberView extends UserView {
-  Set<Permission> getPermissions();
+  // Views
   Set<RoleView> getRoles();
+  // Misc
+  Set<Permission> getPermissions();
   void modifyRoles(Collection<Role> rolesToAdd, Collection<Role> rolesToRemove);
   default void addRoles(Collection<Role> roles) {
     modifyRoles(roles, Collections.emptySet());
