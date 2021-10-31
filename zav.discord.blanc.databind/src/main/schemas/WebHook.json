@@ -5,6 +5,10 @@
       "description" : "Unique 64bit long id of the webhook.",
       "type" : "integer"
     },
+    "channelId" : {
+      "description" : "Unique 64bit long id of the text channel related to the webhook.",
+      "type" : "integer"
+    },
     "name" : {
       "description" : "Human-readable name of the webhook.",
       "type" : "string"
@@ -16,5 +20,6 @@
         "type": "string"
       }
     }
-  }
+  },
+  "required" : ["id", "channelId", "name"]
 }

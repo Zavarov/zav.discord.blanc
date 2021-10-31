@@ -1,5 +1,6 @@
 {
-  "id" : 3,
-  "name" : "TextChannel",
+  "id" : 5,
+  "channelId" : 3,
+  "name" : "WebHook",
   "subreddits" : ["redditdev", "announcements"]
 }

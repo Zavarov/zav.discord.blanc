@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS 'WebHook' (
     'channelId' INTEGER NOT NULL,
     'name' TEXT NOT NULL,
     'subreddits' TEXT NOT NULL,
-    PRIMARY KEY ('id', 'guildId', "channelId")
+    PRIMARY KEY ('id', 'guildId', 'channelId')
 );
