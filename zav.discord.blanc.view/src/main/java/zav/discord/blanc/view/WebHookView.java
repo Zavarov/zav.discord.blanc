@@ -7,4 +7,5 @@ public interface WebHookView {
   WebHook getAbout();
   // Misc
   void updateSubreddit(String subreddit);
+  void delete();
 }
