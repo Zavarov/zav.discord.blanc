@@ -14,5 +14,6 @@ public interface TextChannelView extends MessageChannelView {
     return getWebhook(argument, false);
   }
   // Misc
-  void updateSubreddit(String subreddit);
+  boolean updateSubreddit(String subreddit);
+  boolean canInteract(MemberView member);
 }
