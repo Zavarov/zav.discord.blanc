@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS 'WebHook' (
     'channelId' INTEGER NOT NULL,
     'name' TEXT NOT NULL,
     'subreddits' TEXT NOT NULL,
+    'owner' BOOLEAN NOT NULL,
     PRIMARY KEY ('id', 'guildId', 'channelId')
 );

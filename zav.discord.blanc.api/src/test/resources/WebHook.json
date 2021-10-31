@@ -2,5 +2,6 @@
   "id" : 5,
   "channelId" : 3,
   "name" : "WebHook",
-  "subreddits" : ["redditdev", "announcements"]
+  "subreddits" : ["redditdev", "announcements"],
+  "owner" : true
 }

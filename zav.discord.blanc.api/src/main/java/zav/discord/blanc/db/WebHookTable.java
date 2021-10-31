@@ -42,6 +42,7 @@ public abstract class WebHookTable {
       stmt.setString(4, hook.getName());
       // Serialize List<String> to String
       stmt.setString(5, SqlQuery.serialize(hook.getSubreddits()));
+      stmt.setBoolean(6, hook.isOwner());
     });
   }
   

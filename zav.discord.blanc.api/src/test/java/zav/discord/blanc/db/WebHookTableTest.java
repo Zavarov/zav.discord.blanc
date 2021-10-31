@@ -109,6 +109,7 @@ public class WebHookTableTest extends AbstractTest {
     assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
     assertThat(response.getName()).isEqualTo(hook.getName());
     assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
+    assertThat(response.isOwner()).isEqualTo(hook.isOwner());
   }
   
   @Test

@@ -13,6 +13,10 @@
       "description" : "Human-readable name of the webhook.",
       "type" : "string"
     },
+    "owner" : {
+      "description" : "Boolean value specifying whether the webhook was created by this application.",
+      "type" : "boolean"
+    },
     "subreddits" : {
       "description" : "Names of subreddits associated with this webhook.",
       "type" : "array",
