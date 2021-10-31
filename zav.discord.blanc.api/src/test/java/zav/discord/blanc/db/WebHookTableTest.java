@@ -1,10 +1,13 @@
 package zav.discord.blanc.db;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.databind.TextChannel;
 import zav.discord.blanc.databind.WebHook;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -86,6 +89,22 @@ public class WebHookTableTest extends AbstractTest {
   
     WebHook response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
     
+    assertThat(response.getId()).isEqualTo(hook.getId());
+    assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
+    assertThat(response.getName()).isEqualTo(hook.getName());
+    assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
+  }
+  
+  @Test
+  public void testGetAllHooks() throws SQLException {
+    WebHookTable.put(guild, channel, hook);
+  
+    List<WebHook> responses = WebHookTable.getAll(guild.getId());
+  
+    assertThat(responses).hasSize(1);
+  
+    WebHook response = responses.get(0);
+  
     assertThat(response.getId()).isEqualTo(hook.getId());
     assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
     assertThat(response.getName()).isEqualTo(hook.getName());

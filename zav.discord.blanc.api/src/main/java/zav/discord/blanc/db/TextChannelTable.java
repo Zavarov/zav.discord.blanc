@@ -3,6 +3,7 @@ package zav.discord.blanc.db;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.TextChannel;
 import zav.discord.blanc.db.internal.SqlObject;
@@ -48,11 +49,23 @@ public abstract class TextChannelTable {
       throw new NoSuchElementException();
     }
   
-    SqlObject channel = result.get(0);
-  
-    // Serialize String to List<String>
-    channel.computeIfPresent("subreddits", (k,v) -> SqlQuery.deserialize(v));
+    SqlObject channel = transform(result.get(0));
   
     return SqlQuery.unmarshal(channel, TextChannel.class);
+  }
+  
+  public static List<TextChannel> getAll(long guildId) throws SQLException {
+    List<SqlObject> result = SQL.query("textchannel/SelectAllTextChannel.sql", guildId);
+    
+    return result.stream()
+          .map(TextChannelTable::transform)
+          .map(obj -> SqlQuery.unmarshal(obj, TextChannel.class))
+          .collect(Collectors.toUnmodifiableList());
+  }
+  
+  private static SqlObject transform(SqlObject obj) {
+    // Serialize String to List<String>
+    obj.computeIfPresent("subreddits", (k, v) -> SqlQuery.deserialize(v));
+    return obj;
   }
 }

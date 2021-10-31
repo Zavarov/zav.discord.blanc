@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import zav.discord.blanc.databind.Role;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -81,10 +82,25 @@ public class RoleTableTest extends AbstractTest {
   }
   
   @Test
-  public void testGetGuild() throws SQLException {
+  public void testGetRole() throws SQLException {
     RoleTable.put(guild, role);
     
     Role response = RoleTable.get(guild.getId(), role.getId());
+    
+    assertThat(response.getId()).isEqualTo(role.getId());
+    assertThat(response.getName()).isEqualTo(role.getName());
+    assertThat(response.getGroup()).isEqualTo(role.getGroup());
+  }
+  
+  @Test
+  public void testGetAllRoles() throws SQLException {
+    RoleTable.put(guild, role);
+    
+    List<Role> responses = RoleTable.getAll(guild.getId());
+    
+    assertThat(responses).hasSize(1);
+    
+    Role response = responses.get(0);
     
     assertThat(response.getId()).isEqualTo(role.getId());
     assertThat(response.getName()).isEqualTo(role.getName());

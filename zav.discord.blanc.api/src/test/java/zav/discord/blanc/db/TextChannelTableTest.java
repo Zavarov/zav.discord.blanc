@@ -1,10 +1,13 @@
 package zav.discord.blanc.db;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.databind.Role;
 import zav.discord.blanc.databind.TextChannel;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -86,6 +89,21 @@ public class TextChannelTableTest extends AbstractTest {
   
     TextChannel response = TextChannelTable.get(guild.getId(), channel.getId());
     
+    assertThat(response.getId()).isEqualTo(channel.getId());
+    assertThat(response.getName()).isEqualTo(channel.getName());
+    assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());
+  }
+  
+  @Test
+  public void testGetAllChannels() throws SQLException {
+    TextChannelTable.put(guild, channel);
+  
+    List<TextChannel> responses = TextChannelTable.getAll(guild.getId());
+  
+    assertThat(responses).hasSize(1);
+  
+    TextChannel response = responses.get(0);
+  
     assertThat(response.getId()).isEqualTo(channel.getId());
     assertThat(response.getName()).isEqualTo(channel.getName());
     assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());

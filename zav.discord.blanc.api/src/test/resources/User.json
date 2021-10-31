@@ -1,6 +1,6 @@
 {
-  "id" : 1,
-  "name" : "Guild",
+  "id" : 4,
+  "name" : "User",
   "discriminator" : 1234,
   "ranks" : ["USER"]
 }

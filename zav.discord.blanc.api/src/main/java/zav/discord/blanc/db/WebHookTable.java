@@ -3,6 +3,8 @@ package zav.discord.blanc.db;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.TextChannel;
 import zav.discord.blanc.databind.WebHook;
@@ -50,11 +52,23 @@ public abstract class WebHookTable {
       throw new NoSuchElementException();
     }
     
-    SqlObject hook = result.get(0);
-    
-    // Serialize String to List<String>
-    hook.computeIfPresent("subreddits", (k,v) -> SqlQuery.deserialize(v));
+    SqlObject hook = transform(result.get(0));
     
     return SqlQuery.unmarshal(hook, WebHook.class);
+  }
+  
+  public static List<WebHook> getAll(long guildId) throws SQLException {
+    List<SqlObject> result = SQL.query("webhook/SelectAllWebHook.sql", guildId);
+    
+    return result.stream()
+          .map(WebHookTable::transform)
+          .map(obj -> SqlQuery.unmarshal(obj, WebHook.class))
+          .collect(Collectors.toUnmodifiableList());
+  }
+  
+  private static SqlObject transform(SqlObject obj) {
+    // Serialize String to List<String>
+    obj.computeIfPresent("subreddits", (k, v) -> SqlQuery.deserialize(v));
+    return obj;
   }
 }
