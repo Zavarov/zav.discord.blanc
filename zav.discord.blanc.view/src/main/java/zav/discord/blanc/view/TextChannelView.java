@@ -9,8 +9,8 @@ public interface TextChannelView extends MessageChannelView {
   // Views
   @Override
   GuildMessageView getMessage(Argument argument);
-  WebHookView getWebhook(Argument argument, boolean create);
-  default WebHookView getWebhook(Argument argument) {
+  WebHookView getWebhook(String argument, boolean create);
+  default WebHookView getWebhook(String argument) {
     return getWebhook(argument, false);
   }
   // Misc
