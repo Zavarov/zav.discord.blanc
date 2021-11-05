@@ -20,6 +20,7 @@ import zav.discord.blanc.Argument;
 import zav.discord.blanc.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.view.TextChannelView;
 import zav.discord.blanc.view.WebHookView;
 
@@ -54,11 +55,13 @@ public class RedditCommand extends AbstractGuildCommand {
     if (myChannel.updateSubreddit(mySubreddit)) {
       // Add subreddit to database
       myWebhook.getAbout().getSubreddits().add(mySubreddit);
-
+      SubredditObservable.addListener(mySubreddit, myWebhook);
+      
       channel.send("Submissions from r/%s will be posted in %s.", mySubreddit, myChannel.getAbout().getName());
     } else {
       // Remove subreddit from database
       myWebhook.getAbout().getSubreddits().remove(mySubreddit);
+      SubredditObservable.removeListener(mySubreddit, myWebhook);
       
       channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannel.getAbout().getName());
 

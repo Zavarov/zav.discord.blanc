@@ -21,6 +21,7 @@ import zav.discord.blanc.Argument;
 import zav.discord.blanc.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.view.TextChannelView;
 
 import java.sql.SQLException;
@@ -50,6 +51,7 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
     // Remove subreddit from database
     if (myChannel.getAbout().getSubreddits().contains(mySubreddit)) {
       myChannel.getAbout().getSubreddits().remove(mySubreddit);
+      SubredditObservable.removeListener(mySubreddit, myChannel);
   
       // Update view
       channel.updateSubreddit(mySubreddit);
