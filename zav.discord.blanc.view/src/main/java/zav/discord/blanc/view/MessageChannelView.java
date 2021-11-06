@@ -2,9 +2,9 @@ package zav.discord.blanc.view;
 
 import zav.discord.blanc.Argument;
 import zav.discord.blanc.databind.User;
+import zav.jrc.databind.Link;
 
 import java.awt.image.BufferedImage;
-import java.math.BigDecimal;
 
 public interface MessageChannelView {
   // Views
@@ -16,4 +16,5 @@ public interface MessageChannelView {
   void send(BufferedImage image, String imageName);
   void send(Object content);
   void send(User user);
+  void send(Link link);
 }
