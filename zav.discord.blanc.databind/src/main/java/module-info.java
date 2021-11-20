@@ -1,7 +1,8 @@
 module zav.discord.blanc.databind {
-  requires java.compiler;
-  requires com.fasterxml.jackson.annotation;
   requires static org.eclipse.jdt.annotation;
+  
+  requires com.fasterxml.jackson.annotation;
+  requires java.compiler;
   
   exports zav.discord.blanc.databind.activity;
   exports zav.discord.blanc.databind.message;

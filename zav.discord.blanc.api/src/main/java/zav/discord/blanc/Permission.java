@@ -1,5 +1,8 @@
 package zav.discord.blanc;
 
+/**
+ * An enumeration of all permissions that are supported by Discord.
+ */
 public enum Permission {
   CREATE_INSTANT_INVITE,
   KICK_MEMBERS,

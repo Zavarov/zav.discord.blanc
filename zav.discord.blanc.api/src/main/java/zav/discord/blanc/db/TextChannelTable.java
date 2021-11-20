@@ -14,6 +14,7 @@ import zav.discord.blanc.db.internal.SqlQuery;
  */
 public abstract class TextChannelTable {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.TEXTCHANNEL_DB);
+  
   private TextChannelTable() {}
   
   public static void create() throws SQLException {
@@ -32,16 +33,39 @@ public abstract class TextChannelTable {
     return SQL.update("textchannel/DeleteAllTextChannel.sql", guildId);
   }
   
+  /**
+   * Serializes the channel and stores its value in the database.<br>
+   * Text Channels are identified by their id and the id of their associated {@code guild}.<br>
+   * If the database doesn't contain an entry for the channel, a new one is created. Otherwise the
+   * old entry is overwritten.
+   *
+   * @param guild The {@code guild} instance associated with the role.
+   * @param channel The {@code text channel} instance stored in the database.
+   * @return The number of lines modified. Should be {@code 1}.
+   * @throws SQLException If a database error occurred.
+   */
   public static int put(Guild guild, TextChannel channel) throws SQLException {
-    return SQL.insert("textchannel/InsertTextChannel.sql", (stmt) -> {
+    return SQL.update("textchannel/InsertTextChannel.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, channel.getId());
       stmt.setString(3, channel.getName());
       // Serialize List<String> to String
-      stmt.setString(4, SqlQuery.serialize(channel.getSubreddits()));
+      stmt.setString(4, SqlQuery.marshal(channel.getSubreddits()));
     });
   }
   
+  /**
+   * Retrieves the database entry corresponding to the requested {@code text channel} and
+   * deserializes its content.
+   * Text channels are identified by their id and guild id.<br>
+   * If no such entry exists, an {@link NoSuchElementException} is thrown.
+   *
+   * @param guildId The guild id of the {@code channel}.
+   * @param channelId The id of the requested {@code channel}.
+   * @return The deserialized {@code channel} instance retrieved from the database.
+   * @throws SQLException If a database error occurred.
+   * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
+   */
   public static TextChannel get(long guildId, long channelId) throws SQLException {
     List<SqlObject> result = SQL.query("textchannel/SelectTextChannel.sql", guildId, channelId);
     
@@ -54,6 +78,13 @@ public abstract class TextChannelTable {
     return SqlQuery.unmarshal(channel, TextChannel.class);
   }
   
+  /**
+   * Retrieves the database entries corresponding to the requested {@code guild}.
+   *
+   * @param guildId The id of the {@code guild} associated with the requested {@code channels}.
+   * @return An unmodifiable list of all text channels associated with the provided guild id.
+   * @throws SQLException If a database error occurred.
+   */
   public static List<TextChannel> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("textchannel/SelectAllTextChannel.sql", guildId);
     

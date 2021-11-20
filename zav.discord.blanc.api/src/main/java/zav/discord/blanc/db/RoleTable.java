@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.Role;
 import zav.discord.blanc.db.internal.SqlObject;
@@ -46,7 +45,7 @@ public abstract class RoleTable {
    * @throws SQLException If a database error occurred.
    */
   public static int put(Guild guild, Role role) throws SQLException {
-    return SQL.insert("role/InsertRole.sql", (stmt) -> {
+    return SQL.update("role/InsertRole.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, role.getId());
       stmt.setString(3, role.getName());
@@ -75,6 +74,13 @@ public abstract class RoleTable {
     return SqlQuery.unmarshal(result.get(0), Role.class);
   }
   
+  /**
+   * Retrieves the database entries corresponding to the requested {@code guild}.
+   *
+   * @param guildId The id of the {@code guild} associated with the requested {@code roles}.
+   * @return An unmodifiable list of all roles associated with the provided guild id.
+   * @throws SQLException If a database error occurred.
+   */
   public static List<Role> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("role/SelectAllRole.sql", guildId);
   

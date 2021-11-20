@@ -16,19 +16,29 @@
 
 package zav.discord.blanc.databind.message;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+/**
+ * Embeds are "Rich Messages" which allow additional customization such as a colored border,
+ * text fields or embedded images.
+ */
+@NonNull
 public class MessageEmbed extends MessageEmbedTOP {
-  public void setTitle(String name) {
+  
+  public void setTitle(@NonNull String name) {
     setTitle(name, null);
   }
-  public void setTitle(String name, String url) {
+  
+  public void setTitle(@NonNull String name, @Nullable String url) {
     setTitle(new Title().withName(name).withUrl(url));
   }
   
-  public void addField(String name, Object content) {
+  public void addField(@NonNull String name, @NonNull Object content) {
     addField(name, content, false);
   }
   
-  public void addField(String name, Object content, boolean inline) {
+  public void addField(@NonNull String name, @NonNull Object content, boolean inline) {
     Field field = new Field().withName(name).withContent(content.toString()).withInline(inline);
     getFields().add(field);
   }

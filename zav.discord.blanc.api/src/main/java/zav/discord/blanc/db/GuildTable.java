@@ -39,12 +39,12 @@ public abstract class GuildTable {
    * @throws SQLException If a database error occurred.
    */
   public static int put(Guild guild) throws SQLException {
-    return SQL.insert("guild/InsertGuild.sql", (stmt) -> {
+    return SQL.update("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setString(2, guild.getName());
       stmt.setString(3, guild.getPrefix());
       // Serialize List<String> to String
-      stmt.setString(4, SqlQuery.serialize(guild.getBlacklist()));
+      stmt.setString(4, SqlQuery.marshal(guild.getBlacklist()));
     });
   }
   

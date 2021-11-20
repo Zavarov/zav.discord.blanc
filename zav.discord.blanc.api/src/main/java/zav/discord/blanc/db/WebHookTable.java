@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.TextChannel;
 import zav.discord.blanc.databind.WebHook;
@@ -16,6 +15,7 @@ import zav.discord.blanc.db.internal.SqlQuery;
  */
 public abstract class WebHookTable {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.WEBHOOK_DB);
+  
   private WebHookTable() {}
   
   public static void create() throws SQLException {
@@ -34,18 +34,44 @@ public abstract class WebHookTable {
     return SQL.update("webhook/DeleteAllWebHook.sql", guildId);
   }
   
+  /**
+   * Serializes the web hook and stores its value in the database.<br>
+   * Text Channels are identified by their id and the id of their associated {@code guild} and
+   * the id of the {@code channel} they are in.<br>
+   * If the database doesn't contain an entry for the web hook, a new one is created. Otherwise the
+   * old entry is overwritten.
+   *
+   * @param guild The {@code guild} instance associated with the role.
+   * @param channel The {@code text channel} instance stored in the database.
+   * @param hook The {@code web hook} instance stored in the database.
+   * @return The number of lines modified. Should be {@code 1}.
+   * @throws SQLException If a database error occurred.
+   */
   public static int put(Guild guild, TextChannel channel, WebHook hook) throws SQLException {
-    return SQL.insert("webhook/InsertWebHook.sql", (stmt) -> {
+    return SQL.update("webhook/InsertWebHook.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, channel.getId());
       stmt.setLong(3, hook.getId());
       stmt.setString(4, hook.getName());
       // Serialize List<String> to String
-      stmt.setString(5, SqlQuery.serialize(hook.getSubreddits()));
+      stmt.setString(5, SqlQuery.marshal(hook.getSubreddits()));
       stmt.setBoolean(6, hook.isOwner());
     });
   }
   
+  /**
+   * Retrieves the database entry corresponding to the requested {@code web hook} and
+   * deserializes its content.
+   * Text channels are identified by their id, the channel and guild id.<br>
+   * If no such entry exists, an {@link NoSuchElementException} is thrown.
+   *
+   * @param guildId The guild id of the {@code hook}.
+   * @param channelId The channel id of the {@code hook}.
+   * @param hookId The id of the requested {@code hook}.
+   * @return The deserialized {@code hook} instance retrieved from the database.
+   * @throws SQLException If a database error occurred.
+   * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
+   */
   public static WebHook get(long guildId, long channelId, long hookId) throws SQLException {
     List<SqlObject> result = SQL.query("webhook/SelectWebHook.sql", guildId, channelId, hookId);
     
@@ -58,6 +84,13 @@ public abstract class WebHookTable {
     return SqlQuery.unmarshal(hook, WebHook.class);
   }
   
+  /**
+   * Retrieves the database entries corresponding to the requested {@code guild}.
+   *
+   * @param guildId The id of the {@code guild} associated with the requested {@code web hooks}.
+   * @return An unmodifiable list of all web hooks associated with the provided guild id.
+   * @throws SQLException If a database error occurred.
+   */
   public static List<WebHook> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("webhook/SelectAllWebHook.sql", guildId);
     
