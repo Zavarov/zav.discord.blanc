@@ -1,20 +1,27 @@
 package zav.discord.blanc.command.resolver;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import zav.discord.blanc.Argument;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.time.LocalDate;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import zav.discord.blanc.Argument;
+
+/**
+ * Test case for the date resolver.<br>
+ * Verifies that the correct date value is retrieved from an argument.
+ */
 public class LocalDateResolverTest {
   private Argument argument;
   private LocalDateResolver resolver;
+  
+  /**
+   * Initializes the resolver. Furthermore an argument that always returns the date July 13th, 1991.
+   */
   @BeforeEach
   public void setUp() {
     resolver = new LocalDateResolver();

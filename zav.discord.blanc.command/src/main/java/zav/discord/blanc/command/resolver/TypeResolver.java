@@ -17,25 +17,22 @@
 
 package zav.discord.blanc.command.resolver;
 
-import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.Argument;
-
-import java.util.Optional;
 import java.util.function.Function;
+import zav.discord.blanc.Argument;
 
 /**
  * This class is used to resolve an arbitrary data type.
+ *
  * @param <T> The resolved type.
  */
-@NonNull
-public abstract class TypeResolver <T> implements Function<Argument, T> {
-
-    /**
-     * Transforms the {@link Argument} into an instance of {@link T}
-     * @param argument The {@link Argument} associated with {@link T}.
-     * @return An {@link Optional} containing the resolved type. In case the argument couldn't be resolved,
-     *         {@link Optional#empty()} is returned.
-     */
-    @Override
-    public abstract T apply(Argument argument);
+public abstract class TypeResolver<T> implements Function<Argument, T> {
+  /**
+   * Transforms the {@link Argument} into the desired instance of {@link T}.
+   *
+   * @param argument The {@link Argument} associated with {@link T}.
+   * @return The resolved type.
+   * @throws IllegalArgumentException In case the argument couldn't be resolved.
+   */
+  @Override
+  public abstract T apply(Argument argument);
 }

@@ -1,16 +1,24 @@
 package zav.discord.blanc.db;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import zav.discord.blanc.databind.*;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.WebHook;
 
+/**
+ * Base class for all test suites.<br>
+ * Initializes all databases.
+ */
+@SuppressWarnings("NotNullFieldNotInitialized")
 public abstract class AbstractTest {
   private static final Path GUILD_DB = Paths.get("Guild.db");
   private static final Path ROLE_DB = Paths.get("Role.db");
@@ -26,6 +34,11 @@ public abstract class AbstractTest {
   protected WebHook hook;
   protected User user;
   
+  /**
+   * Deserializes Discord instances.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @BeforeEach
   public void setUp() throws SQLException {
     guild = read("Guild.json", Guild.class);
@@ -35,6 +48,11 @@ public abstract class AbstractTest {
     user = read("User.json", User.class);
   }
   
+  /**
+   * Delete all database files.
+   *
+   * @throws IOException If one of the databases couldn't be deleted.
+   */
   @AfterEach
   public void cleanUp() throws IOException {
     delete(GUILD_DB);
@@ -44,17 +62,25 @@ public abstract class AbstractTest {
     delete(USER_DB);
   }
   
-  private void delete(Path DB) throws IOException {
-    if(Files.exists(DB)) {
-      Files.delete(DB);
+  private void delete(Path db) throws IOException {
+    if (Files.exists(db)) {
+      Files.delete(db);
     }
   }
   
+  /**
+   * Deserializes the file with the specified name.
+   *
+   * @param fileName The file name of the serialized class.
+   * @param clazz The desired target class.
+   * @param <T> The desired class type.
+   * @return A deserialized instance.
+   */
   public static <T> T read(String fileName, Class<T> clazz) {
     try {
       ObjectMapper om = new ObjectMapper();
       return om.readValue(RESOURCES.resolve(fileName).toFile(), clazz);
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new IllegalArgumentException(e.getMessage(), e);
     }
   }

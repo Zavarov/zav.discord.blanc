@@ -17,19 +17,21 @@
 
 package zav.discord.blanc.mc.argument._ast;
 
-
-import zav.discord.blanc.command.parser.NumberArgument;
-
 import java.math.BigDecimal;
 import java.util.Optional;
+import zav.discord.blanc.command.parser.NumberArgument;
 
+/**
+ * Interface between a Discord user and a command argument.<br>
+ * Each user is uniquely identified by its id.
+ */
 public class ASTUserArgument extends ASTUserArgumentTOP implements NumberArgument {
-    @Override
-    public Optional<BigDecimal> asNumber() {
-        try {
-            return Optional.of(new BigDecimal(super.getId().getDigits()));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
+  @Override
+  public Optional<BigDecimal> asNumber() {
+    try {
+      return Optional.of(new BigDecimal(super.getId().getDigits()));
+    } catch (NumberFormatException e) {
+      return Optional.empty();
     }
+  }
 }

@@ -1,19 +1,26 @@
 package zav.discord.blanc.db;
 
-import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.TextChannel;
-import zav.discord.blanc.databind.WebHook;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import zav.discord.blanc.databind.WebHook;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+/**
+ * Test case for the WebHook database.<br>
+ * Verifies that entries are written and read correctly.
+ */
 public class WebHookTableTest extends AbstractTest {
+  
+  /**
+   * Deserializes all Discord entities and initializes the WebHook database.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
@@ -114,6 +121,9 @@ public class WebHookTableTest extends AbstractTest {
   
   @Test
   public void testGetUnknownHook() {
-    assertThrows(NoSuchElementException.class, () -> WebHookTable.get(guild.getId(), channel.getId(), hook.getId()));
+    long guildId = guild.getId();
+    long channelId = channel.getId();
+    long hookId = hook.getId();
+    assertThrows(NoSuchElementException.class, () -> WebHookTable.get(guildId, channelId, hookId));
   }
 }

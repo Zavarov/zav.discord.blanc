@@ -18,22 +18,26 @@
 package zav.discord.blanc.mc.argument._ast;
 
 import de.monticore.prettyprint.IndentPrinter;
+import java.math.BigDecimal;
+import java.util.Optional;
 import zav.discord.blanc.Argument;
 import zav.mc.math.ArithmeticExpressionsPrettyPrinter;
 import zav.mc.math.ArithmeticExpressionsValueCalculator;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
+/**
+ * Interface between an arithmetic expression and a command argument.
+ */
 public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements Argument {
-    private static final ArithmeticExpressionsPrettyPrinter prettyPrinter = new ArithmeticExpressionsPrettyPrinter(new IndentPrinter());
-    @Override
-    public Optional<BigDecimal> asNumber() {
-        return ArithmeticExpressionsValueCalculator.valueOf(getExpression());
-    }
+  private static final ArithmeticExpressionsPrettyPrinter prettyPrinter =
+        new ArithmeticExpressionsPrettyPrinter(new IndentPrinter());
+  
+  @Override
+  public Optional<BigDecimal> asNumber() {
+    return ArithmeticExpressionsValueCalculator.valueOf(getExpression());
+  }
 
-    @Override
-    public Optional<String> asString() {
-        return Optional.of(prettyPrinter.prettyprint(getExpression()));
-    }
+  @Override
+  public Optional<String> asString() {
+    return Optional.of(prettyPrinter.prettyprint(getExpression()));
+  }
 }

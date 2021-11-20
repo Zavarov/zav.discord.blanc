@@ -17,34 +17,31 @@
 
 package zav.discord.blanc.mc;
 
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.databind.Message;
 import zav.discord.blanc.mc.callable._parser.CallableParser;
 
-import java.io.IOException;
-import java.util.Optional;
-
+/**
+ * Implementation of the Command parser using the CFG specified using MontiCore.
+ */
 public class MontiCoreCommandParser extends AbstractParser {
-    private static final Logger LOGGER = LogManager.getLogger(MontiCoreCommandParser.class);
-    private final CallableParser parser = new CallableParser();
+  private static final Logger LOGGER = LogManager.getLogger(MontiCoreCommandParser.class);
+  private final CallableParser parser = new CallableParser();
 
-    @Override
-    public IntermediateCommand parse(Message message) {
-        try {
-            Optional<String> content = Optional.ofNullable(message.getContent());
-
-            //images/files-only messages might not have any text content
-            if(content.isEmpty())
-                return null;
-            else
-                return parser.parse_String(content.get()).orElse(null);
-        }catch(IOException e){
-            //TODO Error message
-            LOGGER.error(e.getMessage(), e);
-            return null;
-        }
+  @Override
+  public @Nullable IntermediateCommand parse(Message message) {
+    try {
+      //images/files-only messages might not have any text content
+      @Nullable String content = message.getContent();
+      return content == null ? null : parser.parse_String(content).orElse(null);
+    } catch (IOException e) {
+      LOGGER.error(e.getMessage(), e);
+      return null;
     }
+  }
 }

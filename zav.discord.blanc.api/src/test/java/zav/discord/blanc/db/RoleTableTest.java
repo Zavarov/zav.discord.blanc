@@ -1,17 +1,26 @@
 package zav.discord.blanc.db;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.Role;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import zav.discord.blanc.databind.Role;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+/**
+ * Test case for the Role database.<br>
+ * Verifies that entries are written and read correctly.
+ */
 public class RoleTableTest extends AbstractTest {
+  
+  /**
+   * Deserializes all Discord entities and initializes the Role database.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();

@@ -1,10 +1,9 @@
 package zav.discord.blanc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import zav.discord.blanc.databind.io.Credentials;
-
 import java.io.File;
 import java.io.IOException;
+import zav.discord.blanc.databind.io.Credentials;
 
 public class Shard {
   private final Credentials credentials;

@@ -17,13 +17,15 @@
 
 package zav.discord.blanc.mc.argument._ast;
 
+import java.util.Optional;
 import zav.discord.blanc.command.parser.StringArgument;
 
-import java.util.Optional;
-
+/**
+ * Interface between a String expression and a command argument.
+ */
 public class ASTStringArgument extends ASTStringArgumentTOP implements StringArgument {
-    @Override
-    public Optional<String> asString() {
-        return Optional.of(getStringLiteral().getValue());
-    }
+  @Override
+  public Optional<String> asString() {
+    return Optional.of(getStringLiteral().getValue());
+  }
 }

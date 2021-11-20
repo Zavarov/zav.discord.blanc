@@ -1,23 +1,34 @@
 package zav.discord.blanc.command.parser;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import java.util.Collections;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.databind.Message;
-import zav.discord.blanc.view.*;
+import zav.discord.blanc.view.GuildMessageView;
+import zav.discord.blanc.view.GuildView;
+import zav.discord.blanc.view.MemberView;
+import zav.discord.blanc.view.PrivateChannelView;
+import zav.discord.blanc.view.PrivateMessageView;
+import zav.discord.blanc.view.ShardView;
+import zav.discord.blanc.view.TextChannelView;
+import zav.discord.blanc.view.UserView;
 
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-
+/**
+ * Test case for the parser implementation.<br>
+ * Verifies that the correct intermediate command representation is retrieved from a raw string.
+ */
 public class ParserTest {
   private Parser parser;
   private GuildMessageView guildView;
@@ -25,18 +36,22 @@ public class ParserTest {
   private Message privateMessage;
   private Message guildMessage;
   
-  @BeforeClass
+  @BeforeAll
   public static void setUpAll() {
     Commands.bind("guildCommand", GuildCommand.class);
     Commands.bind("privateCommand", PrivateCommand.class);
   }
   
-  @AfterClass
+  @AfterAll
   public static void tearDownAll() {
     Commands.clear();
   }
   
-  @Before
+  /**
+   * Initializes the resolver. Furthermore, instances of guild and private messages as well as
+   * their corresponding commands are created.
+   */
+  @BeforeEach
   public void setUp() {
     // Mock private command
   
@@ -77,8 +92,8 @@ public class ParserTest {
     when(parser.parse(privateView)).thenCallRealMethod();
     when(parser.parse(guildView)).thenCallRealMethod();
     
-    when(parser.parse(privateMessage)).thenReturn(privateCommand);
-    when(parser.parse(guildMessage)).thenReturn(guildCommand);
+    doReturn(privateCommand).when(parser).parse(privateMessage);
+    doReturn(guildCommand).when(parser).parse(guildMessage);
   }
   
   @Test
@@ -99,8 +114,8 @@ public class ParserTest {
   
   @Test
   public void testParseInvalidCommand() {
-    when(parser.parse(privateMessage)).thenReturn(null);
-    when(parser.parse(guildMessage)).thenReturn(null);
+    doReturn(null).when(parser).parse(privateMessage);
+    doReturn(null).when(parser).parse(guildMessage);
     
     Optional<? extends Command> result = parser.parse(guildView);
     assertThat(result).isEmpty();

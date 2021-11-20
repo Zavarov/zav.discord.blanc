@@ -1,4 +1,7 @@
 package zav.discord.blanc.command;
 
-public class InvalidCommandException extends Exception {
+/**
+ * Base class for all command-related exception.<br>
+ */
+public abstract class InvalidCommandException extends Exception {
 }

@@ -17,22 +17,21 @@
 
 package zav.discord.blanc.command.resolver;
 
-import org.eclipse.jdt.annotation.NonNull;
+import java.math.BigDecimal;
 import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.NumberArgument;
 
-import java.math.BigDecimal;
 /**
  * Resolves the provided {@link Argument} into a {@link BigDecimal}.
  */
-@NonNull
 public class BigDecimalResolver extends TypeResolver<BigDecimal> {
-    /**
-     * Extracts the result when evaluation the {@link NumberArgument}.
-     * @param argument The {@link Argument} associated with the {@link BigDecimal}.
-     */
-    @Override
-    public BigDecimal apply(@NonNull Argument  argument){
-        return argument.asNumber().orElseThrow(IllegalArgumentException::new);
-    }
+  /**
+   * Extracts the result when evaluation the {@link NumberArgument}.
+   *
+   * @param argument The {@link Argument} associated with the {@link BigDecimal}.
+   */
+  @Override
+  public BigDecimal apply(Argument  argument) {
+    return argument.asNumber().orElseThrow(IllegalArgumentException::new);
+  }
 }

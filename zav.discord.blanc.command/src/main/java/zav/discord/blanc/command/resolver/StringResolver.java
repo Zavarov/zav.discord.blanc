@@ -17,21 +17,20 @@
 
 package zav.discord.blanc.command.resolver;
 
-import org.eclipse.jdt.annotation.NonNull;
 import zav.discord.blanc.Argument;
 import zav.discord.blanc.command.parser.StringArgument;
 
 /**
  * Resolves the provided {@link Argument} into a {@link String}.
  */
-@NonNull
 public class StringResolver extends TypeResolver<String> {
-    /**
-     * Extracts the content of the provided {@link StringArgument}.
-     * @param argument The {@link StringArgument} associated with the {@link String}.
-     */
-    @Override
-    public String apply(@NonNull Argument argument){
-        return argument.asString().orElseThrow(IllegalArgumentException::new);
-    }
+  /**
+   * Extracts the content of the provided {@link StringArgument}.
+   *
+   * @param argument The {@link StringArgument} associated with the {@link String}.
+   */
+  @Override
+  public String apply(Argument argument) {
+    return argument.asString().orElseThrow(IllegalArgumentException::new);
+  }
 }

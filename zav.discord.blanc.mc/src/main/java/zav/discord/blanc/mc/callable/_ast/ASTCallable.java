@@ -17,32 +17,34 @@
 
 package zav.discord.blanc.mc.callable._ast;
 
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.command.parser.IntermediateCommand;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import zav.discord.blanc.Argument;
+import zav.discord.blanc.command.parser.IntermediateCommand;
 
+/**
+ * Interface between a MontiCore callable and an intermediate command.
+ */
 public class ASTCallable extends ASTCallableTOP implements IntermediateCommand {
 
-    @Override
-    public Optional<String> getPrefix() {
-        return isPresentAstPrefix() ? Optional.of(super.getAstPrefix()) : Optional.empty();
-    }
+  @Override
+  public Optional<String> getPrefix() {
+    return isPresentAstPrefix() ? Optional.of(super.getAstPrefix()) : Optional.empty();
+  }
 
-    @Override
-    public String getName() {
-        return super.getQualifiedName();
-    }
+  @Override
+  public String getName() {
+    return super.getQualifiedName();
+  }
 
-    @Override
-    public List<String> getFlags() {
-        return getAstFlagList().stream().map(ASTFlag::getName).collect(Collectors.toList());
-    }
+  @Override
+  public List<String> getFlags() {
+    return getAstFlagList().stream().map(ASTFlag::getName).collect(Collectors.toList());
+  }
 
-    @Override
-    public List<? extends Argument> getArguments() {
-        return super.getAstArgumentList();
-    }
+  @Override
+  public List<? extends Argument> getArguments() {
+    return super.getAstArgumentList();
+  }
 }

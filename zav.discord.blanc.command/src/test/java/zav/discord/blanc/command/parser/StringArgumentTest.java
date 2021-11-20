@@ -1,19 +1,22 @@
 package zav.discord.blanc.command.parser;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Test case for the string argument.<br>
+ * Verifies that the correct decimal and string representation is retrieved from an argument.
+ */
 public class StringArgumentTest {
   StringArgument argument;
   
-  @Before
+  @BeforeEach
   public void setUp() {
     argument = mock(StringArgument.class);
     when(argument.asNumber()).thenCallRealMethod();

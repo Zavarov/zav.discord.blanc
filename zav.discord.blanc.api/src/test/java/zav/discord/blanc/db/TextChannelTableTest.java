@@ -1,19 +1,26 @@
 package zav.discord.blanc.db;
 
-import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.Role;
-import zav.discord.blanc.databind.TextChannel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import zav.discord.blanc.databind.TextChannel;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+/**
+ * Test case for the TextChannel database.<br>
+ * Verifies that entries are written and read correctly.
+ */
 public class TextChannelTableTest extends AbstractTest {
+  
+  /**
+   * Deserializes all Discord entities and initializes the TextChannel database.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
@@ -111,6 +118,8 @@ public class TextChannelTableTest extends AbstractTest {
   
   @Test
   public void testGetUnknownChannel() {
-    assertThrows(NoSuchElementException.class, () -> TextChannelTable.get(guild.getId(), channel.getId()));
+    long guildId = guild.getId();
+    long channelId = channel.getId();
+    assertThrows(NoSuchElementException.class, () -> TextChannelTable.get(guildId, channelId));
   }
 }

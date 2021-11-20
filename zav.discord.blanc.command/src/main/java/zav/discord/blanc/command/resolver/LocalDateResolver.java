@@ -17,37 +17,34 @@
 
 package zav.discord.blanc.command.resolver;
 
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.command.parser.StringArgument;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import org.apache.commons.lang3.StringUtils;
+import zav.discord.blanc.Argument;
+import zav.discord.blanc.command.parser.StringArgument;
 
 /**
  * Resolves the provided {@link Argument} into a {@link LocalDate}.
  */
-@NonNull
-public class LocalDateResolver extends TypeResolver<LocalDate>{
-    /**
-     * Parses the value contained in the provided {@link StringArgument}.
-     * <p>
-     * The {@link DateTimeParseException} caused by a malformed String is catched and logged.
-     * @see DateTimeFormatter#ISO_LOCAL_DATE
-     * @see LocalDate#parse(CharSequence)
-     * @param argument the {@link Argument} associated with the {@link LocalDate}.
-     */
-    @Override
-    public LocalDate apply(@NonNull Argument argument){
-        try {
-            return argument.asString()
-                  .map(StringUtils::deleteWhitespace)
-                  .map(LocalDate::parse)
-                  .orElseThrow(IllegalArgumentException::new);
-        } catch(DateTimeParseException e) {
-            throw new IllegalArgumentException(e);
-        }
+public class LocalDateResolver extends TypeResolver<LocalDate> {
+  /**
+   * Parses the value contained in the provided {@link StringArgument}.<br>
+   * The {@link DateTimeParseException} caused by a malformed String is caught and logged.
+   *
+   * @see DateTimeFormatter#ISO_LOCAL_DATE
+   * @see LocalDate#parse(CharSequence)
+   * @param argument the {@link Argument} associated with the {@link LocalDate}.
+   */
+  @Override
+  public LocalDate apply(Argument argument) {
+    try {
+      return argument.asString()
+            .map(StringUtils::deleteWhitespace)
+            .map(LocalDate::parse)
+            .orElseThrow(IllegalArgumentException::new);
+    } catch (DateTimeParseException e) {
+      throw new IllegalArgumentException(e);
     }
+  }
 }
