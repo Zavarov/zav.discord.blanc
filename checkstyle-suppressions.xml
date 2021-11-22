@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <suppress checks="AbbreviationAsWordInName"
+    files="AST.*.java"/>
+  <suppress checks="PackageName"
+    files="zav[\\/]discord[\\/]blanc[\\/]mc[\\/]argument[\\/]_ast[\\/].*.java"/>
+  <suppress checks="PackageName"
+    files="zav[\\/]discord[\\/]blanc[\\/]mc[\\/]callable[\\/]_ast[\\/].*.java"/>
+</suppressions>
+ 
