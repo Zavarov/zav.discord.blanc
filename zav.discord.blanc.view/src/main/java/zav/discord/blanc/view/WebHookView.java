@@ -1,6 +1,7 @@
 package zav.discord.blanc.view;
 
 import zav.discord.blanc.databind.WebHook;
+import zav.jrc.databind.Link;
 
 public interface WebHookView {
   // Databind
@@ -8,4 +9,5 @@ public interface WebHookView {
   // Misc
   void updateSubreddit(String subreddit);
   void delete();
+  void send(Link link);
 }

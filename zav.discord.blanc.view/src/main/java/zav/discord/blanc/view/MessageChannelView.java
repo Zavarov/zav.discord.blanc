@@ -1,6 +1,8 @@
 package zav.discord.blanc.view;
 
 import zav.discord.blanc.Argument;
+import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.Role;
 import zav.discord.blanc.databind.User;
 import zav.jrc.databind.Link;
 
@@ -15,6 +17,8 @@ public interface MessageChannelView {
   }
   void send(BufferedImage image, String imageName);
   void send(Object content);
+  void send(Guild guild);
+  void send(Role role);
   void send(User user);
   void send(Link link);
 }
