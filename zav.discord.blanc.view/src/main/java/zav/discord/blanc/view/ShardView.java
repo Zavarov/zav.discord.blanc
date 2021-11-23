@@ -15,4 +15,5 @@ public interface ShardView {
   UserView getUser(Argument argument);
   // Misc
   void shutdown();
+  <T extends Runnable> void submit(T job);
 }
