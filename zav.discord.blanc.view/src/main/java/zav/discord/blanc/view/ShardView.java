@@ -1,19 +1,35 @@
 package zav.discord.blanc.view;
 
+import java.util.Collection;
 import zav.discord.blanc.Argument;
 import zav.discord.blanc.Shard;
 
-import java.util.Collection;
-
+/**
+ * Base interface for all functions that are performed on this application.
+ */
 public interface ShardView {
-  // Databind
+  
   Shard getAbout();
-  // Views
+  
+  /**
+   * Returns a view over all guilds in this shard.
+   *
+   * @return An immutable list of guild views.
+   */
   Collection<GuildView> getGuilds();
+  
+  /**
+   * Returns the Discord user corresponding to this application.
+   *
+   * @return A user view over this application.
+   */
   SelfUserView getSelfUser();
+  
   GuildView getGuild(Argument argument);
+  
   UserView getUser(Argument argument);
-  // Misc
+  
   void shutdown();
+  
   <T extends Runnable> void submit(T job);
 }

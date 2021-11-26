@@ -1,9 +1,12 @@
 package zav.discord.blanc.view;
 
+/**
+ * Base interface for all functions that are performed over a private message.
+ */
 public interface PrivateMessageView extends MessageView {
-  // Databind
+
   UserView getAuthor();
-  // Views
+
   @Override
   PrivateChannelView getMessageChannel();
 }

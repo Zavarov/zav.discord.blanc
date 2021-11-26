@@ -1,24 +1,33 @@
 package zav.discord.blanc.view;
 
+import java.awt.image.BufferedImage;
 import zav.discord.blanc.Argument;
 import zav.discord.blanc.databind.Guild;
 import zav.discord.blanc.databind.Role;
 import zav.discord.blanc.databind.User;
 import zav.jrc.databind.Link;
 
-import java.awt.image.BufferedImage;
-
+/**
+ * Base interface for all functions that are performed in message channels.<br>
+ * This includes both private and guild channels.
+ */
 public interface MessageChannelView {
-  // Views
+  
   MessageView getMessage(Argument argument);
-  // Misc
+  
   default void send(String format, Object... args) {
     send(String.format(format, args));
   }
+  
   void send(BufferedImage image, String imageName);
+  
   void send(Object content);
+  
   void send(Guild guild);
+  
   void send(Role role);
+  
   void send(User user);
+  
   void send(Link link);
 }

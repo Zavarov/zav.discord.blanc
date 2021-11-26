@@ -1,12 +1,14 @@
 package zav.discord.blanc.view;
 
+import java.awt.image.BufferedImage;
 import zav.discord.blanc.databind.User;
 
-import java.awt.image.BufferedImage;
-
+/**
+ * Base interface for all functions that are performed on this application.
+ */
 public interface SelfUserView extends UserView {
-  // Databind
+
   User getAbout();
-  // Misc
+
   void setAvatar(BufferedImage image);
 }

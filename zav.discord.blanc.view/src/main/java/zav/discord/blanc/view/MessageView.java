@@ -2,14 +2,21 @@ package zav.discord.blanc.view;
 
 import zav.discord.blanc.databind.Message;
 
+/**
+ * Base interface for all functions that are performed over a messages.<br>
+ * This includes both private and guild messages.
+ */
 public interface MessageView {
-  // Databind
+
   Message getAbout();
-  // Views
+
   MessageChannelView getMessageChannel();
+
   UserView getAuthor();
+
   ShardView getShard();
-  // Misc
+
   void delete();
+
   void react(String reaction);
 }
