@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Guild;
-import zav.discord.blanc.databind.Role;
-import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.TextChannelValueObject;
 
 /**
  * Base interface for all functions that are performed over guild.
  */
 public interface GuildView {
-  Guild getAbout();
+  GuildValueObject getAbout();
   
   /**
    * Self members allow additional functionality exclusive to oneself, such as changing the profile
@@ -86,7 +86,7 @@ public interface GuildView {
    * @param role A role of this guild.
    * @return {@code true}, when the member is allowed to assign this role to a user.
    */
-  boolean canInteract(MemberView member, Role role);
+  boolean canInteract(MemberView member, RoleValueObject role);
   
   /**
    * Creates an activity chart over this guild. The chart plots the total number of members, the
@@ -97,5 +97,5 @@ public interface GuildView {
    * @param channels A list of text channels in this guild.
    * @return An line chart plotting the recent guild activity.
    */
-  BufferedImage getActivity(List<TextChannel> channels);
+  BufferedImage getActivity(List<TextChannelValueObject> channels);
 }

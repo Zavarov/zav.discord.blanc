@@ -1,14 +1,14 @@
 package zav.discord.blanc.view;
 
-import zav.discord.blanc.databind.Message;
+import zav.discord.blanc.databind.MessageValueObject;
 
 /**
  * Base interface for all functions that are performed over a messages.<br>
  * This includes both private and guild messages.
  */
 public interface MessageView {
-
-  Message getAbout();
+  
+  MessageValueObject getAbout();
 
   MessageChannelView getMessageChannel();
 

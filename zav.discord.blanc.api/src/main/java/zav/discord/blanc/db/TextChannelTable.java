@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import zav.discord.blanc.databind.Guild;
-import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
@@ -44,7 +44,7 @@ public abstract class TextChannelTable {
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(Guild guild, TextChannel channel) throws SQLException {
+  public static int put(GuildValueObject guild, TextChannelValueObject channel) throws SQLException {
     return SQL.update("textchannel/InsertTextChannel.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, channel.getId());
@@ -66,7 +66,7 @@ public abstract class TextChannelTable {
    * @throws SQLException If a database error occurred.
    * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
    */
-  public static TextChannel get(long guildId, long channelId) throws SQLException {
+  public static TextChannelValueObject get(long guildId, long channelId) throws SQLException {
     List<SqlObject> result = SQL.query("textchannel/SelectTextChannel.sql", guildId, channelId);
     
     if (result.isEmpty()) {
@@ -75,7 +75,7 @@ public abstract class TextChannelTable {
   
     SqlObject channel = transform(result.get(0));
   
-    return SqlQuery.unmarshal(channel, TextChannel.class);
+    return SqlQuery.unmarshal(channel, TextChannelValueObject.class);
   }
   
   /**
@@ -85,12 +85,12 @@ public abstract class TextChannelTable {
    * @return An unmodifiable list of all text channels associated with the provided guild id.
    * @throws SQLException If a database error occurred.
    */
-  public static List<TextChannel> getAll(long guildId) throws SQLException {
+  public static List<TextChannelValueObject> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("textchannel/SelectAllTextChannel.sql", guildId);
     
     return result.stream()
           .map(TextChannelTable::transform)
-          .map(obj -> SqlQuery.unmarshal(obj, TextChannel.class))
+          .map(obj -> SqlQuery.unmarshal(obj, TextChannelValueObject.class))
           .collect(Collectors.toUnmodifiableList());
   }
   

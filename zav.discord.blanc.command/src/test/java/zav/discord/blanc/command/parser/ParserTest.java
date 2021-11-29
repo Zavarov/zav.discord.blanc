@@ -15,7 +15,7 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.databind.Message;
+import zav.discord.blanc.databind.MessageValueObject;
 import zav.discord.blanc.view.GuildMessageView;
 import zav.discord.blanc.view.GuildView;
 import zav.discord.blanc.view.MemberView;
@@ -33,8 +33,8 @@ public class ParserTest {
   private Parser parser;
   private GuildMessageView guildView;
   private PrivateMessageView privateView;
-  private Message privateMessage;
-  private Message guildMessage;
+  private MessageValueObject privateMessage;
+  private MessageValueObject guildMessage;
   
   @BeforeAll
   public static void setUpAll() {
@@ -55,7 +55,7 @@ public class ParserTest {
   public void setUp() {
     // Mock private command
   
-    privateMessage = mock(Message.class);
+    privateMessage = mock(MessageValueObject.class);
     
     IntermediateCommand privateCommand = mock(IntermediateCommand.class);
     when(privateCommand.getPrefix()).thenReturn(Optional.of("b"));
@@ -71,7 +71,7 @@ public class ParserTest {
   
     // Mock guild command
   
-    guildMessage = mock(Message.class);
+    guildMessage = mock(MessageValueObject.class);
     
     IntermediateCommand guildCommand = mock(IntermediateCommand.class);
     when(guildCommand.getPrefix()).thenReturn(Optional.of("b"));

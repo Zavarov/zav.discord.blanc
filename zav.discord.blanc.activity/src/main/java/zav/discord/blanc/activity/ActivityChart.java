@@ -33,8 +33,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import vartas.chart.line.$factory.LineChartFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
-import zav.discord.blanc.databind.TextChannel;
-import zav.discord.blanc.databind.activity.DataPoint;
+import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.activity.DataPointValueObject;
 import zav.discord.blanc.view.GuildView;
 
 /**
@@ -46,11 +46,11 @@ import zav.discord.blanc.view.GuildView;
  * members as well as the ones that are currently online.
  */
 public class ActivityChart {
-  private final Cache<LocalDateTime, DataPoint> entries = CacheBuilder.newBuilder()
+  private final Cache<LocalDateTime, DataPointValueObject> entries = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.ofDays(1))
         .build();
     
-  public void add(DataPoint data) {
+  public void add(DataPointValueObject data) {
     this.entries.put(LocalDateTime.now(), data);
   }
   
@@ -64,7 +64,7 @@ public class ActivityChart {
     /**
      * A collection of text channels whose activity is plotted separately.
      */
-    private List<TextChannel> channels = Collections.emptyList();
+    private List<TextChannelValueObject> channels = Collections.emptyList();
     /**
      * The final chart containing the accumulated data.
      */
@@ -89,7 +89,7 @@ public class ActivityChart {
       return this;
     }
 
-    public Builder withChannels(List<TextChannel> channels) {
+    public Builder withChannels(List<TextChannelValueObject> channels) {
       this.channels = channels;
       return this;
     }
@@ -102,7 +102,8 @@ public class ActivityChart {
      *     <li>The amount of members that are online.</li>
      *     <li>The total amount of messages per minute in the entire guild.</li>
      * </ul>
-     * Additionally, the activity of each explicitly stated {@link TextChannel} is included as well.
+     * Additionally, the activity of each explicitly stated {@link TextChannelValueObject} is
+     * included as well.
      *
      * @param bounds The dimension of the {@link BufferedImage}.
      * @return A {@link BufferedImage} containing a plot of the activity.

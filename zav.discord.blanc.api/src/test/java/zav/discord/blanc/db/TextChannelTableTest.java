@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.TextChannelValueObject;
 
 /**
  * Test case for the TextChannel database.<br>
@@ -55,7 +55,7 @@ public class TextChannelTableTest extends AbstractTest {
   public void testPutAlreadyExistingChannel() throws SQLException {
     TextChannelTable.put(guild, channel);
   
-    TextChannel response = TextChannelTable.get(guild.getId(), channel.getId());
+    TextChannelValueObject response = TextChannelTable.get(guild.getId(), channel.getId());
     assertThat(channel.getName()).isEqualTo(response.getName());
   
     channel.setName("Updated");
@@ -94,7 +94,7 @@ public class TextChannelTableTest extends AbstractTest {
   public void testGetChannel() throws SQLException {
     TextChannelTable.put(guild, channel);
   
-    TextChannel response = TextChannelTable.get(guild.getId(), channel.getId());
+    TextChannelValueObject response = TextChannelTable.get(guild.getId(), channel.getId());
     
     assertThat(response.getId()).isEqualTo(channel.getId());
     assertThat(response.getName()).isEqualTo(channel.getName());
@@ -105,11 +105,11 @@ public class TextChannelTableTest extends AbstractTest {
   public void testGetAllChannels() throws SQLException {
     TextChannelTable.put(guild, channel);
   
-    List<TextChannel> responses = TextChannelTable.getAll(guild.getId());
+    List<TextChannelValueObject> responses = TextChannelTable.getAll(guild.getId());
   
     assertThat(responses).hasSize(1);
   
-    TextChannel response = responses.get(0);
+    TextChannelValueObject response = responses.get(0);
   
     assertThat(response.getId()).isEqualTo(channel.getId());
     assertThat(response.getName()).isEqualTo(channel.getName());

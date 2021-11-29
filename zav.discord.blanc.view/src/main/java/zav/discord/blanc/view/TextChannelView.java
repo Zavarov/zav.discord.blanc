@@ -1,14 +1,14 @@
 package zav.discord.blanc.view;
 
 import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.TextChannelValueObject;
 
 /**
  * Base interface for all functions that are performed on text channels.
  */
 public interface TextChannelView extends MessageChannelView {
   
-  TextChannel getAbout();
+  TextChannelValueObject getAbout();
   
   @Override
   GuildMessageView getMessage(Argument argument);

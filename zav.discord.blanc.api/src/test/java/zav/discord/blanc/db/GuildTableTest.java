@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.GuildValueObject;
 
 /**
  * Test case for the Guild database.<br>
@@ -54,7 +54,7 @@ public class GuildTableTest extends AbstractTest {
   public void testPutAlreadyExistingGuild() throws SQLException {
     GuildTable.put(guild);
     
-    Guild response = GuildTable.get(guild.getId());
+    GuildValueObject response = GuildTable.get(guild.getId());
     assertThat(guild.getName()).isEqualTo(response.getName());
     
     guild.setName("Updated");
@@ -84,7 +84,7 @@ public class GuildTableTest extends AbstractTest {
   public void testGetGuild() throws SQLException {
     GuildTable.put(guild);
     
-    Guild response = GuildTable.get(guild.getId());
+    GuildValueObject response = GuildTable.get(guild.getId());
     
     assertThat(response.getId()).isEqualTo(guild.getId());
     assertThat(response.getName()).isEqualTo(guild.getName());

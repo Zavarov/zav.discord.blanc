@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.databind.RoleValueObject;
 
 /**
  * Test case for the Role database.<br>
@@ -55,7 +55,7 @@ public class RoleTableTest extends AbstractTest {
   public void testPutAlreadyExistingRole() throws SQLException {
     RoleTable.put(guild, role);
   
-    Role response = RoleTable.get(guild.getId(), role.getId());
+    RoleValueObject response = RoleTable.get(guild.getId(), role.getId());
     assertThat(role.getName()).isEqualTo(response.getName());
   
     role.setName("Updated");
@@ -93,8 +93,8 @@ public class RoleTableTest extends AbstractTest {
   @Test
   public void testGetRole() throws SQLException {
     RoleTable.put(guild, role);
-    
-    Role response = RoleTable.get(guild.getId(), role.getId());
+  
+    RoleValueObject response = RoleTable.get(guild.getId(), role.getId());
     
     assertThat(response.getId()).isEqualTo(role.getId());
     assertThat(response.getName()).isEqualTo(role.getName());
@@ -105,11 +105,11 @@ public class RoleTableTest extends AbstractTest {
   public void testGetAllRoles() throws SQLException {
     RoleTable.put(guild, role);
     
-    List<Role> responses = RoleTable.getAll(guild.getId());
+    List<RoleValueObject> responses = RoleTable.getAll(guild.getId());
     
     assertThat(responses).hasSize(1);
-    
-    Role response = responses.get(0);
+  
+    RoleValueObject response = responses.get(0);
     
     assertThat(response.getId()).isEqualTo(role.getId());
     assertThat(response.getName()).isEqualTo(role.getName());

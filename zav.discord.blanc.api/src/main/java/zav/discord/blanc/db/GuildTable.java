@@ -3,7 +3,7 @@ package zav.discord.blanc.db;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
@@ -38,7 +38,7 @@ public abstract class GuildTable {
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(Guild guild) throws SQLException {
+  public static int put(GuildValueObject guild) throws SQLException {
     return SQL.update("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setString(2, guild.getName());
@@ -59,7 +59,7 @@ public abstract class GuildTable {
    * @throws SQLException If a database error occurred.
    * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
    */
-  public static Guild get(long guildId) throws SQLException {
+  public static GuildValueObject get(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("guild/SelectGuild.sql", guildId);
       
     if (result.isEmpty()) {
@@ -71,6 +71,6 @@ public abstract class GuildTable {
     // Serialize String to List<String>
     guild.computeIfPresent("blacklist", (k, v) -> SqlQuery.deserialize(v));
       
-    return SqlQuery.unmarshal(guild, Guild.class);
+    return SqlQuery.unmarshal(guild, GuildValueObject.class);
   }
 }

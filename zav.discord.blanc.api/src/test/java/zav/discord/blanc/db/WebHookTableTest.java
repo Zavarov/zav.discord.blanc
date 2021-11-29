@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.WebHook;
+import zav.discord.blanc.databind.WebHookValueObject;
 
 /**
  * Test case for the WebHook database.<br>
@@ -55,7 +55,7 @@ public class WebHookTableTest extends AbstractTest {
   public void testPutAlreadyExistingHook() throws SQLException {
     WebHookTable.put(guild, channel, hook);
   
-    WebHook response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
+    WebHookValueObject response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
     assertThat(hook.getName()).isEqualTo(response.getName());
   
     hook.setName("Updated");
@@ -94,7 +94,7 @@ public class WebHookTableTest extends AbstractTest {
   public void testGetHook() throws SQLException {
     WebHookTable.put(guild, channel, hook);
   
-    WebHook response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
+    WebHookValueObject response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
     
     assertThat(response.getId()).isEqualTo(hook.getId());
     assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
@@ -106,11 +106,11 @@ public class WebHookTableTest extends AbstractTest {
   public void testGetAllHooks() throws SQLException {
     WebHookTable.put(guild, channel, hook);
   
-    List<WebHook> responses = WebHookTable.getAll(guild.getId());
+    List<WebHookValueObject> responses = WebHookTable.getAll(guild.getId());
   
     assertThat(responses).hasSize(1);
   
-    WebHook response = responses.get(0);
+    WebHookValueObject response = responses.get(0);
   
     assertThat(response.getId()).isEqualTo(hook.getId());
     assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());

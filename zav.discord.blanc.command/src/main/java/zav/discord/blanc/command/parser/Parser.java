@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.databind.Message;
+import zav.discord.blanc.databind.MessageValueObject;
 import zav.discord.blanc.view.GuildMessageView;
 import zav.discord.blanc.view.PrivateMessageView;
 
@@ -18,7 +18,7 @@ import zav.discord.blanc.view.PrivateMessageView;
  * @see Commands
  */
 public interface Parser {
-  @Nullable IntermediateCommand parse(Message content);
+  @Nullable IntermediateCommand parse(MessageValueObject content);
   
   Optional<? extends Command> parse(GuildMessageView source);
   

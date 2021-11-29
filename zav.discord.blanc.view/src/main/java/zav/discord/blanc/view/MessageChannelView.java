@@ -2,9 +2,9 @@ package zav.discord.blanc.view;
 
 import java.awt.image.BufferedImage;
 import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Guild;
-import zav.discord.blanc.databind.Role;
-import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.UserValueObject;
 import zav.jrc.databind.Link;
 
 /**
@@ -23,11 +23,11 @@ public interface MessageChannelView {
   
   void send(Object content);
   
-  void send(Guild guild);
+  void send(GuildValueObject guild);
   
-  void send(Role role);
+  void send(RoleValueObject role);
   
-  void send(User user);
+  void send(UserValueObject user);
   
   void send(Link link);
 }

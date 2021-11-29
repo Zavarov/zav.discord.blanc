@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.annotation.NonNull;
-import zav.discord.blanc.databind.TextChannel;
+import zav.discord.blanc.databind.TextChannelValueObject;
 
 /**
  * The activity within a guild describes both the amount of members and their participation.<br>
@@ -15,7 +15,7 @@ import zav.discord.blanc.databind.TextChannel;
  * of messages per minute.
  */
 @NonNull
-public class DataPoint extends DataPointTOP {
+public class DataPointValueObject extends DataPointTOPValueObject {
   /**
    * This map keeps track of all messages that have been received in the individual text channels.
    * In order to minimize the overhead, we only keep track of the message occurrences and not
@@ -24,7 +24,7 @@ public class DataPoint extends DataPointTOP {
    */
   @JsonIgnore
   @NonNull
-  protected final Map<TextChannel, Long> channelActivity = new ConcurrentHashMap<>();
+  protected final Map<TextChannelValueObject, Long> channelActivity = new ConcurrentHashMap<>();
   
   /**
    * Returns an immutable map of the number of message per text channel.
@@ -32,7 +32,7 @@ public class DataPoint extends DataPointTOP {
    * @return A map containing the number of messages per text channel.
    */
   @NonNull
-  public Map<TextChannel, Long> getChannelActivity() {
+  public Map<TextChannelValueObject, Long> getChannelActivity() {
     return Map.copyOf(channelActivity);
   }
 }

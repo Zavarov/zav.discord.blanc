@@ -3,7 +3,7 @@ package zav.discord.blanc.db;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
@@ -37,7 +37,7 @@ public abstract class UserTable {
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(User user) throws SQLException {
+  public static int put(UserValueObject user) throws SQLException {
     return SQL.update("user/InsertUser.sql", (stmt) -> {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
@@ -58,7 +58,7 @@ public abstract class UserTable {
    * @throws SQLException If a database error occurred.
    * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
    */
-  public static User get(long userId) throws SQLException {
+  public static UserValueObject get(long userId) throws SQLException {
     List<SqlObject> result = SQL.query("user/SelectUser.sql", userId);
     
     if (result.isEmpty()) {
@@ -70,6 +70,6 @@ public abstract class UserTable {
     // Serialize String to List<String>
     guild.computeIfPresent("ranks", (k, v) -> SqlQuery.deserialize(v));
     
-    return SqlQuery.unmarshal(result.get(0), User.class);
+    return SqlQuery.unmarshal(result.get(0), UserValueObject.class);
   }
 }

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.UserValueObject;
 
 /**
  * Test case for the User database.<br>
@@ -53,8 +53,8 @@ public class UserTest extends AbstractTest {
   @Test
   public void testPutAlreadyExistingUser() throws SQLException {
     UserTable.put(user);
-    
-    User response = UserTable.get(user.getId());
+  
+    UserValueObject response = UserTable.get(user.getId());
     assertThat(user.getName()).isEqualTo(response.getName());
     
     user.setName("Updated");
@@ -83,8 +83,8 @@ public class UserTest extends AbstractTest {
   @Test
   public void testGetUser() throws SQLException {
     UserTable.put(user);
-    
-    User response = UserTable.get(user.getId());
+  
+    UserValueObject response = UserTable.get(user.getId());
     
     assertThat(response.getId()).isEqualTo(user.getId());
     assertThat(response.getName()).isEqualTo(user.getName());
