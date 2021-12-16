@@ -14,6 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 @NonNullByDefault
-package zav.discord.blanc.job;
+package zav.discord.blanc.reddit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
