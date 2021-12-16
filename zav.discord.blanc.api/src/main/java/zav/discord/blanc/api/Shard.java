@@ -17,16 +17,11 @@
 package zav.discord.blanc.api;
 
 import java.util.Collection;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Shard;
 
 /**
  * Base interface for all functions that are performed on this application.
  */
 public interface Shard {
-  
-  Shard getAbout();
-  
   /**
    * Returns a view over all guilds in this shard.
    *

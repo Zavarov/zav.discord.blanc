@@ -16,27 +16,39 @@
 
 package zav.discord.blanc.api;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import zav.discord.blanc.databind.RoleValueObject;
-
 /**
- * Base interface for all functions that are performed over a guild member.
+ * An enumeration of all permissions that are supported by Discord.
  */
-public interface Member extends User {
-  
-  Set<Role> getRoles();
-  
-  Set<Permission> getPermissions();
-  
-  void modifyRoles(Collection<RoleValueObject> rolesToAdd, Collection<RoleValueObject> rolesToRemove);
-  
-  default void removeRoles(Collection<RoleValueObject> roles) {
-    modifyRoles(Collections.emptySet(), roles);
-  }
-  
-  default void removeRole(RoleValueObject role) {
-    removeRoles(Collections.singleton(role));
-  }
+public enum Permission {
+  CREATE_INSTANT_INVITE,
+  KICK_MEMBERS,
+  BAN_MEMBERS,
+  ADMINISTRATOR,
+  MANAGE_CHANNELS,
+  MANAGE_GUILD,
+  ADD_REACTIONS,
+  VIEW_AUDIT_LOG,
+  PRIORITY_SPEAKER,
+  STREAM,
+  VIEW_CHANNEL,
+  SEND_MESSAGES,
+  SEND_TTS_MESSAGES,
+  MANAGE_MESSAGES,
+  EMBED_LINKS,
+  ATTACH_FILES,
+  READ_MESSAGE_HISTORY,
+  MENTION_EVERYONE,
+  USE_EXTERNAL_EMOJIS,
+  VIEW_GUILD_INSIGHTS,
+  CONNECT,
+  SPEAK,
+  MUTE_MEMBERS,
+  DEAFEN_MEMBERS,
+  MOVE_MEMBERS,
+  USE_VAD,
+  CHANGE_NICKNAME,
+  MANAGE_NICKNAMES,
+  MANAGE_ROLES,
+  MANAGE_WEBHOOKS,
+  MANAGE_EMOJIS
 }

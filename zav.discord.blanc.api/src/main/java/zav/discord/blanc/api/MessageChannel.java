@@ -17,7 +17,6 @@
 package zav.discord.blanc.api;
 
 import java.awt.image.BufferedImage;
-import zav.discord.blanc.Argument;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;

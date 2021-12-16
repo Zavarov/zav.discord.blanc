@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.Argument;
 import zav.discord.blanc.databind.TextChannelValueObject;
 
 /**
