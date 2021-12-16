@@ -6,5 +6,5 @@ module zav.discord.blanc.view {
   requires zav.discord.blanc.databind;
   requires zav.jrc.databind;
   
-  exports zav.discord.blanc.view;
+  exports view;
 }

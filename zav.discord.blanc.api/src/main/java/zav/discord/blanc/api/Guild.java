@@ -1,11 +1,26 @@
-package zav.discord.blanc.view;
+/*
+ * Copyright (c) 2021 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package zav.discord.blanc.api;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-import zav.discord.blanc.Argument;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
@@ -13,7 +28,7 @@ import zav.discord.blanc.databind.TextChannelValueObject;
 /**
  * Base interface for all functions that are performed over guild.
  */
-public interface GuildView {
+public interface Guild {
   GuildValueObject getAbout();
   
   /**
@@ -22,9 +37,9 @@ public interface GuildView {
    *
    * @return A view over the member instance corresponding to this program.
    */
-  SelfMemberView getSelfMember();
+  SelfMember getSelfMember();
   
-  Collection<RoleView> getRoles();
+  Collection<Role> getRoles();
   
   /**
    * Roles may either be identified by their name or id.
@@ -33,9 +48,9 @@ public interface GuildView {
    * @return The view over the specified role.
    * @throws NoSuchElementException If none or more than one role matching the argument was found.
    */
-  RoleView getRole(Argument argument) throws NoSuchElementException;
+  Role getRole(Argument argument) throws NoSuchElementException;
 
-  Collection<MemberView> getMembers();
+  Collection<Member> getMembers();
   
   /**
    * Members may be identified by their user name, nickname or id.
@@ -44,9 +59,9 @@ public interface GuildView {
    * @return The view over the specified member.
    * @throws NoSuchElementException If none or more than one member matching the argument was found.
    */
-  MemberView getMember(Argument argument) throws NoSuchElementException;
+  Member getMember(Argument argument) throws NoSuchElementException;
 
-  Collection<TextChannelView> getTextChannels();
+  Collection<TextChannel> getTextChannels();
   
   /**
    * Text channels may either be identified by their name or id.
@@ -56,7 +71,7 @@ public interface GuildView {
    * @throws NoSuchElementException If none or more than one text channel matching the argument was
    *                                found.
    */
-  TextChannelView getTextChannel(Argument argument);
+  TextChannel getTextChannel(Argument argument);
   
   /**
    * Creates a snapshot of the guild activity at the current time.<br>
@@ -86,7 +101,7 @@ public interface GuildView {
    * @param role A role of this guild.
    * @return {@code true}, when the member is allowed to assign this role to a user.
    */
-  boolean canInteract(MemberView member, RoleValueObject role);
+  boolean canInteract(Member member, RoleValueObject role);
   
   /**
    * Creates an activity chart over this guild. The chart plots the total number of members, the

@@ -13,7 +13,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.view;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+package zav.discord.blanc.api;
+
+import zav.discord.blanc.Argument;
+import zav.discord.blanc.databind.TextChannelValueObject;
+
+/**
+ * Base interface for all functions that are performed on text channels.
+ */
+public interface TextChannel extends MessageChannel {
+  
+  TextChannelValueObject getAbout();
+  
+  @Override
+  GuildMessage getMessage(Argument argument);
+  
+  WebHook getWebhook(String argument, boolean create);
+  
+  default WebHook getWebhook(String argument) {
+    return getWebhook(argument, false);
+  }
+}
