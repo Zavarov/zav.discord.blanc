@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.command.parser.IntermediateCommand;
-import zav.discord.blanc.databind.Message;
+import zav.discord.blanc.databind.MessageValueObject;
 import zav.discord.blanc.mc.callable._parser.CallableParser;
 
 /**
@@ -34,7 +34,7 @@ public class MontiCoreCommandParser extends AbstractParser {
   private final CallableParser parser = new CallableParser();
 
   @Override
-  public @Nullable IntermediateCommand parse(Message message) {
+  public @Nullable IntermediateCommand parse(MessageValueObject message) {
     try {
       //images/files-only messages might not have any text content
       @Nullable String content = message.getContent();
