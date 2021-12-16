@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.databind.RoleValueObject;
@@ -96,9 +114,9 @@ public class RoleTableTest extends AbstractTest {
   
     RoleValueObject response = RoleTable.get(guild.getId(), role.getId());
     
-    assertThat(response.getId()).isEqualTo(role.getId());
-    assertThat(response.getName()).isEqualTo(role.getName());
-    assertThat(response.getGroup()).isEqualTo(role.getGroup());
+    Assertions.assertThat(response.getId()).isEqualTo(role.getId());
+    Assertions.assertThat(response.getName()).isEqualTo(role.getName());
+    Assertions.assertThat(response.getGroup()).isEqualTo(role.getGroup());
   }
   
   @Test
@@ -107,13 +125,13 @@ public class RoleTableTest extends AbstractTest {
     
     List<RoleValueObject> responses = RoleTable.getAll(guild.getId());
     
-    assertThat(responses).hasSize(1);
+    Assertions.assertThat(responses).hasSize(1);
   
     RoleValueObject response = responses.get(0);
     
-    assertThat(response.getId()).isEqualTo(role.getId());
-    assertThat(response.getName()).isEqualTo(role.getName());
-    assertThat(response.getGroup()).isEqualTo(role.getGroup());
+    Assertions.assertThat(response.getId()).isEqualTo(role.getId());
+    Assertions.assertThat(response.getName()).isEqualTo(role.getName());
+    Assertions.assertThat(response.getGroup()).isEqualTo(role.getGroup());
   }
   
   @Test

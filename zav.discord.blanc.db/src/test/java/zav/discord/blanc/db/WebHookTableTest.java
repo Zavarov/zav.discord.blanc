@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.databind.WebHookValueObject;
@@ -56,14 +74,14 @@ public class WebHookTableTest extends AbstractTest {
     WebHookTable.put(guild, channel, hook);
   
     WebHookValueObject response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
-    assertThat(hook.getName()).isEqualTo(response.getName());
+    Assertions.assertThat(hook.getName()).isEqualTo(response.getName());
   
     hook.setName("Updated");
     
     WebHookTable.put(guild, channel, hook);
     response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
     // Old row has been updated
-    assertThat(hook.getName()).isEqualTo(response.getName());
+    Assertions.assertThat(hook.getName()).isEqualTo(response.getName());
   }
   
   @Test
@@ -96,10 +114,10 @@ public class WebHookTableTest extends AbstractTest {
   
     WebHookValueObject response = WebHookTable.get(guild.getId(), channel.getId(), hook.getId());
     
-    assertThat(response.getId()).isEqualTo(hook.getId());
-    assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
-    assertThat(response.getName()).isEqualTo(hook.getName());
-    assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
+    Assertions.assertThat(response.getId()).isEqualTo(hook.getId());
+    Assertions.assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
+    Assertions.assertThat(response.getName()).isEqualTo(hook.getName());
+    Assertions.assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
   }
   
   @Test
@@ -108,15 +126,15 @@ public class WebHookTableTest extends AbstractTest {
   
     List<WebHookValueObject> responses = WebHookTable.getAll(guild.getId());
   
-    assertThat(responses).hasSize(1);
+    Assertions.assertThat(responses).hasSize(1);
   
     WebHookValueObject response = responses.get(0);
   
-    assertThat(response.getId()).isEqualTo(hook.getId());
-    assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
-    assertThat(response.getName()).isEqualTo(hook.getName());
-    assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
-    assertThat(response.isOwner()).isEqualTo(hook.isOwner());
+    Assertions.assertThat(response.getId()).isEqualTo(hook.getId());
+    Assertions.assertThat(response.getChannelId()).isEqualTo(hook.getChannelId());
+    Assertions.assertThat(response.getName()).isEqualTo(hook.getName());
+    Assertions.assertThat(response.getSubreddits()).isEqualTo(hook.getSubreddits());
+    Assertions.assertThat(response.isOwner()).isEqualTo(hook.isOwner());
   }
   
   @Test

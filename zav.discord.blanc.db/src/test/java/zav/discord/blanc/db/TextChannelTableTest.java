@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.databind.TextChannelValueObject;
@@ -96,9 +114,9 @@ public class TextChannelTableTest extends AbstractTest {
   
     TextChannelValueObject response = TextChannelTable.get(guild.getId(), channel.getId());
     
-    assertThat(response.getId()).isEqualTo(channel.getId());
-    assertThat(response.getName()).isEqualTo(channel.getName());
-    assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());
+    Assertions.assertThat(response.getId()).isEqualTo(channel.getId());
+    Assertions.assertThat(response.getName()).isEqualTo(channel.getName());
+    Assertions.assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());
   }
   
   @Test
@@ -107,13 +125,13 @@ public class TextChannelTableTest extends AbstractTest {
   
     List<TextChannelValueObject> responses = TextChannelTable.getAll(guild.getId());
   
-    assertThat(responses).hasSize(1);
+    Assertions.assertThat(responses).hasSize(1);
   
     TextChannelValueObject response = responses.get(0);
   
-    assertThat(response.getId()).isEqualTo(channel.getId());
-    assertThat(response.getName()).isEqualTo(channel.getName());
-    assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());
+    Assertions.assertThat(response.getId()).isEqualTo(channel.getId());
+    Assertions.assertThat(response.getName()).isEqualTo(channel.getName());
+    Assertions.assertThat(response.getSubreddits()).isEqualTo(channel.getSubreddits());
   }
   
   @Test
