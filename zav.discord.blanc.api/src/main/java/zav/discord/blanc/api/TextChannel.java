@@ -28,9 +28,9 @@ public interface TextChannel extends MessageChannel {
   @Override
   GuildMessage getMessage(Argument argument);
   
-  WebHook getWebhook(String argument, boolean create);
+  WebHook getWebHook(String argument, boolean create);
   
-  default WebHook getWebhook(String argument) {
-    return getWebhook(argument, false);
+  default WebHook getWebHook(String argument) {
+    return getWebHook(argument, false);
   }
 }
