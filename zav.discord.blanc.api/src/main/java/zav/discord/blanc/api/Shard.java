@@ -27,7 +27,7 @@ public interface Shard {
    *
    * @return An immutable list of guild views.
    */
-  Collection<Guild> getGuilds();
+  Collection<? extends Guild> getGuilds();
   
   /**
    * Returns the Discord user corresponding to this application.

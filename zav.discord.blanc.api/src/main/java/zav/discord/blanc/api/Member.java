@@ -26,7 +26,7 @@ import zav.discord.blanc.databind.RoleValueObject;
  */
 public interface Member extends User {
   
-  Set<Role> getRoles();
+  Set<? extends Role> getRoles();
   
   Set<Permission> getPermissions();
   

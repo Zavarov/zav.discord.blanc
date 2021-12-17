@@ -39,7 +39,7 @@ public interface Guild {
    */
   SelfMember getSelfMember();
   
-  Collection<Role> getRoles();
+  Collection<? extends Role> getRoles();
   
   /**
    * Roles may either be identified by their name or id.
@@ -50,7 +50,7 @@ public interface Guild {
    */
   Role getRole(Argument argument) throws NoSuchElementException;
 
-  Collection<Member> getMembers();
+  Collection<? extends Member> getMembers();
   
   /**
    * Members may be identified by their user name, nickname or id.
@@ -61,7 +61,7 @@ public interface Guild {
    */
   Member getMember(Argument argument) throws NoSuchElementException;
 
-  Collection<TextChannel> getTextChannels();
+  Collection<? extends TextChannel> getTextChannels();
   
   /**
    * Text channels may either be identified by their name or id.
