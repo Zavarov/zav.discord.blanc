@@ -1,8 +1,8 @@
 package zav.discord.blanc.command;
 
 import java.util.List;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.job.Job;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Job;
 
 /**
  * Base interface implemented by all commands.

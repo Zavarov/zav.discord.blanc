@@ -3,12 +3,11 @@ package zav.discord.blanc.command;
 import java.util.Set;
 import javax.inject.Inject;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.Permission;
-import zav.discord.blanc.Rank;
-import zav.discord.blanc.view.GuildMessageView;
-import zav.discord.blanc.view.GuildView;
-import zav.discord.blanc.view.MemberView;
-import zav.discord.blanc.view.TextChannelView;
+import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.Member;
+import zav.discord.blanc.api.Permission;
+import zav.discord.blanc.api.TextChannel;
 
 /**
  * Base class for all guild commands.<br>
@@ -16,13 +15,13 @@ import zav.discord.blanc.view.TextChannelView;
  */
 public abstract class AbstractGuildCommand extends AbstractCommand {
   @Inject
-  protected @Nullable GuildView guild;
+  protected @Nullable Guild guild;
   @Inject
-  protected @Nullable TextChannelView channel;
+  protected @Nullable TextChannel channel;
   @Inject
-  protected @Nullable MemberView author;
+  protected @Nullable Member author;
   @Inject
-  protected @Nullable GuildMessageView message;
+  protected @Nullable GuildMessage message;
   
   private final Set<Permission> permissions;
   

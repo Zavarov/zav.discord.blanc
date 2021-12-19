@@ -2,11 +2,11 @@ package zav.discord.blanc.command.parser;
 
 import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.PrivateMessage;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.databind.MessageValueObject;
-import zav.discord.blanc.view.GuildMessageView;
-import zav.discord.blanc.view.PrivateMessageView;
 
 /**
  * Base interface for all command parser.<br>
@@ -20,7 +20,7 @@ import zav.discord.blanc.view.PrivateMessageView;
 public interface Parser {
   @Nullable IntermediateCommand parse(MessageValueObject content);
   
-  Optional<? extends Command> parse(GuildMessageView source);
+  Optional<? extends Command> parse(GuildMessage source);
   
-  Optional<? extends Command> parse(PrivateMessageView source);
+  Optional<? extends Command> parse(PrivateMessage source);
 }

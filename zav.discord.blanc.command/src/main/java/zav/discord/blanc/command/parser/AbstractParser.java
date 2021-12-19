@@ -5,14 +5,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.Message;
+import zav.discord.blanc.api.PrivateMessage;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.command.internal.GuildCommandModule;
+import zav.discord.blanc.command.guice.GuildCommandModule;
+import zav.discord.blanc.command.guice.PrivateCommandModule;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
-import zav.discord.blanc.command.internal.PrivateCommandModule;
-import zav.discord.blanc.view.GuildMessageView;
-import zav.discord.blanc.view.MessageView;
-import zav.discord.blanc.view.PrivateMessageView;
 
 /**
  * Abstract base class for all command parser that implement the conversion from the intermediate
@@ -20,16 +20,16 @@ import zav.discord.blanc.view.PrivateMessageView;
  */
 public abstract class AbstractParser implements Parser {
   @Override
-  public Optional<? extends Command> parse(GuildMessageView msg) {
+  public Optional<? extends Command> parse(GuildMessage msg) {
     return parse(new GuildCommandModule(msg), msg);
   }
   
   @Override
-  public Optional<? extends Command> parse(PrivateMessageView msg) {
+  public Optional<? extends Command> parse(PrivateMessage msg) {
     return parse(new PrivateCommandModule(msg), msg);
   }
   
-  private Optional<? extends Command> parse(AbstractModule msgModule, MessageView msg) {
+  private Optional<? extends Command> parse(AbstractModule msgModule, Message msg) {
     @Nullable
     IntermediateCommand cmd = parse(msg.getAbout());
     

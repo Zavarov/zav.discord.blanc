@@ -1,7 +1,7 @@
 package zav.discord.blanc.command;
 
 
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 
 /**
  * This exception is thrown whenever a user executes a guild command for which they lack the

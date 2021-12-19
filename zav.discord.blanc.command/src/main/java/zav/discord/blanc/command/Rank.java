@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,24 +14,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command.resolver;
-
-import java.util.function.Function;
-import zav.discord.blanc.api.Argument;
+package zav.discord.blanc.command;
 
 /**
- * This class is used to resolve an arbitrary data type.
- *
- * @param <T> The resolved type.
+ * An enumeration of all possible ranks a user may have.<br>
+ * Ranks are used to limit, what types of commands a user can use. For example, a normal user
+ * shouldn't be able to use developer commands.
  */
-public abstract class TypeResolver<T> implements Function<Argument, T> {
-  /**
-   * Transforms the {@link Argument} into the desired instance of {@link T}.
-   *
-   * @param argument The {@link Argument} associated with {@link T}.
-   * @return The resolved type.
-   * @throws IllegalArgumentException In case the argument couldn't be resolved.
-   */
-  @Override
-  public abstract T apply(Argument argument);
+public enum Rank {
+  REDDIT,
+  USER,
+  DEVELOPER,
+  ROOT;
 }

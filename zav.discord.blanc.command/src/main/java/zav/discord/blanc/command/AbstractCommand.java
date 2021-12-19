@@ -2,11 +2,10 @@ package zav.discord.blanc.command;
 
 import javax.inject.Inject;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.Rank;
-import zav.discord.blanc.view.MessageChannelView;
-import zav.discord.blanc.view.MessageView;
-import zav.discord.blanc.view.ShardView;
-import zav.discord.blanc.view.UserView;
+import zav.discord.blanc.api.Message;
+import zav.discord.blanc.api.MessageChannel;
+import zav.discord.blanc.api.Shard;
+import zav.discord.blanc.api.User;
 
 /**
  * Abstract base class for all commands.<br>
@@ -14,13 +13,13 @@ import zav.discord.blanc.view.UserView;
  */
 public abstract class AbstractCommand implements Command {
   @Inject @Nullable
-  protected ShardView shard;
+  protected Shard shard;
   @Inject @Nullable
-  protected MessageChannelView channel;
+  protected MessageChannel channel;
   @Inject @Nullable
-  protected UserView author;
+  protected User author;
   @Inject @Nullable
-  protected MessageView message;
+  protected Message message;
   // Package-private
   final Rank rank;
   

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * Test case for the date resolver.<br>

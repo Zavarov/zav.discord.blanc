@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * Test case for the decimal resolver.<br>

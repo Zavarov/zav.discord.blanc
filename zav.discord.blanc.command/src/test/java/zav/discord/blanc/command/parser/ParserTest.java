@@ -11,19 +11,19 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.Member;
+import zav.discord.blanc.api.PrivateChannel;
+import zav.discord.blanc.api.PrivateMessage;
+import zav.discord.blanc.api.Shard;
+import zav.discord.blanc.api.TextChannel;
+import zav.discord.blanc.api.User;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.databind.MessageValueObject;
-import zav.discord.blanc.view.GuildMessageView;
-import zav.discord.blanc.view.GuildView;
-import zav.discord.blanc.view.MemberView;
-import zav.discord.blanc.view.PrivateChannelView;
-import zav.discord.blanc.view.PrivateMessageView;
-import zav.discord.blanc.view.ShardView;
-import zav.discord.blanc.view.TextChannelView;
-import zav.discord.blanc.view.UserView;
 
 /**
  * Test case for the parser implementation.<br>
@@ -31,8 +31,8 @@ import zav.discord.blanc.view.UserView;
  */
 public class ParserTest {
   private Parser parser;
-  private GuildMessageView guildView;
-  private PrivateMessageView privateView;
+  private GuildMessage guildView;
+  private PrivateMessage privateView;
   private MessageValueObject privateMessage;
   private MessageValueObject guildMessage;
   
@@ -63,10 +63,10 @@ public class ParserTest {
     when(privateCommand.getArguments()).thenReturn(Collections.emptyList());
     when(privateCommand.getFlags()).thenReturn(Collections.emptyList());
     
-    privateView = mock(PrivateMessageView.class);
-    when(privateView.getAuthor()).thenReturn(mock(UserView.class));
-    when(privateView.getMessageChannel()).thenReturn(mock(PrivateChannelView.class));
-    when(privateView.getShard()).thenReturn(mock(ShardView.class));
+    privateView = mock(PrivateMessage.class);
+    when(privateView.getAuthor()).thenReturn(mock(User.class));
+    when(privateView.getMessageChannel()).thenReturn(mock(PrivateChannel.class));
+    when(privateView.getShard()).thenReturn(mock(Shard.class));
     when(privateView.getAbout()).thenReturn(privateMessage);
   
     // Mock guild command
@@ -79,11 +79,11 @@ public class ParserTest {
     when(guildCommand.getArguments()).thenReturn(Collections.emptyList());
     when(guildCommand.getFlags()).thenReturn(Collections.emptyList());
     
-    guildView = mock(GuildMessageView.class);
-    when(guildView.getAuthor()).thenReturn(mock(MemberView.class));
-    when(guildView.getMessageChannel()).thenReturn(mock(TextChannelView.class));
-    when(guildView.getGuild()).thenReturn(mock(GuildView.class));
-    when(guildView.getShard()).thenReturn(mock(ShardView.class));
+    guildView = mock(GuildMessage.class);
+    when(guildView.getAuthor()).thenReturn(mock(Member.class));
+    when(guildView.getMessageChannel()).thenReturn(mock(TextChannel.class));
+    when(guildView.getGuild()).thenReturn(mock(Guild.class));
+    when(guildView.getShard()).thenReturn(mock(Shard.class));
     when(guildView.getAbout()).thenReturn(guildMessage);
   
     // Mock parser

@@ -7,7 +7,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * Test case for the string resolver.<br>

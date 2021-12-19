@@ -2,7 +2,7 @@ package zav.discord.blanc.command.parser;
 
 import java.util.List;
 import java.util.Optional;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * Base interface for the intermediate representation of a command.<br>

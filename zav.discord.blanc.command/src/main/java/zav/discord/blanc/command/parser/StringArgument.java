@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * This interface is for arguments that only have a string representation.<br>

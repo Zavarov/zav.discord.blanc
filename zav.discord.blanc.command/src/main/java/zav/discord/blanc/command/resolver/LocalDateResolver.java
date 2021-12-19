@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import org.apache.commons.lang3.StringUtils;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.StringArgument;
 
 /**

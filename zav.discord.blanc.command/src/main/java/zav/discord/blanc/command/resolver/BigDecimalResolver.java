@@ -18,7 +18,7 @@
 package zav.discord.blanc.command.resolver;
 
 import java.math.BigDecimal;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.NumberArgument;
 
 /**
