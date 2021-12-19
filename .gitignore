@@ -88,7 +88,4 @@ fabric.properties
 **/.idea
 **/*.iml
 
-src/test/resources/credentials.json
-/old_core/src/test/resources/credentials.json
-**/buildSrc/.gradle
-**/buildSrc/build
+**/credentials.json
