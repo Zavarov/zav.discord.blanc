@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,15 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@NonNullByDefault
+package zav.discord.blanc.jda.internal;
 
-package zav.discord.blanc.command.developer;
-
-/**
- * This command instructs the bot to leave the specified guild.
- */
-public class LeaveCommand extends LeaveCommandTOP{
-    @Override
-    public void run(){
-        getGuild().leave();
-    }
-}
+import org.eclipse.jdt.annotation.NonNullByDefault;

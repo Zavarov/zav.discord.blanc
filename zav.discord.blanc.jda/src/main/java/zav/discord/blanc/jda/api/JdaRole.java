@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,17 +14,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command.developer;
+package zav.discord.blanc.jda.api;
+
+import static zav.discord.blanc.jda.internal.DatabaseUtils.aboutRole;
+
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.Role;
+import zav.discord.blanc.databind.RoleValueObject;
 
 /**
- * This command allows to modify the nickname of the bot in a specified guild.
+ * Implementation of a role view, backed by JDA.
  */
-public class NicknameCommand extends NicknameCommandTOP{
-    /**
-     * If the new nickname is empty, the old one will be removed. Otherwise it is overwritten.
-     */
-    @Override
-    public void run(){
-        get$Guild().retrieveSelfMember().modifyNickname(getNickname().orElse(""));
-    }
+public class JdaRole implements zav.discord.blanc.api.Role {
+  @Inject
+  private Role jdaRole;
+
+  @Override
+  public RoleValueObject getAbout() {
+    return aboutRole(jdaRole);
+  }
 }

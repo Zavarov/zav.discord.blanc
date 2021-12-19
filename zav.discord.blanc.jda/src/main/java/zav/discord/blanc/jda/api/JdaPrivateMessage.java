@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,20 +14,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.mc.argument._ast;
+package zav.discord.blanc.jda.api;
 
-import zav.discord.blanc.command.parser.NumberArgument;
+import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateChannel;
 
-import java.math.BigDecimal;
-import java.util.Optional;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import zav.discord.blanc.api.PrivateMessage;
 
-public class ASTTextChannelArgument extends ASTTextChannelArgumentTOP implements NumberArgument {
-    @Override
-    public Optional<BigDecimal> asNumber() {
-        try {
-            return Optional.of(new BigDecimal(super.getId().getDigits()));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
-    }
+/**
+ * Implementation of a private message view, backed by JDA.
+ */
+public class JdaPrivateMessage extends JdaMessage implements PrivateMessage {
+  
+  @Override
+  public JdaPrivateChannel getMessageChannel() {
+    PrivateChannel jdaPrivateChannel = jdaMessage.getPrivateChannel();
+  
+    return injectPrivateChannel(jdaPrivateChannel);
+  }
 }
