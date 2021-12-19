@@ -35,7 +35,7 @@ import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.activity.DataPointValueObject;
-import zav.discord.blanc.view.GuildView;
+import zav.discord.blanc.api.Guild;
 
 /**
  * The builder for constructing the line chart over the corresponding guild.<br>
@@ -76,7 +76,7 @@ public class ActivityChart {
      * @param guild A view over a single guild.
      * @return A reference to this builder instance.
      */
-    public Builder withGuild(GuildView guild) {
+    public Builder withGuild(Guild guild) {
       this.chart = LineChartFactory.create(
             JFreeLineChart::new,
             ChronoUnit.MINUTES,
