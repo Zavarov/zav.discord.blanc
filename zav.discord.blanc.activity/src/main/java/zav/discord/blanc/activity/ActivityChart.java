@@ -33,9 +33,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import vartas.chart.line.$factory.LineChartFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
+import zav.discord.blanc.api.Guild;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.activity.DataPointValueObject;
-import zav.discord.blanc.api.Guild;
 
 /**
  * The builder for constructing the line chart over the corresponding guild.<br>

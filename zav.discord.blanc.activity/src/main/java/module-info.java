@@ -10,7 +10,6 @@ module zav.discord.blanc.activity {
   requires java.desktop;
   requires zav.discord.blanc.api;
   requires zav.discord.blanc.databind;
-  requires zav.discord.blanc.view;
   
   exports zav.discord.blanc.activity;
 }

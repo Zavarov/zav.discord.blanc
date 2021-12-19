@@ -2,8 +2,8 @@ package zav.discord.blanc.activity;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.api.Job;
 import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.api.Job;
 import zav.discord.blanc.api.Shard;
 
 /**
