@@ -17,30 +17,19 @@
 
 package zav.discord.blanc.command.reddit;
 
-import com.google.common.collect.Range;
-import net.steppschuh.markdowngenerator.link.Link;
-import net.steppschuh.markdowngenerator.table.Table;
-import net.steppschuh.markdowngenerator.text.emphasis.BoldText;
-import zav.discord.blanc._factory.MessageEmbedFactory;
-import zav.discord.blanc.MessageEmbed;
-import zav.jra.Comment;
-import zav.jra.models.Submission;
-import zav.jra.Subreddit;
-import zav.discord.blanc.Main;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.Set;
-
-public class AccountCommand extends AccountCommandTOP implements SnowflakeCommand{
+public class AccountCommand extends AbstractGuildCommand {
     private static final int size = 5;
 
+    /*
     private final MessageEmbed messageEmbed = MessageEmbedFactory.create();
     private final Table.Builder markdown = new Table.Builder();
 
     private Range<Instant> range ;
     private Subreddit subreddit;
+    
+     */
 
     @Override
     public void run() {

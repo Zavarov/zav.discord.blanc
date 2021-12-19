@@ -18,14 +18,14 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Rank;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.RoleTable;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.WebHookTable;
-import zav.discord.blanc.view.GuildView;
+import zav.discord.blanc.api.Guild;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.List;
  * This command instructs the bot to leave the specified guild.
  */
 public class LeaveCommand extends AbstractCommand {
-  private GuildView myGuild;
+  private Guild myGuild;
     
   public LeaveCommand() {
     super(Rank.DEVELOPER);

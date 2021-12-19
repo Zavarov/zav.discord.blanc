@@ -17,25 +17,9 @@
 
 package zav.discord.blanc.command.reddit;
 
-import com.google.common.collect.Range;
-import net.steppschuh.markdowngenerator.link.Link;
-import net.steppschuh.markdowngenerator.list.ListBuilder;
-import net.steppschuh.markdowngenerator.table.Table;
-import net.steppschuh.markdowngenerator.text.emphasis.BoldText;
-import net.steppschuh.markdowngenerator.text.emphasis.ItalicText;
-import zav.jra.Comment;
-import zav.jra.models.Submission;
-import zav.jra.Subreddit;
-import zav.discord.blanc.Main;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
-
-public class MarkdownTableCommand extends MarkdownTableCommandTOP implements SnowflakeCommand{
-    private static final int size = 10;
-
+public class MarkdownTableCommand extends AbstractGuildCommand {
     @Override
     public void run() {
         throw new UnsupportedOperationException();

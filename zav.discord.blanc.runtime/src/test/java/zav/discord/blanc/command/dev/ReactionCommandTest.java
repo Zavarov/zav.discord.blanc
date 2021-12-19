@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractDevCommandTest;
 import zav.discord.blanc.runtime.command.dev.ReactionCommand;
-import zav.discord.blanc.view.UserView;
+import zav.discord.blanc.api.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,10 +18,10 @@ public class ReactionCommandTest  extends AbstractDevCommandTest {
   public void setUp() {
     command = parse("b:dev.react %s %s", messageId, "foo");
     
-    UserView userView = mock(UserView.class);
+    User user = mock(User.class);
     
-    when(shardView.getUser(any())).thenReturn(userView);
-    when(userView.getAbout()).thenReturn(user);
+    when(shard.getUser(any())).thenReturn(user);
+    when(user.getAbout()).thenReturn(this.userValueObject);
   }
   
   @Test

@@ -19,7 +19,7 @@ package zav.discord.blanc.runtime.command.core;
 
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
 
 import java.math.BigDecimal;

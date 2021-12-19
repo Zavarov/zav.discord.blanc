@@ -18,10 +18,10 @@
 package zav.discord.blanc.runtime.command.guild.mod;
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.db.RoleTable;
 
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ import java.util.List;
  * This command groups roles together so that only one of them can be self-assigned at a time.
  */
 public class RoleCommand extends AbstractGuildCommand {
-  private Role myRole;
+  private RoleValueObject myRole;
   private String myGroup;
     
   public RoleCommand() {

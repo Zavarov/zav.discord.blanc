@@ -3,9 +3,9 @@ package zav.discord.blanc.command.guild.mod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.*;
-import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.runtime.command.guild.mod.BlacklistCommand;
 
@@ -48,16 +48,16 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("bar");
     
     // Has the guild been updated?
-    assertThat(guild.getBlacklist()).containsExactly("bar");
+    assertThat(guildValueObject.getBlacklist()).containsExactly("bar");
     
     // Has the view been updated?
     ArgumentCaptor<Pattern> patternCaptor = ArgumentCaptor.forClass(Pattern.class);
-    verify(guildView, times(1)).updateBlacklist(patternCaptor.capture());
+    verify(guild, times(1)).updateBlacklist(patternCaptor.capture());
     
     assertThat(patternCaptor.getValue().pattern()).isEqualTo("bar");
     
     // Has the database been updated?
-    Guild dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildTable.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -70,7 +70,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
    */
   @Test
   public void testRemoveRegEx() throws Exception {
-    guild.getBlacklist().add("bar");
+    guildValueObject.getBlacklist().add("bar");
     
     command.run();
   
@@ -84,16 +84,16 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("bar");
   
     // Has the guild been updated?
-    assertThat(guild.getBlacklist()).isEmpty();
+    assertThat(guildValueObject.getBlacklist()).isEmpty();
   
     // Has the view been updated?
     ArgumentCaptor<Pattern> patternCaptor = ArgumentCaptor.forClass(Pattern.class);
-    verify(guildView, times(1)).updateBlacklist(patternCaptor.capture());
+    verify(guild, times(1)).updateBlacklist(patternCaptor.capture());
   
     assertThat(patternCaptor.getValue().pattern()).isEmpty();
   
     // Has the database been updated?
-    Guild dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildTable.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -103,7 +103,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
   
   @Test
   public void testCheckPermissions() throws InvalidCommandException {
-    when(memberView.getPermissions()).thenReturn(Set.of(Permission.MANAGE_MESSAGES));
+    when(member.getPermissions()).thenReturn(Set.of(Permission.MANAGE_MESSAGES));
     
     // No error
     command.validate();

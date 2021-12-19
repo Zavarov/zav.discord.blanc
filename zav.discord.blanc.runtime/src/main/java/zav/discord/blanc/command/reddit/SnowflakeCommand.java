@@ -17,17 +17,15 @@
 
 package zav.discord.blanc.command.reddit;
 
-import com.google.common.collect.*;
-import zav.jra.Comment;
-import zav.jra.models.Submission;
-import zav.jra.Subreddit;
+import com.google.common.collect.DiscreteDomain;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.AbstractSet;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 public interface SnowflakeCommand {
@@ -324,7 +322,7 @@ public interface SnowflakeCommand {
         /**
          * @return an iterator over the top snowflakes
          */
-        @Nonnull
+        @NonNull
         @Override
         public Iterator<T> iterator() {
             return delegator.iterator();
@@ -351,17 +349,17 @@ public interface SnowflakeCommand {
         }
 
         @Override
-        public Instant next(@Nonnull Instant value) {
+        public Instant next(@NonNull Instant value) {
             return value.plus(1, ChronoUnit.DAYS);
         }
 
         @Override
-        public Instant previous(@Nonnull Instant value) {
+        public Instant previous(@NonNull Instant value) {
             return value.minus(1, ChronoUnit.DAYS);
         }
 
         @Override
-        public long distance(@Nonnull Instant start, @Nonnull Instant end) {
+        public long distance(@NonNull Instant start, @NonNull Instant end) {
             return ChronoUnit.DAYS.between(start, end);
         }
     }

@@ -18,10 +18,10 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import org.apache.commons.lang3.StringUtils;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Rank;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.view.GuildView;
+import zav.discord.blanc.api.Guild;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class NicknameCommand extends AbstractGuildCommand {
   private String myNickname;
-  private GuildView myGuild;
+  private Guild myGuild;
   
   public NicknameCommand() {
     super(Rank.DEVELOPER);

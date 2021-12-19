@@ -42,7 +42,7 @@ public class AvatarCommandTest  extends AbstractDevCommandTest {
   public void testSetAvatar() throws Exception {
     command.run();
     
-    verify(selfUserView, times(1)).setAvatar(any());
+    verify(selfUser, times(1)).setAvatar(any());
   
     ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
   

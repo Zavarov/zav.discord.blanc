@@ -17,20 +17,10 @@
 
 package zav.discord.blanc.command.reddit;
 
-import com.google.common.collect.Range;
-import zav.discord.blanc._factory.MessageEmbedFactory;
-import zav.discord.blanc.MessageEmbed;
-import zav.jra.Comment;
-import zav.jra.models.Submission;
-import zav.jra.Subreddit;
-import zav.discord.blanc.Main;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.Locale;
-import java.util.Map;
-
-public class SnowflakeTableCommand extends SnowflakeTableCommandTOP implements SnowflakeCommand{
+public class SnowflakeTableCommand extends AbstractGuildCommand {
+    
     private static final int size = 10;
 
     @Override

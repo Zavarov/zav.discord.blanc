@@ -17,12 +17,12 @@
 package zav.discord.blanc.runtime.command.guild.mod.legacy;
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.reddit.SubredditObservable;
-import zav.discord.blanc.view.TextChannelView;
+import zav.discord.blanc.api.TextChannel;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 public class RedditCommandLegacy extends AbstractGuildCommand {
     
   private String mySubreddit;
-  private TextChannelView myChannel;
+  private TextChannel myChannel;
     
   protected RedditCommandLegacy() {
     super(Permission.MANAGE_CHANNELS);
@@ -52,9 +52,6 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
     if (myChannel.getAbout().getSubreddits().contains(mySubreddit)) {
       myChannel.getAbout().getSubreddits().remove(mySubreddit);
       SubredditObservable.removeListener(mySubreddit, myChannel);
-  
-      // Update view
-      channel.updateSubreddit(mySubreddit);
   
       //Update the persistence file
       TextChannelTable.put(guild.getAbout(), myChannel.getAbout());

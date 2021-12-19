@@ -44,7 +44,7 @@ public class LeaveCommandTest extends AbstractDevCommandTest {
   public void testLeaveGuild() throws Exception {
     command.run();
     
-    verify(guildView, times(1)).leave();
+    verify(guild, times(1)).leave();
     
     // Has the database been cleared?
     Assertions.assertThrows(NoSuchElementException.class, () -> GuildTable.get(guildId));

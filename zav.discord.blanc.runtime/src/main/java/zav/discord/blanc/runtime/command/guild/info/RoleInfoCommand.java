@@ -19,8 +19,8 @@ package zav.discord.blanc.runtime.command.guild.info;
 
 import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.databind.RoleValueObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
  * This command shows information about a specific role.
  */
 public class RoleInfoCommand extends AbstractGuildCommand {
-  private Role myRole;
+  private RoleValueObject myRole;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {

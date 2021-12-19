@@ -25,7 +25,7 @@ public class ActivityCommandTest extends AbstractCommandTest {
     command = parse("b:activity %s", channelId);
     image = mock(BufferedImage.class);
     
-    when(guildView.getActivity(any())).thenReturn(image);
+    when(guild.getActivity(any())).thenReturn(image);
   }
   
   @Test

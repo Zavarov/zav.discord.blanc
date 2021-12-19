@@ -3,9 +3,9 @@ package zav.discord.blanc.command.guild.mod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.*;
-import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.runtime.command.guild.mod.PrefixCommand;
 
@@ -49,10 +49,10 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("foo");
     
     // Has the guild been updated?
-    assertThat(guild.getPrefix()).isEqualTo("foo");
+    assertThat(guildValueObject.getPrefix()).isEqualTo("foo");
     
     // Has the database been updated?
-    Guild dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildTable.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -77,10 +77,10 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(msgCaptor.getValue()).isEqualTo("Removed the custom prefix.");
   
     // Has the guild been updated?
-    assertThat(guild.getPrefix()).isNull();
+    assertThat(guildValueObject.getPrefix()).isNull();
   
     // Has the database been updated?
-    Guild dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildTable.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -90,7 +90,7 @@ public class PrefixCommandTest extends AbstractCommandTest {
   
   @Test
   public void testCheckPermissions() throws InvalidCommandException {
-    when(memberView.getPermissions()).thenReturn(Set.of(Permission.MANAGE_MESSAGES));
+    when(member.getPermissions()).thenReturn(Set.of(Permission.MANAGE_MESSAGES));
     
     // No error
     command.validate();

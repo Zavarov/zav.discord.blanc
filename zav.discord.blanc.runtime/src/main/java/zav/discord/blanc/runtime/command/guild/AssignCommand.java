@@ -22,9 +22,9 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Role;
-import zav.discord.blanc.view.RoleView;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.api.Role;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class AssignCommand extends AbstractGuildCommand {
   private static final LoadingCache<Long, Semaphore> activeMembers = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.ofMinutes(5))
         .build(CacheLoader.from(() -> new Semaphore(1)));
-  private Role myRole;
+  private RoleValueObject myRole;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
@@ -71,8 +71,8 @@ public class AssignCommand extends AbstractGuildCommand {
           channel.send("You no longer have the role \"%s\" from group \"%s\".", myRole.getName(), myRole.getGroup());
         } else {
           // Assign role
-          Collection<Role> rolesToRemove = getConflictingRoles();
-          Collection<Role> rolesToAdd = Collections.singleton(myRole);
+          Collection<RoleValueObject> rolesToRemove = getConflictingRoles();
+          Collection<RoleValueObject> rolesToAdd = Collections.singleton(myRole);
           author.modifyRoles(rolesToAdd, rolesToRemove);
           channel.send("You now have the role \"%s\" from group \"%s\".", myRole.getName(), myRole.getGroup());
         }
@@ -86,16 +86,20 @@ public class AssignCommand extends AbstractGuildCommand {
     }
   }
   
-  private Collection<Role> getConflictingRoles() {
+  private Collection<RoleValueObject> getConflictingRoles() {
     return author.getRoles().stream()
-          .map(RoleView::getAbout)
+          .map(Role::getAbout)
           .filter(role -> Objects.equals(role.getGroup(), myRole.getGroup()))
           .collect(Collectors.toUnmodifiableList());
   }
   
   private boolean isAssigned() {
+    for(var role : author.getRoles()) {
+      System.out.println(role);
+    }
+    
     return author.getRoles().stream()
-          .map(RoleView::getAbout)
+          .map(Role::getAbout)
           .anyMatch(role -> Objects.equals(role.getId(), myRole.getId()));
   }
   

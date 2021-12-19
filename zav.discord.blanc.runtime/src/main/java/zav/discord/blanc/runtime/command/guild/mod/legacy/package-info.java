@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,19 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@NonNullByDefault
+package zav.discord.blanc.runtime.command.guild.mod.legacy;
 
-package zav.discord.blanc.mock;
-
-import zav.discord.blanc._factory.MessageFactory;
-import zav.discord.blanc.Message;
-import zav.discord.blanc.User;
-
-import java.time.Instant;
-
-public class  MessageMock extends Message {
-    public MessageMock(){}
-
-    public MessageMock(int id, Instant created, User author){
-        MessageFactory.create(() -> this,id, created, author);
-    }
-}
+import org.eclipse.jdt.annotation.NonNullByDefault;

@@ -18,14 +18,14 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.db.UserTable;
 
 import java.sql.SQLException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static zav.discord.blanc.Rank.DEVELOPER;
-import static zav.discord.blanc.Rank.ROOT;
+import static zav.discord.blanc.command.Rank.DEVELOPER;
+import static zav.discord.blanc.command.Rank.ROOT;
 
 /**
  * This command allows developers to become super-user and therefore allows them to bypass any permission checks.
@@ -83,7 +83,7 @@ public class FailsafeCommand extends AbstractCommand {
    */
   @Override
   public void run() throws SQLException {
-    User myAuthor = author.getAbout();
+    UserValueObject myAuthor = author.getAbout();
     String myMessage;
     
     if (author.getAbout().getRanks().contains(DEVELOPER.name())) {

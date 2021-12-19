@@ -2,6 +2,7 @@ package zav.discord.blanc.command.parser;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
@@ -19,6 +20,9 @@ import zav.discord.blanc.command.internal.IntermediateCommandModule;
  * command representation to a Java object.
  */
 public abstract class AbstractParser implements Parser {
+  @Inject
+  private Injector injector;
+  
   @Override
   public Optional<? extends Command> parse(GuildMessage msg) {
     return parse(new GuildCommandModule(msg), msg);
@@ -41,9 +45,9 @@ public abstract class AbstractParser implements Parser {
     IntermediateCommandModule cmdModule = new IntermediateCommandModule(cmd);
     
     return Commands.get(cmd.getName()).map(cmdClass -> {
-      Injector injector = Guice.createInjector(msgModule, cmdModule);
+      Injector cmdInjector = injector.createChildInjector(msgModule, cmdModule);
       
-      Command result = injector.getInstance(cmdClass);
+      Command result = cmdInjector.getInstance(cmdClass);
       
       result.postConstruct(cmd.getArguments());
       

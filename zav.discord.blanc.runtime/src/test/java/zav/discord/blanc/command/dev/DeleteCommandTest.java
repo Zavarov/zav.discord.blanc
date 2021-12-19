@@ -39,7 +39,7 @@ public class DeleteCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testDeleteOwnMessage() throws Exception {
-    message.setAuthorId(selfUserId);
+    messageValueObject.setAuthorId(selfUserId);
     
     command.run();
     

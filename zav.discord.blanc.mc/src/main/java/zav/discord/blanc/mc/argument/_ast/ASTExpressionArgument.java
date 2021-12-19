@@ -20,7 +20,7 @@ package zav.discord.blanc.mc.argument._ast;
 import de.monticore.prettyprint.IndentPrinter;
 import java.math.BigDecimal;
 import java.util.Optional;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.mc.math.ArithmeticExpressionsPrettyPrinter;
 import zav.mc.math.ArithmeticExpressionsValueCalculator;
 

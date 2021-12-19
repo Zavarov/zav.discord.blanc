@@ -16,13 +16,13 @@
 package zav.discord.blanc.runtime.command.guild.mod;
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.db.WebHookTable;
 import zav.discord.blanc.reddit.SubredditObservable;
-import zav.discord.blanc.view.TextChannelView;
-import zav.discord.blanc.view.WebHookView;
+import zav.discord.blanc.api.TextChannel;
+import zav.discord.blanc.api.WebHook;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -34,7 +34,7 @@ public class RedditCommand extends AbstractGuildCommand {
   private static final String WEBHOOK = "Reddit";
 
   private String mySubreddit;
-  private TextChannelView myChannel;
+  private TextChannel myChannel;
   
   protected RedditCommand() {
     super(Permission.MANAGE_CHANNELS);
@@ -49,26 +49,26 @@ public class RedditCommand extends AbstractGuildCommand {
   
   @Override
   public void run() throws SQLException {
-    WebHookView myWebhook = myChannel.getWebhook(WEBHOOK, true);
+    WebHook myWebhook = myChannel.getWebHook(WEBHOOK, true);
   
     // Update view
-    if (myChannel.updateSubreddit(mySubreddit)) {
-      // Add subreddit to database
-      myWebhook.getAbout().getSubreddits().add(mySubreddit);
-      SubredditObservable.addListener(mySubreddit, myWebhook);
-      
-      channel.send("Submissions from r/%s will be posted in %s.", mySubreddit, myChannel.getAbout().getName());
-    } else {
+    if (myWebhook.getAbout().getSubreddits().contains(mySubreddit)) {
       // Remove subreddit from database
       myWebhook.getAbout().getSubreddits().remove(mySubreddit);
       SubredditObservable.removeListener(mySubreddit, myWebhook);
-      
+  
       channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannel.getAbout().getName());
-
+  
       // Delete webhook if it's no longer needed
       if (myWebhook.getAbout().getSubreddits().isEmpty()) {
         myWebhook.delete();
       }
+    } else {
+      // Add subreddit to database
+      myWebhook.getAbout().getSubreddits().add(mySubreddit);
+      SubredditObservable.addListener(mySubreddit, myWebhook);
+  
+      channel.send("Submissions from r/%s will be posted in %s.", mySubreddit, myChannel.getAbout().getName());
     }
   
     //Update the persistence file

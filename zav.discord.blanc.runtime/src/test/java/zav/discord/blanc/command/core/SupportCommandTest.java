@@ -3,10 +3,10 @@ package zav.discord.blanc.command.core;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import zav.discord.blanc.Shard;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.runtime.command.core.HelpCommand;
+import zav.discord.blanc.databind.io.CredentialsValueObject;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -17,7 +17,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 public class SupportCommandTest  extends AbstractCommandTest {
   private Command command;
-  private static final String url = "https://foo";
   private static final String expected =
         "If you have any questions, hit me up in the support server:\n" +
         url;
@@ -25,11 +24,6 @@ public class SupportCommandTest  extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     command = parse("b:support");
-  
-    Shard shard = mock(Shard.class);
-  
-    when(shardView.getAbout()).thenReturn(shard);
-    when(shard.getInviteSupportServer()).thenReturn(url);
   }
   
   @Test

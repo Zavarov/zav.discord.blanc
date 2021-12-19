@@ -17,10 +17,10 @@
 package zav.discord.blanc.runtime.command.guild.mod;
 
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.databind.Guild;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.db.GuildTable;
 
 import java.sql.SQLException;
@@ -44,7 +44,7 @@ public class PrefixCommand extends AbstractGuildCommand {
   
   @Override
   public void run() throws SQLException {
-    Guild myGuild = guild.getAbout();
+    GuildValueObject myGuild = guild.getAbout();
     
     if (myPrefix == null) {
       channel.send("Removed the custom prefix.");

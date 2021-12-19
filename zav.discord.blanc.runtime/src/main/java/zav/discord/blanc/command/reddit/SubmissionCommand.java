@@ -17,28 +17,11 @@
 
 package zav.discord.blanc.command.reddit;
 
-import chart.pie.JFreePieChart;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import vartas.chart.pie.$factory.NumberDatasetFactory;
-import vartas.chart.pie.$factory.PieChartFactory;
-import vartas.chart.pie.Dataset;
-import vartas.chart.pie.PieChart;
-import zav.discord.blanc.Main;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
 import java.awt.*;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
-public class SubmissionCommand extends SubmissionCommandTOP {
+public class SubmissionCommand extends AbstractGuildCommand {
     /*
     private static final String BOTH = "both";
     private static final String UNTAGGED = "untagged";

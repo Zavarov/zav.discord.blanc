@@ -10,9 +10,9 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.runtime.command.guild.AssignCommand;
-import zav.discord.blanc.view.RoleView;
+import zav.discord.blanc.api.Role;
 
 import java.util.Collection;
 import java.util.Set;
@@ -27,17 +27,17 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class AssignCommandTest extends AbstractCommandTest {
   private static final String ACTIVE_MEMBERS = "activeMembers";
   private Command command;
+  private RoleValueObject roleValueObjectMock;
   private Role roleMock;
-  private RoleView roleViewMock;
   
   @Captor
-  private ArgumentCaptor<Collection<Role>> addedRoles;
+  private ArgumentCaptor<Collection<RoleValueObject>> addedRoles;
   
   @Captor
-  private ArgumentCaptor<Collection<Role>> removedRoles;
+  private ArgumentCaptor<Collection<RoleValueObject>> removedRoles;
   
   @Captor
-  private ArgumentCaptor<Role> removedRole;
+  private ArgumentCaptor<RoleValueObject> removedRole;
   
   @BeforeEach
   public void setUp() {
@@ -46,10 +46,10 @@ public class AssignCommandTest extends AbstractCommandTest {
     command = parse("b:assign %s", roleId);
     
     // User may already have a role in the same group
+    roleValueObjectMock = mock(RoleValueObject.class);
     roleMock = mock(Role.class);
-    roleViewMock = mock(RoleView.class);
-    when(roleMock.getGroup()).thenReturn(roleGroup);
-    when(roleViewMock.getAbout()).thenReturn(roleMock);
+    when(roleValueObjectMock.getGroup()).thenReturn(roleGroup);
+    when(roleMock.getAbout()).thenReturn(roleValueObjectMock);
   }
   
   @AfterEach
@@ -69,7 +69,7 @@ public class AssignCommandTest extends AbstractCommandTest {
   @Test
   public void testAssignRole() throws Exception {
     // User already has a different role in the same group => replace
-    when(memberView.getRoles()).thenReturn(Set.of(roleViewMock));
+    doReturn(Set.of(roleMock)).when(member).getRoles();
     
     command.run();
     
@@ -85,10 +85,10 @@ public class AssignCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo(roleGroup);
     
     // Has the role been replaced?
-    verify(memberView, times(1)).modifyRoles(addedRoles.capture(), removedRoles.capture());
+    verify(member, times(1)).modifyRoles(addedRoles.capture(), removedRoles.capture());
     
-    assertThat(addedRoles.getValue()).containsExactly(role);
-    assertThat(removedRoles.getValue()).containsExactly(roleMock);
+    assertThat(addedRoles.getValue()).containsExactly(roleValueObject);
+    assertThat(removedRoles.getValue()).containsExactly(roleValueObjectMock);
   }
   
   /**
@@ -97,7 +97,7 @@ public class AssignCommandTest extends AbstractCommandTest {
   @Test
   public void testRemoveRole() throws Exception {
     // User has the given role assigned => remove
-    when(memberView.getRoles()).thenReturn(Set.of(roleView));
+    doReturn(Set.of(role)).when(member).getRoles();
   
     command.run();
   
@@ -113,9 +113,9 @@ public class AssignCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo(roleGroup);
   
     // Has the role been removed?
-    verify(memberView, times(1)).removeRole(removedRole.capture());
+    verify(member, times(1)).removeRole(removedRole.capture());
   
-    assertThat(removedRole.getValue()).isEqualTo(role);
+    assertThat(removedRole.getValue()).isEqualTo(roleValueObject);
   }
   
   /**
@@ -124,8 +124,8 @@ public class AssignCommandTest extends AbstractCommandTest {
   @Test
   public void testInvalidRole() throws Exception {
     // Role is not assignable
-    role.setGroup(null);
-    when(memberView.getRoles()).thenReturn(Set.of(roleView));
+    roleValueObject.setGroup(null);
+    doReturn(Set.of(role)).when(member).getRoles();
   
     command.run();
   

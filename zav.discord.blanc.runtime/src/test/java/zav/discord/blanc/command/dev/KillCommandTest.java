@@ -40,6 +40,6 @@ public class KillCommandTest  extends AbstractDevCommandTest {
   public void testLeaveGuild() throws Exception {
     command.run();
     
-    verify(shardView, times(1)).shutdown();
+    verify(shard, times(1)).shutdown();
   }
 }

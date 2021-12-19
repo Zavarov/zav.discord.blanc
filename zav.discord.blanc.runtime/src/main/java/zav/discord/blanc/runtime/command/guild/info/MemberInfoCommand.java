@@ -18,9 +18,9 @@
 package zav.discord.blanc.runtime.command.guild.info;
 
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.User;
+import zav.discord.blanc.databind.UserValueObject;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class MemberInfoCommand extends AbstractGuildCommand {
   @Nullable
-  private User myMember;
+  private UserValueObject myMember;
 
   @Override
   public void postConstruct(List<? extends Argument> args) {

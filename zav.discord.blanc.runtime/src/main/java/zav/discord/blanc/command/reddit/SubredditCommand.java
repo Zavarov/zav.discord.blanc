@@ -17,24 +17,9 @@
 
 package zav.discord.blanc.command.reddit;
 
-import chart.line.JFreeLineChart;
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
-import vartas.chart.line.$factory.LineChartFactory;
-import vartas.chart.line.$factory.NumberDatasetFactory;
-import vartas.chart.line.LineChart;
-import vartas.chart.line.Position;
-import zav.discord.blanc.Main;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
-import java.awt.*;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Locale;
-
-public class SubredditCommand extends SubredditCommandTOP implements SnowflakeCommand{
+public class SubredditCommand extends AbstractGuildCommand {
     /*
     private static final Rectangle dimension = new Rectangle(1024, 768);
 

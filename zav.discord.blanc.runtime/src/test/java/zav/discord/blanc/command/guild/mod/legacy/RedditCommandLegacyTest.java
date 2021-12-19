@@ -21,17 +21,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.TextChannel;
-import zav.discord.blanc.databind.WebHook;
+import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.WebHookTable;
-import zav.discord.blanc.runtime.command.guild.mod.RedditCommand;
 import zav.discord.blanc.runtime.command.guild.mod.legacy.RedditCommandLegacy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class RedditCommandLegacyTest  extends AbstractCommandTest {
@@ -49,12 +47,12 @@ public class RedditCommandLegacyTest  extends AbstractCommandTest {
   
   @Test
   public void testAddSubreddit() throws Exception {
-    channel.getSubreddits().remove(channelSubreddit);
+    channelValueObject.getSubreddits().remove(channelSubreddit);
     
     command.run();
   
     // Has the subreddit been added?
-    assertThat(channel.getSubreddits()).isEmpty();
+    assertThat(channelValueObject.getSubreddits()).isEmpty();
   
     // Correct message?
     ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
@@ -76,11 +74,10 @@ public class RedditCommandLegacyTest  extends AbstractCommandTest {
     assertThat(msgCaptor.getValue()).isEqualTo("Submissions from r/%s will no longer be posted in %s.");
     assertThat(subredditCaptor.getValue()).isEqualTo(channelSubreddit);
     assertThat(channelCaptor.getValue()).isEqualTo(channelName);
-  
-    verify(channelView, times(1)).updateSubreddit(subredditCaptor.getValue());
+    
     assertThat(subredditCaptor.getValue()).isEqualTo(channelSubreddit);
   
-    TextChannel dbChannel = TextChannelTable.get(guildId, channelId);
+    TextChannelValueObject dbChannel = TextChannelTable.get(guildId, channelId);
     assertThat(dbChannel.getId()).isEqualTo(channelId);
     assertThat(dbChannel.getName()).isEqualTo(channelName);
     assertThat(dbChannel.getSubreddits()).isEmpty();

@@ -17,7 +17,7 @@
 
 package zav.discord.blanc.mc.argument._ast;
 
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 /**
  * Interface between a MontiCore argument and a command argument.

@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.message.Field;
-import zav.discord.blanc.databind.message.MessageEmbed;
+import zav.discord.blanc.databind.message.FieldValueObject;
+import zav.discord.blanc.databind.message.MessageEmbedValueObject;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.RoleTable;
 import zav.discord.blanc.db.TextChannelTable;
@@ -41,14 +41,14 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   @BeforeEach
   public void setUp() throws SQLException {
     command = parse("b:mod.config blacklist");
-    
-    guild.getBlacklist().add("foo");
-    guild.setPrefix("bar");
-    GuildTable.put(guild);
   
-    TextChannelTable.put(guild, channel);
-    WebHookTable.put(guild, channel, webHook);
-    RoleTable.put(guild, role);
+    guildValueObject.getBlacklist().add("foo");
+    guildValueObject.setPrefix("bar");
+    GuildTable.put(guildValueObject);
+  
+    TextChannelTable.put(guildValueObject, channelValueObject);
+    WebHookTable.put(guildValueObject, channelValueObject, webHookValueObject);
+    RoleTable.put(guildValueObject, roleValueObject);
   }
   
   @Test
@@ -62,13 +62,13 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
     
     command.run();
   
-    ArgumentCaptor<MessageEmbed> msgCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
+    ArgumentCaptor<MessageEmbedValueObject> msgCaptor = ArgumentCaptor.forClass(MessageEmbedValueObject.class);
     verify(channelView, times(1)).send(msgCaptor.capture());
-    
-    MessageEmbed msg = msgCaptor.getValue();
+  
+    MessageEmbedValueObject msg = msgCaptor.getValue();
     assertThat(msg.getFields()).hasSize(1);
     
-    Field field = msg.getFields().get(0);
+    FieldValueObject field = msg.getFields().get(0);
     assertThat(field.getName()).isEqualTo("Blacklist");
     assertThat(field.getContent()).isEqualTo("foo");
   }
@@ -79,13 +79,13 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   
     command.run();
   
-    ArgumentCaptor<MessageEmbed> msgCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
+    ArgumentCaptor<MessageEmbedValueObject> msgCaptor = ArgumentCaptor.forClass(MessageEmbedValueObject.class);
     verify(channelView, times(1)).send(msgCaptor.capture());
   
-    MessageEmbed msg = msgCaptor.getValue();
+    MessageEmbedValueObject msg = msgCaptor.getValue();
     assertThat(msg.getFields()).hasSize(1);
   
-    Field field = msg.getFields().get(0);
+    FieldValueObject field = msg.getFields().get(0);
     assertThat(field.getName()).isEqualTo("Prefix");
     assertThat(field.getContent()).isEqualTo("bar");
   }
@@ -96,13 +96,13 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   
     command.run();
   
-    ArgumentCaptor<MessageEmbed> msgCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
+    ArgumentCaptor<MessageEmbedValueObject> msgCaptor = ArgumentCaptor.forClass(MessageEmbedValueObject.class);
     verify(channelView, times(1)).send(msgCaptor.capture());
   
-    MessageEmbed msg = msgCaptor.getValue();
+    MessageEmbedValueObject msg = msgCaptor.getValue();
     assertThat(msg.getFields()).hasSize(2);
   
-    Field field = msg.getFields().get(0);
+    FieldValueObject field = msg.getFields().get(0);
     assertThat(field.getName()).isEqualTo(webHookName);
     assertThat(field.getContent()).isEqualTo(webHookSubreddit);
   
@@ -118,15 +118,15 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   
     command.run();
   
-    ArgumentCaptor<MessageEmbed> msgCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
+    ArgumentCaptor<MessageEmbedValueObject> msgCaptor = ArgumentCaptor.forClass(MessageEmbedValueObject.class);
     verify(channelView, times(1)).send(msgCaptor.capture());
   
-    MessageEmbed msg = msgCaptor.getValue();
+    MessageEmbedValueObject msg = msgCaptor.getValue();
     assertThat(msg.getFields()).hasSize(1);
   
-    Field field = msg.getFields().get(0);
+    FieldValueObject field = msg.getFields().get(0);
     assertThat(field.getName()).isEqualTo(roleName);
-    assertThat(field.getContent()).isEqualTo(role.getGroup());
+    assertThat(field.getContent()).isEqualTo(roleValueObject.getGroup());
   
   }
   

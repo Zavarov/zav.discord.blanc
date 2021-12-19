@@ -1,26 +1,48 @@
 package zav.discord.blanc.command;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.name.Names;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatcher;
-import zav.discord.blanc.Argument;
-import zav.discord.blanc.Rank;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.*;
-import zav.discord.blanc.db.*;
+import zav.discord.blanc.databind.io.CredentialsValueObject;
+import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.RoleTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.WebHookTable;
 import zav.discord.blanc.mc.MontiCoreCommandParser;
+import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.CommandResolver;
-import zav.discord.blanc.view.*;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.api.Member;
+import zav.discord.blanc.api.Role;
+import zav.discord.blanc.api.SelfMember;
+import zav.discord.blanc.api.SelfUser;
+import zav.discord.blanc.api.Shard;
+import zav.discord.blanc.api.TextChannel;
+import zav.discord.blanc.api.WebHook;
+import zav.jrc.view.SubredditView;
+import zav.jrc.view.guice.SubredditViewFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,23 +52,23 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public abstract class AbstractCommandTest {
-  protected User user;
-  protected User selfUser;
-  protected Role role;
-  protected Guild guild;
-  protected TextChannel channel;
-  protected Message message;
-  protected WebHook webHook;
+  protected UserValueObject userValueObject;
+  protected UserValueObject selfUserValueObject;
+  protected RoleValueObject roleValueObject;
+  protected GuildValueObject guildValueObject;
+  protected TextChannelValueObject channelValueObject;
+  protected MessageValueObject messageValueObject;
+  protected WebHookValueObject webHookValueObject;
   
-  protected SelfUserView selfUserView;
-  protected GuildView guildView;
-  protected MemberView memberView;
-  protected SelfMemberView selfMemberView;
-  protected TextChannelView channelView;
-  protected ShardView shardView;
-  protected RoleView roleView;
-  protected GuildMessageView messageView;
-  protected WebHookView webHookView;
+  protected SelfUser selfUser;
+  protected Guild guild;
+  protected Member member;
+  protected SelfMember selfMemberView;
+  protected TextChannel channelView;
+  protected Shard shard;
+  protected Role role;
+  protected GuildMessage messageView;
+  protected WebHook webHook;
   
   protected static final long guildId = 10000L;
   protected static final String guildPrefix = "myPrefix";
@@ -80,6 +102,8 @@ public abstract class AbstractCommandTest {
   protected static final String webHookSubreddit = "myHookSubreddit";
   protected static final boolean webHookOwner = true;
   
+  protected static final String url = "https://foo";
+  
   private static Parser parser;
   private static final Path GUILD_DB = Paths.get("Guild.db");
   private static final Path ROLE_DB = Paths.get("Role.db");
@@ -89,66 +113,85 @@ public abstract class AbstractCommandTest {
   
   @BeforeAll
   public static void setUpAll() {
-    parser = new MontiCoreCommandParser();
     
+    Injector injector = Guice.createInjector(new AbstractModule() {
+      @Override
+      protected void configure() {
+        SubredditViewFactory factory = mock(SubredditViewFactory.class);
+        SubredditView view = mock(SubredditView.class);
+        when(factory.create(anyString())).thenReturn(view);
+      
+        bind(SubredditViewFactory.class).toInstance(factory);
+        bind(String.class).annotatedWith(Names.named("inviteSupportServer")).toInstance(url);
+      }
+    });
+  
     CommandResolver.init();
+    SubredditObservable.init(injector);
+    
+    parser = injector.getInstance(MontiCoreCommandParser.class);
+  }
+  
+  @AfterAll
+  public static void tearDownAll() {
+    SubredditObservable.init(null);
   }
   
   // -------------------------------------------------------------------------------------------- //
   
   private void setUpMessage() {
-    message = new Message();
-    message.setContent(messageContent);
-    message.setId(messageId);
-    message.setAttachment(messageAttachment);
-    message.setAuthor(messageAuthor);
-    message.setAuthorId(messageAuthorId);
+    messageValueObject = new MessageValueObject()
+          .withContent(messageContent)
+          .withId(messageId)
+          .withAttachment(messageAttachment)
+          .withAuthor(messageAuthor)
+          .withAuthorId(messageAuthorId);
   }
   
   private void setUpUser() {
-    user = new User();
-    user.setId(userId);
-    user.setName(userName);
-    user.setDiscriminator(userDiscriminator);
-    user.getRanks().add(Rank.USER.name());
+    userValueObject = new UserValueObject()
+          .withId(userId)
+          .withName(userName)
+          .withDiscriminator(userDiscriminator)
+          .withRanks(Lists.newArrayList(Rank.USER.name()));
   }
   
   private void setUpSelfUser() {
-    selfUser = new User();
-    selfUser.setId(selfUserId);
-    selfUser.setName(selfUserName);
-    selfUser.setDiscriminator(selfUserDiscriminator);
-    selfUser.getRanks().add(Rank.USER.name());
+    selfUserValueObject = new UserValueObject()
+          .withId(selfUserId)
+          .withName(selfUserName)
+          .withDiscriminator(selfUserDiscriminator)
+          .withRanks(Lists.newArrayList(Rank.USER.name()));
   }
   
   private void setUpWebHook() {
-    webHook = new WebHook();
-    webHook.setId(webHookId);
-    webHook.setName(webHookName);
-    webHook.setChannelId(webHookChannelId);
-    webHook.setOwner(webHookOwner);
-    webHook.getSubreddits().add(webHookSubreddit);
+    webHookValueObject = new WebHookValueObject()
+          .withId(webHookId)
+          .withName(webHookName)
+          .withChannelId(webHookChannelId)
+          .withOwner(webHookOwner)
+          .withSubreddits(Lists.newArrayList(webHookSubreddit));
   }
   
   private void setUpRole() {
-    role = new Role();
-    role.setGroup(roleGroup);
-    role.setId(roleId);
-    role.setName(roleName);
+    roleValueObject = new RoleValueObject()
+          .withGroup(roleGroup)
+          .withId(roleId)
+          .withName(roleName);
   }
   
   private void setUpTextChannel() {
-    channel = new TextChannel();
-    channel.setId(channelId);
-    channel.setName(channelName);
-    channel.getSubreddits().add(channelSubreddit);
+    channelValueObject = new TextChannelValueObject()
+          .withId(channelId)
+          .withName(channelName)
+          .withSubreddits(Lists.newArrayList(channelSubreddit));
   }
   
   private void setUpGuild() {
-    guild = new Guild();
-    guild.setId(guildId);
-    guild.setName(guildName);
-    guild.setPrefix(guildPrefix);
+    guildValueObject = new GuildValueObject()
+          .withId(guildId)
+          .withName(guildName)
+          .withPrefix(guildPrefix);
   }
   
   // -------------------------------------------------------------------------------------------- //
@@ -156,61 +199,61 @@ public abstract class AbstractCommandTest {
   private void setUpMessageView() {
     setUpMessage();
     
-    messageView = mock(GuildMessageView.class);
-    when(messageView.getAbout()).thenReturn(message);
+    messageView = mock(GuildMessage.class);
+    when(messageView.getAbout()).thenReturn(messageValueObject);
   }
   
   private void setUpMemberView() {
-    memberView = mock(MemberView.class);
-    when(memberView.getPermissions()).thenReturn(Collections.emptySet());
-    when(memberView.getAbout()).thenReturn(user);
+    member = mock(Member.class);
+    when(member.getPermissions()).thenReturn(Collections.emptySet());
+    when(member.getAbout()).thenReturn(userValueObject);
   }
   
   private void setUpSelfUserView() {
-    selfUserView = mock(SelfUserView.class);
-    when(selfUserView.getAbout()).thenReturn(selfUser);
+    selfUser = mock(SelfUser.class);
+    when(selfUser.getAbout()).thenReturn(selfUserValueObject);
   }
   
   private void setUpSelfMemberView() {
-    selfMemberView = mock(SelfMemberView.class);
+    selfMemberView = mock(SelfMember.class);
     when(selfMemberView.getPermissions()).thenReturn(Collections.emptySet());
-    when(selfMemberView.getAbout()).thenReturn(selfUser);
+    when(selfMemberView.getAbout()).thenReturn(selfUserValueObject);
   }
   
   private void setUpWebHookView() {
-    webHookView = mock(WebHookView.class);
-    when(webHookView.getAbout()).thenReturn(webHook);
+    webHook = mock(WebHook.class);
+    when(webHook.getAbout()).thenReturn(webHookValueObject);
   }
   
   public void setUpRoleView() {
-    roleView = mock(RoleView.class);
-    when(roleView.getAbout()).thenReturn(role);
+    role = mock(Role.class);
+    when(role.getAbout()).thenReturn(roleValueObject);
   }
   
   private void setUpTextChannelView() {
-    channelView = mock(TextChannelView.class);
+    channelView = mock(TextChannel.class);
     when(channelView.getMessage(argThat(IdMatcher.of(messageId)))).thenReturn(messageView);
-    when(channelView.getWebhook(any())).thenReturn(webHookView);
-    when(channelView.getWebhook(any(), anyBoolean())).thenReturn(webHookView);
-    when(channelView.getAbout()).thenReturn(channel);
+    when(channelView.getWebHook(any())).thenReturn(webHook);
+    when(channelView.getWebHook(any(), anyBoolean())).thenReturn(webHook);
+    when(channelView.getAbout()).thenReturn(channelValueObject);
   }
   
   private void setUpGuildView() {
-    guildView = mock(GuildView.class);
-    when(guildView.getSelfMember()).thenReturn(selfMemberView);
-    when(guildView.getAbout()).thenReturn(guild);
-    when(guildView.getMember(argThat(IdMatcher.of(userId)))).thenReturn(memberView);
-    when(guildView.getMember(argThat(IdMatcher.of(selfUserId)))).thenReturn(selfMemberView);
-    when(guildView.getRole(argThat(IdMatcher.of(roleId)))).thenReturn(roleView);
-    when(guildView.getTextChannel(argThat(IdMatcher.of(channelId)))).thenReturn(channelView);
+    guild = mock(Guild.class);
+    when(guild.getSelfMember()).thenReturn(selfMemberView);
+    when(guild.getAbout()).thenReturn(guildValueObject);
+    when(guild.getMember(argThat(IdMatcher.of(userId)))).thenReturn(member);
+    when(guild.getMember(argThat(IdMatcher.of(selfUserId)))).thenReturn(selfMemberView);
+    when(guild.getRole(argThat(IdMatcher.of(roleId)))).thenReturn(role);
+    when(guild.getTextChannel(argThat(IdMatcher.of(channelId)))).thenReturn(channelView);
   }
   
   private void setUpShardView() {
-    shardView = mock(ShardView.class);
-    when(shardView.getSelfUser()).thenReturn(selfUserView);
-    when(shardView.getUser(argThat(IdMatcher.of(userId)))).thenReturn(memberView);
-    when(shardView.getUser(argThat(IdMatcher.of(selfUserId)))).thenReturn(selfMemberView);
-    when(shardView.getGuild(argThat(IdMatcher.of(guildId)))).thenReturn(guildView);
+    shard = mock(Shard.class);
+    when(shard.getSelfUser()).thenReturn(selfUser);
+    when(shard.getUser(argThat(IdMatcher.of(userId)))).thenReturn(member);
+    when(shard.getUser(argThat(IdMatcher.of(selfUserId)))).thenReturn(selfMemberView);
+    when(shard.getGuild(argThat(IdMatcher.of(guildId)))).thenReturn(guild);
   }
   
   @BeforeEach
@@ -268,25 +311,25 @@ public abstract class AbstractCommandTest {
   }
   
   public Command parse(String content) {
-    Message message = new Message();
+    MessageValueObject message = new MessageValueObject();
     message.setContent(content);
     message.setAttachment(StringUtils.EMPTY);
     return parse(message);
   }
   
-  private Command parse(Message message) {
-    GuildMessageView source = mock(GuildMessageView.class);
+  private Command parse(MessageValueObject message) {
+    GuildMessage source = mock(GuildMessage.class);
     
     when(source.getAbout()).thenReturn(message);
-    when(source.getGuild()).thenReturn(guildView);
-    when(source.getAuthor()).thenReturn(memberView);
+    when(source.getGuild()).thenReturn(guild);
+    when(source.getAuthor()).thenReturn(member);
     when(source.getMessageChannel()).thenReturn(channelView);
-    when(source.getShard()).thenReturn(shardView);
+    when(source.getShard()).thenReturn(shard);
     
     return parse(source);
   }
   
-  private Command parse(GuildMessageView source) {
+  private Command parse(GuildMessage source) {
     return parser.parse(source).orElseThrow();
   }
   

@@ -20,7 +20,7 @@ package zav.discord.blanc.mc.callable._ast;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 
 /**

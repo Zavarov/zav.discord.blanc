@@ -17,7 +17,7 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import zav.discord.blanc.Rank;
+import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 
 /**

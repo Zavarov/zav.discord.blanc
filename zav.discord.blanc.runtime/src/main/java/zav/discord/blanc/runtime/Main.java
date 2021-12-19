@@ -15,34 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc;
+package zav.discord.blanc.runtime;
 
-import de.se_rwth.commons.logging.Log;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import net.dv8tion.jda.api.JDA;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import zav.discord.blanc.activity.ActivityRunnable;
-import zav.discord.blanc.callable.MontiCoreCommandParser;
-import zav.discord.blanc.command.CommandBuilder;
-import zav.discord.blanc.io._json.JSONCredentials;
-import zav.discord.blanc.io._json.JSONRanks;
-import zav.discord.blanc.io._json.JSONStatusMessages;
-import zav.discord.blanc.monticore.MontiCoreCommandBuilder;
-import zav.discord.blanc.parser.JDATypeResolver;
-import zav.discord.blanc.parser.Parser;
-import zav.discord.blanc.reddit.RedditObservable;
-import zav.discord.blanc.reddit.RedditRunnable;
-import zav.discord.blanc.reddit.RedditVisitor;
-import zav.jra.UserAgent;
-import zav.jra.UserlessClient;
-import zav.jra._factory.UserAgentFactory;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import zav.discord.blanc.jda.JdaShardSupplier;
+import zav.discord.blanc.jda.api.JdaShard;
+import zav.discord.blanc.runtime.internal.guice.BlancModule;
 
-import javax.annotation.Nonnull;
+import javax.security.auth.login.LoginException;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
+  /**
+   * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
+   * We use an additional second as buffer, bringing the time up to 6 seconds.
+   */
+  private static final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
+  
+  private static Set<GatewayIntent> intents = GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS);
+  
+  public static void main(String[] args) throws IOException, LoginException, InterruptedException {
+    Injector injector = Guice.createInjector(new BlancModule());
+    JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
+    
+    supplier.forEachRemaining(x -> {});
+  }
+  
+    /*
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     public static zav.jra.Client REDDIT_CLIENT;
     @Nonnull
@@ -169,4 +177,5 @@ public class Main {
 
         shard.submit(runnable, 0, 5, TimeUnit.MINUTES);
     }
+     */
 }

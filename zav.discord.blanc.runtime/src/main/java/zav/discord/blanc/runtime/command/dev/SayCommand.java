@@ -18,9 +18,9 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.Rank;
+import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.Argument;
+import zav.discord.blanc.api.Argument;
 
 import java.util.List;
 

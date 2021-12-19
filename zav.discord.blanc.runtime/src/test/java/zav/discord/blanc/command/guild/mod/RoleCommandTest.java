@@ -3,12 +3,12 @@ package zav.discord.blanc.command.guild.mod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import zav.discord.blanc.Permission;
+import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.command.InvalidCommandException;
-import zav.discord.blanc.databind.Role;
+import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.db.RoleTable;
 import zav.discord.blanc.runtime.command.guild.mod.RoleCommand;
 
@@ -30,8 +30,8 @@ public class RoleCommandTest extends AbstractCommandTest {
   public void setUp() {
     command = parse("b:mod.role %s %s", roleId, roleGroup);
     
-    when(guildView.canInteract(eq(memberView), any())).thenReturn(true);
-    when(guildView.canInteract(eq(selfMemberView), any())).thenReturn(true);
+    when(guild.canInteract(eq(member), any())).thenReturn(true);
+    when(guild.canInteract(eq(selfMemberView), any())).thenReturn(true);
   }
   
   @Test
@@ -56,10 +56,10 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // Has the role been updated?
-    assertThat(role.getGroup()).isNull();
+    assertThat(roleValueObject.getGroup()).isNull();
   
     // Has the database been updated?
-    Role dbRole = RoleTable.get(guildId, roleId);
+    RoleValueObject dbRole = RoleTable.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
@@ -71,7 +71,7 @@ public class RoleCommandTest extends AbstractCommandTest {
    */
   @Test
   public void testGroupRole() throws Exception {
-    role.setGroup(null);
+    roleValueObject.setGroup(null);
     
     command.run();
   
@@ -87,10 +87,10 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo(roleGroup);
   
     // Has the role been updated?
-    assertThat(role.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // Has the database been updated?
-    Role dbRole = RoleTable.get(guildId, roleId);
+    RoleValueObject dbRole = RoleTable.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
@@ -103,7 +103,7 @@ public class RoleCommandTest extends AbstractCommandTest {
    */
   @Test
   public void testRoleInDifferentGroup() throws Exception {
-    role.setGroup("foo");
+    roleValueObject.setGroup("foo");
   
     command.run();
   
@@ -119,7 +119,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo("foo");
   
     // The role group shouldn't have been modified
-    assertThat(role.getGroup()).isEqualTo("foo");
+    assertThat(roleValueObject.getGroup()).isEqualTo("foo");
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
@@ -132,8 +132,8 @@ public class RoleCommandTest extends AbstractCommandTest {
   @Test
   public void testUserCantInteract() throws Exception {
     // Change author from (selfUser) to (user)
-    when(messageView.getAuthor()).thenReturn(memberView);
-    when(guildView.canInteract(eq(memberView), any())).thenReturn(false);
+    when(messageView.getAuthor()).thenReturn(member);
+    when(guild.canInteract(eq(member), any())).thenReturn(false);
   
     command.run();
   
@@ -147,7 +147,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // The role group shouldn't have been modified
-    assertThat(role.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
@@ -161,8 +161,8 @@ public class RoleCommandTest extends AbstractCommandTest {
   @Test
   public void testBotCantInteract() throws Exception {
     // Change author from (selfUser) to (user)
-    when(messageView.getAuthor()).thenReturn(memberView);
-    when(guildView.canInteract(eq(selfMemberView), any())).thenReturn(false);
+    when(messageView.getAuthor()).thenReturn(member);
+    when(guild.canInteract(eq(selfMemberView), any())).thenReturn(false);
   
     command.run();
   
@@ -176,7 +176,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // The role group shouldn't have been modified
-    assertThat(role.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
@@ -185,7 +185,7 @@ public class RoleCommandTest extends AbstractCommandTest {
   
   @Test
   public void testCheckPermissions() throws InvalidCommandException {
-    when(memberView.getPermissions()).thenReturn(Set.of(Permission.MANAGE_ROLES));
+    when(member.getPermissions()).thenReturn(Set.of(Permission.MANAGE_ROLES));
     
     // No error
     command.validate();
