@@ -37,7 +37,7 @@ public abstract class AbstractCommand implements Command {
     
     // Does the user have the required rank?
     if (!author.getAbout().getRanks().contains(rank.name())) {
-      throw new InsufficientRankException();
+      throw new InsufficientRankException(rank);
     }
   }
 }
