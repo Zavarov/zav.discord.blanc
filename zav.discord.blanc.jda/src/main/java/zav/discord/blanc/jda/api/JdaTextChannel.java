@@ -22,6 +22,7 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectWebHook;
 import static zav.discord.blanc.jda.internal.MessageUtils.forMember;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMessage;
 
+import com.google.inject.Injector;
 import java.util.List;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,6 +43,9 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
   private static final Logger LOGGER = LogManager.getLogger(JdaTextChannel.class);
   
   @Inject
+  Injector injector;
+  
+  @Inject
   protected TextChannel jdaTextChannel;
   
   @Override
@@ -53,7 +57,7 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
   public JdaGuildMessage getMessage(Argument argument) {
     Message jdaMessage = resolveMessage(jdaTextChannel, argument);
 
-    return injectGuildMessage(jdaMessage);
+    return injectGuildMessage(injector, jdaMessage);
   }
   
   @Override
@@ -63,15 +67,15 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
     // WebHook already exists -> reuse
     for (Webhook jdaWebHook : jdaWebhooks) {
       if (jdaWebHook.getName().equals(argument)) {
-        return injectWebHook(jdaWebHook);
+        return injectWebHook(injector, jdaWebHook);
       }
     }
     
     // Otherwise create one, if desired
     if (create) {
       Webhook jdaWebHook = jdaTextChannel.createWebhook(argument).complete();
-
-      return injectWebHook(jdaWebHook);
+  
+      return injectWebHook(injector, jdaWebHook);
     // No matching webhook exists -> error
     } else {
       LOGGER.error("No matching webhook for {} has been found.", argument);

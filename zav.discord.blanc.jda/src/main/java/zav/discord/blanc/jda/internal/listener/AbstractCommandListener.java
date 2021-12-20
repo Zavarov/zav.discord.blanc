@@ -16,12 +16,18 @@
 
 package zav.discord.blanc.jda.internal.listener;
 
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Command;
+
+import java.util.Arrays;
 
 /**
  * Abstract base class for both the guild and private command listener.
@@ -41,7 +47,22 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
         command.run();
       } catch (Exception e) {
         LOGGER.warn(e.getMessage(), e);
-        channel.sendMessage(e.getMessage()).complete();
+
+        EmbedBuilder errorBuilder = new EmbedBuilder();
+        
+        errorBuilder.setTitle(e.getClass().getSimpleName());
+        
+        if (StringUtils.isNotBlank(e.getMessage())) {
+          errorBuilder.addField("Message", e.getMessage(), false);
+        }
+      
+        if (e.getCause() != null) {
+          errorBuilder.addField("Cause", e.getCause().toString(), false);
+        }
+        
+        errorBuilder.addField("StackTrace", StringUtils.join(e.getStackTrace(), '\n'), false);
+
+        channel.sendMessageEmbeds(errorBuilder.build()).complete();
       }
     });
   }

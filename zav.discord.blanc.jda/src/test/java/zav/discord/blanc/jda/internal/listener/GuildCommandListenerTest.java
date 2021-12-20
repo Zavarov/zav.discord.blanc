@@ -20,12 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import java.util.concurrent.ExecutorService;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,17 +29,12 @@ import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.command.parser.IntermediateCommand;
-import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.MessageValueObject;
 import zav.discord.blanc.jda.AbstractTest;
 
 public class GuildCommandListenerTest extends AbstractTest {
-  private static final String commandName = "test";
-  
-  GuildCommandListener listener;
-  GuildMessageReceivedEvent event;
-  Shard shard;
+  private GuildCommandListener listener;
+  private GuildMessageReceivedEvent event;
+  private Shard shard;
   
   @BeforeAll
   public static void setUpAll() {
@@ -61,7 +51,6 @@ public class GuildCommandListenerTest extends AbstractTest {
     shard = mock(Shard.class);
     listener = new GuildCommandListener(shard);
     
-    Injector injector = Guice.createInjector(new TestModule());
     injector.injectMembers(listener);
     
     event = new GuildMessageReceivedEvent(jda, -1, jdaMessage);
@@ -73,20 +62,6 @@ public class GuildCommandListenerTest extends AbstractTest {
     listener.onGuildMessageReceived(event);
     
     verify(shard, times(1)).submit(any());
-  }
-  
-  private static class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      Parser parser = mock(Parser.class);
-      IntermediateCommand command = mock(IntermediateCommand.class);
-      
-      when(command.getName()).thenReturn(commandName);
-      when(parser.parse(any(MessageValueObject.class))).thenReturn(command);
-      
-      bind(Parser.class).toInstance(parser);
-      bind(ExecutorService.class).toInstance(mock(ExecutorService.class));
-    }
   }
   
   private static class TestCommand extends AbstractCommand {

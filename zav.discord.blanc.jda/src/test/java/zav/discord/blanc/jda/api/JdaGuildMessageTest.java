@@ -34,7 +34,7 @@ public class JdaGuildMessageTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    guildMessage = injectGuildMessage(jdaMessage);
+    guildMessage = injectGuildMessage(injector, jdaMessage);
   }
   
   @Test

@@ -37,7 +37,7 @@ public class JdaGuildTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() throws Exception {
-    guild = injectGuild(jdaGuild);
+    guild = injectGuild(injector, jdaGuild);
   }
   
   @Test

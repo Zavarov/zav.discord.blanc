@@ -20,7 +20,6 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuildMessage;
 
 import com.google.inject.Injector;
 import javax.inject.Inject;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -73,8 +72,8 @@ public class GuildCommandListener extends AbstractCommandListener {
       return;
     }
 
-    GuildMessage messageView = injectGuildMessage(jdaMessage);
-  
+    GuildMessage messageView = injectGuildMessage(injector, jdaMessage);
+    
     // Create a new injector for each command to avoid collisions between injected members
     Injector commandInjector = injector.createChildInjector(
           new JdaGuildMessageModule(jdaMessage),

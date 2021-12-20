@@ -25,6 +25,7 @@ import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMember;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveRole;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveTextChannel;
 
+import com.google.inject.Injector;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
@@ -56,6 +57,9 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   protected final ActivityChart activityChart;
   
   @Inject
+  private Injector injector;
+  
+  @Inject
   protected Guild jdaGuild;
   
   public JdaGuild() {
@@ -71,35 +75,35 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   public JdaSelfMember getSelfMember() {
     Member jdaSelfMember = jdaGuild.getSelfMember();
     
-    return injectSelfMember(jdaSelfMember);
+    return injectSelfMember(injector, jdaSelfMember);
   }
   
   @Override
   public JdaRole getRole(Argument argument) throws NoSuchElementException {
     Role jdaRole = resolveRole(jdaGuild, argument);
     
-    return injectRole(jdaRole);
+    return injectRole(injector, jdaRole);
   }
   
   @Override
   public JdaMember getMember(Argument argument) throws NoSuchElementException {
     Member jdaMember = resolveMember(jdaGuild, argument);
   
-    return injectMember(jdaMember);
+    return injectMember(injector, jdaMember);
   }
   
   @Override
   public JdaTextChannel getTextChannel(Argument argument) {
     TextChannel jdaTextChannel = resolveTextChannel(jdaGuild, argument);
   
-    return injectTextChannel(jdaTextChannel);
+    return injectTextChannel(injector, jdaTextChannel);
   }
   
   @Override
   public Collection<JdaRole> getRoles() {
     return jdaGuild.getRoles()
           .stream()
-          .map(GuiceUtils::injectRole)
+          .map(role -> injectRole(injector, role))
           .collect(Collectors.toUnmodifiableList());
   }
   
@@ -107,7 +111,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   public Collection<JdaMember> getMembers() {
     return jdaGuild.getMembers()
           .stream()
-          .map(GuiceUtils::injectMember)
+          .map(member -> injectMember(injector, member))
           .collect(Collectors.toUnmodifiableList());
   }
   
@@ -115,7 +119,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   public Collection<JdaTextChannel> getTextChannels() {
     return jdaGuild.getTextChannels()
           .stream()
-          .map(GuiceUtils::injectTextChannel)
+          .map(textChannel -> injectTextChannel(injector, textChannel))
           .collect(Collectors.toUnmodifiableList());
   }
   

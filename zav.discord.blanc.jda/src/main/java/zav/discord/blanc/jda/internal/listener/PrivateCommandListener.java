@@ -20,7 +20,6 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
 
 import com.google.inject.Injector;
 import javax.inject.Inject;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -72,7 +71,9 @@ public class PrivateCommandListener extends AbstractCommandListener {
       return;
     }
 
-    PrivateMessage messageView = injectPrivateMessage(jdaMessage);
+    PrivateMessage messageView = injectPrivateMessage(injector, jdaMessage);
+    
+    injector.getAllBindings().forEach((k,v) -> System.out.println(k + " -> " + v));
 
     // Create a new injector for each command to avoid
     Injector commandInjector = injector.createChildInjector(

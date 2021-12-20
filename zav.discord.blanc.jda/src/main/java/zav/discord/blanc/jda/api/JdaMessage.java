@@ -19,6 +19,7 @@ package zav.discord.blanc.jda.api;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectShard;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectUser;
 
+import com.google.inject.Injector;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -29,6 +30,9 @@ import zav.discord.blanc.databind.MessageValueObject;
  * Implementation of a message view, backed by JDA.
  */
 public abstract class JdaMessage implements zav.discord.blanc.api.Message {
+  @Inject
+  private Injector injector;
+  
   @Inject
   protected Message jdaMessage;
   
@@ -47,14 +51,14 @@ public abstract class JdaMessage implements zav.discord.blanc.api.Message {
   public JdaUser getAuthor() {
     User jdaUser = jdaMessage.getAuthor();
   
-    return injectUser(jdaUser);
+    return injectUser(injector, jdaUser);
   }
   
   @Override
   public JdaShard getShard() {
     JDA jda = jdaMessage.getJDA();
   
-    return injectShard(jda);
+    return injectShard(injector, jda);
   }
   
   @Override

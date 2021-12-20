@@ -22,6 +22,7 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectUser;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveGuild;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveUser;
 
+import com.google.inject.Injector;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,9 @@ public class JdaShard implements Shard {
   private final Map<Long, JdaGuild> guildCache = new ConcurrentHashMap<>();
   
   @Inject
+  private Injector injector;
+  
+  @Inject
   private JDA jda;
   
   @Inject
@@ -52,7 +56,7 @@ public class JdaShard implements Shard {
   public JdaSelfUser getSelfUser() {
     SelfUser jdaSelfUser = jda.getSelfUser();
     
-    return injectSelfUser(jdaSelfUser);
+    return injectSelfUser(injector, jdaSelfUser);
   }
   
   @Override
@@ -63,14 +67,14 @@ public class JdaShard implements Shard {
   }
   
   private JdaGuild getGuild(Guild jdaGuild) {
-    return guildCache.computeIfAbsent(jdaGuild.getIdLong(), id -> injectGuild(jdaGuild));
+    return guildCache.computeIfAbsent(jdaGuild.getIdLong(), id -> injectGuild(injector, jdaGuild));
   }
   
   @Override
   public JdaUser getUser(Argument argument) {
     User jdaUser = resolveUser(jda, argument);
     
-    return injectUser(jdaUser);
+    return injectUser(injector, jdaUser);
   }
   
   @Override

@@ -35,7 +35,7 @@ public class JdaPrivateChannelTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    privateChannel = injectPrivateChannel(jdaPrivateChannel);
+    privateChannel = injectPrivateChannel(injector, jdaPrivateChannel);
   }
   
   @Test

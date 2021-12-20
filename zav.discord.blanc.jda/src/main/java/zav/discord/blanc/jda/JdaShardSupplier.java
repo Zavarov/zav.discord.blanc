@@ -18,6 +18,7 @@ package zav.discord.blanc.jda;
 
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectShard;
 
+import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,15 +26,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import com.google.inject.Injector;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
-import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.jda.api.JdaShard;
+import zav.discord.blanc.jda.internal.guice.JdaModule;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
 import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
 import zav.discord.blanc.jda.internal.listener.GuildCommandListener;
@@ -87,9 +87,12 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       JDA jda = JDABuilder.create(intents)
             .setToken(token)
             .useSharding(index++, (int) shardCount)
+            .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
             .build();
       
-      JdaShard shard = injectShard(jda);
+      Injector shardInjector = injector.createChildInjector(new JdaModule());
+      
+      JdaShard shard = injectShard(shardInjector, jda);
       
       List<EventListener> listeners = new ArrayList<>();
       
@@ -98,7 +101,7 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       listeners.add(new GuildCommandListener(shard));
       listeners.add(new PrivateCommandListener(shard));
       
-      listeners.forEach(injector::injectMembers);
+      listeners.forEach(shardInjector::injectMembers);
       listeners.forEach(jda::addEventListener);
       
       return shard;

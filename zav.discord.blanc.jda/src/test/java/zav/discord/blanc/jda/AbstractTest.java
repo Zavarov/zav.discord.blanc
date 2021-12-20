@@ -16,22 +16,43 @@
 
 package zav.discord.blanc.jda;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
-import org.junit.jupiter.api.BeforeEach;
-
-import java.util.EnumSet;
-import java.util.List;
-
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookAction;
+import org.junit.jupiter.api.BeforeEach;
+import zav.discord.blanc.command.parser.IntermediateCommand;
+import zav.discord.blanc.command.parser.Parser;
+import zav.discord.blanc.databind.MessageValueObject;
+
+
 @SuppressWarnings("all")
 public abstract class AbstractTest {
+  protected static final String commandName = "test";
+  
   protected final long roleId = 11111;
   protected final long memberId = 22222;
   protected final long textChannelId = 33333;
@@ -58,6 +79,13 @@ public abstract class AbstractTest {
   protected RestAction<List<Webhook>> jdaWebHooks;
   protected WebhookAction jdaWebHookAction;
   protected Webhook jdaWebHook;
+  
+  protected Injector injector;
+  
+  @BeforeEach
+  public void setUpInjector() {
+    injector = Guice.createInjector(new TestModule());
+  }
   
   @BeforeEach
   public void setUpMocks() {
@@ -120,6 +148,20 @@ public abstract class AbstractTest {
     when(jdaWebHook.getJDA()).thenReturn(jda);
     when(jdaWebHooks.complete()).thenReturn(List.of(jdaWebHook));
     when(jdaWebHookAction.complete()).thenReturn(jdaWebHook);
-    
+  }
+  
+  private static class TestModule extends AbstractModule {
+    @Override
+    protected void configure() {
+      Parser parser = mock(Parser.class);
+      IntermediateCommand command = mock(IntermediateCommand.class);
+      
+      when(command.getName()).thenReturn(commandName);
+      when(parser.parse(any(MessageValueObject.class))).thenReturn(command);
+      
+      bind(Parser.class).toInstance(parser);
+      bind(ExecutorService.class).toInstance(mock(ExecutorService.class));
+      bind(ScheduledExecutorService.class).toInstance(mock(ScheduledExecutorService.class));
+    }
   }
 }

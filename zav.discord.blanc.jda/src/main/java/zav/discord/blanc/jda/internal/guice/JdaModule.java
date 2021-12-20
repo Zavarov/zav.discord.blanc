@@ -14,26 +14,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.api;
+package zav.discord.blanc.jda.internal.guice;
 
-import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateChannel;
+import com.google.inject.AbstractModule;
 
-import com.google.inject.Injector;
-import javax.inject.Inject;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import zav.discord.blanc.api.PrivateMessage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * Implementation of a private message view, backed by JDA.
- */
-public class JdaPrivateMessage extends JdaMessage implements PrivateMessage {
-  @Inject
-  private Injector injector;
+public class JdaModule extends AbstractModule {
+  // Threads are shared since all shards run on the same hardware
+  // TODO Revisit when shards run on separate systems.
+  private static final ScheduledExecutorService queue = Executors.newScheduledThreadPool(16);
   
   @Override
-  public JdaPrivateChannel getMessageChannel() {
-    PrivateChannel jdaPrivateChannel = jdaMessage.getPrivateChannel();
-  
-    return injectPrivateChannel(injector, jdaPrivateChannel);
+  protected void configure() {
+    bind(ExecutorService.class).toInstance(queue);
+    bind(ScheduledExecutorService.class).toInstance(queue);
   }
 }
