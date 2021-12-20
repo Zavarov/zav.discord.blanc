@@ -17,29 +17,18 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuild;
 
 import java.util.Collection;
-import java.util.List;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether guilds are properly instantiated using Guice.
  */
-public class JdaGuildTest {
-  private final long roleId = 11111;
-  private final long memberId = 22222;
-  private final long textChannelId = 33333;
+public class JdaGuildTest extends AbstractTest {
   
   private JdaGuild guild;
   
@@ -48,24 +37,6 @@ public class JdaGuildTest {
    */
   @BeforeEach
   public void setUp() throws Exception {
-    Guild jdaGuild = mock(Guild.class);
-    
-    Member jdaMember = mock(Member.class);
-    Member jdaSelfMember = mock(Member.class);
-    Role jdaRole = mock(Role.class);
-    TextChannel jdaTextChannel = mock(TextChannel.class);
-    
-    when(jdaGuild.getSelfMember()).thenReturn(jdaSelfMember);
-    when(jdaGuild.getRoleById(eq(roleId))).thenReturn(jdaRole);
-    when(jdaGuild.getMemberById(memberId)).thenReturn(jdaMember);
-    when(jdaGuild.getTextChannelById(textChannelId)).thenReturn(jdaTextChannel);
-    when(jdaGuild.getRoles()).thenReturn(List.of(jdaRole));
-    when(jdaGuild.getMembers()).thenReturn(List.of(jdaMember, jdaSelfMember));
-    when(jdaGuild.getTextChannels()).thenReturn(List.of(jdaTextChannel));
-  
-    when(jdaMember.getUser()).thenReturn(mock(User.class));
-    when(jdaSelfMember.getUser()).thenReturn(mock(User.class));
-    
     guild = injectGuild(jdaGuild);
   }
   

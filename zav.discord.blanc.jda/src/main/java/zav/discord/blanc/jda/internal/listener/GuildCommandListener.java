@@ -18,8 +18,10 @@ package zav.discord.blanc.jda.internal.listener;
 
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuildMessage;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
+import javax.inject.Inject;
+
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.GuildMessage;
@@ -30,6 +32,8 @@ import zav.discord.blanc.command.guice.GuildCommandModule;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.jda.internal.guice.JdaGuildMessageModule;
+
 
 /**
  * Listener for guild commands.<br>
@@ -37,11 +41,14 @@ import zav.discord.blanc.databind.MessageValueObject;
  * corresponding command instance is created and submitted for execution.
  */
 public class GuildCommandListener extends AbstractCommandListener {
-  private final Parser commandParser;
+  @Inject
+  private Parser parser;
+  
+  @Inject
+  private Injector injector;
 
-  public GuildCommandListener(Parser commandParser, Shard shard) {
+  public GuildCommandListener(Shard shard) {
     super(shard);
-    this.commandParser = commandParser;
   }
 
   @Override
@@ -51,15 +58,15 @@ public class GuildCommandListener extends AbstractCommandListener {
       return;
     }
     
-    var jdaMessage = event.getMessage();
-    var message = new MessageValueObject()
+    Message jdaMessage = event.getMessage();
+    MessageValueObject message = new MessageValueObject()
           .withId(jdaMessage.getIdLong())
           .withAuthor(jdaMessage.getAuthor().getName())
           .withContent(jdaMessage.getContentRaw())
           .withAuthorId(jdaMessage.getAuthor().getIdLong());
  
     @Nullable
-    IntermediateCommand command = commandParser.parse(message);
+    IntermediateCommand command = parser.parse(message);
     
     // Message is not a command -> abort
     if (command == null) {
@@ -68,9 +75,12 @@ public class GuildCommandListener extends AbstractCommandListener {
 
     GuildMessage messageView = injectGuildMessage(jdaMessage);
   
-    // Create a new injector for each command to avoid
-    Injector injector = Guice.createInjector(new GuildCommandModule(messageView));
-  
+    // Create a new injector for each command to avoid collisions between injected members
+    Injector commandInjector = injector.createChildInjector(
+          new JdaGuildMessageModule(jdaMessage),
+          new GuildCommandModule(messageView)
+    );
+    
     @Nullable
     Class<? extends Command> commandClass = Commands.get(command.getName()).orElse(null);
     
@@ -79,7 +89,7 @@ public class GuildCommandListener extends AbstractCommandListener {
       return;
     }
     
-    Command commandInstance = injector.getInstance(commandClass);
+    Command commandInstance = commandInjector.getInstance(commandClass);
     
     super.submit(event.getChannel(), commandInstance);
   }

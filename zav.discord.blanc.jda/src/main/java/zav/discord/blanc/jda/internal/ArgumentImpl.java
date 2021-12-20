@@ -32,10 +32,6 @@ public final class ArgumentImpl implements NumberArgument {
     this.value = value;
   }
   
-  public static ArgumentImpl of(GuildValueObject guild) {
-    return new ArgumentImpl(guild.getId());
-  }
-  
   public static ArgumentImpl of(long guildId) {
     return new ArgumentImpl(guildId);
   }

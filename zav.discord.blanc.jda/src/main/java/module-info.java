@@ -1,5 +1,6 @@
 module zav.discord.blanc.jda {
   requires static org.eclipse.jdt.annotation;
+  requires static com.fasterxml.jackson.databind;
   
   requires com.google.common;
   requires com.google.guice;
@@ -21,4 +22,5 @@ module zav.discord.blanc.jda {
   exports zav.discord.blanc.jda.api;
   
   opens zav.discord.blanc.jda.api to com.google.guice;
+  opens zav.discord.blanc.jda.internal.listener to com.google.guice;
 }

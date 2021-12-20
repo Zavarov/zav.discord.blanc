@@ -17,29 +17,18 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectShard;
 
 import java.util.Collection;
-import java.util.List;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether shards are properly instantiated using Guice.
  */
-public class JdaShardTest {
-  private final long guildId = 11111;
-  private final long userId = 22222;
-  
+public class JdaShardTest extends AbstractTest {
   private JdaShard shard;
   
   /**
@@ -47,17 +36,6 @@ public class JdaShardTest {
    */
   @BeforeEach
   public void setUp() {
-    JDA jda = mock(JDA.class);
-  
-    @SuppressWarnings("unchecked")
-    RestAction<User> jdaUser = mock(RestAction.class);
-    
-    when(jda.getSelfUser()).thenReturn(mock(SelfUser.class));
-    when(jda.getGuilds()).thenReturn(List.of(mock(Guild.class)));
-    when(jda.getGuildById(eq(guildId))).thenReturn(mock(Guild.class));
-    when(jda.retrieveUserById(eq(userId))).thenReturn(jdaUser);
-    when(jdaUser.complete()).thenReturn(mock(User.class));
-    
     shard = injectShard(jda);
   }
   

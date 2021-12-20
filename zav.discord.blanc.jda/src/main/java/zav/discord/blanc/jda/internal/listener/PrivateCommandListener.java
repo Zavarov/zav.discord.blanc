@@ -18,8 +18,10 @@ package zav.discord.blanc.jda.internal.listener;
 
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
+import javax.inject.Inject;
+
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.PrivateMessage;
@@ -30,6 +32,7 @@ import zav.discord.blanc.command.guice.PrivateCommandModule;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.jda.internal.guice.JdaPrivateMessageModule;
 
 /**
  * Listener for private commands.<br>
@@ -37,11 +40,14 @@ import zav.discord.blanc.databind.MessageValueObject;
  * corresponding command instance is created and submitted for execution.
  */
 public class PrivateCommandListener extends AbstractCommandListener {
-  private final Parser commandParser;
+  @Inject
+  private Parser parser;
   
-  public PrivateCommandListener(Parser commandParser, Shard shard) {
+  @Inject
+  private Injector injector;
+  
+  public PrivateCommandListener(Shard shard) {
     super(shard);
-    this.commandParser = commandParser;
   }
 
   @Override
@@ -51,15 +57,15 @@ public class PrivateCommandListener extends AbstractCommandListener {
       return;
     }
 
-    var jdaMessage = event.getMessage();
-    var message = new MessageValueObject()
+    Message jdaMessage = event.getMessage();
+    MessageValueObject message = new MessageValueObject()
           .withId(jdaMessage.getIdLong())
           .withAuthor(jdaMessage.getAuthor().getName())
           .withContent(jdaMessage.getContentRaw())
           .withAuthorId(jdaMessage.getAuthor().getIdLong());
 
     @Nullable
-    IntermediateCommand command = commandParser.parse(message);
+    IntermediateCommand command = parser.parse(message);
 
     // Message is not a command -> abort
     if (command == null) {
@@ -69,7 +75,10 @@ public class PrivateCommandListener extends AbstractCommandListener {
     PrivateMessage messageView = injectPrivateMessage(jdaMessage);
 
     // Create a new injector for each command to avoid
-    Injector injector = Guice.createInjector(new PrivateCommandModule(messageView));
+    Injector commandInjector = injector.createChildInjector(
+          new JdaPrivateMessageModule(jdaMessage),
+          new PrivateCommandModule(messageView)
+    );
 
     @Nullable
     Class<? extends Command> commandClass = Commands.get(command.getName()).orElse(null);
@@ -79,7 +88,7 @@ public class PrivateCommandListener extends AbstractCommandListener {
       return;
     }
 
-    Command commandInstance = injector.getInstance(commandClass);
+    Command commandInstance = commandInjector.getInstance(commandClass);
 
     super.submit(event.getChannel(), commandInstance);
   }

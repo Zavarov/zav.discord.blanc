@@ -18,13 +18,18 @@ package zav.discord.blanc.jda;
 
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectShard;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import com.google.inject.Injector;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import zav.discord.blanc.command.parser.Parser;
@@ -57,15 +62,15 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
   );
   
   @Inject
+  private Injector injector;
+  
+  @Inject
   @Named("discordToken")
   private String token;
   
   @Inject
   @Named("shardCount")
   private long shardCount;
-  
-  @Inject
-  private Parser parser;
   
   private int index = 0;
   
@@ -86,10 +91,15 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       
       JdaShard shard = injectShard(jda);
       
-      jda.addEventListener(new BlacklistListener(shard));
-      jda.addEventListener(new GuildActivityListener());
-      jda.addEventListener(new GuildCommandListener(parser, shard));
-      jda.addEventListener(new PrivateCommandListener(parser, shard));
+      List<EventListener> listeners = new ArrayList<>();
+      
+      listeners.add(new BlacklistListener(shard));
+      listeners.add(new GuildActivityListener());
+      listeners.add(new GuildCommandListener(shard));
+      listeners.add(new PrivateCommandListener(shard));
+      
+      listeners.forEach(injector::injectMembers);
+      listeners.forEach(jda::addEventListener);
       
       return shard;
     } catch (Exception e)  {

@@ -17,23 +17,17 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateChannel;
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether private channels are properly instantiated using Guice.
  */
-public class JdaPrivateChannelTest {
-  private final long messageId = 11111;
-  
+public class JdaPrivateChannelTest extends AbstractTest {
   private JdaPrivateChannel privateChannel;
   
   /**
@@ -41,14 +35,6 @@ public class JdaPrivateChannelTest {
    */
   @BeforeEach
   public void setUp() {
-    PrivateChannel jdaPrivateChannel = mock(PrivateChannel.class);
-  
-    @SuppressWarnings("unchecked")
-    RestAction<Message> jdaMessage = mock(RestAction.class);
-    
-    when(jdaPrivateChannel.retrieveMessageById(messageId)).thenReturn(jdaMessage);
-    when(jdaMessage.complete()).thenReturn(mock(Message.class));
-    
     privateChannel = injectPrivateChannel(jdaPrivateChannel);
   }
   

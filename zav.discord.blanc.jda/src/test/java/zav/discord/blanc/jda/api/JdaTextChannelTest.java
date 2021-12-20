@@ -19,60 +19,27 @@ package zav.discord.blanc.jda.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectTextChannel;
 
-import java.util.List;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether text channels are properly instantiated using Guice.
  */
-public class JdaTextChannelTest {
-  private final long messageId = 11111;
-  private final String webHookName = "webHook";
-  
+public class JdaTextChannelTest extends AbstractTest {
   private JdaTextChannel textChannel;
-  private TextChannel jdaTextChannel;
-  private Webhook jdaWebHook;
   
   /**
    * Initializes {@link #textChannel} and mocks the required JDA components.
    */
   @BeforeEach
   public void setUp() {
-    jdaTextChannel = mock(TextChannel.class);
-  
-    jdaWebHook = mock(Webhook.class);
-  
-    @SuppressWarnings("unchecked")
-    RestAction<Message> jdaMessage = mock(RestAction.class);
-    @SuppressWarnings("unchecked")
-    RestAction<List<Webhook>> jdaWebHooks = mock(RestAction.class);
-    WebhookAction jdaWebHookAction = mock(WebhookAction.class);
-
-    when(jdaTextChannel.retrieveMessageById(eq(messageId))).thenReturn(jdaMessage);
-    when(jdaTextChannel.retrieveWebhooks()).thenReturn(jdaWebHooks);
-    when(jdaTextChannel.createWebhook(eq(webHookName))).thenReturn(jdaWebHookAction);
-    when(jdaMessage.complete()).thenReturn(mock(Message.class));
-    when(jdaWebHook.getName()).thenReturn(webHookName);
-    when(jdaWebHook.getToken()).thenReturn("token");
-    when(jdaWebHook.getJDA()).thenReturn(mock(JDA.class));
-    when(jdaWebHooks.complete()).thenReturn(List.of(jdaWebHook));
-    when(jdaWebHookAction.complete()).thenReturn(jdaWebHook);
-    
     textChannel = injectTextChannel(jdaTextChannel);
   }
   

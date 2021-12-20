@@ -17,23 +17,16 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuildMessage;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether guild messages are properly instantiated using Guice.
  */
-public class JdaGuildMessageTest {
+public class JdaGuildMessageTest extends AbstractTest {
   private JdaGuildMessage guildMessage;
   
   /**
@@ -41,20 +34,6 @@ public class JdaGuildMessageTest {
    */
   @BeforeEach
   public void setUp() {
-    Message jdaMessage = mock(Message.class);
-    
-    Member jdaMember = mock(Member.class);
-    Guild jdaGuild = mock(Guild.class);
-    TextChannel jdaTextChannel = mock(TextChannel.class);
-    JDA jda = mock(JDA.class);
-    
-    when(jdaMessage.getMember()).thenReturn(jdaMember);
-    when(jdaMessage.getGuild()).thenReturn(jdaGuild);
-    when(jdaMessage.getTextChannel()).thenReturn(jdaTextChannel);
-    when(jdaMessage.getJDA()).thenReturn(jda);
-    
-    when(jdaMember.getUser()).thenReturn(mock(User.class));
-    
     guildMessage = injectGuildMessage(jdaMessage);
   }
   

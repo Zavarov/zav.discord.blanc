@@ -17,25 +17,18 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.api.Permission.MANAGE_MESSAGES;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectMember;
 
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether guild members are properly instantiated using Guice.
  */
-public class JdaMemberTest {
+public class JdaMemberTest extends AbstractTest {
   private JdaMember member;
   
   /**
@@ -43,12 +36,6 @@ public class JdaMemberTest {
    */
   @BeforeEach
   public void setUp() {
-    Member jdaMember = mock(Member.class);
-    
-    when(jdaMember.getUser()).thenReturn(mock(User.class));
-    when(jdaMember.getRoles()).thenReturn(List.of(mock(Role.class)));
-    when(jdaMember.getPermissions()).thenReturn(EnumSet.of(Permission.MESSAGE_MANAGE));
-    
     member = injectMember(jdaMember);
   }
   

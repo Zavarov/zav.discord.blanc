@@ -17,21 +17,16 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.jda.AbstractTest;
 
 /**
  * JUnit test for checking whether private messages are properly instantiated using Guice.
  */
-public class JdaPrivateMessageTest {
+public class JdaPrivateMessageTest extends AbstractTest {
   private JdaPrivateMessage privateMessage;
   
   /**
@@ -39,13 +34,7 @@ public class JdaPrivateMessageTest {
    */
   @BeforeEach
   public void setUp() {
-    Message jdaPrivateMessage = mock(Message.class);
-    
-    when(jdaPrivateMessage.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
-    when(jdaPrivateMessage.getJDA()).thenReturn(mock(JDA.class));
-    when(jdaPrivateMessage.getAuthor()).thenReturn(mock(User.class));
-    
-    privateMessage = injectPrivateMessage(jdaPrivateMessage);
+    privateMessage = injectPrivateMessage(jdaMessage);
   }
   
   @Test
