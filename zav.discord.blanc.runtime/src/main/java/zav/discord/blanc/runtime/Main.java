@@ -20,30 +20,27 @@ package zav.discord.blanc.runtime;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import zav.discord.blanc.db.*;
 import zav.discord.blanc.jda.JdaShardSupplier;
-import zav.discord.blanc.jda.api.JdaShard;
+import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
 
-import javax.security.auth.login.LoginException;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
-  /**
-   * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
-   * We use an additional second as buffer, bringing the time up to 6 seconds.
-   */
-  private static final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
-  
   private static Set<GatewayIntent> intents = GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS);
   
-  public static void main(String[] args) throws IOException, LoginException, InterruptedException {
+  public static void main(String[] args) throws SQLException {
+    GuildTable.create();
+    RoleTable.create();
+    TextChannelTable.create();
+    WebHookTable.create();
+    UserTable.create();
+  
+    CommandResolver.init();
+    
     Injector injector = Guice.createInjector(new BlancModule());
     JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
     

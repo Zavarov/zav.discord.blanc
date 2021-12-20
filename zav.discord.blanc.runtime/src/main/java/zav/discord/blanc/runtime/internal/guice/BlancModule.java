@@ -19,9 +19,10 @@ package zav.discord.blanc.runtime.internal.guice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.io.CredentialsValueObject;
+import zav.discord.blanc.mc.MontiCoreCommandParser;
 
-import java.io.File;
 import java.io.IOException;
 
 public class BlancModule extends AbstractModule {
@@ -47,5 +48,7 @@ public class BlancModule extends AbstractModule {
     bind(String.class).annotatedWith(Names.named("redditId")).toInstance(credentials.getRedditId());
     bind(String.class).annotatedWith(Names.named("redditAccount")).toInstance(credentials.getRedditAccount());
     bind(String.class).annotatedWith(Names.named("redditSecret")).toInstance(credentials.getRedditSecret());
+    
+    bind(Parser.class).to(MontiCoreCommandParser.class);
   }
 }
