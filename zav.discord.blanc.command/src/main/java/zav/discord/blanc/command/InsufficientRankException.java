@@ -14,7 +14,7 @@ public class InsufficientRankException extends InvalidCommandException {
   }
   
   private static String getMessage(Rank... ranks) {
-    return "You require the following ranks in order to execute this command: "
+    return "You require the following rank(s) to execute this command: "
           + StringUtils.join(ranks, ",");
   }
 }
