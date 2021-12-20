@@ -89,3 +89,4 @@ fabric.properties
 **/*.iml
 
 **/credentials.json
+**/*.db
