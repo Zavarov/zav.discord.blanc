@@ -22,11 +22,9 @@ public class CommandResolver {
     Commands.bind("math", MathCommand.class);
     Commands.bind("ping", PingCommand.class);
     Commands.bind("support", SupportCommand.class);
-    
     Commands.bind("guild", GuildInfoCommand.class);
     Commands.bind("member", MemberInfoCommand.class);
     Commands.bind("role", RoleInfoCommand.class);
-  
     Commands.bind("activity", ActivityCommand.class);
     Commands.bind("assign", AssignCommand.class);
     
