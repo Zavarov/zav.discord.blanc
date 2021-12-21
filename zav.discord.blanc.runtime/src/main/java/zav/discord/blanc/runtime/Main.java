@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.db.GuildTable;
@@ -35,9 +36,11 @@ import zav.discord.blanc.db.WebHookTable;
 import zav.discord.blanc.jda.JdaShardSupplier;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
+import zav.discord.blanc.runtime.job.PresenceJob;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
   private static final Logger LOGGER = LogManager.getLogger(Main.class);
@@ -86,7 +89,21 @@ public class Main {
     LOGGER.info("Initialize JDA shards");
     JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
   
-    supplier.forEachRemaining(x -> {});
+    while (supplier.hasNext()) {
+      Shard shard = supplier.next();
+  
+      initJobs(shard);
+    }
+  }
+  
+  private static void initJobs(Shard shard) {
+    try {
+      PresenceJob job = new PresenceJob(shard.getPresence());
+      shard.schedule(job, 1, TimeUnit.HOURS);
+      
+    } catch(Exception e) {
+      throw new RuntimeException(e);
+    }
   }
   
     /*
