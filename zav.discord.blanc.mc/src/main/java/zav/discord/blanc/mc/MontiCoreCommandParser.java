@@ -17,6 +17,7 @@
 
 package zav.discord.blanc.mc;
 
+import de.se_rwth.commons.logging.Log;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +33,11 @@ import zav.discord.blanc.mc.callable._parser.CallableParser;
 public class MontiCoreCommandParser extends AbstractParser {
   private static final Logger LOGGER = LogManager.getLogger(MontiCoreCommandParser.class);
   private final CallableParser parser = new CallableParser();
+  
+  static {
+    // Avoid the parser crashing the entire application upon an invalid input.
+    Log.enableFailQuick(false);
+  }
 
   @Override
   public @Nullable IntermediateCommand parse(MessageValueObject message) {
