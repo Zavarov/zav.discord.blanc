@@ -96,7 +96,7 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       
       List<EventListener> listeners = new ArrayList<>();
       
-      listeners.add(new BlacklistListener(shard));
+      listeners.add(new BlacklistListener());
       listeners.add(new GuildActivityListener());
       listeners.add(new GuildCommandListener(shard));
       listeners.add(new PrivateCommandListener(shard));

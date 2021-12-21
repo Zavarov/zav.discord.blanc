@@ -27,13 +27,13 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Shard;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>
@@ -48,12 +48,6 @@ public class BlacklistListener extends ListenerAdapter {
         .build();
   
   private static final Logger LOGGER = LogManager.getLogger(AbstractCommandListener.class);
-  
-  private final Shard shard;
-  
-  public BlacklistListener(Shard shard) {
-    this.shard = shard;
-  }
   
   @Override
   public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
@@ -90,8 +84,8 @@ public class BlacklistListener extends ListenerAdapter {
     patternCache.put(guildId, pattern);
   }
 
-  private boolean isSelfUser(net.dv8tion.jda.api.entities.User author) {
-    return author.getIdLong() == shard.getSelfUser().getAbout().getId();
+  private boolean isSelfUser(User author) {
+    return author.getIdLong() == author.getJDA().getSelfUser().getIdLong();
   }
 
   private boolean hasRequiredPermissions(Guild guild, TextChannel channel) {
