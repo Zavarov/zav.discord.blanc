@@ -20,30 +20,72 @@ package zav.discord.blanc.runtime;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import zav.discord.blanc.db.*;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.command.Rank;
+import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.RoleTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.WebHookTable;
 import zav.discord.blanc.jda.JdaShardSupplier;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
 
 import java.sql.SQLException;
-import java.util.Set;
+import java.util.List;
 
 public class Main {
-  private static Set<GatewayIntent> intents = GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS);
+  private static final Logger LOGGER = LogManager.getLogger(Main.class);
+  private static Injector injector;
   
   public static void main(String[] args) throws SQLException {
+    setUp();
+    
+    initDb();
+    
+    initJda();
+  }
+  
+  private static void setUp() throws SQLException {
+    LOGGER.info("Set up databases.");
     GuildTable.create();
     RoleTable.create();
     TextChannelTable.create();
     WebHookTable.create();
     UserTable.create();
   
+    LOGGER.info("Set up commands.");
     CommandResolver.init();
+  
+    LOGGER.info("Set up injector.");
+    injector = Guice.createInjector(new BlancModule());
+  }
+  
+  private static void initDb() throws SQLException {
+    LOGGER.info("Initialize databases");
+    long ownerId = injector.getInstance(Key.get(Long.class, Names.named("owner")));
     
-    Injector injector = Guice.createInjector(new BlancModule());
+    if (!UserTable.contains(ownerId)) {
+      LOGGER.info("Owner with id {} not contained in database. Create new root user...", ownerId);
+      UserValueObject owner = new UserValueObject()
+            .withId(ownerId)
+            .withDiscriminator(-1)
+            .withName(StringUtils.EMPTY)
+            .withRanks(List.of(Rank.ROOT.name()));
+      
+      UserTable.put(owner);
+    }
+  }
+  
+  private static void initJda() {
+    LOGGER.info("Initialize JDA shards");
     JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
-    
+  
     supplier.forEachRemaining(x -> {});
   }
   

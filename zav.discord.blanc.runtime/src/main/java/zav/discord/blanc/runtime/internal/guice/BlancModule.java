@@ -48,6 +48,7 @@ public class BlancModule extends AbstractModule {
     bind(String.class).annotatedWith(Names.named("redditId")).toInstance(credentials.getRedditId());
     bind(String.class).annotatedWith(Names.named("redditAccount")).toInstance(credentials.getRedditAccount());
     bind(String.class).annotatedWith(Names.named("redditSecret")).toInstance(credentials.getRedditSecret());
+    bind(Long.class).annotatedWith(Names.named("owner")).toInstance(credentials.getOwner());
     
     bind(Parser.class).to(MontiCoreCommandParser.class);
   }
