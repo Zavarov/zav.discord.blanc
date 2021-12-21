@@ -43,6 +43,6 @@ public class ActivityCommandTest extends AbstractCommandTest {
     verify(channelView, times(1)).send(imageCaptor.capture(), titleCaptor.capture());
     
     assertThat(imageCaptor.getValue()).isEqualTo(image);
-    assertThat(titleCaptor.getValue()).isEqualTo("Activity");
+    assertThat(titleCaptor.getValue()).isEqualTo("Activity.png");
   }
 }
