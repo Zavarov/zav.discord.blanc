@@ -24,10 +24,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Command;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Abstract base class for both the guild and private command listener.
@@ -40,9 +42,10 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
     this.shard = shard;
   }
 
-  protected void submit(MessageChannel channel, Command command) {
+  protected void submit(MessageChannel channel, Command command, List<? extends Argument> args) {
     shard.submit(() -> {
       try {
+        command.postConstruct(args);
         command.validate();
         command.run();
       } catch (Exception e) {

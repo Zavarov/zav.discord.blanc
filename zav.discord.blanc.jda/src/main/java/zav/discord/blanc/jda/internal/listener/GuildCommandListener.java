@@ -90,8 +90,6 @@ public class GuildCommandListener extends AbstractCommandListener {
     
     Command commandInstance = commandInjector.getInstance(commandClass);
     
-    commandInstance.postConstruct(command.getArguments());
-    
-    super.submit(event.getChannel(), commandInstance);
+    super.submit(event.getChannel(), commandInstance, command.getArguments());
   }
 }
