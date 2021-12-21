@@ -88,5 +88,6 @@ fabric.properties
 **/.idea
 **/*.iml
 
+**/status.json
 **/credentials.json
 **/*.db
