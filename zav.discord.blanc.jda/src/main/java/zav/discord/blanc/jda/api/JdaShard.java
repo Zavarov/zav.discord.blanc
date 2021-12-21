@@ -26,13 +26,16 @@ import static zav.discord.blanc.jda.internal.ResolverUtils.resolveUser;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Presence;
 import zav.discord.blanc.api.Shard;
@@ -41,6 +44,7 @@ import zav.discord.blanc.api.Shard;
  * Implementation of a shard view, backed by JDA.
  */
 public class JdaShard implements Shard {
+  private static final Logger LOGGER = LogManager.getLogger(JdaShard.class);
   // Only one instance per guild
   private final Map<Long, JdaGuild> guildCache = new ConcurrentHashMap<>();
   
@@ -48,7 +52,7 @@ public class JdaShard implements Shard {
   private JDA jda;
   
   @Inject
-  private ExecutorService jobQueue;
+  private ScheduledExecutorService jobQueue;
   
   @Override
   public JdaSelfUser getSelfUser() {
@@ -96,6 +100,13 @@ public class JdaShard implements Shard {
   
   @Override
   public <T extends Runnable> void submit(T job) {
+    LOGGER.info("Submitting job '{}'.", job.getClass().getSimpleName());
     jobQueue.submit(job);
+  }
+  
+  @Override
+  public <T extends Runnable> void schedule(T job, int period, TimeUnit timeUnit) {
+    LOGGER.info("Scheduling job {} to repeat every {} {}.", job.getClass().getSimpleName(), period, timeUnit);
+    jobQueue.scheduleAtFixedRate(job, 0, period, timeUnit);
   }
 }

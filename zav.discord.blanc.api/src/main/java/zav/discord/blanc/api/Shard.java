@@ -17,6 +17,7 @@
 package zav.discord.blanc.api;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base interface for all functions that are performed on this application.
@@ -45,4 +46,6 @@ public interface Shard {
   void shutdown();
   
   <T extends Runnable> void submit(T job);
+  
+  <T extends Runnable> void schedule(T job, int period, TimeUnit timeUnit);
 }
