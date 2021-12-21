@@ -16,6 +16,14 @@
 
 package zav.discord.blanc.command;
 
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * An enumeration of all possible ranks a user may have.<br>
  * Ranks are used to limit, what types of commands a user can use. For example, a normal user
@@ -26,4 +34,23 @@ public enum Rank {
   USER,
   DEVELOPER,
   ROOT;
+  
+  private static final Map<Rank, EnumSet<Rank>> effectiveRanks = new HashMap<>();
+  
+  static {
+    effectiveRanks.put(Rank.REDDIT, EnumSet.of(Rank.REDDIT, Rank.USER));
+    effectiveRanks.put(Rank.DEVELOPER, EnumSet.of(Rank.DEVELOPER, Rank.USER));
+    effectiveRanks.put(Rank.ROOT, EnumSet.allOf(Rank.class));
+  }
+  
+  public static Set<Rank> getEffectiveRank(Collection<String> ranks) {
+    Set<Rank> source = ranks.stream().map(Rank::valueOf).collect(Collectors.toSet());
+    Set<Rank> target = new HashSet<>();
+    
+    for (Rank userRank : source) {
+      target.addAll(effectiveRanks.getOrDefault(userRank, EnumSet.of(Rank.USER)));
+    }
+    
+    return target;
+  }
 }

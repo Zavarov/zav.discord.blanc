@@ -1,5 +1,6 @@
 package zav.discord.blanc.command;
 
+import java.util.Set;
 import javax.inject.Inject;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Message;
@@ -20,11 +21,11 @@ public abstract class AbstractCommand implements Command {
   protected User author;
   @Inject @Nullable
   protected Message message;
-  // Package-private
-  final Rank rank;
   
-  public AbstractCommand(Rank rank) {
-    this.rank = rank;
+  private final Rank requiredRank;
+  
+  public AbstractCommand(Rank requiredRank) {
+    this.requiredRank = requiredRank;
   }
   
   public AbstractCommand() {
@@ -34,10 +35,12 @@ public abstract class AbstractCommand implements Command {
   @Override
   public void validate() throws InvalidCommandException {
     assert author != null;
+  
+    Set<Rank> effectiveRanks = Rank.getEffectiveRank(author.getAbout().getRanks());
     
     // Does the user have the required rank?
-    if (!author.getAbout().getRanks().contains(rank.name())) {
-      throw new InsufficientRankException(rank);
+    if (!effectiveRanks.contains(requiredRank)) {
+      throw new InsufficientRankException(requiredRank);
     }
   }
 }
