@@ -36,7 +36,7 @@ public class JdaMemberTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    member = injectMember(injector, jdaMember);
+    member = injectMember(jdaMember);
   }
   
   @Test

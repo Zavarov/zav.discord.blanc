@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import zav.discord.blanc.jda.api.JdaShard;
+import zav.discord.blanc.jda.internal.GuiceUtils;
 import zav.discord.blanc.jda.internal.guice.JdaModule;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
 import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
@@ -91,8 +92,9 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
             .build();
       
       Injector shardInjector = injector.createChildInjector(new JdaModule());
-      
-      JdaShard shard = injectShard(shardInjector, jda);
+
+      GuiceUtils.setInjector(shardInjector);
+      JdaShard shard = injectShard(jda);
       
       List<EventListener> listeners = new ArrayList<>();
       

@@ -19,8 +19,6 @@ package zav.discord.blanc.jda.api;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMessage;
 
-import com.google.inject.Injector;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Message;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.PrivateChannel;
@@ -30,13 +28,11 @@ import zav.discord.blanc.api.PrivateChannel;
  * Implementation of a message view, backed by JDA.
  */
 public class JdaPrivateChannel extends JdaMessageChannel implements PrivateChannel {
-  @Inject
-  private Injector injector;
   
   @Override
   public JdaPrivateMessage getMessage(Argument argument) {
     Message jdaMessage = resolveMessage(jdaMessageChannel, argument);
     
-    return injectPrivateMessage(injector, jdaMessage);
+    return injectPrivateMessage(jdaMessage);
   }
 }

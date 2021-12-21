@@ -36,7 +36,7 @@ public class JdaShardTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    shard = injectShard(injector, jda);
+    shard = injectShard(jda);
   }
   
   @Test

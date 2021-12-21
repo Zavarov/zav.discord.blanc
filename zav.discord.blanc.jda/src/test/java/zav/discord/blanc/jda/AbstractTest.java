@@ -43,10 +43,12 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.jda.internal.GuiceUtils;
 
 
 @SuppressWarnings("all")
@@ -85,6 +87,12 @@ public abstract class AbstractTest {
   @BeforeEach
   public void setUpInjector() {
     injector = Guice.createInjector(new TestModule());
+    GuiceUtils.setInjector(injector);
+  }
+  
+  @AfterEach
+  public void tearDownInjector() {
+    GuiceUtils.setInjector(null);
   }
   
   @BeforeEach

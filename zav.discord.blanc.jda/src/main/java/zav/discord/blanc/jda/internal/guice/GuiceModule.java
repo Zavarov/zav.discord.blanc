@@ -14,22 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.api;
+package zav.discord.blanc.jda.internal.guice;
 
-import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateChannel;
-
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import zav.discord.blanc.api.PrivateMessage;
-
-/**
- * Implementation of a private message view, backed by JDA.
- */
-public class JdaPrivateMessage extends JdaMessage implements PrivateMessage {
-  
-  @Override
-  public JdaPrivateChannel getMessageChannel() {
-    PrivateChannel jdaPrivateChannel = jdaMessage.getPrivateChannel();
-  
-    return injectPrivateChannel(jdaPrivateChannel);
-  }
+public class GuiceModule {
 }

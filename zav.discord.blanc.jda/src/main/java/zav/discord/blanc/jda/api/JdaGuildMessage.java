@@ -20,9 +20,7 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuild;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectMember;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectTextChannel;
 
-import com.google.inject.Injector;
 import java.util.Objects;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -33,27 +31,24 @@ import zav.discord.blanc.api.GuildMessage;
  */
 public class JdaGuildMessage extends JdaMessage implements GuildMessage {
   
-  @Inject
-  Injector injector;
-  
   @Override
   public JdaMember getAuthor() {
     Member jdaMember = Objects.requireNonNull(jdaMessage.getMember());
     
-    return injectMember(injector, jdaMember);
+    return injectMember(jdaMember);
   }
   
   @Override
   public JdaGuild getGuild() {
     Guild jdaGuild = jdaMessage.getGuild();
   
-    return injectGuild(injector, jdaGuild);
+    return injectGuild(jdaGuild);
   }
   
   @Override
   public JdaTextChannel getMessageChannel() {
     TextChannel jdaTextChannel = jdaMessage.getTextChannel();
   
-    return injectTextChannel(injector, jdaTextChannel);
+    return injectTextChannel(jdaTextChannel);
   }
 }

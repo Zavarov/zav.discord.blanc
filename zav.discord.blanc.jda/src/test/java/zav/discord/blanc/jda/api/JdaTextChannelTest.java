@@ -40,7 +40,7 @@ public class JdaTextChannelTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    textChannel = injectTextChannel(injector, jdaTextChannel);
+    textChannel = injectTextChannel(jdaTextChannel);
   }
   
   @Test

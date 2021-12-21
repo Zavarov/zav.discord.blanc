@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.jda.api;
 
-import static zav.discord.blanc.jda.internal.GuiceUtils.injectRole;
-
-import com.google.inject.Injector;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -29,13 +26,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.jda.internal.GuiceUtils;
 
 /**
  * Implementation of a member view, backed by JDA.
  */
 public class JdaMember extends JdaUser implements zav.discord.blanc.api.Member {
-  @Inject
-  private Injector injector;
   
   @Inject
   protected Member jdaMember;
@@ -44,7 +40,7 @@ public class JdaMember extends JdaUser implements zav.discord.blanc.api.Member {
   public Set<JdaRole> getRoles() {
     return jdaMember.getRoles()
           .stream()
-          .map(role -> injectRole(injector, role))
+          .map(GuiceUtils::injectRole)
           .collect(Collectors.toUnmodifiableSet());
   }
   

@@ -72,7 +72,7 @@ public class GuildCommandListener extends AbstractCommandListener {
       return;
     }
 
-    GuildMessage messageView = injectGuildMessage(injector, jdaMessage);
+    GuildMessage messageView = injectGuildMessage(jdaMessage);
     
     // Create a new injector for each command to avoid collisions between injected members
     Injector commandInjector = injector.createChildInjector(

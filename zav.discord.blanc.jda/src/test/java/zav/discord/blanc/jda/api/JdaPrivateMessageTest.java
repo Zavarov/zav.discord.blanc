@@ -34,7 +34,7 @@ public class JdaPrivateMessageTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    privateMessage = injectPrivateMessage(injector, jdaMessage);
+    privateMessage = injectPrivateMessage(jdaMessage);
   }
   
   @Test

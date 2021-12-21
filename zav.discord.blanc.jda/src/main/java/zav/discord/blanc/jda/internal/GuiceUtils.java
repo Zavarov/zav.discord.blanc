@@ -59,14 +59,19 @@ public final class GuiceUtils {
     };
   }
   
+  private static Injector injector;
+  
+  public static void setInjector(Injector injector) {
+    GuiceUtils.injector = injector;
+  }
+  
   /**
    * Instantiates a new guild.
    *
-   * @param injector The injector of this instance.
    * @param guild A JDA message.
    * @return A new API instance of the guild.
    */
-  public static JdaGuild injectGuild(Injector injector, Guild guild) {
+  public static JdaGuild injectGuild(Guild guild) {
     AbstractModule m1 = singletonModule(Guild.class, guild);
     
     return injector.createChildInjector(m1).getInstance(JdaGuild.class);
@@ -75,11 +80,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new guild message.
    *
-   * @param injector The injector of this instance.
    * @param message A JDA message.
    * @return A new API instance of the guild message.
    */
-  public static JdaGuildMessage injectGuildMessage(Injector injector, Message message) {
+  public static JdaGuildMessage injectGuildMessage(Message message) {
     AbstractModule m1 = singletonModule(Message.class, message);
     
     return injector.createChildInjector(m1).getInstance(JdaGuildMessage.class);
@@ -88,11 +92,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new guild member. A member can also be a normal user.
    *
-   * @param injector The injector of this instance.
    * @param member A JDA member.
    * @return A new API instance of the member.
    */
-  public static JdaMember injectMember(Injector injector, Member member) {
+  public static JdaMember injectMember(Member member) {
     AbstractModule m1 = singletonModule(User.class, member.getUser());
     AbstractModule m2 = singletonModule(Member.class, member);
   
@@ -102,11 +105,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new private channel. A private channel can also be a normal message channel.
    *
-   * @param injector The injector of this instance.
    * @param channel A JDA private channel.
    * @return A new API instance of the channel.
    */
-  public static JdaPrivateChannel injectPrivateChannel(Injector injector, PrivateChannel channel) {
+  public static JdaPrivateChannel injectPrivateChannel(PrivateChannel channel) {
     AbstractModule m1 = singletonModule(PrivateChannel.class, channel);
     AbstractModule m2 = singletonModule(MessageChannel.class, channel);
   
@@ -116,11 +118,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new private message.
    *
-   * @param injector The injector of this instance.
    * @param message A JDA message.
    * @return A new API instance of the private message.
    */
-  public static JdaPrivateMessage injectPrivateMessage(Injector injector, Message message) {
+  public static JdaPrivateMessage injectPrivateMessage(Message message) {
     AbstractModule m1 = singletonModule(Message.class, message);
     
     return injector.createChildInjector(m1).getInstance(JdaPrivateMessage.class);
@@ -129,11 +130,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new role.
    *
-   * @param injector The injector of this instance.
    * @param role A JDA role.
    * @return A new API instance of the role.
    */
-  public static JdaRole injectRole(Injector injector, Role role) {
+  public static JdaRole injectRole(Role role) {
     AbstractModule m1 = singletonModule(Role.class, role);
     
     return injector.createChildInjector(m1).getInstance(JdaRole.class);
@@ -142,11 +142,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new self member. A self member can also be a self user.
    *
-   * @param injector The injector of this instance.
    * @param member A JDA self member.
    * @return A new API instance of the self member.
    */
-  public static JdaSelfMember injectSelfMember(Injector injector, Member member) {
+  public static JdaSelfMember injectSelfMember(Member member) {
     AbstractModule m1 = singletonModule(User.class, member.getUser());
     AbstractModule m2 = singletonModule(Member.class, member);
     
@@ -156,11 +155,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new self user.
    *
-   * @param injector The injector of this instance.
    * @param user A JDA self user.
    * @return A new API instance of the self user.
    */
-  public static JdaSelfUser injectSelfUser(Injector injector, SelfUser user) {
+  public static JdaSelfUser injectSelfUser(SelfUser user) {
     AbstractModule m1 = singletonModule(SelfUser.class, user);
     
     return injector.createChildInjector(m1).getInstance(JdaSelfUser.class);
@@ -173,7 +171,7 @@ public final class GuiceUtils {
    * @param jda A JDA instance.
    * @return A new API instance of the shard.
    */
-  public static JdaShard injectShard(Injector injector, JDA jda) {
+  public static JdaShard injectShard(JDA jda) {
     AbstractModule m1 = singletonModule(JDA.class, jda);
     
     return injector.createChildInjector(m1).getInstance(JdaShard.class);
@@ -182,11 +180,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new text channel. A text channel can also be a normal message channel.
    *
-   * @param injector The injector of this instance.
    * @param channel A JDA text channel.
    * @return A new API instance of the channel.
    */
-  public static JdaTextChannel injectTextChannel(Injector injector, TextChannel channel) {
+  public static JdaTextChannel injectTextChannel(TextChannel channel) {
     AbstractModule m1 = singletonModule(TextChannel.class, channel);
     AbstractModule m2 = singletonModule(MessageChannel.class, channel);
     
@@ -196,11 +193,10 @@ public final class GuiceUtils {
   /**
    * Instantiates a new user.
    *
-   * @param injector The injector of this instance.
    * @param user A JDA user.
    * @return A new API instance of the user.
    */
-  public static JdaUser injectUser(Injector injector, User user) {
+  public static JdaUser injectUser(User user) {
     AbstractModule m1 = singletonModule(User.class, user);
     
     return injector.createChildInjector(m1).getInstance(JdaUser.class);
@@ -210,11 +206,10 @@ public final class GuiceUtils {
    * Instantiates a new web hook. New messages are sent using the executor service shared among
    * the given shard.
    *
-   * @param injector The injector of this instance.
    * @param webHook A JDA web hook.
    * @return A new API instance of the web hook.
    */
-  public static JdaWebHook injectWebHook(Injector injector, Webhook webHook) {
+  public static JdaWebHook injectWebHook(Webhook webHook) {
     ScheduledExecutorService queue = injector.getInstance(ScheduledExecutorService.class);
     
     JDAWebhookClient webHookClient = WebhookClientBuilder.fromJDA(webHook)

@@ -71,9 +71,7 @@ public class PrivateCommandListener extends AbstractCommandListener {
       return;
     }
 
-    PrivateMessage messageView = injectPrivateMessage(injector, jdaMessage);
-    
-    injector.getAllBindings().forEach((k, v) -> System.out.println(k + " -> " + v));
+    PrivateMessage messageView = injectPrivateMessage(jdaMessage);
 
     // Create a new injector for each command to avoid
     Injector commandInjector = injector.createChildInjector(
