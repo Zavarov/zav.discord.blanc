@@ -18,7 +18,7 @@ public interface StringArgument extends Argument {
     try {
       return asString().map(BigDecimal::new);
     } catch (NumberFormatException e) {
-      LOGGER.warn(e.getMessage(), e);
+      LOGGER.debug(e.getMessage(), e);
       return Optional.empty();
     }
   }
