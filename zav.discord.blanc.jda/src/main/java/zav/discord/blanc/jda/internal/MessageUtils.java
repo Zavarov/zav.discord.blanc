@@ -200,8 +200,8 @@ public final class MessageUtils {
     }
   
     // Add channels
-    builder.addField("#TextChannels", Integer.toString(jdaGuild.getTextChannels().size()), true);
-    builder.addField("#VoiceChannels", Integer.toString(jdaGuild.getVoiceChannels().size()), true);
+    builder.addField("#Text Channel(s)", Integer.toString(jdaGuild.getTextChannels().size()), true);
+    builder.addField("#Voice Channel(s)", Integer.toString(jdaGuild.getVoiceChannels().size()), true);
   
     // Add admins
     List<Member> administrators = jdaGuild.getMembers()
