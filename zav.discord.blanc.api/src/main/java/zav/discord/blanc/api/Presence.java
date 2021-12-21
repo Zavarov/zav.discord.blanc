@@ -16,33 +16,6 @@
 
 package zav.discord.blanc.api;
 
-import java.util.Collection;
-
-/**
- * Base interface for all functions that are performed on this application.
- */
-public interface Shard {
-  /**
-   * Returns a view over all guilds in this shard.
-   *
-   * @return An immutable list of guild views.
-   */
-  Collection<? extends Guild> getGuilds();
-  
-  /**
-   * Returns the Discord user corresponding to this application.
-   *
-   * @return A user view over this application.
-   */
-  SelfUser getSelfUser();
-  
-  Guild getGuild(Argument argument);
-  
-  User getUser(Argument argument);
-  
-  Presence getPresence();
-  
-  void shutdown();
-  
-  <T extends Runnable> void submit(T job);
+public interface Presence {
+  void setActivity(String activity);
 }

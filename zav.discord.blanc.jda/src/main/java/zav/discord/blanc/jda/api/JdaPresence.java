@@ -14,35 +14,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.jda.api;
 
-import java.util.Collection;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.managers.Presence;
 
-/**
- * Base interface for all functions that are performed on this application.
- */
-public interface Shard {
-  /**
-   * Returns a view over all guilds in this shard.
-   *
-   * @return An immutable list of guild views.
-   */
-  Collection<? extends Guild> getGuilds();
+public class JdaPresence implements zav.discord.blanc.api.Presence {
+  @Inject
+  private Presence jdaPresence;
   
-  /**
-   * Returns the Discord user corresponding to this application.
-   *
-   * @return A user view over this application.
-   */
-  SelfUser getSelfUser();
-  
-  Guild getGuild(Argument argument);
-  
-  User getUser(Argument argument);
-  
-  Presence getPresence();
-  
-  void shutdown();
-  
-  <T extends Runnable> void submit(T job);
+  @Override
+  public void setActivity(String activity) {
+    jdaPresence.setActivity(Activity.playing(activity));
+  }
 }

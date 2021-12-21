@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 import org.junit.jupiter.api.AfterEach;
@@ -81,6 +82,7 @@ public abstract class AbstractTest {
   protected RestAction<List<Webhook>> jdaWebHooks;
   protected WebhookAction jdaWebHookAction;
   protected Webhook jdaWebHook;
+  protected Presence jdaPresence;
   
   protected Injector injector;
   
@@ -103,6 +105,7 @@ public abstract class AbstractTest {
     jdaMessage = mock(Message.class);
     jdaUserAction = mock(RestAction.class);
     jdaUser = mock(User.class);
+    jdaPresence = mock(Presence.class);
     
     jdaGuild = mock(Guild.class);
     jdaChannel = mock(MessageChannel.class);
@@ -118,6 +121,7 @@ public abstract class AbstractTest {
     when(jda.getGuilds()).thenReturn(List.of(mock(Guild.class)));
     when(jda.getGuildById(eq(guildId))).thenReturn(mock(Guild.class));
     when(jda.retrieveUserById(eq(userId))).thenReturn(jdaUserAction);
+    when(jda.getPresence()).thenReturn(jdaPresence);
     
     when(jdaPrivateChannel.retrieveMessageById(eq(messageId))).thenReturn(jdaMessageAction);
   

@@ -17,6 +17,7 @@
 package zav.discord.blanc.jda.api;
 
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectGuild;
+import static zav.discord.blanc.jda.internal.GuiceUtils.injectPresence;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectSelfUser;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectUser;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveGuild;
@@ -33,6 +34,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
 import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Presence;
 import zav.discord.blanc.api.Shard;
 
 /**
@@ -79,6 +81,11 @@ public class JdaShard implements Shard {
           .stream()
           .map(this::getGuild)
           .collect(Collectors.toUnmodifiableList());
+  }
+  
+  @Override
+  public Presence getPresence() {
+    return injectPresence(jda.getPresence());
   }
   
   @Override

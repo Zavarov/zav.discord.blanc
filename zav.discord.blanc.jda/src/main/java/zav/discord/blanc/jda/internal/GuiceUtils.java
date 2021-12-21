@@ -32,18 +32,8 @@ import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
-import zav.discord.blanc.jda.api.JdaGuild;
-import zav.discord.blanc.jda.api.JdaGuildMessage;
-import zav.discord.blanc.jda.api.JdaMember;
-import zav.discord.blanc.jda.api.JdaPrivateChannel;
-import zav.discord.blanc.jda.api.JdaPrivateMessage;
-import zav.discord.blanc.jda.api.JdaRole;
-import zav.discord.blanc.jda.api.JdaSelfMember;
-import zav.discord.blanc.jda.api.JdaSelfUser;
-import zav.discord.blanc.jda.api.JdaShard;
-import zav.discord.blanc.jda.api.JdaTextChannel;
-import zav.discord.blanc.jda.api.JdaUser;
-import zav.discord.blanc.jda.api.JdaWebHook;
+import net.dv8tion.jda.api.managers.Presence;
+import zav.discord.blanc.jda.api.*;
 
 /**
  * Utility class for instantiating all of the API implementations using Guice.
@@ -220,5 +210,17 @@ public final class GuiceUtils {
     AbstractModule m2 = singletonModule(Webhook.class, webHook);
     
     return injector.createChildInjector(m1, m2).getInstance(JdaWebHook.class);
+  }
+  
+  /**
+   * Instantiates a new presence of the application in the current shard.
+   *
+   * @param presence A JDA presence.
+   * @return A new API instance of the presence.
+   */
+  public static JdaPresence injectPresence(Presence presence) {
+    AbstractModule m1 = singletonModule(Presence.class, presence);
+    
+    return injector.createChildInjector(m1).getInstance(JdaPresence.class);
   }
 }

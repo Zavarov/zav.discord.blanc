@@ -61,4 +61,9 @@ public class JdaShardTest extends AbstractTest {
     assertThat(guilds).hasSize(1);
     assertThat(guilds).doesNotContainNull();
   }
+  
+  @Test
+  public void testGetPresence() {
+    assertThat(shard.getPresence()).isNotNull();
+  }
 }
