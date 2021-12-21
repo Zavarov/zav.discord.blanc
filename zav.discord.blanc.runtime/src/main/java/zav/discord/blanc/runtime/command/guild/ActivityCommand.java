@@ -43,6 +43,6 @@ public class ActivityCommand extends AbstractGuildCommand {
   @Override
   public void run() throws IOException {
     BufferedImage image = guild.getActivity(myChannels);
-    channel.send(image, "Activity");
+    channel.send(image, "Activity.png");
   }
 }
