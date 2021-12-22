@@ -93,6 +93,11 @@ public class JdaShard implements Shard {
   }
   
   @Override
+  public int getId() {
+    return jda.getShardInfo().getShardId();
+  }
+  
+  @Override
   public void shutdown() {
     jda.shutdown();
     jobQueue.shutdown();

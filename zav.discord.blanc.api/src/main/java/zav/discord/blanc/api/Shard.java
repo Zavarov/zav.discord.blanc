@@ -43,6 +43,8 @@ public interface Shard {
   
   Presence getPresence();
   
+  int getId();
+  
   void shutdown();
   
   <T extends Runnable> void submit(T job);
