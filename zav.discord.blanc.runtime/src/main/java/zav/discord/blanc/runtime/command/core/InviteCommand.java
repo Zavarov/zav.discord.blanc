@@ -27,11 +27,11 @@ import java.util.List;
  * This command posts the invitation link for the bot.
  */
 public class InviteCommand extends AbstractCommand {
-  private UserValueObject mySelfUser;
+  private UserValueObject mySelfUserData;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
-    mySelfUser = shard.getSelfUser().getAbout();
+    mySelfUserData = shard.getSelfUser().getAbout();
   }
   
   /**
@@ -41,7 +41,7 @@ public class InviteCommand extends AbstractCommand {
   public void run() {
     StringBuilder stringBuilder = new StringBuilder()
           .append("Use this link if you want to add this bot to your server:\n")
-          .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", mySelfUser.getId()));
+          .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", mySelfUserData.getId()));
 
     channel.send(stringBuilder);
   }
