@@ -17,14 +17,25 @@
 
 package zav.discord.blanc.runtime.command.guild.info;
 
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.databind.GuildValueObject;
+
+import java.util.List;
 
 /**
  * This command show the information about the guild the command was executed in.
  */
 public class GuildInfoCommand extends AbstractGuildCommand {
+  private GuildValueObject myGuildData;
+  
+  @Override
+  public void postConstruct(List<? extends Argument> args) {
+    myGuildData = guild.getAbout();
+  }
+  
   @Override
   public void run() {
-    channel.send(guild.getAbout());
+    channel.send(myGuildData);
   }
 }

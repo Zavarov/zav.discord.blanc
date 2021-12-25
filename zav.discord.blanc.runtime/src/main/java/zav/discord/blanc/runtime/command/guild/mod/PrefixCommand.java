@@ -32,6 +32,8 @@ import java.util.List;
 public class PrefixCommand extends AbstractGuildCommand {
   @Nullable
   private String myPrefix;
+  
+  private GuildValueObject myGuildData;
     
   public PrefixCommand() {
     super(Permission.MANAGE_MESSAGES);
@@ -40,20 +42,20 @@ public class PrefixCommand extends AbstractGuildCommand {
   @Override
   public void postConstruct(List<? extends Argument> args) {
     myPrefix = args.isEmpty() ? null : args.get(0).asString().orElseThrow();
+    myGuildData = guild.getAbout();
   }
   
   @Override
   public void run() throws SQLException {
-    GuildValueObject myGuild = guild.getAbout();
     
     if (myPrefix == null) {
       channel.send("Removed the custom prefix.");
     } else {
       channel.send("Set the custom prefix to '%s'.", myPrefix);
     }
+  
+    myGuildData.setPrefix(myPrefix);
     
-    myGuild.setPrefix(myPrefix);
-    
-    GuildTable.put(myGuild);
+    GuildTable.put(myGuildData);
   }
 }

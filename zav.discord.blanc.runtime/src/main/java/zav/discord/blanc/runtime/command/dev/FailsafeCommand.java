@@ -17,11 +17,13 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.db.UserTable;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static zav.discord.blanc.command.Rank.DEVELOPER;
@@ -74,31 +76,37 @@ public class FailsafeCommand extends AbstractCommand {
       "You will regret your resistance, %s."
   };
   
+  private UserValueObject myAuthorData;
+  
   public FailsafeCommand() {
     super(DEVELOPER);
   }
-
+  
+  @Override
+  public void postConstruct(List<? extends Argument> args) {
+    myAuthorData = author.getAbout();
+  }
+  
   /**
    * This command makes super-user into developers and developers into super-user.
    */
   @Override
   public void run() throws SQLException {
-    UserValueObject myAuthor = author.getAbout();
     String myMessage;
     
-    if (author.getAbout().getRanks().contains(DEVELOPER.name())) {
-      myAuthor.getRanks().remove(DEVELOPER.name());
-      myAuthor.getRanks().add(ROOT.name());
+    if (myAuthorData.getRanks().contains(DEVELOPER.name())) {
+      myAuthorData.getRanks().remove(DEVELOPER.name());
+      myAuthorData.getRanks().add(ROOT.name());
       
       myMessage = BECOME_ROOT[ThreadLocalRandom.current().nextInt(BECOME_ROOT.length)];
     } else {
-      myAuthor.getRanks().remove(ROOT.name());
-      myAuthor.getRanks().add(DEVELOPER.name());
+      myAuthorData.getRanks().remove(ROOT.name());
+      myAuthorData.getRanks().add(DEVELOPER.name());
       
       myMessage = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
     }
   
-    UserTable.put(myAuthor);
-    channel.send(myMessage, myAuthor.getName());
+    UserTable.put(myAuthorData);
+    channel.send(myMessage, myAuthorData.getName());
   }
 }

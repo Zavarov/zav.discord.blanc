@@ -21,6 +21,7 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.RoleTable;
 import zav.discord.blanc.db.TextChannelTable;
@@ -35,6 +36,7 @@ import java.util.List;
  */
 public class LeaveCommand extends AbstractCommand {
   private Guild myGuild;
+  private GuildValueObject myGuildData;
     
   public LeaveCommand() {
     super(Rank.DEVELOPER);
@@ -44,15 +46,16 @@ public class LeaveCommand extends AbstractCommand {
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
     myGuild = shard.getGuild(args.get(0));
+    myGuildData = myGuild.getAbout();
   }
     
   @Override
   public void run() throws SQLException {
     myGuild.leave();
   
-    GuildTable.delete(myGuild.getAbout().getId());
-    TextChannelTable.deleteAll(myGuild.getAbout().getId());
-    RoleTable.deleteAll(myGuild.getAbout().getId());
-    WebHookTable.deleteAll(myGuild.getAbout().getId());
+    GuildTable.delete(myGuildData.getId());
+    TextChannelTable.deleteAll(myGuildData.getId());
+    RoleTable.deleteAll(myGuildData.getId());
+    WebHookTable.deleteAll(myGuildData.getId());
   }
 }

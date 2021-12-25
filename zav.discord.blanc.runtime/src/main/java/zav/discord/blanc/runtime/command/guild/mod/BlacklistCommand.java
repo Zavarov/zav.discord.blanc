@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  */
 public class BlacklistCommand extends AbstractGuildCommand {
   private String myRegEx;
+  private GuildValueObject myGuildData;
   
   public BlacklistCommand() {
     super(Permission.MANAGE_MESSAGES);
@@ -44,27 +45,26 @@ public class BlacklistCommand extends AbstractGuildCommand {
     Validate.validIndex(args, 0);
     myRegEx = args.get(0).asString().orElseThrow();
     Validate.notBlank(myRegEx);
+    myGuildData = guild.getAbout();
   }
   
   @Override
   public void run() throws SQLException {
-    GuildValueObject myGuild = guild.getAbout();
-        
-    if (myGuild.getBlacklist().remove(myRegEx)) {
+    if (myGuildData.getBlacklist().remove(myRegEx)) {
       channel.send("Removed '%s' from the blacklist.", myRegEx);
     } else {
       //Check if the regex is valid
       Pattern.compile(myRegEx);
-
-      myGuild.getBlacklist().add(myRegEx);
+  
+      myGuildData.getBlacklist().add(myRegEx);
       channel.send("Added '%s' to the blacklist.", myRegEx);
     }
   
     // Update database
-    GuildTable.put(myGuild);
+    GuildTable.put(myGuildData);
     
     // Update pattern
-    String regEx = myGuild.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse("");
+    String regEx = myGuildData.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse("");
 
     Pattern result = Pattern.compile(regEx);
     

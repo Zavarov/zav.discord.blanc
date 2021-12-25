@@ -17,28 +17,37 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.MessageValueObject;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * This command changes the avatar of the bot to the one that was attached to
  * the message that executed this command.
  */
 public class AvatarCommand extends AbstractCommand {
+  private MessageValueObject myMessageData;
   
   public AvatarCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
+  public void postConstruct(List<? extends Argument> args) {
+    myMessageData = message.getAbout();
+  }
+  
+  @Override
   public void run() throws IOException {
-    String attachment = message.getAbout().getAttachment();
+    String attachment = myMessageData.getAttachment();
     
     byte[] data = Base64.getDecoder().decode(attachment);
     try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {

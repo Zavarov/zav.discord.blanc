@@ -31,7 +31,8 @@ import java.util.List;
  */
 public class RankCommand extends AbstractCommand {
   private Rank myRank;
-  private UserValueObject myUser;
+  private UserValueObject myUserData;
+  private UserValueObject myAuthorData;
   
   public RankCommand() {
     super(Rank.DEVELOPER);
@@ -40,24 +41,25 @@ public class RankCommand extends AbstractCommand {
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myUser = shard.getUser(args.get(0)).getAbout();
+    myUserData = shard.getUser(args.get(0)).getAbout();
     Validate.validIndex(args, 1);
     myRank = args.get(1).asString().map(String::toUpperCase).map(Rank::valueOf).orElseThrow();
+    myAuthorData = author.getAbout();
   }
   
   @Override
   public void run() throws SQLException {
     // Can the author grant the role?
-    if (author.getAbout().getRanks().contains(myRank.name())) {
+    if (myAuthorData.getRanks().contains(myRank.name())) {
       // Does the user have the rank? => add
-      if (myUser.getRanks().contains(myRank.name())) {
-        myUser.getRanks().remove(myRank.name());
-        channel.send("Removed rank \"%s\" from %s.", myRank.name(), myUser.getName());
+      if (myUserData.getRanks().contains(myRank.name())) {
+        myUserData.getRanks().remove(myRank.name());
+        channel.send("Removed rank \"%s\" from %s.", myRank.name(), myUserData.getName());
       } else {
-        myUser.getRanks().add(myRank.name());
-        channel.send("Granted rank \"%s\" to %s.", myRank.name(), myUser.getName());
+        myUserData.getRanks().add(myRank.name());
+        channel.send("Granted rank \"%s\" to %s.", myRank.name(), myUserData.getName());
       }
-      UserTable.put(myUser);
+      UserTable.put(myUserData);
     } else {
       channel.send("You lack the rank to grant the \"%s\" Rank", myRank.name());
     }

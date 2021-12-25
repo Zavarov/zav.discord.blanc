@@ -21,6 +21,7 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.db.RoleTable;
 
@@ -31,7 +32,8 @@ import java.util.List;
  * This command groups roles together so that only one of them can be self-assigned at a time.
  */
 public class RoleCommand extends AbstractGuildCommand {
-  private RoleValueObject myRole;
+  private GuildValueObject myGuildData;
+  private RoleValueObject myRoleData;
   private String myGroup;
     
   public RoleCommand() {
@@ -41,32 +43,33 @@ public class RoleCommand extends AbstractGuildCommand {
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myRole = guild.getRole(args.get(0)).getAbout();
+    myRoleData = guild.getRole(args.get(0)).getAbout();
     Validate.validIndex(args, 1);
     myGroup = args.get(1).asString().orElseThrow();
+    myGuildData = guild.getAbout();
   }
   
   @Override
   public void run() throws SQLException {
     // The person executing this command can't interact with the role
-    if (!guild.canInteract(author, myRole)) {
-      channel.send("You need to be able to interact with the role \"%s\".", myRole.getName());
+    if (!guild.canInteract(author, myRoleData)) {
+      channel.send("You need to be able to interact with the role \"%s\".", myRoleData.getName());
     // This bot can't interact with the role
-    } else if (!guild.canInteract(guild.getSelfMember(), myRole)) {
-      channel.send("I need to be able to interact with the role \"%s\".", myRole.getName());
+    } else if (!guild.canInteract(guild.getSelfMember(), myRoleData)) {
+      channel.send("I need to be able to interact with the role \"%s\".", myRoleData.getName());
     // The role is in this group -> Ungroup
-    } else if (myGroup.equals(myRole.getGroup())) {
-      myRole.setGroup(null);
-      channel.send("Ungrouped role \"%s\".", myRole.getName());
-      RoleTable.put(guild.getAbout(), myRole);
+    } else if (myGroup.equals(myRoleData.getGroup())) {
+      myRoleData.setGroup(null);
+      channel.send("Ungrouped role \"%s\".", myRoleData.getName());
+      RoleTable.put(myGuildData, myRoleData);
     // The role is in a different group
-    } else if (myRole.getGroup() != null) {
-      channel.send("The role \"%s\" is already grouped under \"%s\".", myRole.getName(), myRole.getGroup());
+    } else if (myRoleData.getGroup() != null) {
+      channel.send("The role \"%s\" is already grouped under \"%s\".", myRoleData.getName(), myRoleData.getGroup());
     // Everything OK, make role self-assignable
     } else {
-      myRole.setGroup(myGroup);
-      channel.send("The role \"%s\" has been grouped under \"%s\".", myRole.getName(), myGroup);
-      RoleTable.put(guild.getAbout(), myRole);
+      myRoleData.setGroup(myGroup);
+      channel.send("The role \"%s\" has been grouped under \"%s\".", myRoleData.getName(), myGroup);
+      RoleTable.put(myGuildData, myRoleData);
     }
   }
 }

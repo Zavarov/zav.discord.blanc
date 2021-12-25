@@ -22,6 +22,8 @@ import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.api.Message;
+import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.UserValueObject;
 
 import java.util.List;
 
@@ -29,6 +31,8 @@ import java.util.List;
  * This commands allows to delete messages made by the bot.
  */
 public class DeleteCommand extends AbstractCommand {
+  private UserValueObject mySelfUserData;
+  private MessageValueObject myMessageData;
   private Message myMessage;
   
   public DeleteCommand() {
@@ -39,11 +43,13 @@ public class DeleteCommand extends AbstractCommand {
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
     myMessage = channel.getMessage(args.get(0));
+    myMessageData = myMessage.getAbout();
+    mySelfUserData = shard.getSelfUser().getAbout();
   }
   
   @Override
   public void run() {
-    if (myMessage.getAbout().getAuthorId() == shard.getSelfUser().getAbout().getId()) {
+    if (myMessageData.getAuthorId() == mySelfUserData.getId()) {
       myMessage.delete();
     } else {
       channel.send("I can only delete my own messages.");

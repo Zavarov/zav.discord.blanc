@@ -25,6 +25,7 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.api.Role;
+import zav.discord.blanc.databind.UserValueObject;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -40,12 +41,14 @@ public class AssignCommand extends AbstractGuildCommand {
   private static final LoadingCache<Long, Semaphore> activeMembers = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.ofMinutes(5))
         .build(CacheLoader.from(() -> new Semaphore(1)));
-  private RoleValueObject myRole;
+  private RoleValueObject myRoleData;
+  private UserValueObject myAuthorData;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myRole = guild.getRole(args.get(0)).getAbout();
+    myRoleData = guild.getRole(args.get(0)).getAbout();
+    myAuthorData = author.getAbout();
   }
 
   /**
@@ -55,7 +58,7 @@ public class AssignCommand extends AbstractGuildCommand {
    */
   @Override
   public void run() throws Exception {
-    Semaphore lock = activeMembers.get(author.getAbout().getId());
+    Semaphore lock = activeMembers.get(myAuthorData.getId());
     
     // Command took too long to acquire lock => fail
     if (!lock.tryAcquire(1, TimeUnit.MINUTES)) {
@@ -67,18 +70,18 @@ public class AssignCommand extends AbstractGuildCommand {
       if (isGrouped()) {
         if (isAssigned()) {
           // Remove role
-          author.removeRole(myRole);
-          channel.send("You no longer have the role \"%s\" from group \"%s\".", myRole.getName(), myRole.getGroup());
+          author.removeRole(myRoleData);
+          channel.send("You no longer have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup());
         } else {
           // Assign role
           Collection<RoleValueObject> rolesToRemove = getConflictingRoles();
-          Collection<RoleValueObject> rolesToAdd = Collections.singleton(myRole);
+          Collection<RoleValueObject> rolesToAdd = Collections.singleton(myRoleData);
           author.modifyRoles(rolesToAdd, rolesToRemove);
-          channel.send("You now have the role \"%s\" from group \"%s\".", myRole.getName(), myRole.getGroup());
+          channel.send("You now have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup());
         }
       } else {
         // Invalid role
-        channel.send("The role \"%s\" isn't self-assignable.", myRole.getName());
+        channel.send("The role \"%s\" isn't self-assignable.", myRoleData.getName());
       }
     } finally {
       // Allow new command from the same user to be processed
@@ -89,21 +92,17 @@ public class AssignCommand extends AbstractGuildCommand {
   private Collection<RoleValueObject> getConflictingRoles() {
     return author.getRoles().stream()
           .map(Role::getAbout)
-          .filter(role -> Objects.equals(role.getGroup(), myRole.getGroup()))
+          .filter(role -> Objects.equals(role.getGroup(), myRoleData.getGroup()))
           .collect(Collectors.toUnmodifiableList());
   }
   
   private boolean isAssigned() {
-    for(var role : author.getRoles()) {
-      System.out.println(role);
-    }
-    
     return author.getRoles().stream()
           .map(Role::getAbout)
-          .anyMatch(role -> Objects.equals(role.getId(), myRole.getId()));
+          .anyMatch(role -> Objects.equals(role.getId(), myRoleData.getId()));
   }
   
   private boolean isGrouped() {
-    return myRole.getGroup() != null;
+    return myRoleData.getGroup() != null;
   }
 }

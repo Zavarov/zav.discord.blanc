@@ -29,15 +29,15 @@ import java.util.List;
  */
 public class MemberInfoCommand extends AbstractGuildCommand {
   @Nullable
-  private UserValueObject myMember;
-
+  private UserValueObject myMemberData;
+  
   @Override
   public void postConstruct(List<? extends Argument> args) {
-    myMember = args.isEmpty() ? author.getAbout() : guild.getMember(args.get(0)).getAbout();
+    myMemberData = args.isEmpty() ? author.getAbout() : guild.getMember(args.get(0)).getAbout();
   }
 
   @Override
   public void run() {
-    channel.send(myMember == null ? author.getAbout() : myMember);
+    channel.send(myMemberData);
   }
 }

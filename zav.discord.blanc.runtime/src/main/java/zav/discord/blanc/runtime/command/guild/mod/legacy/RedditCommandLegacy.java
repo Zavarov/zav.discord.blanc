@@ -20,6 +20,8 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.api.TextChannel;
@@ -34,6 +36,8 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
     
   private String mySubreddit;
   private TextChannel myChannel;
+  private TextChannelValueObject myChannelData;
+  private GuildValueObject myGuildData;
     
   protected RedditCommandLegacy() {
     super(Permission.MANAGE_CHANNELS);
@@ -44,19 +48,21 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
     Validate.validIndex(args, 0);
     mySubreddit = args.get(0).asString().orElseThrow();
     myChannel = args.size() < 2 ? channel : guild.getTextChannel(args.get(1));
+    myChannelData = myChannel.getAbout();
+    myGuildData = guild.getAbout();
   }
     
   @Override
   public void run() throws SQLException {
     // Remove subreddit from database
-    if (myChannel.getAbout().getSubreddits().contains(mySubreddit)) {
-      myChannel.getAbout().getSubreddits().remove(mySubreddit);
+    if (myChannelData.getSubreddits().contains(mySubreddit)) {
+      myChannelData.getSubreddits().remove(mySubreddit);
       SubredditObservable.removeListener(mySubreddit, myChannel);
   
       //Update the persistence file
-      TextChannelTable.put(guild.getAbout(), myChannel.getAbout());
+      TextChannelTable.put(myGuildData, myChannelData);
  
-      channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannel.getAbout().getName());
+      channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannelData.getName());
     } else {
       channel.send("This functionality is deprecated. Please use the `reddit` command instead.");
     }
