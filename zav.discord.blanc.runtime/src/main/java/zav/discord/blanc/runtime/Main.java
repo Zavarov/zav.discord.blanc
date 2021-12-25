@@ -106,7 +106,7 @@ public class Main {
   private static void initJobs(JdaClient client) throws Exception {
     SubredditObservable.init(injector);
     Client reddit = injector.getInstance(Client.class);
-    reddit.login(Duration.TEMPORARY);
+    reddit.login(Duration.PERMANENT);
   
     // Revoke the (permanent) access token
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
