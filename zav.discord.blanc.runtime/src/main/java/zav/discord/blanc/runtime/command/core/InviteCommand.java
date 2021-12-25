@@ -17,12 +17,23 @@
 
 package zav.discord.blanc.runtime.command.core;
 
+import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.UserValueObject;
+
+import java.util.List;
 
 /**
  * This command posts the invitation link for the bot.
  */
 public class InviteCommand extends AbstractCommand {
+  private UserValueObject mySelfUser;
+  
+  @Override
+  public void postConstruct(List<? extends Argument> args) {
+    mySelfUser = shard.getSelfUser().getAbout();
+  }
+  
   /**
    * Retrieves the link from the config file and sends it.
    */
@@ -30,7 +41,7 @@ public class InviteCommand extends AbstractCommand {
   public void run() {
     StringBuilder stringBuilder = new StringBuilder()
           .append("Use this link if you want to add this bot to your server:\n")
-          .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", shard.getSelfUser().getAbout().getId()));
+          .append(String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot", mySelfUser.getId()));
 
     channel.send(stringBuilder);
   }
