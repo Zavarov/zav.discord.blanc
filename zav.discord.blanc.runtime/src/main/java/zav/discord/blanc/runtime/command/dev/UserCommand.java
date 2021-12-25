@@ -26,7 +26,7 @@ import zav.discord.blanc.databind.UserValueObject;
 import java.util.List;
 
 public class UserCommand extends AbstractCommand {
-  private UserValueObject myUser;
+  private UserValueObject myUserData;
     
   public UserCommand() {
     super(Rank.DEVELOPER);
@@ -35,11 +35,11 @@ public class UserCommand extends AbstractCommand {
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myUser = shard.getUser(args.get(0)).getAbout();
+    myUserData = shard.getUser(args.get(0)).getAbout();
   }
   
   @Override
   public void run() {
-    channel.send(myUser);
+    channel.send(myUserData);
   }
 }
