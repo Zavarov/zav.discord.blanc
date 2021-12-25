@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import zav.discord.blanc.activity.ActivityJob;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.databind.UserValueObject;
@@ -33,10 +34,16 @@ import zav.discord.blanc.db.RoleTable;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.db.WebHookTable;
-import zav.discord.blanc.jda.JdaShardSupplier;
+import zav.discord.blanc.jda.api.JdaClient;
+import zav.discord.blanc.reddit.RedditJob;
+import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
 import zav.discord.blanc.runtime.job.PresenceJob;
+import zav.jrc.client.Client;
+import zav.jrc.client.Duration;
+import zav.jrc.client.guice.UserlessModule;
+import zav.jrc.api.guice.ApiModule;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -46,7 +53,7 @@ public class Main {
   private static final Logger LOGGER = LogManager.getLogger(Main.class);
   private static Injector injector;
   
-  public static void main(String[] args) throws SQLException {
+  public static void main(String[] args) throws Exception {
     setUp();
     
     initDb();
@@ -66,7 +73,7 @@ public class Main {
     CommandResolver.init();
   
     LOGGER.info("Set up injector.");
-    injector = Guice.createInjector(new BlancModule());
+    injector = Guice.createInjector(new BlancModule(), new UserlessModule(), new ApiModule());
   }
   
   private static void initDb() throws SQLException {
@@ -85,153 +92,40 @@ public class Main {
     }
   }
   
-  private static void initJda() {
+  private static void initJda() throws  Exception {
     LOGGER.info("Initialize JDA shards");
-    JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
+    JdaClient client = injector.getInstance(JdaClient.class);
   
-    while (supplier.hasNext()) {
-      Shard shard = supplier.next();
-  
+    for (Shard shard : client.getShards()) {
       initJobs(shard);
     }
+
+    initJobs(client);
   }
   
-  private static void initJobs(Shard shard) {
-    try {
-      PresenceJob job = new PresenceJob(shard.getPresence());
-      shard.schedule(job, 1, TimeUnit.HOURS);
-      
-    } catch(Exception e) {
-      throw new RuntimeException(e);
-    }
+  private static void initJobs(JdaClient client) throws Exception {
+    SubredditObservable.init(injector);
+    Client reddit = injector.getInstance(Client.class);
+    reddit.login(Duration.TEMPORARY);
+  
+    // Revoke the (permanent) access token
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      try {
+        reddit.logout();
+      } catch (Exception e) {
+        LOGGER.error(e.getMessage(), e);
+      }
+    }));
+  
+    Runnable job = new RedditJob(client);
+    client.getShards().get(0).schedule(job, 1, TimeUnit.MINUTES);
   }
   
-    /*
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    public static zav.jra.Client REDDIT_CLIENT;
-    @Nonnull
-    public static final RedditObservable REDDIT_OBSERVABLE = new RedditObservable();
-    @Nonnull
-    public static final Client CLIENT = new Client();
-    @Nonnull
-    private static final Parser PARSER = new MontiCoreCommandParser();
-
-    static{
-        //The application would terminate on an invalid command, for example
-        Log.enableFailQuick(false);
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        initJsonFiles();
-        initRedditClient();
-        initDiscordShards();
-
-        LOGGER.info("Ready to serve, my lord!");
-    }
-
-    //#################################################################################################################//
-    //                                                                                                                 //
-    //    Initialize JSON Files                                                                                        //
-    //                                                                                                                 //
-    //#################################################################################################################//
-
-    private static void initJsonFiles() throws IOException {
-        LOGGER.info("Load credentials.json.");
-        JSONCredentials.fromJson(JSONCredentials.CREDENTIALS, Paths.get("credentials.json"));
-        LOGGER.info("Load ranks.json.");
-        JSONRanks.fromJson(JSONRanks.RANKS, Paths.get("ranks.json"));
-        LOGGER.info("Load status.json.");
-        JSONStatusMessages.fromJson(JSONStatusMessages.STATUS_MESSAGES, Paths.get("status.json"));
-    }
-
-    //#################################################################################################################//
-    //                                                                                                                 //
-    //    Initialize Reddit Client                                                                                     //
-    //                                                                                                                 //
-    //#################################################################################################################//
-
-    private static void initRedditClient() throws IOException, InterruptedException {
-        LOGGER.info("Initialize Reddit client.");
-        REDDIT_CLIENT = createRedditClient();
-        REDDIT_CLIENT.login();
-    }
-
-    private static UserlessClient createRedditClient(){
-        final UserAgent userAgent = createUserAgent();
-        final String id = JSONCredentials.CREDENTIALS.getRedditId();
-        final String secret = JSONCredentials.CREDENTIALS.getRedditSecret();
-
-        return new UserlessClient(userAgent, id, secret);
-    }
-
-    private static UserAgent createUserAgent(){
-        final String platform = "linux";
-        final String name = JSONCredentials.CREDENTIALS.getBotName();
-        final String version = JSONCredentials.CREDENTIALS.getVersion();
-        final String account = JSONCredentials.CREDENTIALS.getRedditAccount();
-
-        return UserAgentFactory.create(platform, name, version, account);
-    }
-
-    //#################################################################################################################//
-    //                                                                                                                 //
-    //    Initialize Discord Shards                                                                                    //
-    //                                                                                                                 //
-    //#################################################################################################################//
-
-    private static void initDiscordShards(){
-        LOGGER.info("Initialize Discord shards.");
-        final ShardLoader shardLoader = createShardLoader();
-
-        for(int id = 0 ; id < JSONCredentials.CREDENTIALS.getShardCount() ; ++id)
-            CLIENT.addShards(loadShard(shardLoader, id));
-    }
-
-    private static ShardLoader createShardLoader(){
-        return new JDAShardLoader(JSONCredentials.CREDENTIALS, Main::createCommandBuilder);
-    }
-
-    private static CommandBuilder createCommandBuilder(Shard shard, JDA jda){
-        return new MontiCoreCommandBuilder(
-                (guild, textChannel) -> new JDATypeResolver(shard, jda, guild, textChannel),
-                shard,
-                PARSER,
-                JSONCredentials.CREDENTIALS.getGlobalPrefix()
-        );
-    }
-
-    private static Shard loadShard(ShardLoader shardLoader, int shardId){
-        LOGGER.info("Initialize shard {}.", shardId);
-        Shard shard = shardLoader.load(shardId);
-
-        setUpActivityFeed(shard);
-        setUpRedditFeed(shard);
-        setUpStatusMessages(shard);
-
-        return shard;
-    }
-
-    private static void setUpActivityFeed(Shard shard){
-        ActivityRunnable runnable = new ActivityRunnable(shard);
-
-        shard.submit(runnable, 15, 15, TimeUnit.MINUTES);
-    }
-
-    private static void setUpRedditFeed(Shard shard){
-        RedditVisitor visitor = new RedditVisitor(REDDIT_OBSERVABLE, REDDIT_CLIENT);
-        shard.accept(visitor);
-
-        //The Reddit client is shared among all shards, so the runnable has to be submitted only once
-        if (shard.getId() == 0) {
-            RedditRunnable runnable = new RedditRunnable(REDDIT_OBSERVABLE);
-            shard.submit(runnable, 5, 5, TimeUnit.MINUTES);
-        }
-    }
-
-    private static void setUpStatusMessages(Shard shard) {
-        StatusMessageRunnable runnable = new StatusMessageRunnable(shard.retrieveSelfUser());
-
-        shard.submit(runnable, 0, 5, TimeUnit.MINUTES);
-    }
-     */
+  private static void initJobs(Shard shard) throws Exception {
+    Runnable job = new PresenceJob(shard.getPresence());
+    shard.schedule(job, 1, TimeUnit.HOURS);
+    
+    job = new ActivityJob(shard);
+    shard.schedule(job, 15, TimeUnit.MINUTES);
+  }
 }

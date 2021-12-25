@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>zav.jrc</groupId>
-            <artifactId>databind</artifactId>
+            <artifactId>jrc-databind</artifactId>
             <version>${jrc.version}</version>
         </dependency>
     </dependencies>

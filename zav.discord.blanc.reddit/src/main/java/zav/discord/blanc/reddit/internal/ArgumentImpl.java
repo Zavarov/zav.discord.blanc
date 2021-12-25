@@ -14,18 +14,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.reddit.internal;
 
-import zav.discord.blanc.databind.WebHookValueObject;
-import zav.jrc.databind.LinkValueObject;
+import zav.discord.blanc.api.Argument;
 
-/**
- * Base interface for all functions that are performed on web hooks.
- */
-public interface WebHook {
-  WebHookValueObject getAbout();
+import java.math.BigDecimal;
+import java.util.Optional;
+
+public class ArgumentImpl implements Argument {
+  private final long id;
   
-  void delete();
+  public ArgumentImpl(long id) {
+    this.id = id;
+  }
   
-  void send(LinkValueObject link);
+  @Override
+  public Optional<BigDecimal> asNumber() {
+    return Optional.of(BigDecimal.valueOf(id));
+  }
+  
+  @Override
+  public Optional<String> asString() {
+    return Optional.empty();
+  }
 }

@@ -8,10 +8,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
-import zav.jrc.FailedRequestException;
+import zav.jrc.client.FailedRequestException;
 import zav.jrc.listener.observer.SubredditObserver;
-import zav.jrc.view.SubredditView;
-import zav.jrc.view.guice.SubredditViewFactory;
+import zav.jrc.api.Subreddit;
+import zav.jrc.api.guice.SubredditFactory;
 
 /**
  * Base class for all Reddit feeds.<br>
@@ -29,6 +29,20 @@ public final class SubredditObservable {
 
   public static void init(@Nullable Injector injector) {
     SubredditObservable.injector = injector;
+  }
+  
+  /**
+   * Registers a new listener for the specified text channel view.<br>
+   * Returns {@code false} if a listener for the given subreddit has already been created for the
+   * given view.
+   *
+   * @param subreddit The subreddit name which is observed.
+   * @param view The view which is notified upon new submissions.
+   * @return {@code true}, if a new listener was created.
+   */
+  public static boolean addListener(String subreddit, TextChannel view) {
+    return observers.computeIfAbsent(subreddit, SubredditObservable::getObserver)
+          .addListener(new TextChannelSubredditListener(view));
   }
   
   /**
@@ -88,8 +102,8 @@ public final class SubredditObservable {
   
   private static SubredditObserver getObserver(String subreddit) {
     assert injector != null;
-    
-    SubredditView view = injector.getInstance(SubredditViewFactory.class).create(subreddit);
+  
+    Subreddit view = injector.getInstance(SubredditFactory.class).create(subreddit);
     return new SubredditObserver(view);
   }
 }

@@ -36,7 +36,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.jrc.databind.Link;
+import zav.jrc.databind.LinkValueObject;
 
 /**
  * Implementation of a message channel view, backed by JDA.
@@ -92,7 +92,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(Link link) {
+  public void send(LinkValueObject link) {
     jdaMessageChannel.sendMessage(forLink(link)).complete();
   }
 }

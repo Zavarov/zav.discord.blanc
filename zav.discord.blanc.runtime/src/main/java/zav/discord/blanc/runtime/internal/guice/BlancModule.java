@@ -31,7 +31,7 @@ public class BlancModule extends AbstractModule {
   public BlancModule() {
     try {
       ObjectMapper om = new ObjectMapper();
-      credentials = om.readValue(BlancModule.class.getClassLoader().getResourceAsStream("credentials.json"), CredentialsValueObject.class);
+      credentials = om.readValue(BlancModule.class.getClassLoader().getResourceAsStream("BlancCredentials.json"), CredentialsValueObject.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -45,9 +45,6 @@ public class BlancModule extends AbstractModule {
     bind(String.class).annotatedWith(Names.named("inviteSupportServer")).toInstance(credentials.getInviteSupportServer());
     bind(String.class).annotatedWith(Names.named("wikiUrl")).toInstance(credentials.getWikiUrl());
     bind(String.class).annotatedWith(Names.named("discordToken")).toInstance(credentials.getDiscordToken());
-    bind(String.class).annotatedWith(Names.named("redditId")).toInstance(credentials.getRedditId());
-    bind(String.class).annotatedWith(Names.named("redditAccount")).toInstance(credentials.getRedditAccount());
-    bind(String.class).annotatedWith(Names.named("redditSecret")).toInstance(credentials.getRedditSecret());
     bind(Long.class).annotatedWith(Names.named("owner")).toInstance(credentials.getOwner());
     
     bind(Parser.class).to(MontiCoreCommandParser.class);

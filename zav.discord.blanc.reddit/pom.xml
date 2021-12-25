@@ -19,12 +19,19 @@
     <dependencies>
         <dependency>
             <groupId>zav.jrc</groupId>
-            <artifactId>listener</artifactId>
+            <artifactId>jrc-listener</artifactId>
             <version>${jrc.version}</version>
         </dependency>
+
         <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>zav.discord.blanc</groupId>
+            <artifactId>db</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

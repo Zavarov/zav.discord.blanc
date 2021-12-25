@@ -3,7 +3,7 @@ package zav.discord.blanc.reddit;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.WebHook;
-import zav.jrc.databind.Link;
+import zav.jrc.databind.LinkValueObject;
 import zav.jrc.listener.SubredditListener;
 
 /**
@@ -17,7 +17,7 @@ public final class WebhookSubredditListener implements SubredditListener {
   }
   
   @Override
-  public void handle(Link link) {
+  public void handle(LinkValueObject link) {
     hook.send(link);
   }
   

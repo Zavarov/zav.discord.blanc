@@ -20,7 +20,7 @@ import java.awt.image.BufferedImage;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.jrc.databind.Link;
+import zav.jrc.databind.LinkValueObject;
 
 /**
  * Base interface for all functions that are performed in message channels.<br>
@@ -44,5 +44,5 @@ public interface MessageChannel {
   
   void send(UserValueObject user);
   
-  void send(Link link);
+  void send(LinkValueObject link);
 }

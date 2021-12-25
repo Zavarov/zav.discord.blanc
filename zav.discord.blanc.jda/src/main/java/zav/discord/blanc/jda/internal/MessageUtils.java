@@ -40,7 +40,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.jrc.databind.Link;
+import zav.jrc.databind.LinkValueObject;
 
 /**
  * Utility class for creating Discord messages displaying the relevant information about an entity
@@ -294,7 +294,7 @@ public final class MessageUtils {
    * @param link A Reddit link.
    * @return A JDA message embed displaying the relevant link information.
    */
-  public static Message forLink(Link link) {
+  public static Message forLink(LinkValueObject link) {
     String qualifiedTitle = (link.getLinkFlairText() != null ? link.getLinkFlairText() : StringUtils.EMPTY)
           + (link.getOver18() ? "[NSFW] " : StringUtils.EMPTY)
           + (link.getSpoiler() ? "[Spoiler] " : StringUtils.EMPTY)

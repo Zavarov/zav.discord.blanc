@@ -24,7 +24,7 @@ import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.api.WebHook;
 import zav.discord.blanc.databind.WebHookValueObject;
-import zav.jrc.databind.Link;
+import zav.jrc.databind.LinkValueObject;
 
 
 /**
@@ -48,7 +48,7 @@ public class JdaWebHook implements WebHook {
   }
   
   @Override
-  public void send(Link link) {
+  public void send(LinkValueObject link) {
     jdaWebhookClient.send(forLink(link));
   }
 }
