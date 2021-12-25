@@ -29,16 +29,16 @@ import java.util.List;
  * This command shows information about a specific role.
  */
 public class RoleInfoCommand extends AbstractGuildCommand {
-  private RoleValueObject myRole;
+  private RoleValueObject myRoleData;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myRole = guild.getRole(args.get(0)).getAbout();
+    myRoleData = guild.getRole(args.get(0)).getAbout();
   }
   
   @Override
   public void run() throws IOException {
-    channel.send(myRole);
+    channel.send(myRoleData);
   }
 }
