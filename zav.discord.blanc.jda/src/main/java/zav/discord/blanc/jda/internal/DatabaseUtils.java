@@ -19,6 +19,7 @@ package zav.discord.blanc.jda.internal;
 import com.google.common.collect.Lists;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
@@ -185,9 +187,15 @@ public final class DatabaseUtils {
       return WebHookTable.get(guildId, channelId, webHookId)
             .withName(webHook.getName());
     } catch (NoSuchElementException e) {
+      @Nullable User owner = webHook.getOwnerAsUser();
+      SelfUser selfUser = webHook.getJDA().getSelfUser();
+      boolean isOwner = webHook.getOwnerAsUser() != null && Objects.equals(selfUser, owner);
+      
       return new WebHookValueObject()
             .withId(webHook.getIdLong())
-            .withName(webHook.getName());
+            .withChannelId(webHook.getChannel().getIdLong())
+            .withName(webHook.getName())
+            .withOwner(isOwner);
       
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
