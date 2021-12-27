@@ -1,6 +1,8 @@
 package zav.discord.blanc.reddit;
 
 import java.util.Objects;
+
+import com.google.inject.Inject;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.TextChannel;
 import zav.jrc.databind.LinkValueObject;
@@ -20,7 +22,7 @@ public final class TextChannelSubredditListener implements SubredditListener {
     this.channel = channel;
   }
   
-  @Override
+  @Inject
   public void handle(LinkValueObject link) {
     channel.send(link);
   }

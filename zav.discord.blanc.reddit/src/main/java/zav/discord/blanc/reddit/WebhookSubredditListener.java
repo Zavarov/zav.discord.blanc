@@ -1,9 +1,12 @@
 package zav.discord.blanc.reddit;
 
 import java.util.Objects;
+
+import com.google.inject.Inject;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.WebHook;
 import zav.jrc.databind.LinkValueObject;
+import zav.jrc.databind.SubredditValueObject;
 import zav.jrc.listener.SubredditListener;
 
 /**
@@ -16,9 +19,9 @@ public final class WebhookSubredditListener implements SubredditListener {
     this.hook = hook;
   }
   
-  @Override
-  public void handle(LinkValueObject link) {
-    hook.send(link);
+  @Inject
+  public void handle(SubredditValueObject subreddit, LinkValueObject link) {
+    hook.send(subreddit, link);
   }
   
   @Override

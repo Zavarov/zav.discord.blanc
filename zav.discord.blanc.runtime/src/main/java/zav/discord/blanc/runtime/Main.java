@@ -40,7 +40,6 @@ import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
 import zav.discord.blanc.runtime.job.PresenceJob;
-import zav.jrc.api.guice.JrcModule;
 import zav.jrc.client.Client;
 import zav.jrc.client.Duration;
 import zav.jrc.client.guice.UserlessClientModule;
@@ -73,7 +72,7 @@ public class Main {
     CommandResolver.init();
   
     LOGGER.info("Set up injector.");
-    injector = Guice.createInjector(new BlancModule(), new UserlessClientModule(), new JrcModule());
+    injector = Guice.createInjector(new BlancModule(), new UserlessClientModule());
   }
   
   private static void initDb() throws SQLException {

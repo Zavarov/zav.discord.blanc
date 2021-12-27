@@ -328,6 +328,8 @@ public final class MessageUtils {
     
     builder.setTitle(qualifiedTitle, permalink);
     builder.setAuthor("source", url);
+    
+    builder.addField("Author", link.getAuthor(), false);
   
     if (link.getCreated() != null) {
       builder.setTimestamp(Instant.ofEpochSecond(link.getCreated().longValue()));

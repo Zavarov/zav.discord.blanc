@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.api.WebHook;
 import zav.discord.blanc.databind.WebHookValueObject;
 import zav.jrc.databind.LinkValueObject;
+import zav.jrc.databind.SubredditValueObject;
 
 
 /**
@@ -54,7 +55,7 @@ public class JdaWebHook implements WebHook {
   }
   
   @Override
-  public void send(LinkValueObject link) {
+  public void send(SubredditValueObject subreddit, LinkValueObject link) {
     // See https://github.com/MinnDevelopment/discord-webhooks/issues/53
     // Once that is fixed, replace with jdaWebhookClient(forLink(link))
     WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
@@ -65,6 +66,9 @@ public class JdaWebHook implements WebHook {
       messageBuilder.addEmbeds(WebhookEmbedBuilder.fromJDA(messageEmbed).build());
     }
     
+    messageBuilder.setAvatarUrl(subreddit.getIconImage());
+    messageBuilder.setUsername("r/" + subreddit.getDisplayName());
+  
     WebhookMessage webhookMessage = messageBuilder.build();
     
     jdaWebhookClient.send(webhookMessage);

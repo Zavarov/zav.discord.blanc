@@ -31,8 +31,7 @@ import zav.discord.blanc.api.SelfUser;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
-import zav.jrc.api.Subreddit;
-import zav.jrc.api.guice.SubredditFactory;
+import zav.jrc.client.Client;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -113,11 +112,7 @@ public abstract class AbstractCommandTest {
     Injector injector = Guice.createInjector(new AbstractModule() {
       @Override
       protected void configure() {
-        SubredditFactory factory = mock(SubredditFactory.class);
-        Subreddit view = mock(Subreddit.class);
-        when(factory.create(anyString())).thenReturn(view);
-      
-        bind(SubredditFactory.class).toInstance(factory);
+        bind(Client.class).toInstance(mock(Client.class));
         bind(String.class).annotatedWith(Names.named("inviteSupportServer")).toInstance(url);
       }
     });

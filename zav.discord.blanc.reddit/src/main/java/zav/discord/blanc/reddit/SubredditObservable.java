@@ -1,5 +1,6 @@
 package zav.discord.blanc.reddit;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,10 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
+import zav.jrc.api.Reddit;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.listener.observer.SubredditObserver;
 import zav.jrc.api.Subreddit;
-import zav.jrc.api.guice.SubredditFactory;
 
 /**
  * Base class for all Reddit feeds.<br>
@@ -100,10 +101,12 @@ public final class SubredditObservable {
     }
   }
   
-  private static SubredditObserver getObserver(String subreddit) {
+  private static SubredditObserver getObserver(String subredditName) {
     assert injector != null;
   
-    Subreddit view = injector.getInstance(SubredditFactory.class).create(subreddit);
-    return new SubredditObserver(view);
+    Subreddit subreddit = injector.getInstance(Reddit.class).getSubreddit(subredditName);
+    SubredditObserver observer = new SubredditObserver(subreddit);
+    injector.injectMembers(observer);
+    return observer;
   }
 }

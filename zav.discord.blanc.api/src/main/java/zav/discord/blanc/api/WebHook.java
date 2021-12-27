@@ -18,6 +18,7 @@ package zav.discord.blanc.api;
 
 import zav.discord.blanc.databind.WebHookValueObject;
 import zav.jrc.databind.LinkValueObject;
+import zav.jrc.databind.SubredditValueObject;
 
 /**
  * Base interface for all functions that are performed on web hooks.
@@ -27,5 +28,5 @@ public interface WebHook {
   
   void delete();
   
-  void send(LinkValueObject link);
+  void send(SubredditValueObject subreddit, LinkValueObject link);
 }
