@@ -21,11 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -321,7 +317,7 @@ public final class MessageUtils {
     } else if (link.getSpoiler()) {
       builder.setColor(Color.BLACK);
     } else {
-      builder.setColor(new Color(link.getAuthor().hashCode()));
+      builder.setColor(new Color(Objects.hashCode(link.getLinkFlairText())));
       builder.setDescription(link.getSelftext());
   
       if (URL_PATTERN.matcher(link.getThumbnail()).matches()) {
