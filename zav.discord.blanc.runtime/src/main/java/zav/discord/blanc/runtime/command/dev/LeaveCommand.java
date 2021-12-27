@@ -22,10 +22,10 @@ import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.api.Guild;
 
 import java.sql.SQLException;
@@ -53,9 +53,9 @@ public class LeaveCommand extends AbstractCommand {
   public void run() throws SQLException {
     myGuild.leave();
   
-    GuildTable.delete(myGuildData.getId());
-    TextChannelTable.deleteAll(myGuildData.getId());
-    RoleTable.deleteAll(myGuildData.getId());
-    WebHookTable.deleteAll(myGuildData.getId());
+    GuildDatabase.delete(myGuildData.getId());
+    TextChannelDatabase.deleteAll(myGuildData.getId());
+    RoleDatabase.deleteAll(myGuildData.getId());
+    WebHookDatabase.deleteAll(myGuildData.getId());
   }
 }

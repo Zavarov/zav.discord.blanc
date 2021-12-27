@@ -22,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractDevCommandTest;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.UserDatabase;
 import zav.discord.blanc.runtime.command.dev.RankCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +61,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
     assertThat(selfUserValueObject.getRanks()).contains(Rank.ROOT.name());
     
     // Has the database been updated?
-    UserValueObject dbUser = UserTable.get(selfUserId);
+    UserValueObject dbUser = UserDatabase.get(selfUserId);
     assertThat(dbUser.getRanks()).contains(Rank.ROOT.name());
     assertThat(dbUser.getDiscriminator()).isEqualTo(selfUserDiscriminator);
     assertThat(dbUser.getId()).isEqualTo(selfUserId);
@@ -90,7 +90,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
     assertThat(selfUserValueObject.getRanks()).containsExactly(Rank.USER.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserTable.get(selfUserId);
+    UserValueObject dbUser = UserDatabase.get(selfUserId);
     assertThat(dbUser.getRanks()).containsExactly(Rank.USER.name());
     assertThat(dbUser.getDiscriminator()).isEqualTo(selfUserDiscriminator);
     assertThat(dbUser.getId()).isEqualTo(selfUserId);

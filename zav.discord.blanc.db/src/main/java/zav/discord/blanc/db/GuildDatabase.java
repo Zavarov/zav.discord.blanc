@@ -10,10 +10,10 @@ import zav.discord.blanc.db.internal.SqlQuery;
 /**
  * Utility class for communicating with the {@code Guild} database.
  */
-public abstract class GuildTable {
+public abstract class GuildDatabase {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.GUILD_DB);
   
-  private GuildTable() {}
+  private GuildDatabase() {}
   
   public static void create() throws SQLException {
     SQL.update("guild/CreateGuildTable.sql");

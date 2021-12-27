@@ -23,7 +23,7 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.db.RoleTable;
+import zav.discord.blanc.db.RoleDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -61,7 +61,7 @@ public class RoleCommand extends AbstractGuildCommand {
     } else if (myGroup.equals(myRoleData.getGroup())) {
       myRoleData.setGroup(null);
       channel.send("Ungrouped role \"%s\".", myRoleData.getName());
-      RoleTable.put(myGuildData, myRoleData);
+      RoleDatabase.put(myGuildData, myRoleData);
     // The role is in a different group
     } else if (myRoleData.getGroup() != null) {
       channel.send("The role \"%s\" is already grouped under \"%s\".", myRoleData.getName(), myRoleData.getGroup());
@@ -69,7 +69,7 @@ public class RoleCommand extends AbstractGuildCommand {
     } else {
       myRoleData.setGroup(myGroup);
       channel.send("The role \"%s\" has been grouped under \"%s\".", myRoleData.getName(), myGroup);
-      RoleTable.put(myGuildData, myRoleData);
+      RoleDatabase.put(myGuildData, myRoleData);
     }
   }
 }

@@ -12,10 +12,10 @@ import zav.discord.blanc.db.internal.SqlQuery;
 /**
  * Utility class for communicating with the {@code TextChannel} database.
  */
-public abstract class TextChannelTable {
+public abstract class TextChannelDatabase {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.TEXTCHANNEL_DB);
   
-  private TextChannelTable() {}
+  private TextChannelDatabase() {}
   
   public static void create() throws SQLException {
     SQL.update("textchannel/CreateTextChannelTable.sql");
@@ -89,7 +89,7 @@ public abstract class TextChannelTable {
     List<SqlObject> result = SQL.query("textchannel/SelectAllTextChannel.sql", guildId);
     
     return result.stream()
-          .map(TextChannelTable::transform)
+          .map(TextChannelDatabase::transform)
           .map(obj -> SqlQuery.unmarshal(obj, TextChannelValueObject.class))
           .collect(Collectors.toUnmodifiableList());
   }

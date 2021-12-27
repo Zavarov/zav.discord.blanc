@@ -10,10 +10,10 @@ import zav.discord.blanc.db.internal.SqlQuery;
 /**
  * Utility class for communicating with the {@code User} database.
  */
-public abstract class UserTable {
+public abstract class UserDatabase {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.USER_DB);
   
-  private UserTable() {}
+  private UserDatabase() {}
   
   public static void create() throws SQLException {
     SQL.update("user/CreateUserTable.sql");

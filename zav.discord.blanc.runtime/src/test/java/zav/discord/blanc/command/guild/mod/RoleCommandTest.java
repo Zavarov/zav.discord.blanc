@@ -9,7 +9,7 @@ import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.command.InvalidCommandException;
 import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.db.RoleTable;
+import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.RoleCommand;
 
 import java.util.NoSuchElementException;
@@ -59,7 +59,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleValueObject.getGroup()).isNull();
   
     // Has the database been updated?
-    RoleValueObject dbRole = RoleTable.get(guildId, roleId);
+    RoleValueObject dbRole = RoleDatabase.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
@@ -90,7 +90,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // Has the database been updated?
-    RoleValueObject dbRole = RoleTable.get(guildId, roleId);
+    RoleValueObject dbRole = RoleDatabase.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
@@ -122,7 +122,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleValueObject.getGroup()).isEqualTo("foo");
   
     // The database shouldn't have been updated
-    assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
+    assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));
   }
   
   /**
@@ -150,7 +150,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // The database shouldn't have been updated
-    assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
+    assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));
   
   }
   
@@ -179,7 +179,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
   
     // The database shouldn't have been updated
-    assertThrows(NoSuchElementException.class, () -> RoleTable.get(guildId, roleId));
+    assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));
   }
   
   

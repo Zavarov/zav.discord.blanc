@@ -22,7 +22,7 @@ import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.GuildDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -61,7 +61,7 @@ public class BlacklistCommand extends AbstractGuildCommand {
     }
   
     // Update database
-    GuildTable.put(myGuildData);
+    GuildDatabase.put(myGuildData);
     
     // Update pattern
     String regEx = myGuildData.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse("");

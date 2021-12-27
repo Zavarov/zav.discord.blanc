@@ -21,7 +21,7 @@ import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.UserDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -59,7 +59,7 @@ public class RankCommand extends AbstractCommand {
         myUserData.getRanks().add(myRank.name());
         channel.send("Granted rank \"%s\" to %s.", myRank.name(), myUserData.getName());
       }
-      UserTable.put(myUserData);
+      UserDatabase.put(myUserData);
     } else {
       channel.send("You lack the rank to grant the \"%s\" Rank", myRank.name());
     }

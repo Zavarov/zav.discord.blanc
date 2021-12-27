@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractDevCommandTest;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.UserDatabase;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     assertThat(userValueObject.getRanks()).contains(Rank.ROOT.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserTable.get(userId);
+    UserValueObject dbUser = UserDatabase.get(userId);
   
     assertThat(dbUser.getId()).isEqualTo(userId);
     assertThat(dbUser.getName()).isEqualTo(userName);
@@ -59,7 +59,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     assertThat(userValueObject.getRanks()).contains(Rank.DEVELOPER.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserTable.get(userId);
+    UserValueObject dbUser = UserDatabase.get(userId);
   
     assertThat(dbUser.getId()).isEqualTo(userId);
     assertThat(dbUser.getName()).isEqualTo(userName);

@@ -25,10 +25,10 @@ import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.WebHookValueObject;
 import zav.discord.blanc.databind.message.MessageEmbedValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -72,8 +72,8 @@ public class ConfigurationCommand extends AbstractGuildCommand {
   private void showBlacklist() throws SQLException {
     MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
 
-    if (GuildTable.contains(guildId)) {
-      String value = GuildTable.get(guildId)
+    if (GuildDatabase.contains(guildId)) {
+      String value = GuildDatabase.get(guildId)
             .getBlacklist()
             .stream()
             .reduce((u, v) -> u + "\n" + v).orElse("");
@@ -86,8 +86,8 @@ public class ConfigurationCommand extends AbstractGuildCommand {
   private void showPrefix() throws SQLException {
     MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
 
-    if (GuildTable.contains(guildId)) {
-      String value = GuildTable.get(guildId).getPrefix();
+    if (GuildDatabase.contains(guildId)) {
+      String value = GuildDatabase.get(guildId).getPrefix();
       messageEmbed.addField("Prefix", value != null ? value : StringUtils.EMPTY);
     }
     
@@ -97,7 +97,7 @@ public class ConfigurationCommand extends AbstractGuildCommand {
   private void showSubredditFeeds() throws SQLException {
     MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
   
-    for (WebHookValueObject webHook : WebHookTable.getAll(guildId)) {
+    for (WebHookValueObject webHook : WebHookDatabase.getAll(guildId)) {
       String value = webHook.getSubreddits().stream().reduce((u, v) -> u + "\n" + v).orElse("");
       //Only print channels that link to at least one subreddit
       if (!value.isBlank()) {
@@ -105,7 +105,7 @@ public class ConfigurationCommand extends AbstractGuildCommand {
       }
     }
   
-    for (TextChannelValueObject channel : TextChannelTable.getAll(guildId)) {
+    for (TextChannelValueObject channel : TextChannelDatabase.getAll(guildId)) {
       String value = channel.getSubreddits().stream().reduce((u, v) -> u + "\n" + v).orElse("");
       //Only print channels that link to at least one subreddit
       if (!value.isBlank()) {
@@ -119,7 +119,7 @@ public class ConfigurationCommand extends AbstractGuildCommand {
   private void showSelfAssignableRoles() throws SQLException {
     MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
 
-    for (RoleValueObject role : RoleTable.getAll(guildId)) {
+    for (RoleValueObject role : RoleDatabase.getAll(guildId)) {
       if (role.getGroup() != null) {
         messageEmbed.addField(role.getName(), role.getGroup());
       }

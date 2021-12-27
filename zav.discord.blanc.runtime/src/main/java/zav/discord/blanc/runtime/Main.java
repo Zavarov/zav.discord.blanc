@@ -29,11 +29,11 @@ import zav.discord.blanc.activity.ActivityJob;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.jda.api.JdaClient;
 import zav.discord.blanc.reddit.RedditJob;
 import zav.discord.blanc.reddit.SubredditObservable;
@@ -63,11 +63,11 @@ public class Main {
   
   private static void setUp() throws SQLException {
     LOGGER.info("Set up databases.");
-    GuildTable.create();
-    RoleTable.create();
-    TextChannelTable.create();
-    WebHookTable.create();
-    UserTable.create();
+    GuildDatabase.create();
+    RoleDatabase.create();
+    TextChannelDatabase.create();
+    WebHookDatabase.create();
+    UserDatabase.create();
   
     LOGGER.info("Set up commands.");
     CommandResolver.init();
@@ -80,7 +80,7 @@ public class Main {
     LOGGER.info("Initialize databases");
     long ownerId = injector.getInstance(Key.get(Long.class, Names.named("owner")));
     
-    if (!UserTable.contains(ownerId)) {
+    if (!UserDatabase.contains(ownerId)) {
       LOGGER.info("Owner with id {} not contained in database. Create new root user...", ownerId);
       UserValueObject owner = new UserValueObject()
             .withId(ownerId)
@@ -88,7 +88,7 @@ public class Main {
             .withName(StringUtils.EMPTY)
             .withRanks(List.of(Rank.ROOT.name()));
       
-      UserTable.put(owner);
+      UserDatabase.put(owner);
     }
   }
   

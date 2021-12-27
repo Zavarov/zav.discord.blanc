@@ -23,10 +23,10 @@ import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.databind.message.FieldValueObject;
 import zav.discord.blanc.databind.message.MessageEmbedValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.ConfigurationCommand;
 
 import java.sql.SQLException;
@@ -44,11 +44,11 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   
     guildValueObject.getBlacklist().add("foo");
     guildValueObject.setPrefix("bar");
-    GuildTable.put(guildValueObject);
+    GuildDatabase.put(guildValueObject);
   
-    TextChannelTable.put(guildValueObject, channelValueObject);
-    WebHookTable.put(guildValueObject, channelValueObject, webHookValueObject);
-    RoleTable.put(guildValueObject, roleValueObject);
+    TextChannelDatabase.put(guildValueObject, channelValueObject);
+    WebHookDatabase.put(guildValueObject, channelValueObject, webHookValueObject);
+    RoleDatabase.put(guildValueObject, roleValueObject);
   }
   
   @Test

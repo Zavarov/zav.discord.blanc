@@ -22,7 +22,7 @@ import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.api.TextChannel;
 
@@ -60,7 +60,7 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
       SubredditObservable.removeListener(mySubreddit, myChannel);
   
       //Update the persistence file
-      TextChannelTable.put(myGuildData, myChannelData);
+      TextChannelDatabase.put(myGuildData, myChannelData);
  
       channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannelData.getName());
     } else {

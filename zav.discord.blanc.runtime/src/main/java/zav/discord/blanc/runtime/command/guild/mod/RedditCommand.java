@@ -22,7 +22,7 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.WebHookValueObject;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
@@ -81,6 +81,6 @@ public class RedditCommand extends AbstractGuildCommand {
     }
   
     //Update the persistence file
-    WebHookTable.put(myGuildData, myChannelData, myWebHookData);
+    WebHookDatabase.put(myGuildData, myChannelData, myWebHookData);
   }
 }

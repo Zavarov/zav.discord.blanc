@@ -21,7 +21,7 @@ import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.GuildDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -56,6 +56,6 @@ public class PrefixCommand extends AbstractGuildCommand {
   
     myGuildData.setPrefix(myPrefix);
     
-    GuildTable.put(myGuildData);
+    GuildDatabase.put(myGuildData);
   }
 }

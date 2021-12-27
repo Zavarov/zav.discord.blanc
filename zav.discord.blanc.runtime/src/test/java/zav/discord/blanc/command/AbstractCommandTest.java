@@ -1,6 +1,5 @@
 package zav.discord.blanc.command;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -15,12 +14,11 @@ import org.mockito.ArgumentMatcher;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.*;
-import zav.discord.blanc.databind.io.CredentialsValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.mc.MontiCoreCommandParser;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.CommandResolver;
@@ -36,7 +34,6 @@ import zav.discord.blanc.api.WebHook;
 import zav.jrc.api.Subreddit;
 import zav.jrc.api.guice.SubredditFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -44,7 +41,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -284,11 +280,11 @@ public abstract class AbstractCommandTest {
   
   @BeforeEach
   public void setUpDb() throws SQLException {
-    GuildTable.create();
-    RoleTable.create();
-    TextChannelTable.create();
-    WebHookTable.create();
-    UserTable.create();
+    GuildDatabase.create();
+    RoleDatabase.create();
+    TextChannelDatabase.create();
+    WebHookDatabase.create();
+    UserDatabase.create();
   }
   
   @AfterEach

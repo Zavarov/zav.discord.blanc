@@ -35,11 +35,11 @@ import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.databind.WebHookValueObject;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.RoleTable;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 
 /**
  * Utility class for serializing JDA entities.
@@ -57,7 +57,7 @@ public final class DatabaseUtils {
   public static GuildValueObject aboutGuild(Guild guild) {
     try {
       // Guild name may have changed since the db entry was last updated
-      return GuildTable.get(guild.getIdLong())
+      return GuildDatabase.get(guild.getIdLong())
             .withName(guild.getName());
     } catch (NoSuchElementException e) {
       return new GuildValueObject()
@@ -83,7 +83,7 @@ public final class DatabaseUtils {
       long roleId = role.getIdLong();
       
       // Role name may have changed since the last time the database was updated
-      return RoleTable.get(guildId, roleId)
+      return RoleDatabase.get(guildId, roleId)
             .withName(role.getName());
     } catch (NoSuchElementException e) {
       return new RoleValueObject()
@@ -105,7 +105,7 @@ public final class DatabaseUtils {
   public static UserValueObject aboutSelfUser(SelfUser selfUser) {
     try {
       // Guild name may have changed since the db entry was last updated
-      return UserTable.get(selfUser.getIdLong())
+      return UserDatabase.get(selfUser.getIdLong())
             .withName(selfUser.getName());
     } catch (NoSuchElementException e) {
       return new UserValueObject()
@@ -132,7 +132,7 @@ public final class DatabaseUtils {
       long channelId = textChannel.getIdLong();
       
       // Channel name may have changed since the db entry was last updated
-      return TextChannelTable.get(guildId, channelId)
+      return TextChannelDatabase.get(guildId, channelId)
             .withName(textChannel.getName());
     } catch (NoSuchElementException e) {
       return new TextChannelValueObject()
@@ -156,7 +156,7 @@ public final class DatabaseUtils {
     try {
       
       // User name may have changed since the db entry was last updated
-      return UserTable.get(user.getIdLong())
+      return UserDatabase.get(user.getIdLong())
             .withName(user.getName());
     } catch (NoSuchElementException e) {
       return new UserValueObject()
@@ -184,7 +184,7 @@ public final class DatabaseUtils {
       long webHookId = webHook.getIdLong();
       
       // WebHook name may have changed since the db entry was last updated
-      return WebHookTable.get(guildId, channelId, webHookId)
+      return WebHookDatabase.get(guildId, channelId, webHookId)
             .withName(webHook.getName());
     } catch (NoSuchElementException e) {
       @Nullable User owner = webHook.getOwnerAsUser();

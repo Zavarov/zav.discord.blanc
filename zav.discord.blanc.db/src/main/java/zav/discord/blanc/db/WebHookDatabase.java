@@ -13,10 +13,10 @@ import zav.discord.blanc.db.internal.SqlQuery;
 /**
  * Utility class for communicating with the {@code WebHook} database.
  */
-public abstract class WebHookTable {
+public abstract class WebHookDatabase {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.WEBHOOK_DB);
   
-  private WebHookTable() {}
+  private WebHookDatabase() {}
   
   public static void create() throws SQLException {
     SQL.update("webhook/CreateWebHookTable.sql");
@@ -95,7 +95,7 @@ public abstract class WebHookTable {
     List<SqlObject> result = SQL.query("webhook/SelectAllWebHook.sql", guildId);
     
     return result.stream()
-          .map(WebHookTable::transform)
+          .map(WebHookDatabase::transform)
           .map(obj -> SqlQuery.unmarshal(obj, WebHookValueObject.class))
           .collect(Collectors.toUnmodifiableList());
   }

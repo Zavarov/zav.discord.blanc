@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.command.AbstractDevCommandTest;
-import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.runtime.command.dev.LeaveCommand;
 
 import java.util.NoSuchElementException;
@@ -47,6 +47,6 @@ public class LeaveCommandTest extends AbstractDevCommandTest {
     verify(guild, times(1)).leave();
     
     // Has the database been cleared?
-    Assertions.assertThrows(NoSuchElementException.class, () -> GuildTable.get(guildId));
+    Assertions.assertThrows(NoSuchElementException.class, () -> GuildDatabase.get(guildId));
   }
 }

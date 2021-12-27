@@ -6,7 +6,7 @@ import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.*;
 import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.BlacklistCommand;
 
 import java.util.Set;
@@ -57,7 +57,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(patternCaptor.getValue().pattern()).isEqualTo("bar");
     
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildDatabase.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -93,7 +93,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(patternCaptor.getValue().pattern()).isEmpty();
   
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildTable.get(guildId);
+    GuildValueObject dbGuild = GuildDatabase.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);

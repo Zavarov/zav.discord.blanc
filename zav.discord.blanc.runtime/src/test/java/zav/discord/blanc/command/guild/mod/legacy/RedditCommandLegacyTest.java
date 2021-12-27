@@ -22,8 +22,7 @@ import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.legacy.RedditCommandLegacy;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +76,7 @@ public class RedditCommandLegacyTest  extends AbstractCommandTest {
     
     assertThat(subredditCaptor.getValue()).isEqualTo(channelSubreddit);
   
-    TextChannelValueObject dbChannel = TextChannelTable.get(guildId, channelId);
+    TextChannelValueObject dbChannel = TextChannelDatabase.get(guildId, channelId);
     assertThat(dbChannel.getId()).isEqualTo(channelId);
     assertThat(dbChannel.getName()).isEqualTo(channelName);
     assertThat(dbChannel.getSubreddits()).isEmpty();

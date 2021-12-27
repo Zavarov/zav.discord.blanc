@@ -20,7 +20,7 @@ package zav.discord.blanc.runtime.command.dev;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.UserDatabase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -106,7 +106,7 @@ public class FailsafeCommand extends AbstractCommand {
       myMessage = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
     }
   
-    UserTable.put(myAuthorData);
+    UserDatabase.put(myAuthorData);
     channel.send(myMessage, myAuthorData.getName());
   }
 }

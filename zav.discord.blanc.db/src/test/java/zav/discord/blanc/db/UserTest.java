@@ -42,67 +42,67 @@ public class UserTest extends AbstractTest {
   public void setUp() throws SQLException {
     super.setUp();
     
-    UserTable.create();
+    UserDatabase.create();
   }
   
   @Test
   public void testCreateOverExistingTable() throws SQLException {
     // Table has already been created in setUp()
-    assertThat(UserTable.put(user)).isEqualTo(1);
-    assertThat(UserTable.contains(user.getId())).isTrue();
+    assertThat(UserDatabase.put(user)).isEqualTo(1);
+    assertThat(UserDatabase.contains(user.getId())).isTrue();
     // Should not replace the existing DB
-    UserTable.create();
-    assertThat(UserTable.contains(user.getId())).isTrue();
+    UserDatabase.create();
+    assertThat(UserDatabase.contains(user.getId())).isTrue();
   }
   
   @Test
   public void testContains() throws SQLException {
-    assertThat(UserTable.contains(user.getId())).isFalse();
-    assertThat(UserTable.put(user)).isEqualTo(1);
-    assertThat(UserTable.contains(user.getId())).isTrue();
+    assertThat(UserDatabase.contains(user.getId())).isFalse();
+    assertThat(UserDatabase.put(user)).isEqualTo(1);
+    assertThat(UserDatabase.contains(user.getId())).isTrue();
   }
   
   @Test
   public void testPut() throws SQLException {
     // One row has been modified
-    assertThat(UserTable.put(user)).isEqualTo(1);
+    assertThat(UserDatabase.put(user)).isEqualTo(1);
   }
   
   @Test
   public void testPutAlreadyExistingUser() throws SQLException {
-    UserTable.put(user);
+    UserDatabase.put(user);
   
-    UserValueObject response = UserTable.get(user.getId());
+    UserValueObject response = UserDatabase.get(user.getId());
     assertThat(user.getName()).isEqualTo(response.getName());
     
     user.setName("Updated");
   
-    UserTable.put(user);
-    response = UserTable.get(user.getId());
+    UserDatabase.put(user);
+    response = UserDatabase.get(user.getId());
     // Old row has been updated
     assertThat(user.getName()).isEqualTo(response.getName());
   }
   
   @Test
   public void testDelete() throws SQLException {
-    assertThat(UserTable.contains(user.getId())).isFalse();
-    assertThat(UserTable.put(user)).isEqualTo(1);
-    assertThat(UserTable.contains(user.getId())).isTrue();
-    assertThat(UserTable.delete(user.getId())).isEqualTo(1);
-    assertThat(UserTable.contains(user.getId())).isFalse();
+    assertThat(UserDatabase.contains(user.getId())).isFalse();
+    assertThat(UserDatabase.put(user)).isEqualTo(1);
+    assertThat(UserDatabase.contains(user.getId())).isTrue();
+    assertThat(UserDatabase.delete(user.getId())).isEqualTo(1);
+    assertThat(UserDatabase.contains(user.getId())).isFalse();
   }
   
   @Test
   public void testDeleteUnknownUser() throws SQLException {
     // User doesn't exist => Nothing to remove
-    assertThat(UserTable.delete(user.getId())).isEqualTo(0);
+    assertThat(UserDatabase.delete(user.getId())).isEqualTo(0);
   }
   
   @Test
   public void testGetUser() throws SQLException {
-    UserTable.put(user);
+    UserDatabase.put(user);
   
-    UserValueObject response = UserTable.get(user.getId());
+    UserValueObject response = UserDatabase.get(user.getId());
     
     Assertions.assertThat(response.getId()).isEqualTo(user.getId());
     Assertions.assertThat(response.getName()).isEqualTo(user.getName());
@@ -112,6 +112,6 @@ public class UserTest extends AbstractTest {
   
   @Test
   public void testGetUnknownUser() {
-    assertThrows(NoSuchElementException.class, () -> UserTable.get(user.getId()));
+    assertThrows(NoSuchElementException.class, () -> UserDatabase.get(user.getId()));
   }
 }

@@ -12,8 +12,8 @@ import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.WebHookValueObject;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.reddit.internal.ArgumentImpl;
 
 
@@ -26,10 +26,10 @@ public class RedditJob implements Runnable {
   public RedditJob(Client client) throws SQLException {
     for (Shard shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {
-        for (WebHookValueObject webHook : WebHookTable.getAll(guild.getAbout().getId())) {
+        for (WebHookValueObject webHook : WebHookDatabase.getAll(guild.getAbout().getId())) {
           loadWebHooks(guild, webHook);
         }
-        for (TextChannelValueObject textChannel : TextChannelTable.getAll(guild.getAbout().getId())) {
+        for (TextChannelValueObject textChannel : TextChannelDatabase.getAll(guild.getAbout().getId())) {
           loadTextChannels(guild, textChannel);
         }
       }
@@ -47,7 +47,7 @@ public class RedditJob implements Runnable {
     } catch (NoSuchElementException e) {
       // Text Channel has been deleted
       LOGGER.error(e.getMessage(), e);
-      WebHookTable.delete(guild.getAbout().getId(), webHook.getChannelId(), webHook.getId());
+      WebHookDatabase.delete(guild.getAbout().getId(), webHook.getChannelId(), webHook.getId());
       return;
     }
   
@@ -61,7 +61,7 @@ public class RedditJob implements Runnable {
       }
     } catch (NoSuchElementException e) {
       // Web Hook has been deleted
-      WebHookTable.delete(guild.getAbout().getId(), webHook.getChannelId(), webHook.getId());
+      WebHookDatabase.delete(guild.getAbout().getId(), webHook.getChannelId(), webHook.getId());
       LOGGER.error(e.getMessage(), e);
     }
   }
@@ -80,7 +80,7 @@ public class RedditJob implements Runnable {
     } catch (NoSuchElementException e) {
       // Text Channel has been deleted
       LOGGER.error(e.getMessage(), e);
-      TextChannelTable.delete(guild.getAbout().getId(), textChannel.getId());
+      TextChannelDatabase.delete(guild.getAbout().getId(), textChannel.getId());
     }
   }
 

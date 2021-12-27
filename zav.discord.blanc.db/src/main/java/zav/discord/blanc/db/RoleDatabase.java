@@ -12,10 +12,10 @@ import zav.discord.blanc.db.internal.SqlQuery;
 /**
  * Utility class for communicating with the {@code Role} database.
  */
-public abstract class RoleTable {
+public abstract class RoleDatabase {
   private static final SqlQuery SQL = new SqlQuery(SqlQuery.ROLE_DB);
   
-  private RoleTable() {}
+  private RoleDatabase() {}
   
   public static void create() throws SQLException {
     SQL.update("role/CreateRoleTable.sql");

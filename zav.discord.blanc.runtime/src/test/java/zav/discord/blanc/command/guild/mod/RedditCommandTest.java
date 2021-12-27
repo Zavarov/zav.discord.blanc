@@ -22,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.databind.WebHookValueObject;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.RedditCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +65,7 @@ public class RedditCommandTest extends AbstractCommandTest {
     assertThat(subredditCaptor.getValue()).isEqualTo(webHookSubreddit);
   
     // Has the database been updated?
-    WebHookValueObject dbHook = WebHookTable.get(guildId, channelId, webHookId);
+    WebHookValueObject dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
     assertThat(dbHook.getId()).isEqualTo(webHookId);
     assertThat(dbHook.getName()).isEqualTo(webHookName);
     assertThat(dbHook.getChannelId()).isEqualTo(channelId); // channelId was given as an argument
@@ -93,7 +93,7 @@ public class RedditCommandTest extends AbstractCommandTest {
     assertThat(subredditCaptor.getValue()).isEqualTo(webHookSubreddit);
   
     // Has the database been updated?
-    WebHookValueObject dbHook = WebHookTable.get(guildId, channelId, webHookId);
+    WebHookValueObject dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
     assertThat(dbHook.getId()).isEqualTo(webHookId);
     assertThat(dbHook.getName()).isEqualTo(webHookName);
     assertThat(dbHook.getChannelId()).isEqualTo(channelId); // channelId was given as an argument
