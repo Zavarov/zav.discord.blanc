@@ -40,10 +40,10 @@ import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.guice.BlancModule;
 import zav.discord.blanc.runtime.job.PresenceJob;
+import zav.jrc.api.guice.JrcModule;
 import zav.jrc.client.Client;
 import zav.jrc.client.Duration;
-import zav.jrc.client.guice.UserlessModule;
-import zav.jrc.api.guice.ApiModule;
+import zav.jrc.client.guice.UserlessClientModule;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -73,7 +73,7 @@ public class Main {
     CommandResolver.init();
   
     LOGGER.info("Set up injector.");
-    injector = Guice.createInjector(new BlancModule(), new UserlessModule(), new ApiModule());
+    injector = Guice.createInjector(new BlancModule(), new UserlessClientModule(), new JrcModule());
   }
   
   private static void initDb() throws SQLException {
@@ -106,7 +106,7 @@ public class Main {
   private static void initJobs(JdaClient client) throws Exception {
     SubredditObservable.init(injector);
     Client reddit = injector.getInstance(Client.class);
-    reddit.login(Duration.PERMANENT);
+    reddit.login(Duration.TEMPORARY);
   
     // Revoke the (permanent) access token
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
