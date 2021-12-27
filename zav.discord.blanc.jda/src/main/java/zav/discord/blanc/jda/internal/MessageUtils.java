@@ -39,8 +39,12 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.jrc.databind.LinkValueObject;
+
+import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
 
 /**
  * Utility class for creating Discord messages displaying the relevant information about an entity
@@ -68,6 +72,8 @@ public final class MessageUtils {
    * The date pretty printer.
    */
   protected static final DateTimeFormatter DATE = DateTimeFormatter.RFC_1123_DATE_TIME;
+  
+  private static final Logger LOGGER = LogManager.getLogger(MessageUtils.class);
   
   /**
    * Creates an embedded message displaying the relevant information of the JDA user.
@@ -316,8 +322,13 @@ public final class MessageUtils {
       builder.setColor(Color.BLACK);
     } else {
       builder.setColor(new Color(link.getAuthor().hashCode()));
-      builder.setThumbnail(link.getThumbnail());
       builder.setDescription(link.getSelftext());
+  
+      if (URL_PATTERN.matcher(link.getThumbnail()).matches()) {
+        builder.setThumbnail(link.getThumbnail());
+      } else {
+        LOGGER.debug("Thumbnail '{}' is not a valid URL.", link.getThumbnail());
+      }
     }
   
     String shortlink = "https://redd.it/" + link.getId();
