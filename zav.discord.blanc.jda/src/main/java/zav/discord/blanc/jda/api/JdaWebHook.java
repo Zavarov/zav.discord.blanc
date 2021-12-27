@@ -21,6 +21,12 @@ import static zav.discord.blanc.jda.internal.MessageUtils.forLink;
 
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import javax.inject.Inject;
+
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import club.minnced.discord.webhook.send.WebhookMessage;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.api.WebHook;
 import zav.discord.blanc.databind.WebHookValueObject;
@@ -49,6 +55,18 @@ public class JdaWebHook implements WebHook {
   
   @Override
   public void send(LinkValueObject link) {
-    jdaWebhookClient.send(forLink(link));
+    // See https://github.com/MinnDevelopment/discord-webhooks/issues/53
+    // Once that is fixed, replace with jdaWebhookClient(forLink(link))
+    WebhookMessageBuilder messageBuilder = new WebhookMessageBuilder();
+
+    Message message = forLink(link);
+    
+    for (MessageEmbed messageEmbed : message.getEmbeds()) {
+      messageBuilder.addEmbeds(WebhookEmbedBuilder.fromJDA(messageEmbed).build());
+    }
+    
+    WebhookMessage webhookMessage = messageBuilder.build();
+    
+    jdaWebhookClient.send(webhookMessage);
   }
 }
