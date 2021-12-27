@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import zav.discord.blanc.jda.api.JdaShard;
@@ -89,7 +90,10 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
             .setToken(token)
             .useSharding(index++, (int) shardCount)
             .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
             .build();
+      
+      jda.awaitReady();
       
       Injector shardInjector = injector.createChildInjector(new JdaModule());
 
