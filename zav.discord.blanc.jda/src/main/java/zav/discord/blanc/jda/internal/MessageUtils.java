@@ -16,12 +16,21 @@
 
 package zav.discord.blanc.jda.internal;
 
+import static net.dv8tion.jda.api.entities.MessageEmbed.DESCRIPTION_MAX_LENGTH;
+import static net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH;
+import static net.dv8tion.jda.api.entities.MessageEmbed.URL_MAX_LENGTH;
+
 import java.awt.Color;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -301,12 +310,24 @@ public final class MessageUtils {
           + (link.getOver18() ? "[NSFW] " : StringUtils.EMPTY)
           + (link.getSpoiler() ? "[Spoiler] " : StringUtils.EMPTY)
           + link.getTitle();
-    String permalink = "https://www.reddit.com" + link.getPermalink();
+    qualifiedTitle = StringUtils.truncate(qualifiedTitle, TITLE_MAX_LENGTH);
+    
+    @Nullable String permalink = "https://www.reddit.com" + link.getPermalink();
+    permalink = (permalink.length() < URL_MAX_LENGTH) ? permalink : null;
+  
+    @Nullable String url = link.getUrl();
+    url = (url != null && url.length() < URL_MAX_LENGTH) ? url : null;
+    
+    @Nullable String thumbnail = link.getThumbnail();
+    thumbnail = (thumbnail != null && thumbnail.length() < URL_MAX_LENGTH) ? thumbnail : null;
+    
+    @Nullable String description = link.getSelftext();
+    description = StringUtils.truncate(description, DESCRIPTION_MAX_LENGTH);
   
     EmbedBuilder builder = new EmbedBuilder();
-  
+    
     builder.setTitle(qualifiedTitle, permalink);
-    builder.setAuthor("source", link.getUrl());
+    builder.setAuthor("source", url);
   
     if (link.getCreated() != null) {
       builder.setTimestamp(Instant.ofEpochSecond(link.getCreated().longValue()));
@@ -318,12 +339,12 @@ public final class MessageUtils {
       builder.setColor(Color.BLACK);
     } else {
       builder.setColor(new Color(Objects.hashCode(link.getLinkFlairText())));
-      builder.setDescription(link.getSelftext());
+      builder.setDescription(description);
   
-      if (URL_PATTERN.matcher(link.getThumbnail()).matches()) {
-        builder.setThumbnail(link.getThumbnail());
-      } else {
-        LOGGER.debug("Thumbnail '{}' is not a valid URL.", link.getThumbnail());
+      if (thumbnail != null && URL_PATTERN.matcher(thumbnail).matches()) {
+        builder.setThumbnail(thumbnail);
+      } else if (thumbnail != null) {
+        LOGGER.debug("Thumbnail '{}' is not a valid URL.", thumbnail);
       }
     }
   
@@ -332,7 +353,7 @@ public final class MessageUtils {
   
     MessageBuilder messageBuilder = new MessageBuilder();
     messageBuilder.setEmbeds(embed);
-    messageBuilder.setContent(String.format("New submission from %s in `r/%s`:\n\n<%s>", link.getAuthor(), link.getName(), shortlink));
+    messageBuilder.setContent(String.format("New submission from u/%s in `r/%s`:\n\n<%s>", link.getAuthor(), link.getName(), shortlink));
   
     return messageBuilder.build();
   }
