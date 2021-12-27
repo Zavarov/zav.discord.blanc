@@ -301,7 +301,7 @@ public final class MessageUtils {
    * @return A JDA message embed displaying the relevant link information.
    */
   public static Message forLink(LinkValueObject link) {
-    String qualifiedTitle = (link.getLinkFlairText() != null ? link.getLinkFlairText() : StringUtils.EMPTY)
+    String qualifiedTitle = (link.getLinkFlairText() != null ? "[" + link.getLinkFlairText() + "]" : StringUtils.EMPTY)
           + (link.getOver18() ? "[NSFW] " : StringUtils.EMPTY)
           + (link.getSpoiler() ? "[Spoiler] " : StringUtils.EMPTY)
           + link.getTitle();
