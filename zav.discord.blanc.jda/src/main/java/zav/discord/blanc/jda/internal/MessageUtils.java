@@ -43,10 +43,16 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.site.SiteListener;
+import zav.discord.blanc.databind.message.FieldValueObject;
+import zav.discord.blanc.databind.message.MessageEmbedValueObject;
+import zav.discord.blanc.databind.message.PageValueObject;
+import zav.discord.blanc.databind.message.SiteValueObject;
 import zav.jrc.databind.LinkValueObject;
 
 import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
@@ -358,5 +364,37 @@ public final class MessageUtils {
     messageBuilder.setContent(String.format("New submission from u/%s in `r/%s`:\n\n<%s>", link.getAuthor(), link.getName(), shortlink));
   
     return messageBuilder.build();
+  }
+  
+  public static Message forSite(SiteListener listener, SiteValueObject... sites) {
+    ActionRow[] actionRows = SiteUtils.getActionRows(listener, sites);
+    PageValueObject mainPage = sites[0].getPages().get(0);
+  
+    MessageEmbed messageEmbed = forPage(mainPage);
+    
+    return new MessageBuilder()
+          .setEmbeds(messageEmbed)
+          .setActionRows(actionRows)
+          .build();
+  }
+  
+  private static MessageEmbed forPage(PageValueObject page) {
+    
+    MessageEmbedValueObject content = (MessageEmbedValueObject) page.getContent();
+    
+    EmbedBuilder builder = new EmbedBuilder();
+    
+    builder.setColor(Color.getColor(content.getColor()));
+    builder.setThumbnail(content.getThumbnail());
+    builder.setTitle(content.getTitle().getName(), content.getTitle().getUrl());
+    builder.setDescription(content.getContent());
+    builder.setTimestamp(content.getTimestamp().toInstant());
+    builder.setAuthor(content.getAuthor().getName(), content.getAuthor().getUrl());
+    
+    for (FieldValueObject field : content.getFields()) {
+      builder.addField(field.getName().toString(), field.getContent(), false);
+    }
+    
+    return builder.build();
   }
 }

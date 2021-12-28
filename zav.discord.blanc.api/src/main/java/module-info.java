@@ -6,4 +6,5 @@ module zav.discord.blanc.api {
   requires static org.eclipse.jdt.annotation;
   
   exports zav.discord.blanc.api;
+  exports zav.discord.blanc.api.site;
 }

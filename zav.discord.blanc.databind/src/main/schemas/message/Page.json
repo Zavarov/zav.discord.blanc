@@ -1,0 +1,9 @@
+{
+  "type" : "object",
+  "properties" : {
+    "content" : {
+      "type" : "MessageEmbedValueObject"
+    }
+  },
+  "required" : ["content"]
+}

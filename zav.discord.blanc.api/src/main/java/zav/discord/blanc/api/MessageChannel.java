@@ -17,9 +17,12 @@
 package zav.discord.blanc.api;
 
 import java.awt.image.BufferedImage;
+
+import zav.discord.blanc.api.site.SiteListener;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.message.SiteValueObject;
 import zav.jrc.databind.LinkValueObject;
 
 /**
@@ -45,4 +48,6 @@ public interface MessageChannel {
   void send(UserValueObject user);
   
   void send(LinkValueObject link);
+  
+  void send(SiteListener listener, SiteValueObject... sites);
 }
