@@ -16,27 +16,38 @@
 
 package zav.discord.blanc.runtime.command.guild.mod;
 
+import static zav.discord.blanc.runtime.internal.ArgumentImpl.of;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Message;
 import zav.discord.blanc.api.Permission;
+import zav.discord.blanc.api.site.SiteListener;
 import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.WebHookValueObject;
 import zav.discord.blanc.databind.message.MessageEmbedValueObject;
-import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.databind.message.PageValueObject;
+import zav.discord.blanc.databind.message.SiteValueObject;
 import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.db.WebHookDatabase;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-public class ConfigurationCommand extends AbstractGuildCommand {
-  private String myModule;
-  private long guildId;
+public class ConfigurationCommand extends AbstractGuildCommand implements SiteListener {
+  private int index;
+  private List<SiteValueObject> sites;
+  private SiteValueObject currentSite;
+  private PageValueObject currentPage;
+  private GuildValueObject guildData;
   
   public ConfigurationCommand() {
     super(Permission.MANAGE_MESSAGES);
@@ -45,86 +56,165 @@ public class ConfigurationCommand extends AbstractGuildCommand {
   @Override
   public void postConstruct(List<? extends Argument> args) {
     Validate.validIndex(args, 0);
-    myModule = args.get(0).asString().orElseThrow().toLowerCase(Locale.ENGLISH);
-    guildId = guild.getAbout().getId();
+    guildData = guild.getAbout();
+    sites = new ArrayList<>();
   }
   
   @Override
   public void run() throws SQLException {
-    switch (myModule) {
-      case "blacklist":
-        showBlacklist();
-        break;
-      case "prefix":
-        showPrefix();
-        break;
-      case "reddit":
-        showSubredditFeeds();
-        break;
-      case "roles":
-        showSelfAssignableRoles();
-        break;
-      default:
-        channel.send("Unknown module: \"%s\"", myModule);
-    }
-  }
+    sites.add(createMainSite());
+    sites.add(createBlacklistSite());
+    sites.add(createSubredditSite());
+    sites.add(createSelfAssignableRolesSite());
     
-  private void showBlacklist() throws SQLException {
-    MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
-
-    if (GuildDatabase.contains(guildId)) {
-      String value = GuildDatabase.get(guildId)
-            .getBlacklist()
-            .stream()
-            .reduce((u, v) -> u + "\n" + v).orElse("");
-      messageEmbed.addField("Blacklist", value);
-    }
-    
-    channel.send(messageEmbed);
+    channel.send(this, sites);
   }
-
-  private void showPrefix() throws SQLException {
-    MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
-
-    if (GuildDatabase.contains(guildId)) {
-      String value = GuildDatabase.get(guildId).getPrefix();
-      messageEmbed.addField("Prefix", value != null ? value : StringUtils.EMPTY);
-    }
-    
-    channel.send(messageEmbed);
-  }
-
-  private void showSubredditFeeds() throws SQLException {
-    MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
   
-    for (WebHookValueObject webHook : WebHookDatabase.getAll(guildId)) {
-      String value = webHook.getSubreddits().stream().reduce((u, v) -> u + "\n" + v).orElse("");
-      //Only print channels that link to at least one subreddit
-      if (!value.isBlank()) {
-        messageEmbed.addField(webHook.getName(), value);
+  // ---------------------------------------------------------------------------------------------//
+  //                                                                                              //
+  //  Site Construction                                                                           //
+  //                                                                                              //
+  // ---------------------------------------------------------------------------------------------//
+  
+  
+  private SiteValueObject createMainSite() {
+    MessageEmbedValueObject content = new MessageEmbedValueObject();
+    content.setTitle(guildData.getName());
+    content.addField("Guild Prefix", guildData.getPrefix());
+    
+    PageValueObject mainPage = new PageValueObject()
+          .withContent(content);
+    
+    return new SiteValueObject()
+          .withPages(List.of(mainPage))
+          .withLabel("mainPage")
+          .withDescription("Main Page");
+  }
+    
+  private SiteValueObject createBlacklistSite() {
+    String value = guildData.getBlacklist()
+          .stream()
+          .reduce((u, v) -> u + StringUtils.LF + v)
+          .orElse("");
+  
+    MessageEmbedValueObject content = new MessageEmbedValueObject();
+    content.setTitle("Forbidden Expressions");
+    content.setContent(value);
+    
+    PageValueObject blacklistPage = new PageValueObject()
+          .withContent(content);
+    
+    return new SiteValueObject()
+          .withPages(List.of(blacklistPage))
+          .withLabel("blacklist")
+          .withDescription("Forbidden Expressions");
+  }
+
+  private SiteValueObject createSubredditSite() throws SQLException {
+    // Subreddit Name -> Text Channels
+    Multimap<String, String> subreddits = HashMultimap.create();
+    
+    // Get all subreddit feeds
+    for (WebHookValueObject webHook : WebHookDatabase.getAll(guildData.getId())) {
+      for (String subredditName : webHook.getSubreddits()) {
+        subreddits.put(subredditName, guild.getTextChannel(of(webHook.getChannelId())).getAsMention());
+      }
+    }
+    
+    for (TextChannelValueObject textChannel : TextChannelDatabase.getAll(guildData.getId())) {
+      for (String subredditName : textChannel.getSubreddits()) {
+        subreddits.put(subredditName, guild.getTextChannel(of(textChannel.getId())).getAsMention());
       }
     }
   
-    for (TextChannelValueObject channel : TextChannelDatabase.getAll(guildId)) {
-      String value = channel.getSubreddits().stream().reduce((u, v) -> u + "\n" + v).orElse("");
-      //Only print channels that link to at least one subreddit
-      if (!value.isBlank()) {
-        messageEmbed.addField(channel.getName(), value);
-      }
-    }
-
-    channel.send(messageEmbed);
+    SiteValueObject subredditSite = new SiteValueObject()
+          .withLabel("subreddits")
+          .withDescription("Subreddit Feeds");
+    
+    // Create a page for each subreddit
+    subreddits.asMap().forEach((key, values) -> {
+      String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
+      
+      MessageEmbedValueObject content = new MessageEmbedValueObject();
+      content.setTitle("Subreddit Feeds");
+      content.addField(key, value);
+      
+      PageValueObject subredditPage = new PageValueObject()
+            .withContent(content);
+      
+      subredditSite.getPages().add(subredditPage);
+    });
+    
+    return subredditSite;
   }
 
-  private void showSelfAssignableRoles() throws SQLException {
-    MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
-
-    for (RoleValueObject role : RoleDatabase.getAll(guildId)) {
-      if (role.getGroup() != null) {
-        messageEmbed.addField(role.getName(), role.getGroup());
-      }
+  private SiteValueObject createSelfAssignableRolesSite() throws SQLException {
+    // Role Group -> Roles
+    Multimap<String, String> roles = HashMultimap.create();
+    
+    for (RoleValueObject role : RoleDatabase.getAll(guildData.getId())) {
+      roles.put(role.getGroup(), guild.getRole(of(guildData.getId())).getAsMention());
     }
-
-    channel.send(messageEmbed);
+  
+    SiteValueObject roleSite = new SiteValueObject()
+          .withLabel("roles")
+          .withDescription("Self-assignable Roles");
+    
+    roles.asMap().forEach((key, values) -> {
+      String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
+  
+      MessageEmbedValueObject content = new MessageEmbedValueObject();
+      content.setTitle("Self-assignable Roles");
+      content.addField(key, value);
+      
+      PageValueObject rolePage = new PageValueObject()
+            .withContent(content);
+  
+      roleSite.getPages().add(rolePage);
+    });
+    
+    return roleSite;
+  }
+  
+  // ---------------------------------------------------------------------------------------------//
+  //                                                                                              //
+  //  SiteListener                                                                                //
+  //                                                                                              //
+  // ---------------------------------------------------------------------------------------------//
+  
+  @Override
+  public boolean canMoveLeft() {
+    return index >= 0;
+  }
+  
+  @Override
+  public void moveLeft(Consumer<PageValueObject> consumer) {
+    currentSite = sites.get(--index);
+    currentPage = currentSite.getPages().get(0);
+    
+    consumer.accept(currentPage);
+  }
+  
+  @Override
+  public boolean canMoveRight() {
+    return index < currentSite.getPages().size() - 1;
+  }
+  
+  @Override
+  public void moveRight(Consumer<PageValueObject> consumer) {
+    currentSite = sites.get(++index);
+    currentPage = currentSite.getPages().get(0);
+  
+    consumer.accept(currentPage);
+  }
+  
+  @Override
+  public void changeSelection(String label) {
+    index = 0;
+    
+    currentSite = sites.stream()
+          .filter(site -> site.getLabel().equals(label))
+          .findFirst()
+          .orElseThrow();
   }
 }
