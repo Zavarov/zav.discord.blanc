@@ -37,7 +37,7 @@ import zav.discord.blanc.jda.api.JdaShard;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 import zav.discord.blanc.jda.internal.guice.JdaModule;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
-import zav.discord.blanc.jda.internal.listener.ComponentListener;
+import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
 import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
 import zav.discord.blanc.jda.internal.listener.GuildCommandListener;
 import zav.discord.blanc.jda.internal.listener.PrivateCommandListener;
@@ -107,7 +107,7 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       listeners.add(new GuildActivityListener());
       listeners.add(new GuildCommandListener(shard));
       listeners.add(new PrivateCommandListener(shard));
-      listeners.add(new ComponentListener());
+      listeners.add(new SiteComponentListener());
       
       listeners.forEach(shardInjector::injectMembers);
       listeners.forEach(jda::addEventListener);

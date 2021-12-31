@@ -41,7 +41,7 @@ import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;
 import zav.discord.blanc.databind.message.SiteValueObject;
-import zav.discord.blanc.jda.internal.listener.ComponentListener;
+import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
 import zav.jrc.databind.LinkValueObject;
 
 /**
@@ -105,6 +105,6 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   @Override
   public void send(SiteListener listener, List<SiteValueObject> sites) {
     // Register the listener for this component
-    jdaMessageChannel.sendMessage(forSite(listener, sites)).queue(response -> ComponentListener.add(response, listener));
+    jdaMessageChannel.sendMessage(forSite(listener, sites)).queue(response -> SiteComponentListener.add(response, listener));
   }
 }

@@ -31,7 +31,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.site.SiteListener;
 
-public class ComponentListener extends ListenerAdapter {
+public class SiteComponentListener extends ListenerAdapter {
   private static final long MAX_CACHE_SIZE = 1024;
   
   private static final Cache<Message, SiteListener> CACHE = CacheBuilder.newBuilder()
@@ -66,20 +66,15 @@ public class ComponentListener extends ListenerAdapter {
       return;
     }
     
-    Message jdaMessage = event.getMessage();
-    
     switch (id) {
       case "left":
-        listener.moveLeft(embed -> jdaMessage.editMessageEmbeds(forPage(embed)).complete());
+        listener.moveLeft(embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
         break;
       case "right":
-        listener.moveRight(embed -> jdaMessage.editMessageEmbeds(forPage(embed)).complete());
+        listener.moveRight(embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
         break;
       default:
-      
     }
-    event.getButton();
-    super.onButtonClick(event);
   }
   
   @Override

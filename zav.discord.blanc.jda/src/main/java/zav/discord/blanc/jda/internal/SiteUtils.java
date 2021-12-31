@@ -39,10 +39,10 @@ public final class SiteUtils {
   
   private static ActionRow createButtons(SiteListener listener) {
     Button left = Button.primary("left", Emoji.fromUnicode("⬅️"))
-          .withDisabled(listener.canMoveLeft());
+          .withDisabled(!listener.canMoveLeft());
     
     Button right = Button.primary("right", Emoji.fromUnicode("➡️"))
-          .withDisabled(listener.canMoveRight());
+          .withDisabled(!listener.canMoveRight());
     
     return ActionRow.of(left, right);
   }
