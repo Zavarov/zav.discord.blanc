@@ -33,4 +33,6 @@ public interface TextChannel extends MessageChannel {
   default WebHook getWebHook(String argument) {
     return getWebHook(argument, false);
   }
+  
+  String getAsMention();
 }

@@ -16,14 +16,17 @@
 
 package zav.discord.blanc.api.site;
 
+import java.util.function.Consumer;
+import zav.discord.blanc.databind.message.PageValueObject;
+
 public interface SiteListener {
   boolean canMoveLeft();
   
-  void moveLeft();
+  void moveLeft(Consumer<PageValueObject> consumer);
   
   boolean canMoveRight();
   
-  void moveRight();
+  void moveRight(Consumer<PageValueObject> consumer);
   
-  void changeSelection(String name);
+  void changeSelection(String label);
 }

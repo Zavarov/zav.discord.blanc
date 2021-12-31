@@ -25,17 +25,14 @@ import static zav.discord.blanc.jda.internal.MessageUtils.forUser;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
@@ -43,9 +40,7 @@ import zav.discord.blanc.api.site.SiteListener;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
 import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.message.PageValueObject;
 import zav.discord.blanc.databind.message.SiteValueObject;
-import zav.discord.blanc.jda.internal.SiteUtils;
 import zav.discord.blanc.jda.internal.listener.ComponentListener;
 import zav.jrc.databind.LinkValueObject;
 
@@ -108,7 +103,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(SiteListener listener, SiteValueObject... sites) {
+  public void send(SiteListener listener, List<SiteValueObject> sites) {
     // Register the listener for this component
     jdaMessageChannel.sendMessage(forSite(listener, sites)).queue(response -> ComponentListener.add(response, listener));
   }

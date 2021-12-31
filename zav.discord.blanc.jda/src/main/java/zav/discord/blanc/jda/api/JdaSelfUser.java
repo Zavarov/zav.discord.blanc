@@ -42,6 +42,11 @@ public class JdaSelfUser implements zav.discord.blanc.api.SelfUser {
   }
   
   @Override
+  public String getAsMention() {
+    return jdaSelfUser.getAsMention();
+  }
+  
+  @Override
   public void setAvatar(BufferedImage image) {
     try {
       jdaSelfUser.getManager().setAvatar(asIcon(image)).complete();

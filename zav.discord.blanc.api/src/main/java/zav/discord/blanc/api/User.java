@@ -24,4 +24,6 @@ import zav.discord.blanc.databind.UserValueObject;
 public interface User {
   
   UserValueObject getAbout();
+  
+  String getAsMention();
 }

@@ -90,4 +90,9 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
       jdaMessageChannel.sendMessageEmbeds(forMember(jdaMember)).complete();
     }
   }
+  
+  @Override
+  public String getAsMention() {
+    return jdaTextChannel.getAsMention();
+  }
 }

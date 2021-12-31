@@ -24,4 +24,6 @@ import zav.discord.blanc.databind.RoleValueObject;
 public interface Role {
   
   RoleValueObject getAbout();
+  
+  String getAsMention();
 }

@@ -33,4 +33,9 @@ public class JdaRole implements zav.discord.blanc.api.Role {
   public RoleValueObject getAbout() {
     return aboutRole(jdaRole);
   }
+  
+  @Override
+  public String getAsMention() {
+    return jdaRole.getAsMention();
+  }
 }

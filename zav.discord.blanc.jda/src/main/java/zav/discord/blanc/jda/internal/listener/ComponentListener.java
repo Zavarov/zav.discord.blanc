@@ -16,6 +16,8 @@
 
 package zav.discord.blanc.jda.internal.listener;
 
+import static zav.discord.blanc.jda.internal.MessageEmbedUtils.forPage;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.time.Duration;
@@ -64,12 +66,14 @@ public class ComponentListener extends ListenerAdapter {
       return;
     }
     
+    Message jdaMessage = event.getMessage();
+    
     switch (id) {
       case "left":
-        listener.moveLeft();
+        listener.moveLeft(embed -> jdaMessage.editMessageEmbeds(forPage(embed)).complete());
         break;
       case "right":
-        listener.moveRight();
+        listener.moveRight(embed -> jdaMessage.editMessageEmbeds(forPage(embed)).complete());
         break;
       default:
       

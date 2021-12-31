@@ -49,13 +49,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.site.SiteListener;
-import zav.discord.blanc.databind.message.FieldValueObject;
-import zav.discord.blanc.databind.message.MessageEmbedValueObject;
 import zav.discord.blanc.databind.message.PageValueObject;
 import zav.discord.blanc.databind.message.SiteValueObject;
 import zav.jrc.databind.LinkValueObject;
 
 import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
+import static zav.discord.blanc.jda.internal.MessageEmbedUtils.forPage;
 
 /**
  * Utility class for creating Discord messages displaying the relevant information about an entity
@@ -366,9 +365,9 @@ public final class MessageUtils {
     return messageBuilder.build();
   }
   
-  public static Message forSite(SiteListener listener, SiteValueObject... sites) {
+  public static Message forSite(SiteListener listener, List<SiteValueObject> sites) {
     ActionRow[] actionRows = SiteUtils.getActionRows(listener, sites);
-    PageValueObject mainPage = sites[0].getPages().get(0);
+    PageValueObject mainPage = sites.get(0).getPages().get(0);
   
     MessageEmbed messageEmbed = forPage(mainPage);
     
@@ -376,25 +375,5 @@ public final class MessageUtils {
           .setEmbeds(messageEmbed)
           .setActionRows(actionRows)
           .build();
-  }
-  
-  private static MessageEmbed forPage(PageValueObject page) {
-    
-    MessageEmbedValueObject content = (MessageEmbedValueObject) page.getContent();
-    
-    EmbedBuilder builder = new EmbedBuilder();
-    
-    builder.setColor(Color.getColor(content.getColor()));
-    builder.setThumbnail(content.getThumbnail());
-    builder.setTitle(content.getTitle().getName(), content.getTitle().getUrl());
-    builder.setDescription(content.getContent());
-    builder.setTimestamp(content.getTimestamp().toInstant());
-    builder.setAuthor(content.getAuthor().getName(), content.getAuthor().getUrl());
-    
-    for (FieldValueObject field : content.getFields()) {
-      builder.addField(field.getName().toString(), field.getContent(), false);
-    }
-    
-    return builder.build();
   }
 }

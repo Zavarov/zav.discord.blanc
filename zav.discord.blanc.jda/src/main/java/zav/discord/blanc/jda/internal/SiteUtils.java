@@ -28,7 +28,7 @@ import java.util.List;
 
 public final class SiteUtils {
   private SiteUtils() {}
-  public static ActionRow[] getActionRows(SiteListener listener, SiteValueObject... sites) {
+  public static ActionRow[] getActionRows(SiteListener listener, List<SiteValueObject> sites) {
     List<ActionRow> actionRows = new ArrayList<>(2);
     
     actionRows.add(createButtons(listener));
@@ -47,7 +47,7 @@ public final class SiteUtils {
     return ActionRow.of(left, right);
   }
   
-  private static ActionRow createSelectionMenu(SiteValueObject... sites) {
+  private static ActionRow createSelectionMenu(List<SiteValueObject> sites) {
     SelectionMenu.Builder builder = SelectionMenu.create("menuSelection");
     
     for (SiteValueObject site : sites) {

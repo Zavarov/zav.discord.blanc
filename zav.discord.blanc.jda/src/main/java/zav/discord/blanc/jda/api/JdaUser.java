@@ -33,4 +33,9 @@ public class JdaUser implements zav.discord.blanc.api.User {
   public UserValueObject getAbout() {
     return aboutUser(jdaUser);
   }
+  
+  @Override
+  public String getAsMention() {
+    return jdaUser.getAsMention();
+  }
 }
