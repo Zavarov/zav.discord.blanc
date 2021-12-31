@@ -93,6 +93,6 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
-    listener.changeSelection(values.get(0));
+    listener.changeSelection(values.get(0), embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
   }
 }

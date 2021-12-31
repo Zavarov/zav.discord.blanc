@@ -28,5 +28,5 @@ public interface SiteListener {
   
   void moveRight(Consumer<PageValueObject> consumer);
   
-  void changeSelection(String label);
+  void changeSelection(String label, Consumer<PageValueObject> consumer);
 }
