@@ -42,7 +42,7 @@ public abstract class GuildDatabase {
     return SQL.update("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setString(2, guild.getName());
-      stmt.setString(3, guild.getPrefix());
+      stmt.setString(3, guild.getPrefix().orElse(null));
       // Serialize List<String> to String
       stmt.setString(4, SqlQuery.marshal(guild.getBlacklist()));
     });

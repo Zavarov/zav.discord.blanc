@@ -30,6 +30,7 @@
       }
     }
   },
+  "required": ["fields"],
   "$defs": {
     "author": {
       "type" : "object",

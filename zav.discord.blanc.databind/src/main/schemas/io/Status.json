@@ -1,12 +1,13 @@
 {
   "type" : "object",
   "properties" : {
-    "message" : {
+    "messages" : {
       "description" : "A list of all possible status messages.",
       "type" : "array",
       "items": {
         "type": "string"
       }
     }
-  }
+  },
+  "required": ["messages"]
 }

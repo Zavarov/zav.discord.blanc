@@ -13,5 +13,6 @@
       "description" : "Self-assignable role-group.",
       "type" : "string"
     }
-  }
+  },
+  "required" : ["id", "name"]
 }

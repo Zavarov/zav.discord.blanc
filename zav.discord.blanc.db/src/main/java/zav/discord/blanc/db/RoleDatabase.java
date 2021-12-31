@@ -49,7 +49,7 @@ public abstract class RoleDatabase {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, role.getId());
       stmt.setString(3, role.getName());
-      stmt.setString(4, role.getGroup());
+      stmt.setString(4, role.getGroup().orElse(null));
     });
   }
   

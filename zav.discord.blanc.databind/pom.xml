@@ -42,6 +42,7 @@
                     <includeConstructors>true</includeConstructors>
                     <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
                     <usePrimitives>true</usePrimitives>
+                    <useOptionalForGetters>true</useOptionalForGetters>
                 </configuration>
                 <executions>
                     <execution>

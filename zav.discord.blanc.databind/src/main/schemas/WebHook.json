@@ -25,5 +25,5 @@
       }
     }
   },
-  "required" : ["id", "channelId", "name"]
+  "required" : ["id", "channelId", "name", "owner", "subreddits"]
 }

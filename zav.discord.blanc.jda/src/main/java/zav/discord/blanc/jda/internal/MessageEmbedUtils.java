@@ -17,6 +17,7 @@
 package zav.discord.blanc.jda.internal;
 
 import java.awt.Color;
+import java.util.Date;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import zav.discord.blanc.databind.message.FieldValueObject;
@@ -36,12 +37,19 @@ public final class MessageEmbedUtils {
   public static MessageEmbed forEmbed(MessageEmbedValueObject messageEmbed) {
     EmbedBuilder builder = new EmbedBuilder();
   
-    builder.setColor(Color.getColor(messageEmbed.getColor()));
-    builder.setThumbnail(messageEmbed.getThumbnail());
-    builder.setTitle(messageEmbed.getTitle().getName(), messageEmbed.getTitle().getUrl());
-    builder.setDescription(messageEmbed.getContent());
-    builder.setTimestamp(messageEmbed.getTimestamp().toInstant());
-    builder.setAuthor(messageEmbed.getAuthor().getName(), messageEmbed.getAuthor().getUrl());
+    messageEmbed.getThumbnail().ifPresent(builder::setThumbnail);
+    messageEmbed.getContent().ifPresent(builder::setDescription);
+    messageEmbed.getTimestamp().map(Date::toInstant).ifPresent(builder::setTimestamp);
+    
+    builder.setColor(messageEmbed.getColor().map(Color::getColor).orElse(Color.BLACK));
+    
+    messageEmbed.getTitle().ifPresent(title -> {
+      builder.setTitle(title.getName(), title.getUrl().orElse(null));
+    });
+  
+    messageEmbed.getAuthor().ifPresent(author -> {
+      builder.setTitle(author.getName(), author.getUrl().orElse(null));
+    });
   
     for (FieldValueObject field : messageEmbed.getFields()) {
       builder.addField(field.getName().toString(), field.getContent(), false);
