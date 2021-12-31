@@ -69,7 +69,7 @@
           "type" : "boolean"
         }
       },
-      "required" : ["title", "content"]
+      "required" : ["name", "content", "inline"]
     }
   }
 }
