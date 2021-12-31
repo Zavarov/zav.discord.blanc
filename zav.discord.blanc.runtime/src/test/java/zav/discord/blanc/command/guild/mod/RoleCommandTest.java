@@ -56,14 +56,14 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // Has the role been updated?
-    assertThat(roleValueObject.getGroup()).isNull();
+    assertThat(roleValueObject.getGroup()).isEmpty();
   
     // Has the database been updated?
     RoleValueObject dbRole = RoleDatabase.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
-    assertThat(dbRole.getGroup()).isNull();
+    assertThat(dbRole.getGroup()).isEmpty();
   }
   
   /**
@@ -87,14 +87,14 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo(roleGroup);
   
     // Has the role been updated?
-    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).contains(roleGroup);
   
     // Has the database been updated?
     RoleValueObject dbRole = RoleDatabase.get(guildId, roleId);
   
     assertThat(dbRole.getId()).isEqualTo(roleId);
     assertThat(dbRole.getName()).isEqualTo(roleName);
-    assertThat(dbRole.getGroup()).isEqualTo(roleGroup);
+    assertThat(dbRole.getGroup()).contains(roleGroup);
   }
   
   /**
@@ -119,7 +119,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(groupCaptor.getValue()).isEqualTo("foo");
   
     // The role group shouldn't have been modified
-    assertThat(roleValueObject.getGroup()).isEqualTo("foo");
+    assertThat(roleValueObject.getGroup()).contains("foo");
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));
@@ -147,7 +147,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // The role group shouldn't have been modified
-    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).contains(roleGroup);
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));
@@ -176,7 +176,7 @@ public class RoleCommandTest extends AbstractCommandTest {
     assertThat(roleCaptor.getValue()).isEqualTo(roleName);
   
     // The role group shouldn't have been modified
-    assertThat(roleValueObject.getGroup()).isEqualTo(roleGroup);
+    assertThat(roleValueObject.getGroup()).contains(roleGroup);
   
     // The database shouldn't have been updated
     assertThrows(NoSuchElementException.class, () -> RoleDatabase.get(guildId, roleId));

@@ -1,6 +1,7 @@
 package zav.discord.blanc.command.guild;
 
 import com.google.common.cache.LoadingCache;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ public class AssignCommandTest extends AbstractCommandTest {
     // User may already have a role in the same group
     roleValueObjectMock = mock(RoleValueObject.class);
     roleMock = mock(Role.class);
-    when(roleValueObjectMock.getGroup()).thenReturn(roleGroup);
+    when(roleValueObjectMock.getGroup()).thenReturn(Optional.of(roleGroup));
     when(roleMock.getAbout()).thenReturn(roleValueObjectMock);
   }
   

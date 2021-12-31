@@ -71,13 +71,13 @@ public class AssignCommand extends AbstractGuildCommand {
         if (isAssigned()) {
           // Remove role
           author.removeRole(myRoleData);
-          channel.send("You no longer have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup());
+          channel.send("You no longer have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup().orElseThrow());
         } else {
           // Assign role
           Collection<RoleValueObject> rolesToRemove = getConflictingRoles();
           Collection<RoleValueObject> rolesToAdd = Collections.singleton(myRoleData);
           author.modifyRoles(rolesToAdd, rolesToRemove);
-          channel.send("You now have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup());
+          channel.send("You now have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup().orElseThrow());
         }
       } else {
         // Invalid role
@@ -103,6 +103,6 @@ public class AssignCommand extends AbstractGuildCommand {
   }
   
   private boolean isGrouped() {
-    return myRoleData.getGroup() != null;
+    return myRoleData.getGroup().isPresent();
   }
 }

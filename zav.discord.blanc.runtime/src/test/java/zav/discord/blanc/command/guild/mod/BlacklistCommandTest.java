@@ -61,7 +61,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
-    assertThat(dbGuild.getPrefix()).isEqualTo(guildPrefix);
+    assertThat(dbGuild.getPrefix()).contains(guildPrefix);
     assertThat(dbGuild.getBlacklist()).containsExactly("bar");
   }
   
@@ -97,7 +97,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
-    assertThat(dbGuild.getPrefix()).isEqualTo(guildPrefix);
+    assertThat(dbGuild.getPrefix()).contains(guildPrefix);
     assertThat(dbGuild.getBlacklist()).isEmpty();
   }
   

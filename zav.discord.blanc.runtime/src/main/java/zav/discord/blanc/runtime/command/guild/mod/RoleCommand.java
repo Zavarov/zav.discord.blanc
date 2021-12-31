@@ -58,13 +58,13 @@ public class RoleCommand extends AbstractGuildCommand {
     } else if (!guild.canInteract(guild.getSelfMember(), myRoleData)) {
       channel.send("I need to be able to interact with the role \"%s\".", myRoleData.getName());
     // The role is in this group -> Ungroup
-    } else if (myGroup.equals(myRoleData.getGroup())) {
+    } else if (myGroup.equals(myRoleData.getGroup().orElse(null))) {
       myRoleData.setGroup(null);
       channel.send("Ungrouped role \"%s\".", myRoleData.getName());
       RoleDatabase.put(myGuildData, myRoleData);
     // The role is in a different group
-    } else if (myRoleData.getGroup() != null) {
-      channel.send("The role \"%s\" is already grouped under \"%s\".", myRoleData.getName(), myRoleData.getGroup());
+    } else if (myRoleData.getGroup().isPresent()) {
+      channel.send("The role \"%s\" is already grouped under \"%s\".", myRoleData.getName(), myRoleData.getGroup().orElseThrow());
     // Everything OK, make role self-assignable
     } else {
       myRoleData.setGroup(myGroup);

@@ -49,14 +49,14 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("foo");
     
     // Has the guild been updated?
-    assertThat(guildValueObject.getPrefix()).isEqualTo("foo");
+    assertThat(guildValueObject.getPrefix()).contains("foo");
     
     // Has the database been updated?
     GuildValueObject dbGuild = GuildDatabase.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
-    assertThat(dbGuild.getPrefix()).isEqualTo("foo");
+    assertThat(dbGuild.getPrefix()).contains("foo");
     assertThat(dbGuild.getBlacklist()).isEmpty();
   }
   
@@ -77,14 +77,14 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(msgCaptor.getValue()).isEqualTo("Removed the custom prefix.");
   
     // Has the guild been updated?
-    assertThat(guildValueObject.getPrefix()).isNull();
+    assertThat(guildValueObject.getPrefix()).isEmpty();
   
     // Has the database been updated?
     GuildValueObject dbGuild = GuildDatabase.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
-    assertThat(dbGuild.getPrefix()).isNull();
+    assertThat(dbGuild.getPrefix()).isEmpty();
     assertThat(dbGuild.getBlacklist()).isEmpty();
   }
   

@@ -17,6 +17,7 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
@@ -47,7 +48,12 @@ public class AvatarCommand extends AbstractCommand {
   
   @Override
   public void run() throws IOException {
-    String attachment = myMessageData.getAttachment();
+    @Nullable String attachment = myMessageData.getAttachment().orElse(null);
+    
+    if (attachment == null) {
+      channel.send("Please attach an image to the command.");
+      return;
+    }
     
     byte[] data = Base64.getDecoder().decode(attachment);
     try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
