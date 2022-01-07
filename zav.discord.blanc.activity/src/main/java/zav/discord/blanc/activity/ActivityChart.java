@@ -34,6 +34,7 @@ import vartas.chart.line.$factory.LineChartFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
 import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.TextChannelValueObject;
 import zav.discord.blanc.databind.activity.DataPointValueObject;
 
@@ -50,8 +51,8 @@ public class ActivityChart {
         .expireAfterWrite(Duration.ofDays(1))
         .build();
     
-  public void add(DataPointValueObject data) {
-    this.entries.put(LocalDateTime.now(), data);
+  public void add(LocalDateTime date, DataPointValueObject data) {
+    this.entries.put(date, data);
   }
   
   /**
@@ -76,7 +77,7 @@ public class ActivityChart {
      * @param guild A view over a single guild.
      * @return A reference to this builder instance.
      */
-    public Builder withGuild(Guild guild) {
+    public Builder withGuild(GuildValueObject guild) {
       this.chart = LineChartFactory.create(
             JFreeLineChart::new,
             ChronoUnit.MINUTES,
@@ -84,7 +85,7 @@ public class ActivityChart {
             "Time (UTC)",
             "#Messages/min",
             Optional.of("Members"),
-            guild.getAbout().getName()
+            guild.getName()
       );
       return this;
     }

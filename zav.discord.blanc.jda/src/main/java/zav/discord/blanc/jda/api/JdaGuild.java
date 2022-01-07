@@ -27,6 +27,7 @@ import static zav.discord.blanc.jda.internal.ResolverUtils.resolveTextChannel;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -134,7 +135,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
     dp.setMembersCount(membersCount);
     dp.setMembersOnline(membersOnline);
     
-    activityChart.add(dp);
+    activityChart.add(LocalDateTime.now(), dp);
   }
   
   @Override
@@ -159,7 +160,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   @Override
   public BufferedImage getActivity(List<TextChannelValueObject> channels) {
     return activityChart.new Builder()
-          .withGuild(this)
+          .withGuild(getAbout())
           .withChannels(channels)
           .build(new Rectangle(800, 600));
   }
