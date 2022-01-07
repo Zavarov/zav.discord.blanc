@@ -23,6 +23,9 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 
+/**
+ * A module for injecting all fields of a private command.
+ */
 public class JdaPrivateMessageModule  extends AbstractModule {
   
   private final Message jdaMessage;

@@ -43,8 +43,20 @@ public enum Rank {
     effectiveRanks.put(Rank.ROOT, EnumSet.allOf(Rank.class));
   }
   
+  /**
+   * Calculates all ranks that are represented by the argument. In addition to ranks directly
+   * matching provided names, all transitive ranks are included as well. For example,
+   * {@link Rank#ROOT} will always include all other ranks.<br>
+   * The mapping is {@code case-insensitive}.
+   *
+   * @param ranks A collection of rank names.
+   * @return A list of effective ranks.
+   */
   public static Set<Rank> getEffectiveRank(Collection<String> ranks) {
-    Set<Rank> source = ranks.stream().map(Rank::valueOf).collect(Collectors.toSet());
+    Set<Rank> source = ranks.stream()
+          .map(String::toUpperCase)
+          .map(Rank::valueOf)
+          .collect(Collectors.toSet());
     Set<Rank> target = new HashSet<>();
     
     for (Rank userRank : source) {

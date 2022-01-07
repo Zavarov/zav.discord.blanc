@@ -19,6 +19,12 @@ package zav.discord.blanc.api.site;
 import java.util.function.Consumer;
 import zav.discord.blanc.databind.message.PageValueObject;
 
+/**
+ * Interface for message components. Every command implementing this interface will be notified
+ * whenever an user interacts with the page that is displayed.
+ *
+ * @see <a href="https://discord.com/developers/docs/interactions/message-components">here</a>
+ */
 public interface SiteListener {
   boolean canMoveLeft();
   

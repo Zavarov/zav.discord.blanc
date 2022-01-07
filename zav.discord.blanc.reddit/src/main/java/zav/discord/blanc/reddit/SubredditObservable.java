@@ -1,6 +1,5 @@
 package zav.discord.blanc.reddit;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,9 +9,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
 import zav.jrc.api.Reddit;
+import zav.jrc.api.Subreddit;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.listener.observer.SubredditObserver;
-import zav.jrc.api.Subreddit;
 
 /**
  * Base class for all Reddit feeds.<br>

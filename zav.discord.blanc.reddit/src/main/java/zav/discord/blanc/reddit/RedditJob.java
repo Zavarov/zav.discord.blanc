@@ -23,6 +23,12 @@ import zav.discord.blanc.reddit.internal.ArgumentImpl;
 public class RedditJob implements Runnable {
   private static final Logger LOGGER = LogManager.getLogger(RedditJob.class);
   
+  /**
+   * Creates listener for all text channel and webhooks that have been stored in the database.
+   *
+   * @param client The application client over all shards.
+   * @throws SQLException If an SQL request to the database failed.
+   */
   public RedditJob(Client client) throws SQLException {
     for (Shard shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {

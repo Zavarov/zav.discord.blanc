@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,21 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.api;
+@NonNullByDefault
+package zav.discord.blanc.command.guice;
 
-import javax.inject.Inject;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.managers.Presence;
-
-/**
- * Implementation of the user presence in the current shard using JDA.
- */
-public class JdaPresence implements zav.discord.blanc.api.Presence {
-  @Inject
-  private Presence jdaPresence;
-  
-  @Override
-  public void setActivity(String activity) {
-    jdaPresence.setActivity(Activity.playing(activity));
-  }
-}
+import org.eclipse.jdt.annotation.NonNullByDefault;

@@ -33,7 +33,19 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.managers.Presence;
-import zav.discord.blanc.jda.api.*;
+import zav.discord.blanc.jda.api.JdaGuild;
+import zav.discord.blanc.jda.api.JdaGuildMessage;
+import zav.discord.blanc.jda.api.JdaMember;
+import zav.discord.blanc.jda.api.JdaPresence;
+import zav.discord.blanc.jda.api.JdaPrivateChannel;
+import zav.discord.blanc.jda.api.JdaPrivateMessage;
+import zav.discord.blanc.jda.api.JdaRole;
+import zav.discord.blanc.jda.api.JdaSelfMember;
+import zav.discord.blanc.jda.api.JdaSelfUser;
+import zav.discord.blanc.jda.api.JdaShard;
+import zav.discord.blanc.jda.api.JdaTextChannel;
+import zav.discord.blanc.jda.api.JdaUser;
+import zav.discord.blanc.jda.api.JdaWebHook;
 
 /**
  * Utility class for instantiating all of the API implementations using Guice.

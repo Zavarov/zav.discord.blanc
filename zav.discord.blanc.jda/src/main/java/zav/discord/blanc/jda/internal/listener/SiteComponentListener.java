@@ -31,6 +31,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.site.SiteListener;
 
+/**
+ * The listener for notifying the message components of a command whenever the author interacts with
+ * it.
+ */
 public class SiteComponentListener extends ListenerAdapter {
   private static final long MAX_CACHE_SIZE = 1024;
   
@@ -68,10 +72,16 @@ public class SiteComponentListener extends ListenerAdapter {
     
     switch (id) {
       case "left":
-        listener.moveLeft(embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
+        listener.moveLeft(embed -> event.getInteraction()
+              .deferEdit()
+              .setEmbeds(forPage(embed))
+              .complete());
         break;
       case "right":
-        listener.moveRight(embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
+        listener.moveRight(embed -> event.getInteraction()
+              .deferEdit()
+              .setEmbeds(forPage(embed))
+              .complete());
         break;
       default:
     }
@@ -93,6 +103,9 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
-    listener.changeSelection(values.get(0), embed -> event.getInteraction().deferEdit().setEmbeds(forPage(embed)).complete());
+    listener.changeSelection(values.get(0), embed -> event.getInteraction()
+          .deferEdit()
+          .setEmbeds(forPage(embed))
+          .complete());
   }
 }

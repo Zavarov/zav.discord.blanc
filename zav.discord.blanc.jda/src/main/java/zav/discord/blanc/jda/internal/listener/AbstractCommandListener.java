@@ -16,10 +16,9 @@
 
 package zav.discord.blanc.jda.internal.listener;
 
+import java.util.List;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,9 +26,6 @@ import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Command;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Abstract base class for both the guild and private command listener.

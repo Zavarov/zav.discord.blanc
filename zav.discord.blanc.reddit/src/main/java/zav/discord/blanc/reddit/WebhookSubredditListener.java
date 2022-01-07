@@ -1,8 +1,7 @@
 package zav.discord.blanc.reddit;
 
-import java.util.Objects;
-
 import com.google.inject.Inject;
+import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.WebHook;
 import zav.jrc.databind.LinkValueObject;

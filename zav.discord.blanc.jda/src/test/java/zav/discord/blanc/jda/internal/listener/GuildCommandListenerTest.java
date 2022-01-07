@@ -31,6 +31,9 @@ import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.jda.AbstractTest;
 
+/**
+ * Checks whether a guild command is correctly instantiated when a guild message is received.
+ */
 public class GuildCommandListenerTest extends AbstractTest {
   private GuildCommandListener listener;
   private GuildMessageReceivedEvent event;
@@ -46,6 +49,9 @@ public class GuildCommandListenerTest extends AbstractTest {
     Commands.clear();
   }
   
+  /**
+   * Instantiates a new guild message event that will trigger the test command.
+   */
   @BeforeEach
   public void setUp() {
     shard = mock(Shard.class);

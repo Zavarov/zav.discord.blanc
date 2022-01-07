@@ -31,6 +31,9 @@ import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.jda.AbstractTest;
 
+/**
+ * Checks whether a private command is correctly instantiated when a private message is received.
+ */
 public class PrivateCommandListenerTest extends AbstractTest {
   private PrivateCommandListener listener;
   private PrivateMessageReceivedEvent event;
@@ -46,6 +49,9 @@ public class PrivateCommandListenerTest extends AbstractTest {
     Commands.clear();
   }
   
+  /**
+   * Instantiates a new private message event that will trigger the test command.
+   */
   @BeforeEach
   public void setUp() {
     shard = mock(Shard.class);

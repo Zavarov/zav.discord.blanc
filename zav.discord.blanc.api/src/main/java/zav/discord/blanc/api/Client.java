@@ -18,7 +18,11 @@ package zav.discord.blanc.api;
 
 import java.util.List;
 
+/**
+ * The application instance over all shards.
+ */
 public interface Client {
   List<Shard> getShards();
+  
   Shard getShard(long guildId);
 }

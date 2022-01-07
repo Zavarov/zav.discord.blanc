@@ -24,6 +24,9 @@ import zav.discord.blanc.databind.message.FieldValueObject;
 import zav.discord.blanc.databind.message.MessageEmbedValueObject;
 import zav.discord.blanc.databind.message.PageValueObject;
 
+/**
+ * Utility class for creating humanly-readable embedded messages from data transfer objects.
+ */
 public final class MessageEmbedUtils {
   
   private MessageEmbedUtils() {
@@ -34,6 +37,12 @@ public final class MessageEmbedUtils {
     return forEmbed((MessageEmbedValueObject) page.getContent());
   }
   
+  /**
+   * Translates a message embed DTO into a JDA message embed.
+   *
+   * @param messageEmbed A message embed DTO.
+   * @return A JDA message embed.
+   */
   public static MessageEmbed forEmbed(MessageEmbedValueObject messageEmbed) {
     EmbedBuilder builder = new EmbedBuilder();
   

@@ -16,11 +16,13 @@
 
 package zav.discord.blanc.reddit.internal;
 
-import zav.discord.blanc.api.Argument;
-
 import java.math.BigDecimal;
 import java.util.Optional;
+import zav.discord.blanc.api.Argument;
 
+/**
+ * Helper class for resolving Discord entities based on their id.
+ */
 public class ArgumentImpl implements Argument {
   private final long id;
   
@@ -28,11 +30,22 @@ public class ArgumentImpl implements Argument {
     this.id = id;
   }
   
+  /**
+   * Returns the value of a Discord snowflake item.
+   *
+   * @return An instance of {@link BigDecimal} corresponding to the constructor argument.
+   * @see #id
+   */
   @Override
   public Optional<BigDecimal> asNumber() {
     return Optional.of(BigDecimal.valueOf(id));
   }
   
+  /**
+   * This implementation only supports numbers, therefore a String representation doesn't exist.
+   *
+   * @return {@link Optional#empty()}.
+   */
   @Override
   public Optional<String> asString() {
     return Optional.empty();

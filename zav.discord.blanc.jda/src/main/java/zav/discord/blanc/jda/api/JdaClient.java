@@ -17,14 +17,18 @@
 package zav.discord.blanc.jda.api;
 
 import com.google.inject.Injector;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.jda.JdaShardSupplier;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Implementation of the client interface over JDA shards.<br>
+ * When this class is instantiated via Guice, it will automatically create a number of shards equal
+ * to the number specified in the configuration file.
+ */
 public class JdaClient implements Client {
   private final List<Shard> shards = new ArrayList<>();
   

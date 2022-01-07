@@ -25,6 +25,9 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
+/**
+ * A module for injecting all fields of a guild command.
+ */
 public class JdaGuildMessageModule extends AbstractModule {
   
   private final Message jdaMessage;

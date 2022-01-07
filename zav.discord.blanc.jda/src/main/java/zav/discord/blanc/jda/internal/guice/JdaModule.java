@@ -17,14 +17,14 @@
 package zav.discord.blanc.jda.internal.guice;
 
 import com.google.inject.AbstractModule;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * The module containing the fields of each individual shard.
+ */
 public class JdaModule extends AbstractModule {
-  // Threads are shared since all shards run on the same hardware
-  // TODO Revisit when shards run on separate systems.
   private static final ScheduledExecutorService queue = Executors.newScheduledThreadPool(16);
   
   @Override

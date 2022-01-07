@@ -5,11 +5,10 @@ import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.util.Collections;
-import java.util.Optional;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.util.Collections;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,15 +87,13 @@ public class ParserTest {
     when(guildView.getGuild()).thenReturn(mock(Guild.class));
     when(guildView.getShard()).thenReturn(mock(Shard.class));
     when(guildView.getAbout()).thenReturn(guildMessage);
-  
-    // Mock parser
-    Injector injector = Guice.createInjector();
     
     parser = mock(AbstractParser.class);
     when(parser.parse(privateView)).thenCallRealMethod();
     when(parser.parse(guildView)).thenCallRealMethod();
   
     // Inject injector into the parser
+    Injector injector = Guice.createInjector();
     injector.injectMembers(parser);
   
     doReturn(privateCommand).when(parser).parse(privateMessage);

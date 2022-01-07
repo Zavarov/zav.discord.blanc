@@ -37,10 +37,10 @@ import zav.discord.blanc.jda.api.JdaShard;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 import zav.discord.blanc.jda.internal.guice.JdaModule;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
-import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
 import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
 import zav.discord.blanc.jda.internal.listener.GuildCommandListener;
 import zav.discord.blanc.jda.internal.listener.PrivateCommandListener;
+import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
 
 /**
  * Utility class for initializing Discord shards.

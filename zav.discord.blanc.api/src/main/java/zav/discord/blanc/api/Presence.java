@@ -16,6 +16,9 @@
 
 package zav.discord.blanc.api;
 
+/**
+ * The user presence on the current shard.
+ */
 public interface Presence {
   void setActivity(String activity);
 }

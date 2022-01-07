@@ -20,11 +20,10 @@ import static zav.discord.blanc.jda.internal.DatabaseUtils.aboutWebHook;
 import static zav.discord.blanc.jda.internal.MessageUtils.forLink;
 
 import club.minnced.discord.webhook.external.JDAWebhookClient;
-import javax.inject.Inject;
-
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Webhook;

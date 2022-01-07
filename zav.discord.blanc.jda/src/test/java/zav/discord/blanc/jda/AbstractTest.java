@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -51,7 +50,9 @@ import zav.discord.blanc.command.parser.Parser;
 import zav.discord.blanc.databind.MessageValueObject;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 
-
+/**
+ * Base class for all JUnit tests.
+ */
 @SuppressWarnings("all")
 public abstract class AbstractTest {
   protected static final String commandName = "test";
@@ -97,6 +98,9 @@ public abstract class AbstractTest {
     GuiceUtils.setInjector(null);
   }
   
+  /**
+   * Instantiates all instances of the API required for testing.
+   */
   @BeforeEach
   public void setUpMocks() {
     jda = mock(JDA.class);

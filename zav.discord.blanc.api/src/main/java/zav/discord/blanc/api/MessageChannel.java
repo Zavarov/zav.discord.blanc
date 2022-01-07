@@ -17,7 +17,6 @@
 package zav.discord.blanc.api;
 
 import java.awt.image.BufferedImage;
-
 import java.util.List;
 import zav.discord.blanc.api.site.SiteListener;
 import zav.discord.blanc.databind.GuildValueObject;

@@ -16,9 +16,11 @@
 
 package zav.discord.blanc.jda.internal;
 
+import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
 import static net.dv8tion.jda.api.entities.MessageEmbed.DESCRIPTION_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.URL_MAX_LENGTH;
+import static zav.discord.blanc.jda.internal.MessageEmbedUtils.forPage;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -52,9 +54,6 @@ import zav.discord.blanc.api.site.SiteListener;
 import zav.discord.blanc.databind.message.PageValueObject;
 import zav.discord.blanc.databind.message.SiteValueObject;
 import zav.jrc.databind.LinkValueObject;
-
-import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
-import static zav.discord.blanc.jda.internal.MessageEmbedUtils.forPage;
 
 /**
  * Utility class for creating Discord messages displaying the relevant information about an entity
@@ -365,6 +364,15 @@ public final class MessageUtils {
     return messageBuilder.build();
   }
   
+  /**
+   * Creates the message containing the main page and the action rows corresponding to the
+   * arguments.
+   *
+   * @param listener The listener which should be notified whenever the user interacts with this
+   *                message.
+   * @param sites A list of all sites that can be displayed by this message.
+   * @return A JDA message embed displaying the site.
+   */
   public static Message forSite(SiteListener listener, List<SiteValueObject> sites) {
     ActionRow[] actionRows = SiteUtils.getActionRows(listener, sites);
     PageValueObject mainPage = sites.get(0).getPages().get(0);
