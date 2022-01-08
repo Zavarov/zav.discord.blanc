@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectTextChannel;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,7 @@ public class JdaTextChannelTest extends AbstractTest {
   
   @Test
   public void testGetMessage() {
-    assertThat(textChannel.getMessage(of(messageId))).isNotNull();
+    assertThat(textChannel.getMessage(messageId)).isNotNull();
   }
   
   @Test

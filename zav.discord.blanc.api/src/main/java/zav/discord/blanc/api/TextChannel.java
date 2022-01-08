@@ -26,7 +26,7 @@ public interface TextChannel extends MessageChannel {
   TextChannelDto getAbout();
   
   @Override
-  GuildMessage getMessage(Argument argument);
+  GuildMessage getMessage(long messageId);
   
   WebHook getWebHook(String argument, boolean create);
   

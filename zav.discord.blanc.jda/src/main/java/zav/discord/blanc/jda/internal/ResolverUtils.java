@@ -141,20 +141,11 @@ public final class ResolverUtils {
    * A message can only be identified by its id.
    *
    * @param messageChannel The channel containing the requested message.
-   * @param argument A message id.
+   * @param messageId A message id.
    * @return A message within the provided channel.
-   * @throws NoSuchElementException If no message matching the provided argument exists in the
-   *                                provided channel.
    */
-  public static Message resolveMessage(MessageChannel messageChannel, Argument argument) throws NoSuchElementException {
-    Optional<Message> jdaMessage = ArgumentUtils.resolveById(argument, id -> messageChannel.retrieveMessageById(id).complete());
-  
-    if (jdaMessage.isPresent()) {
-      return jdaMessage.get();
-    }
-  
-    LOGGER.error("No matching message for {} has been found.", argument);
-    throw new NoSuchElementException();
+  public static Message resolveMessage(MessageChannel messageChannel, long messageId) {
+    return messageChannel.retrieveMessageById(messageId).complete();
   }
   
   /**

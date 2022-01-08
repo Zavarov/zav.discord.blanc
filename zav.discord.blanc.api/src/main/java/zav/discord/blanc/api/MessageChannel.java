@@ -31,7 +31,7 @@ import zav.jrc.databind.LinkValueObject;
  */
 public interface MessageChannel {
   
-  Message getMessage(Argument argument);
+  Message getMessage(long messageId);
   
   default void send(String format, Object... args) {
     send(String.format(format, args));

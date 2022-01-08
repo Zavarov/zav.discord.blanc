@@ -20,7 +20,6 @@ import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMessage;
 
 import net.dv8tion.jda.api.entities.Message;
-import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.PrivateChannel;
 
 
@@ -30,8 +29,8 @@ import zav.discord.blanc.api.PrivateChannel;
 public class JdaPrivateChannel extends JdaMessageChannel implements PrivateChannel {
   
   @Override
-  public JdaPrivateMessage getMessage(Argument argument) {
-    Message jdaMessage = resolveMessage(jdaMessageChannel, argument);
+  public JdaPrivateMessage getMessage(long messageId) {
+    Message jdaMessage = resolveMessage(jdaMessageChannel, messageId);
     
     return injectPrivateMessage(jdaMessage);
   }

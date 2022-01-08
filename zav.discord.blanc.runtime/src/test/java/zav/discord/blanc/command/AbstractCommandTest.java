@@ -3,6 +3,7 @@ package zav.discord.blanc.command;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -232,7 +233,7 @@ public abstract class AbstractCommandTest {
   
   private void setUpTextChannelView() {
     channelView = mock(TextChannel.class);
-    when(channelView.getMessage(argThat(IdMatcher.of(messageId)))).thenReturn(messageView);
+    when(channelView.getMessage(eq(messageId))).thenReturn(messageView);
     when(channelView.getWebHook(any())).thenReturn(webHook);
     when(channelView.getWebHook(any(), anyBoolean())).thenReturn(webHook);
     when(channelView.getAbout()).thenReturn(channelDto);

@@ -21,5 +21,5 @@ package zav.discord.blanc.api;
  */
 public interface PrivateChannel extends MessageChannel {
   @Override
-  PrivateMessage getMessage(Argument argument);
+  PrivateMessage getMessage(long messageId);
 }

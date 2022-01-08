@@ -17,7 +17,6 @@
 package zav.discord.blanc.jda.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static zav.discord.blanc.jda.internal.ArgumentImpl.of;
 import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateChannel;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +39,6 @@ public class JdaPrivateChannelTest extends AbstractTest {
   
   @Test
   public void testGetMessage() {
-    assertThat(privateChannel.getMessage(of(messageId))).isNotNull();
+    assertThat(privateChannel.getMessage(messageId)).isNotNull();
   }
 }

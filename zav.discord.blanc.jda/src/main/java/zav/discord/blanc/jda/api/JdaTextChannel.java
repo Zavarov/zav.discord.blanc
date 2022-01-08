@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.entities.Webhook;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.databind.UserDto;
 
@@ -50,8 +49,8 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
   }
   
   @Override
-  public JdaGuildMessage getMessage(Argument argument) {
-    Message jdaMessage = resolveMessage(jdaTextChannel, argument);
+  public JdaGuildMessage getMessage(long messageId) {
+    Message jdaMessage = resolveMessage(jdaTextChannel, messageId);
 
     return injectGuildMessage(jdaMessage);
   }
