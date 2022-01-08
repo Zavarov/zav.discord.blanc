@@ -13,13 +13,13 @@ import zav.discord.blanc.api.User;
  * Commands can be either executed in a guild or private channel.
  */
 public abstract class AbstractCommand implements Command {
-  @Inject @Nullable
+  @Inject
   protected Shard shard;
-  @Inject @Nullable
+  @Inject
   protected MessageChannel channel;
-  @Inject @Nullable
+  @Inject
   protected User author;
-  @Inject @Nullable
+  @Inject
   protected Message message;
   
   private final Rank requiredRank;
@@ -34,8 +34,6 @@ public abstract class AbstractCommand implements Command {
   
   @Override
   public void validate() throws InvalidCommandException {
-    assert author != null;
-  
     Set<Rank> effectiveRanks = Rank.getEffectiveRank(author.getAbout().getRanks());
     
     // Does the user have the required rank?

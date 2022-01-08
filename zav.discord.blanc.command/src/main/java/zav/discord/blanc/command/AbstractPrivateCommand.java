@@ -10,9 +10,9 @@ import zav.discord.blanc.api.PrivateMessage;
  */
 public abstract class AbstractPrivateCommand extends AbstractCommand {
   @Inject
-  protected @Nullable PrivateChannel channel;
+  protected PrivateChannel channel;
   @Inject
-  protected @Nullable PrivateMessage message;
+  protected PrivateMessage message;
   
   public AbstractPrivateCommand(Rank rank) {
     super(rank);

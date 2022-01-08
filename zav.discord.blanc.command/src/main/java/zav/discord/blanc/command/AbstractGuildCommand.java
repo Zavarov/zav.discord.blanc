@@ -15,13 +15,13 @@ import zav.discord.blanc.api.TextChannel;
  */
 public abstract class AbstractGuildCommand extends AbstractCommand {
   @Inject
-  protected @Nullable Guild guild;
+  protected Guild guild;
   @Inject
-  protected @Nullable TextChannel channel;
+  protected TextChannel channel;
   @Inject
-  protected @Nullable Member author;
+  protected Member author;
   @Inject
-  protected @Nullable GuildMessage message;
+  protected GuildMessage message;
   
   private final Set<Permission> permissions;
   
@@ -41,8 +41,6 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   @Override
   public void validate() throws InvalidCommandException {
     super.validate();
-    
-    assert author != null;
     
     // Does the user have the required permissions?
     if (!author.getPermissions().containsAll(permissions)) {
