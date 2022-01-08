@@ -1,38 +1,15 @@
 package zav.discord.blanc.command;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.ArgumentMatcher;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.*;
-import zav.discord.blanc.db.GuildDatabase;
-import zav.discord.blanc.db.RoleDatabase;
-import zav.discord.blanc.db.TextChannelDatabase;
-import zav.discord.blanc.db.UserDatabase;
-import zav.discord.blanc.db.WebHookDatabase;
-import zav.discord.blanc.mc.MontiCoreCommandParser;
-import zav.discord.blanc.reddit.SubredditObservable;
-import zav.discord.blanc.runtime.internal.CommandResolver;
-import zav.discord.blanc.api.GuildMessage;
-import zav.discord.blanc.api.Guild;
-import zav.discord.blanc.api.Member;
-import zav.discord.blanc.api.Role;
-import zav.discord.blanc.api.SelfMember;
-import zav.discord.blanc.api.SelfUser;
-import zav.discord.blanc.api.Shard;
-import zav.discord.blanc.api.TextChannel;
-import zav.discord.blanc.api.WebHook;
-import zav.jrc.client.Client;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -41,11 +18,43 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentMatcher;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Guild;
+import zav.discord.blanc.api.GuildMessage;
+import zav.discord.blanc.api.Member;
+import zav.discord.blanc.api.Role;
+import zav.discord.blanc.api.SelfMember;
+import zav.discord.blanc.api.SelfUser;
+import zav.discord.blanc.api.Shard;
+import zav.discord.blanc.api.TextChannel;
+import zav.discord.blanc.api.WebHook;
+import zav.discord.blanc.command.parser.Parser;
+import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.db.RoleDatabase;
+import zav.discord.blanc.db.TextChannelDatabase;
+import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.db.WebHookDatabase;
+import zav.discord.blanc.mc.MontiCoreCommandParser;
+import zav.discord.blanc.reddit.SubredditObservable;
+import zav.discord.blanc.runtime.internal.CommandResolver;
+import zav.jrc.client.Client;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-
+/**
+ * Base class for all JUnit command tests.
+ */
 public abstract class AbstractCommandTest {
   protected UserValueObject userValueObject;
   protected UserValueObject selfUserValueObject;
@@ -247,6 +256,9 @@ public abstract class AbstractCommandTest {
     when(shard.getGuild(argThat(IdMatcher.of(guildId)))).thenReturn(guild);
   }
   
+  /**
+   * Initializes mocks for all Discord entities.
+   */
   @BeforeEach
   public void setUpMocks() {
     setUpGuild();
@@ -273,6 +285,11 @@ public abstract class AbstractCommandTest {
   
   // -------------------------------------------------------------------------------------------- //
   
+  /**
+   * Initializes all databases.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @BeforeEach
   public void setUpDb() throws SQLException {
     GuildDatabase.create();
@@ -282,6 +299,11 @@ public abstract class AbstractCommandTest {
     UserDatabase.create();
   }
   
+  /**
+   * Removes all databases on the file system.
+   *
+   * @throws IOException if one of the database files couldn't be deleted.
+   */
   @AfterEach
   public void cleanUpDb() throws IOException {
     delete(GUILD_DB);
@@ -291,9 +313,9 @@ public abstract class AbstractCommandTest {
     delete(USER_DB);
   }
   
-  private void delete(Path DB) throws IOException {
-    if(Files.exists(DB)) {
-      Files.delete(DB);
+  private void delete(Path db) throws IOException {
+    if (Files.exists(db)) {
+      Files.delete(db);
     }
   }
   
