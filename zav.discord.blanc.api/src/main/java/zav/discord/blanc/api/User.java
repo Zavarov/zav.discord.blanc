@@ -16,14 +16,14 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Base interface for all functions that are performed on users.
  */
 public interface User {
   
-  UserValueObject getAbout();
+  UserDto getAbout();
   
   String getAsMention();
 }

@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 
 /**
  * Implementation of a message view, backed by JDA.
@@ -34,8 +34,8 @@ public abstract class JdaMessage implements zav.discord.blanc.api.Message {
   protected Message jdaMessage;
   
   @Override
-  public MessageValueObject getAbout() {
-    return new MessageValueObject()
+  public MessageDto getAbout() {
+    return new MessageDto()
           .withId(jdaMessage.getIdLong())
           // TODO
           .withAttachment(null)

@@ -4,9 +4,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
@@ -47,7 +47,7 @@ public abstract class WebHookDatabase {
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(GuildValueObject guild, TextChannelValueObject channel, WebHookValueObject hook) throws SQLException {
+  public static int put(GuildDto guild, TextChannelDto channel, WebHookDto hook) throws SQLException {
     return SQL.update("webhook/InsertWebHook.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, channel.getId());
@@ -72,7 +72,7 @@ public abstract class WebHookDatabase {
    * @throws SQLException If a database error occurred.
    * @throws NoSuchElementException if the database doesn't contain an entry with the specified id.
    */
-  public static WebHookValueObject get(long guildId, long channelId, long hookId) throws SQLException {
+  public static WebHookDto get(long guildId, long channelId, long hookId) throws SQLException {
     List<SqlObject> result = SQL.query("webhook/SelectWebHook.sql", guildId, channelId, hookId);
     
     if (result.isEmpty()) {
@@ -81,7 +81,7 @@ public abstract class WebHookDatabase {
     
     SqlObject hook = transform(result.get(0));
     
-    return SqlQuery.unmarshal(hook, WebHookValueObject.class);
+    return SqlQuery.unmarshal(hook, WebHookDto.class);
   }
   
   /**
@@ -91,12 +91,12 @@ public abstract class WebHookDatabase {
    * @return An unmodifiable list of all web hooks associated with the provided guild id.
    * @throws SQLException If a database error occurred.
    */
-  public static List<WebHookValueObject> getAll(long guildId) throws SQLException {
+  public static List<WebHookDto> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("webhook/SelectAllWebHook.sql", guildId);
     
     return result.stream()
           .map(WebHookDatabase::transform)
-          .map(obj -> SqlQuery.unmarshal(obj, WebHookValueObject.class))
+          .map(obj -> SqlQuery.unmarshal(obj, WebHookDto.class))
           .collect(Collectors.toUnmodifiableList());
   }
   

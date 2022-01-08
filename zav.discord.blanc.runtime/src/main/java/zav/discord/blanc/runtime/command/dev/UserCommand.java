@@ -21,12 +21,12 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 import java.util.List;
 
 public class UserCommand extends AbstractCommand {
-  private UserValueObject myUserData;
+  private UserDto myUserData;
     
   public UserCommand() {
     super(Rank.DEVELOPER);

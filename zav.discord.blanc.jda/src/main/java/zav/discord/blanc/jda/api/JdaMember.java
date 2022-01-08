@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 
 /**
@@ -54,17 +54,17 @@ public class JdaMember extends JdaUser implements zav.discord.blanc.api.Member {
   }
   
   @Override
-  public void modifyRoles(Collection<RoleValueObject> rolesToAdd, Collection<RoleValueObject> rolesToRemove) {
+  public void modifyRoles(Collection<RoleDto> rolesToAdd, Collection<RoleDto> rolesToRemove) {
     Guild jdaGuild = jdaMember.getGuild();
     
     Set<Role> jdaRolesToAdd = rolesToAdd.stream()
-          .map(RoleValueObject::getId)
+          .map(RoleDto::getId)
           .map(jdaGuild::getRoleById)
           .map(Objects::requireNonNull)
           .collect(Collectors.toUnmodifiableSet());
     
     Set<Role> jdaRolesToRemove = rolesToRemove.stream()
-          .map(RoleValueObject::getId)
+          .map(RoleDto::getId)
           .map(jdaGuild::getRoleById)
           .map(Objects::requireNonNull)
           .collect(Collectors.toUnmodifiableSet());

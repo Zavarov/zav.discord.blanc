@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.runtime.command.guild.info.RoleInfoCommand;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -29,10 +29,10 @@ public class RoleInfoCommandTest extends AbstractCommandTest {
   public void testSendGuild() throws Exception {
     command.run();
     
-    ArgumentCaptor<RoleValueObject> roleCaptor = ArgumentCaptor.forClass(RoleValueObject.class);
+    ArgumentCaptor<RoleDto> roleCaptor = ArgumentCaptor.forClass(RoleDto.class);
     
     verify(channelView, times(1)).send(roleCaptor.capture());
     
-    assertThat(roleCaptor.getValue()).isEqualTo(roleValueObject);
+    assertThat(roleCaptor.getValue()).isEqualTo(roleDto);
   }
 }

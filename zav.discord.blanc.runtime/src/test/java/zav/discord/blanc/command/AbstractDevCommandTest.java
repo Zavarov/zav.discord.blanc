@@ -12,7 +12,7 @@ public abstract class AbstractDevCommandTest extends AbstractCommandTest {
   
   @Test
   public void testCheckPermissions() throws InvalidCommandException {
-    userValueObject.setRanks(List.of(Rank.DEVELOPER.name()));
+    userDto.setRanks(List.of(Rank.DEVELOPER.name()));
     
     // No error
     command.validate();

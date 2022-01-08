@@ -42,10 +42,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.activity.ActivityChart;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.activity.DataPointValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.activity.DataPointDto;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
 import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
@@ -64,7 +64,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   }
   
   @Override
-  public GuildValueObject getAbout() {
+  public GuildDto getAbout() {
     return aboutGuild(jdaGuild);
   }
   
@@ -122,7 +122,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   
   @Override
   public void updateActivity() {
-    DataPointValueObject dp = new DataPointValueObject();
+    DataPointDto dp = new DataPointDto();
     
     double activity = GuildActivityListener.getActivity(this);
     long membersCount = jdaGuild.getMemberCount();
@@ -149,7 +149,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   }
   
   @Override
-  public boolean canInteract(zav.discord.blanc.api.Member member, RoleValueObject role) {
+  public boolean canInteract(zav.discord.blanc.api.Member member, RoleDto role) {
     @Nullable Member jdaMember = jdaGuild.getMemberById(member.getAbout().getId());
     @Nullable Role jdaRole = jdaGuild.getRoleById(role.getId());
   
@@ -158,7 +158,7 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   }
   
   @Override
-  public BufferedImage getActivity(List<TextChannelValueObject> channels) {
+  public BufferedImage getActivity(List<TextChannelDto> channels) {
     return activityChart.new Builder()
           .withGuild(getAbout())
           .withChannels(channels)

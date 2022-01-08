@@ -17,7 +17,7 @@
 package zav.discord.blanc.api.site;
 
 import java.util.function.Consumer;
-import zav.discord.blanc.databind.message.PageValueObject;
+import zav.discord.blanc.databind.message.PageDto;
 
 /**
  * Interface for message components. Every command implementing this interface will be notified
@@ -28,11 +28,11 @@ import zav.discord.blanc.databind.message.PageValueObject;
 public interface SiteListener {
   boolean canMoveLeft();
   
-  void moveLeft(Consumer<PageValueObject> consumer);
+  void moveLeft(Consumer<PageDto> consumer);
   
   boolean canMoveRight();
   
-  void moveRight(Consumer<PageValueObject> consumer);
+  void moveRight(Consumer<PageDto> consumer);
   
-  void changeSelection(String label, Consumer<PageValueObject> consumer);
+  void changeSelection(String label, Consumer<PageDto> consumer);
 }

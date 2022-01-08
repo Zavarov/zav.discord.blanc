@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.*;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.PrefixCommand;
 
@@ -49,10 +49,10 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("foo");
     
     // Has the guild been updated?
-    assertThat(guildValueObject.getPrefix()).contains("foo");
+    assertThat(guildDto.getPrefix()).contains("foo");
     
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildDatabase.get(guildId);
+    GuildDto dbGuild = GuildDatabase.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -77,10 +77,10 @@ public class PrefixCommandTest extends AbstractCommandTest {
     assertThat(msgCaptor.getValue()).isEqualTo("Removed the custom prefix.");
   
     // Has the guild been updated?
-    assertThat(guildValueObject.getPrefix()).isEmpty();
+    assertThat(guildDto.getPrefix()).isEmpty();
   
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildDatabase.get(guildId);
+    GuildDto dbGuild = GuildDatabase.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);

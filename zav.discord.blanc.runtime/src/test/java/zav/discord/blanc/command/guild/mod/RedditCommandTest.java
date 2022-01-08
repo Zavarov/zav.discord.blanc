@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.RedditCommand;
 
@@ -45,12 +45,12 @@ public class RedditCommandTest extends AbstractCommandTest {
   
   @Test
   public void testAddSubreddit() throws Exception {
-    webHookValueObject.getSubreddits().remove(webHookSubreddit);
+    webHookDto.getSubreddits().remove(webHookSubreddit);
     
     command.run();
     
     // Has the subreddit been added?
-    assertThat(webHookValueObject.getSubreddits()).contains(webHookSubreddit);
+    assertThat(webHookDto.getSubreddits()).contains(webHookSubreddit);
     
     // Correct message?
     ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
@@ -65,7 +65,7 @@ public class RedditCommandTest extends AbstractCommandTest {
     assertThat(subredditCaptor.getValue()).isEqualTo(webHookSubreddit);
   
     // Has the database been updated?
-    WebHookValueObject dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
+    WebHookDto dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
     assertThat(dbHook.getId()).isEqualTo(webHookId);
     assertThat(dbHook.getName()).isEqualTo(webHookName);
     assertThat(dbHook.getChannelId()).isEqualTo(channelId); // channelId was given as an argument
@@ -78,7 +78,7 @@ public class RedditCommandTest extends AbstractCommandTest {
     command.run();
   
     // Has the subreddit been added?
-    assertThat(webHookValueObject.getSubreddits()).isEmpty();
+    assertThat(webHookDto.getSubreddits()).isEmpty();
   
     // Correct message?
     ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
@@ -93,7 +93,7 @@ public class RedditCommandTest extends AbstractCommandTest {
     assertThat(subredditCaptor.getValue()).isEqualTo(webHookSubreddit);
   
     // Has the database been updated?
-    WebHookValueObject dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
+    WebHookDto dbHook = WebHookDatabase.get(guildId, channelId, webHookId);
     assertThat(dbHook.getId()).isEqualTo(webHookId);
     assertThat(dbHook.getName()).isEqualTo(webHookName);
     assertThat(dbHook.getChannelId()).isEqualTo(channelId); // channelId was given as an argument

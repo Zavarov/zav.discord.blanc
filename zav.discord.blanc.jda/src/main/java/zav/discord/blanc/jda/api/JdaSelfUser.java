@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.SelfUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Implementation of a self-user view, backed by JDA.
@@ -37,7 +37,7 @@ public class JdaSelfUser implements zav.discord.blanc.api.SelfUser {
   protected SelfUser jdaSelfUser;
   
   @Override
-  public UserValueObject getAbout() {
+  public UserDto getAbout() {
     return aboutSelfUser(jdaSelfUser);
   }
   

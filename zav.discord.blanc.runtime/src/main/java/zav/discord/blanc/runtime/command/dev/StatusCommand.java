@@ -30,8 +30,8 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.message.MessageEmbedValueObject;
-import zav.discord.blanc.databind.message.TitleValueObject;
+import zav.discord.blanc.databind.message.MessageEmbedDto;
+import zav.discord.blanc.databind.message.TitleDto;
 
 /**
  * This command shows the status of the bot.
@@ -43,7 +43,7 @@ public class StatusCommand extends AbstractCommand {
   protected static final int MEBI = 1 << 20;
   protected static final double GIGA = 1e9;
   
-  private final MessageEmbedValueObject messageEmbed = new MessageEmbedValueObject();
+  private final MessageEmbedDto messageEmbed = new MessageEmbedDto();
   private final SystemInfo systemInfo = new SystemInfo();
   private final HardwareAbstractionLayer hardware = systemInfo.getHardware();
   
@@ -64,7 +64,7 @@ public class StatusCommand extends AbstractCommand {
   
   private void setTitle() {
     OperatingSystem os = systemInfo.getOperatingSystem();
-    messageEmbed.withTitle(new TitleValueObject().withName(os.toString()));
+    messageEmbed.withTitle(new TitleDto().withName(os.toString()));
   }
   
   private void printCpu() {

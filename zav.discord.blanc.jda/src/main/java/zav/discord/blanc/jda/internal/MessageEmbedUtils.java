@@ -20,9 +20,9 @@ import java.awt.Color;
 import java.util.Date;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import zav.discord.blanc.databind.message.FieldValueObject;
-import zav.discord.blanc.databind.message.MessageEmbedValueObject;
-import zav.discord.blanc.databind.message.PageValueObject;
+import zav.discord.blanc.databind.message.FieldDto;
+import zav.discord.blanc.databind.message.MessageEmbedDto;
+import zav.discord.blanc.databind.message.PageDto;
 
 /**
  * Utility class for creating humanly-readable embedded messages from data transfer objects.
@@ -33,8 +33,8 @@ public final class MessageEmbedUtils {
   
   }
   
-  public static MessageEmbed forPage(PageValueObject page) {
-    return forEmbed((MessageEmbedValueObject) page.getContent());
+  public static MessageEmbed forPage(PageDto page) {
+    return forEmbed((MessageEmbedDto) page.getContent());
   }
   
   /**
@@ -43,7 +43,7 @@ public final class MessageEmbedUtils {
    * @param messageEmbed A message embed DTO.
    * @return A JDA message embed.
    */
-  public static MessageEmbed forEmbed(MessageEmbedValueObject messageEmbed) {
+  public static MessageEmbed forEmbed(MessageEmbedDto messageEmbed) {
     EmbedBuilder builder = new EmbedBuilder();
   
     messageEmbed.getThumbnail().ifPresent(builder::setThumbnail);
@@ -60,7 +60,7 @@ public final class MessageEmbedUtils {
       builder.setTitle(author.getName(), author.getUrl().orElse(null));
     });
   
-    for (FieldValueObject field : messageEmbed.getFields()) {
+    for (FieldDto field : messageEmbed.getFields()) {
       builder.addField(field.getName().toString(), field.getContent(), false);
     }
   

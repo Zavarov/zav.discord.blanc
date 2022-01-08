@@ -6,7 +6,7 @@ import zav.discord.blanc.api.GuildMessage;
 import zav.discord.blanc.api.PrivateMessage;
 import zav.discord.blanc.command.Command;
 import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 
 /**
  * Base interface for all command parser.<br>
@@ -18,7 +18,7 @@ import zav.discord.blanc.databind.MessageValueObject;
  * @see Commands
  */
 public interface Parser {
-  @Nullable IntermediateCommand parse(MessageValueObject content);
+  @Nullable IntermediateCommand parse(MessageDto content);
   
   Optional<? extends Command> parse(GuildMessage source);
   

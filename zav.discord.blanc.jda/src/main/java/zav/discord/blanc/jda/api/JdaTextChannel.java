@@ -32,8 +32,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Implementation of a text channel view, backed by JDA.
@@ -45,7 +45,7 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
   protected TextChannel jdaTextChannel;
   
   @Override
-  public TextChannelValueObject getAbout() {
+  public TextChannelDto getAbout() {
     return aboutTextChannel(jdaTextChannel);
   }
   
@@ -80,7 +80,7 @@ public class JdaTextChannel extends JdaMessageChannel implements zav.discord.bla
   }
   
   @Override
-  public void send(UserValueObject user) {
+  public void send(UserDto user) {
     @Nullable Member jdaMember = jdaTextChannel.getGuild().getMemberById(user.getId());
     
     // In case someone wants to show information about a user who isn't in this guild

@@ -51,8 +51,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.site.SiteListener;
-import zav.discord.blanc.databind.message.PageValueObject;
-import zav.discord.blanc.databind.message.SiteValueObject;
+import zav.discord.blanc.databind.message.PageDto;
+import zav.discord.blanc.databind.message.SiteDto;
 import zav.jrc.databind.LinkValueObject;
 
 /**
@@ -373,9 +373,9 @@ public final class MessageUtils {
    * @param sites A list of all sites that can be displayed by this message.
    * @return A JDA message embed displaying the site.
    */
-  public static Message forSite(SiteListener listener, List<SiteValueObject> sites) {
+  public static Message forSite(SiteListener listener, List<SiteDto> sites) {
     ActionRow[] actionRows = SiteUtils.getActionRows(listener, sites);
-    PageValueObject mainPage = sites.get(0).getPages().get(0);
+    PageDto mainPage = sites.get(0).getPages().get(0);
   
     MessageEmbed messageEmbed = forPage(mainPage);
     

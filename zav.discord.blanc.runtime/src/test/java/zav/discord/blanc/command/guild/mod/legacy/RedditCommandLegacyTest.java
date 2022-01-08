@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.legacy.RedditCommandLegacy;
 
@@ -46,12 +46,12 @@ public class RedditCommandLegacyTest  extends AbstractCommandTest {
   
   @Test
   public void testAddSubreddit() throws Exception {
-    channelValueObject.getSubreddits().remove(channelSubreddit);
+    channelDto.getSubreddits().remove(channelSubreddit);
     
     command.run();
   
     // Has the subreddit been added?
-    assertThat(channelValueObject.getSubreddits()).isEmpty();
+    assertThat(channelDto.getSubreddits()).isEmpty();
   
     // Correct message?
     ArgumentCaptor<String> msgCaptor = ArgumentCaptor.forClass(String.class);
@@ -76,7 +76,7 @@ public class RedditCommandLegacyTest  extends AbstractCommandTest {
     
     assertThat(subredditCaptor.getValue()).isEqualTo(channelSubreddit);
   
-    TextChannelValueObject dbChannel = TextChannelDatabase.get(guildId, channelId);
+    TextChannelDto dbChannel = TextChannelDatabase.get(guildId, channelId);
     assertThat(dbChannel.getId()).isEqualTo(channelId);
     assertThat(dbChannel.getName()).isEqualTo(channelName);
     assertThat(dbChannel.getSubreddits()).isEmpty();

@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.NumberArgument;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 
 /**
  * Utility class for creating {@link Argument} instances.

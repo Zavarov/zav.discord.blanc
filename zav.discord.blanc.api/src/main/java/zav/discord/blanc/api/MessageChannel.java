@@ -19,10 +19,10 @@ package zav.discord.blanc.api;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import zav.discord.blanc.api.site.SiteListener;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.message.SiteValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.UserDto;
+import zav.discord.blanc.databind.message.SiteDto;
 import zav.jrc.databind.LinkValueObject;
 
 /**
@@ -41,13 +41,13 @@ public interface MessageChannel {
   
   void send(Object content);
   
-  void send(GuildValueObject guild);
+  void send(GuildDto guild);
   
-  void send(RoleValueObject role);
+  void send(RoleDto role);
   
-  void send(UserValueObject user);
+  void send(UserDto user);
   
   void send(LinkValueObject link);
   
-  void send(SiteListener listener, List<SiteValueObject> sites);
+  void send(SiteListener listener, List<SiteDto> sites);
 }

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractDevCommandTest;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.runtime.command.dev.UserCommand;
 import zav.discord.blanc.api.User;
 
@@ -21,7 +21,7 @@ public class UserCommandTest extends AbstractDevCommandTest {
     User user = mock(User.class);
     
     when(shard.getUser(any())).thenReturn(user);
-    when(user.getAbout()).thenReturn(this.userValueObject);
+    when(user.getAbout()).thenReturn(this.userDto);
   }
   
   @Test
@@ -33,10 +33,10 @@ public class UserCommandTest extends AbstractDevCommandTest {
   public void testSend() throws Exception {
     command.run();
     
-    ArgumentCaptor<UserValueObject> userCaptor = ArgumentCaptor.forClass(UserValueObject.class);
+    ArgumentCaptor<UserDto> userCaptor = ArgumentCaptor.forClass(UserDto.class);
     
     verify(channelView, times(1)).send(userCaptor.capture());
     
-    assertThat(userCaptor.getValue()).isEqualTo(userValueObject);
+    assertThat(userCaptor.getValue()).isEqualTo(userDto);
   }
 }

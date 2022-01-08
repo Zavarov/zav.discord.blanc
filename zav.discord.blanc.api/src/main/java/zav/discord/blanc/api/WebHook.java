@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.jrc.databind.LinkValueObject;
 import zav.jrc.databind.SubredditValueObject;
 
@@ -24,7 +24,7 @@ import zav.jrc.databind.SubredditValueObject;
  * Base interface for all functions that are performed on web hooks.
  */
 public interface WebHook {
-  WebHookValueObject getAbout();
+  WebHookDto getAbout();
   
   void delete();
   

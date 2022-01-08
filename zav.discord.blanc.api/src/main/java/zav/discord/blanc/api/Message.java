@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 
 /**
  * Base interface for all functions that are performed over a messages.<br>
@@ -24,7 +24,7 @@ import zav.discord.blanc.databind.MessageValueObject;
  */
 public interface Message {
   
-  MessageValueObject getAbout();
+  MessageDto getAbout();
 
   MessageChannel getMessageChannel();
 

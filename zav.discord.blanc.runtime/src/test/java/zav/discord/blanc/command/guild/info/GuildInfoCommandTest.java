@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.runtime.command.guild.info.GuildInfoCommand;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -29,10 +29,10 @@ public class GuildInfoCommandTest extends AbstractCommandTest {
   public void testSendGuild() throws Exception {
     command.run();
   
-    ArgumentCaptor<GuildValueObject> guildCaptor = ArgumentCaptor.forClass(GuildValueObject.class);
+    ArgumentCaptor<GuildDto> guildCaptor = ArgumentCaptor.forClass(GuildDto.class);
     
     verify(channelView, times(1)).send(guildCaptor.capture());
     
-    assertThat(guildCaptor.getValue()).isEqualTo(guildValueObject);
+    assertThat(guildCaptor.getValue()).isEqualTo(guildDto);
   }
 }

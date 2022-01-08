@@ -10,8 +10,8 @@ import zav.discord.blanc.api.Guild;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.reddit.internal.ArgumentImpl;
@@ -32,17 +32,17 @@ public class RedditJob implements Runnable {
   public RedditJob(Client client) throws SQLException {
     for (Shard shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {
-        for (WebHookValueObject webHook : WebHookDatabase.getAll(guild.getAbout().getId())) {
+        for (WebHookDto webHook : WebHookDatabase.getAll(guild.getAbout().getId())) {
           loadWebHooks(guild, webHook);
         }
-        for (TextChannelValueObject textChannel : TextChannelDatabase.getAll(guild.getAbout().getId())) {
+        for (TextChannelDto textChannel : TextChannelDatabase.getAll(guild.getAbout().getId())) {
           loadTextChannels(guild, textChannel);
         }
       }
     }
   }
   
-  private void loadWebHooks(Guild guild, WebHookValueObject webHook) throws SQLException {
+  private void loadWebHooks(Guild guild, WebHookDto webHook) throws SQLException {
     Argument argChannel = new ArgumentImpl(webHook.getChannelId());
     
     TextChannel textChannel;
@@ -72,7 +72,7 @@ public class RedditJob implements Runnable {
     }
   }
   
-  private void loadTextChannels(Guild guild, TextChannelValueObject textChannel) throws SQLException {
+  private void loadTextChannels(Guild guild, TextChannelDto textChannel) throws SQLException {
     Argument argChannel = new ArgumentImpl(textChannel.getId());
   
     // Text channel may no longer exist...

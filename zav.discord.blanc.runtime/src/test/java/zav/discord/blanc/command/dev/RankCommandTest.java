@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractDevCommandTest;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.UserDatabase;
 import zav.discord.blanc.runtime.command.dev.RankCommand;
 
@@ -42,7 +42,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testGrantRank() throws Exception {
-    userValueObject.getRanks().add(Rank.ROOT.name());
+    userDto.getRanks().add(Rank.ROOT.name());
     
     command.run();
   
@@ -58,10 +58,10 @@ public class RankCommandTest extends AbstractDevCommandTest {
     assertThat(userCaptor.getValue()).isEqualTo(selfUserName);
     
     // Has the rank been added?
-    assertThat(selfUserValueObject.getRanks()).contains(Rank.ROOT.name());
+    assertThat(selfUserDto.getRanks()).contains(Rank.ROOT.name());
     
     // Has the database been updated?
-    UserValueObject dbUser = UserDatabase.get(selfUserId);
+    UserDto dbUser = UserDatabase.get(selfUserId);
     assertThat(dbUser.getRanks()).contains(Rank.ROOT.name());
     assertThat(dbUser.getDiscriminator()).isEqualTo(selfUserDiscriminator);
     assertThat(dbUser.getId()).isEqualTo(selfUserId);
@@ -70,8 +70,8 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testRemoveRank() throws Exception {
-    userValueObject.getRanks().add(Rank.ROOT.name());
-    selfUserValueObject.getRanks().add(Rank.ROOT.name());
+    userDto.getRanks().add(Rank.ROOT.name());
+    selfUserDto.getRanks().add(Rank.ROOT.name());
   
     command.run();
   
@@ -87,10 +87,10 @@ public class RankCommandTest extends AbstractDevCommandTest {
     assertThat(userCaptor.getValue()).isEqualTo(selfUserName);
   
     // Has the rank been removed?
-    assertThat(selfUserValueObject.getRanks()).containsExactly(Rank.USER.name());
+    assertThat(selfUserDto.getRanks()).containsExactly(Rank.USER.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserDatabase.get(selfUserId);
+    UserDto dbUser = UserDatabase.get(selfUserId);
     assertThat(dbUser.getRanks()).containsExactly(Rank.USER.name());
     assertThat(dbUser.getDiscriminator()).isEqualTo(selfUserDiscriminator);
     assertThat(dbUser.getId()).isEqualTo(selfUserId);

@@ -2,7 +2,7 @@
   "type" : "object",
   "properties" : {
     "content" : {
-      "type" : "MessageEmbedValueObject"
+      "type" : "MessageEmbedDto"
     }
   },
   "required" : ["content"]

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.*;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.runtime.command.guild.mod.BlacklistCommand;
 
@@ -48,7 +48,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("bar");
     
     // Has the guild been updated?
-    assertThat(guildValueObject.getBlacklist()).containsExactly("bar");
+    assertThat(guildDto.getBlacklist()).containsExactly("bar");
     
     // Has the view been updated?
     ArgumentCaptor<Pattern> patternCaptor = ArgumentCaptor.forClass(Pattern.class);
@@ -57,7 +57,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(patternCaptor.getValue().pattern()).isEqualTo("bar");
     
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildDatabase.get(guildId);
+    GuildDto dbGuild = GuildDatabase.get(guildId);
     
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);
@@ -70,7 +70,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
    */
   @Test
   public void testRemoveRegEx() throws Exception {
-    guildValueObject.getBlacklist().add("bar");
+    guildDto.getBlacklist().add("bar");
     
     command.run();
   
@@ -84,7 +84,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(argCaptor.getValue()).isEqualTo("bar");
   
     // Has the guild been updated?
-    assertThat(guildValueObject.getBlacklist()).isEmpty();
+    assertThat(guildDto.getBlacklist()).isEmpty();
   
     // Has the view been updated?
     ArgumentCaptor<Pattern> patternCaptor = ArgumentCaptor.forClass(Pattern.class);
@@ -93,7 +93,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
     assertThat(patternCaptor.getValue().pattern()).isEmpty();
   
     // Has the database been updated?
-    GuildValueObject dbGuild = GuildDatabase.get(guildId);
+    GuildDto dbGuild = GuildDatabase.get(guildId);
   
     assertThat(dbGuild.getId()).isEqualTo(guildId);
     assertThat(dbGuild.getName()).isEqualTo(guildName);

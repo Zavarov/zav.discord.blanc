@@ -47,7 +47,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 
 /**
@@ -173,7 +173,7 @@ public abstract class AbstractTest {
       IntermediateCommand command = mock(IntermediateCommand.class);
       
       when(command.getName()).thenReturn(commandName);
-      when(parser.parse(any(MessageValueObject.class))).thenReturn(command);
+      when(parser.parse(any(MessageDto.class))).thenReturn(command);
       
       bind(Parser.class).toInstance(parser);
       bind(ExecutorService.class).toInstance(mock(ExecutorService.class));

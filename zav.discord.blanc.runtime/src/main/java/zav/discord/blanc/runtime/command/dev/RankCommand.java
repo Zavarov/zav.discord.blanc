@@ -20,7 +20,7 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.UserDatabase;
 
 import java.sql.SQLException;
@@ -31,8 +31,8 @@ import java.util.List;
  */
 public class RankCommand extends AbstractCommand {
   private Rank myRank;
-  private UserValueObject myUserData;
-  private UserValueObject myAuthorData;
+  private UserDto myUserData;
+  private UserDto myAuthorData;
   
   public RankCommand() {
     super(Rank.DEVELOPER);

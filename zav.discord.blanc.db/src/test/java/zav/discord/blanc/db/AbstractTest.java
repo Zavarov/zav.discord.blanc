@@ -24,11 +24,11 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.UserDto;
+import zav.discord.blanc.databind.WebHookDto;
 
 /**
  * Base class for all test suites.<br>
@@ -44,11 +44,11 @@ public abstract class AbstractTest {
   
   private static final Path RESOURCES = Paths.get("src/test/resources");
   
-  protected GuildValueObject guild;
-  protected RoleValueObject role;
-  protected TextChannelValueObject channel;
-  protected WebHookValueObject hook;
-  protected UserValueObject user;
+  protected GuildDto guild;
+  protected RoleDto role;
+  protected TextChannelDto channel;
+  protected WebHookDto hook;
+  protected UserDto user;
   
   /**
    * Deserializes Discord instances.
@@ -57,11 +57,11 @@ public abstract class AbstractTest {
    */
   @BeforeEach
   public void setUp() throws SQLException {
-    guild = read("Guild.json", GuildValueObject.class);
-    role = read("Role.json", RoleValueObject.class);
-    channel = read("TextChannel.json", TextChannelValueObject.class);
-    hook = read("WebHook.json", WebHookValueObject.class);
-    user = read("User.json", UserValueObject.class);
+    guild = read("Guild.json", GuildDto.class);
+    role = read("Role.json", RoleDto.class);
+    channel = read("TextChannel.json", TextChannelDto.class);
+    hook = read("WebHook.json", WebHookDto.class);
+    user = read("User.json", UserDto.class);
   }
   
   /**

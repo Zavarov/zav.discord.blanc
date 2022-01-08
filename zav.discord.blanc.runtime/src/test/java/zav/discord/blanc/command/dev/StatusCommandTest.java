@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractDevCommandTest;
-import zav.discord.blanc.databind.message.MessageEmbedValueObject;
+import zav.discord.blanc.databind.message.MessageEmbedDto;
 import zav.discord.blanc.runtime.command.dev.SayCommand;
 import zav.discord.blanc.runtime.command.dev.StatusCommand;
 
@@ -45,7 +45,7 @@ public class StatusCommandTest extends AbstractDevCommandTest {
   public void testSend() throws Exception {
     command.run();
     
-    ArgumentCaptor<MessageEmbedValueObject> msgCaptor = ArgumentCaptor.forClass(MessageEmbedValueObject.class);
+    ArgumentCaptor<MessageEmbedDto> msgCaptor = ArgumentCaptor.forClass(MessageEmbedDto.class);
     
     verify(channelView, times(1)).send(msgCaptor.capture());
   }

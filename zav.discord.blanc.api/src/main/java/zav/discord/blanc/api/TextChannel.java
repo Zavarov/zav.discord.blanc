@@ -16,14 +16,14 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.TextChannelDto;
 
 /**
  * Base interface for all functions that are performed on text channels.
  */
 public interface TextChannel extends MessageChannel {
   
-  TextChannelValueObject getAbout();
+  TextChannelDto getAbout();
   
   @Override
   GuildMessage getMessage(Argument argument);

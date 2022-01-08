@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import zav.discord.blanc.api.site.SiteListener;
-import zav.discord.blanc.databind.message.SiteValueObject;
+import zav.discord.blanc.databind.message.SiteDto;
 
 /**
  * Utility class for creating the message components from their data transfer objects.
@@ -42,7 +42,7 @@ public final class SiteUtils {
    * @param sites A list of all sites that can be displayed by this message.
    * @return An array over all required action rows.
    */
-  public static ActionRow[] getActionRows(SiteListener listener, List<SiteValueObject> sites) {
+  public static ActionRow[] getActionRows(SiteListener listener, List<SiteDto> sites) {
     List<ActionRow> actionRows = new ArrayList<>(2);
   
     createButtons(listener, sites).ifPresent(actionRows::add);
@@ -60,9 +60,9 @@ public final class SiteUtils {
    * @param sites A list of all sites that can be displayed by this message.
    * @return An optional containing the required buttons for the site.
    */
-  private static Optional<ActionRow> createButtons(SiteListener listener, List<SiteValueObject> sites) {
+  private static Optional<ActionRow> createButtons(SiteListener listener, List<SiteDto> sites) {
     int maxPages = sites.stream()
-          .map(SiteValueObject::getPages)
+          .map(SiteDto::getPages)
           .mapToInt(List::size)
           .max()
           .orElse(0);
@@ -80,14 +80,14 @@ public final class SiteUtils {
     return Optional.of(ActionRow.of(left, right));
   }
   
-  private static Optional<ActionRow> createSelectionMenu(List<SiteValueObject> sites) {
+  private static Optional<ActionRow> createSelectionMenu(List<SiteDto> sites) {
     if (sites.size() < 2) {
       return Optional.empty();
     }
     
     SelectionMenu.Builder builder = SelectionMenu.create("menuSelection");
     
-    for (SiteValueObject site : sites) {
+    for (SiteDto site : sites) {
       builder.addOption(site.getLabel(), site.getLabel(), site.getDescription());
     }
     SelectionMenu selectionMenu = builder.build();

@@ -20,7 +20,7 @@ import static zav.discord.blanc.jda.internal.DatabaseUtils.aboutUser;
 
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Implementation of a user view, backed by JDA.
@@ -30,7 +30,7 @@ public class JdaUser implements zav.discord.blanc.api.User {
   protected User jdaUser;
   
   @Override
-  public UserValueObject getAbout() {
+  public UserDto getAbout() {
     return aboutUser(jdaUser);
   }
   

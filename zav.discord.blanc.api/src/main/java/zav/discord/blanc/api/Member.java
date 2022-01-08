@@ -19,7 +19,7 @@ package zav.discord.blanc.api;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 
 /**
  * Base interface for all functions that are performed over a guild member.
@@ -30,13 +30,13 @@ public interface Member extends User {
   
   Set<Permission> getPermissions();
   
-  void modifyRoles(Collection<RoleValueObject> rolesToAdd, Collection<RoleValueObject> rolesToRemove);
+  void modifyRoles(Collection<RoleDto> rolesToAdd, Collection<RoleDto> rolesToRemove);
   
-  default void removeRoles(Collection<RoleValueObject> roles) {
+  default void removeRoles(Collection<RoleDto> roles) {
     modifyRoles(Collections.emptySet(), roles);
   }
   
-  default void removeRole(RoleValueObject role) {
+  default void removeRole(RoleDto role) {
     removeRoles(Collections.singleton(role));
   }
 }

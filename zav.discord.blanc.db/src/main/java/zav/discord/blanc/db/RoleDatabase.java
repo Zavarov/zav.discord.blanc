@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
 
@@ -44,7 +44,7 @@ public abstract class RoleDatabase {
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(GuildValueObject guild, RoleValueObject role) throws SQLException {
+  public static int put(GuildDto guild, RoleDto role) throws SQLException {
     return SQL.update("role/InsertRole.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
       stmt.setLong(2, role.getId());
@@ -64,14 +64,14 @@ public abstract class RoleDatabase {
    * @throws SQLException If a database error occurred.
    * @throws NoSuchElementException if the database doesn't contain an entry with the specified ids.
    */
-  public static RoleValueObject get(long guildId, long roleId) throws SQLException {
+  public static RoleDto get(long guildId, long roleId) throws SQLException {
     List<SqlObject> result = SQL.query("role/SelectRole.sql", guildId, roleId);
     
     if (result.isEmpty()) {
       throw new NoSuchElementException();
     }
     
-    return SqlQuery.unmarshal(result.get(0), RoleValueObject.class);
+    return SqlQuery.unmarshal(result.get(0), RoleDto.class);
   }
   
   /**
@@ -81,11 +81,11 @@ public abstract class RoleDatabase {
    * @return An unmodifiable list of all roles associated with the provided guild id.
    * @throws SQLException If a database error occurred.
    */
-  public static List<RoleValueObject> getAll(long guildId) throws SQLException {
+  public static List<RoleDto> getAll(long guildId) throws SQLException {
     List<SqlObject> result = SQL.query("role/SelectAllRole.sql", guildId);
   
     return result.stream()
-          .map(obj -> SqlQuery.unmarshal(obj, RoleValueObject.class))
+          .map(obj -> SqlQuery.unmarshal(obj, RoleDto.class))
           .collect(Collectors.toUnmodifiableList());
   }
 }

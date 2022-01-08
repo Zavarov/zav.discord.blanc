@@ -21,15 +21,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.TextChannelDto;
 
 /**
  * Base interface for all functions that are performed over guild.
  */
 public interface Guild {
-  GuildValueObject getAbout();
+  GuildDto getAbout();
   
   /**
    * Self members allow additional functionality exclusive to oneself, such as changing the profile
@@ -101,7 +101,7 @@ public interface Guild {
    * @param role A role of this guild.
    * @return {@code true}, when the member is allowed to assign this role to a user.
    */
-  boolean canInteract(Member member, RoleValueObject role);
+  boolean canInteract(Member member, RoleDto role);
   
   /**
    * Creates an activity chart over this guild. The chart plots the total number of members, the
@@ -112,5 +112,5 @@ public interface Guild {
    * @param channels A list of text channels in this guild.
    * @return An line chart plotting the recent guild activity.
    */
-  BufferedImage getActivity(List<TextChannelValueObject> channels);
+  BufferedImage getActivity(List<TextChannelDto> channels);
 }

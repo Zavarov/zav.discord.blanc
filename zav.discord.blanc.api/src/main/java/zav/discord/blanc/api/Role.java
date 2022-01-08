@@ -16,14 +16,14 @@
 
 package zav.discord.blanc.api;
 
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 
 /**
  * Base interface for all functions that are performed over a role.
  */
 public interface Role {
   
-  RoleValueObject getAbout();
+  RoleDto getAbout();
   
   String getAsMention();
 }

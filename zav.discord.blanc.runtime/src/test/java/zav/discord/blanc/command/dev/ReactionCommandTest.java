@@ -21,7 +21,7 @@ public class ReactionCommandTest  extends AbstractDevCommandTest {
     User user = mock(User.class);
     
     when(shard.getUser(any())).thenReturn(user);
-    when(user.getAbout()).thenReturn(this.userValueObject);
+    when(user.getAbout()).thenReturn(this.userDto);
   }
   
   @Test

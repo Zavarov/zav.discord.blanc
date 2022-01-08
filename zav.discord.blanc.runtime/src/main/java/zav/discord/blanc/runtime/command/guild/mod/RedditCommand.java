@@ -19,9 +19,9 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.WebHookDatabase;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.api.TextChannel;
@@ -38,10 +38,10 @@ public class RedditCommand extends AbstractGuildCommand {
 
   private String mySubreddit;
   private TextChannel myChannel;
-  private TextChannelValueObject myChannelData;
+  private TextChannelDto myChannelData;
   private WebHook myWebHook;
-  private WebHookValueObject myWebHookData;
-  private GuildValueObject myGuildData;
+  private WebHookDto myWebHookData;
+  private GuildDto myGuildData;
   
   protected RedditCommand() {
     super(Permission.MANAGE_CHANNELS);

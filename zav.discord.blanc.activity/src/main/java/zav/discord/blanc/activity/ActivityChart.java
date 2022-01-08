@@ -34,9 +34,9 @@ import vartas.chart.line.$factory.LineChartFactory;
 import vartas.chart.line.LineChart;
 import vartas.chart.line.Position;
 import zav.discord.blanc.api.Guild;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.activity.DataPointValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.activity.DataPointDto;
 
 /**
  * The builder for constructing the line chart over the corresponding guild.<br>
@@ -47,11 +47,11 @@ import zav.discord.blanc.databind.activity.DataPointValueObject;
  * members as well as the ones that are currently online.
  */
 public class ActivityChart {
-  private final Cache<LocalDateTime, DataPointValueObject> entries = CacheBuilder.newBuilder()
+  private final Cache<LocalDateTime, DataPointDto> entries = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.ofDays(1))
         .build();
     
-  public void add(LocalDateTime date, DataPointValueObject data) {
+  public void add(LocalDateTime date, DataPointDto data) {
     this.entries.put(date, data);
   }
   
@@ -65,7 +65,7 @@ public class ActivityChart {
     /**
      * A collection of text channels whose activity is plotted separately.
      */
-    private List<TextChannelValueObject> channels = Collections.emptyList();
+    private List<TextChannelDto> channels = Collections.emptyList();
     /**
      * The final chart containing the accumulated data.
      */
@@ -77,7 +77,7 @@ public class ActivityChart {
      * @param guild A view over a single guild.
      * @return A reference to this builder instance.
      */
-    public Builder withGuild(GuildValueObject guild) {
+    public Builder withGuild(GuildDto guild) {
       this.chart = LineChartFactory.create(
             JFreeLineChart::new,
             ChronoUnit.MINUTES,
@@ -90,7 +90,7 @@ public class ActivityChart {
       return this;
     }
 
-    public Builder withChannels(List<TextChannelValueObject> channels) {
+    public Builder withChannels(List<TextChannelDto> channels) {
       this.channels = channels;
       return this;
     }
@@ -103,7 +103,7 @@ public class ActivityChart {
      *     <li>The amount of members that are online.</li>
      *     <li>The total amount of messages per minute in the entire guild.</li>
      * </ul>
-     * Additionally, the activity of each explicitly stated {@link TextChannelValueObject} is
+     * Additionally, the activity of each explicitly stated {@link TextChannelDto} is
      * included as well.
      *
      * @param bounds The dimension of the {@link BufferedImage}.

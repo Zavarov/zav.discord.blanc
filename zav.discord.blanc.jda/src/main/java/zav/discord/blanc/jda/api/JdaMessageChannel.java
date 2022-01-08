@@ -36,10 +36,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.site.SiteListener;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.message.SiteValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.UserDto;
+import zav.discord.blanc.databind.message.SiteDto;
 import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
 import zav.jrc.databind.LinkValueObject;
 
@@ -67,7 +67,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(GuildValueObject guild) {
+  public void send(GuildDto guild) {
     @Nullable Guild jdaGuild = jdaMessageChannel.getJDA().getGuildById(guild.getId());
   
     // Guild must exist!
@@ -77,7 +77,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(UserValueObject user) {
+  public void send(UserDto user) {
     @Nullable User jdaUser = jdaMessageChannel.getJDA().getUserById(user.getId());
   
     // User must exist!
@@ -87,7 +87,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(RoleValueObject role) {
+  public void send(RoleDto role) {
     @Nullable Role jdaRole = jdaMessageChannel.getJDA().getRoleById(role.getId());
     
     // Role must exist!
@@ -102,7 +102,7 @@ public abstract class JdaMessageChannel implements zav.discord.blanc.api.Message
   }
   
   @Override
-  public void send(SiteListener listener, List<SiteValueObject> sites) {
+  public void send(SiteListener listener, List<SiteDto> sites) {
     // Register the listener for this component
     jdaMessageChannel.sendMessage(forSite(listener, sites)).queue(response -> SiteComponentListener.add(response, listener));
   }

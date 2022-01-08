@@ -20,18 +20,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.io.CredentialsValueObject;
+import zav.discord.blanc.databind.io.CredentialsDto;
 import zav.discord.blanc.mc.MontiCoreCommandParser;
 
 import java.io.IOException;
 
 public class BlancModule extends AbstractModule {
-  private final CredentialsValueObject credentials;
+  private final CredentialsDto credentials;
   
   public BlancModule() {
     try {
       ObjectMapper om = new ObjectMapper();
-      credentials = om.readValue(BlancModule.class.getClassLoader().getResourceAsStream("BlancCredentials.json"), CredentialsValueObject.class);
+      credentials = om.readValue(BlancModule.class.getClassLoader().getResourceAsStream("BlancCredentials.json"), CredentialsDto.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

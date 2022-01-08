@@ -19,19 +19,19 @@ package zav.discord.blanc.api.site;
 import java.util.List;
 import java.util.function.Consumer;
 import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.databind.message.PageValueObject;
-import zav.discord.blanc.databind.message.SiteValueObject;
+import zav.discord.blanc.databind.message.PageDto;
+import zav.discord.blanc.databind.message.SiteDto;
 
 /**
  * Implementation of site.
  */
 public class Site implements SiteListener {
-  private final List<SiteValueObject> sites;
+  private final List<SiteDto> sites;
   private int index;
-  private SiteValueObject currentSite;
-  private PageValueObject currentPage;
+  private SiteDto currentSite;
+  private PageDto currentPage;
   
-  private Site(List<SiteValueObject> sites) {
+  private Site(List<SiteDto> sites) {
     this.sites = sites;
     this.index = 0;
     this.currentSite = sites.get(0);
@@ -46,9 +46,9 @@ public class Site implements SiteListener {
    * @param sites All sites of this object.
    * @return A new site instance over the argument.
    */
-  public static Site of(List<SiteValueObject> sites) {
+  public static Site of(List<SiteDto> sites) {
     Validate.validIndex(sites, 0);
-    for (SiteValueObject site : sites) {
+    for (SiteDto site : sites) {
       Validate.validIndex(site.getPages(), 0);
     }
     return new Site(sites);
@@ -60,7 +60,7 @@ public class Site implements SiteListener {
   }
   
   @Override
-  public void moveLeft(Consumer<PageValueObject> consumer) {
+  public void moveLeft(Consumer<PageDto> consumer) {
     currentSite = sites.get(--index);
     currentPage = currentSite.getPages().get(0);
     
@@ -73,7 +73,7 @@ public class Site implements SiteListener {
   }
   
   @Override
-  public void moveRight(Consumer<PageValueObject> consumer) {
+  public void moveRight(Consumer<PageDto> consumer) {
     currentSite = sites.get(++index);
     currentPage = currentSite.getPages().get(0);
     
@@ -81,7 +81,7 @@ public class Site implements SiteListener {
   }
   
   @Override
-  public void changeSelection(String label, Consumer<PageValueObject> consumer) {
+  public void changeSelection(String label, Consumer<PageDto> consumer) {
     index = 0;
     
     currentSite = sites.stream()

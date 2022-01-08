@@ -18,7 +18,7 @@ package zav.discord.blanc.runtime.command.guild;
 
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.api.TextChannel;
 
 import java.awt.image.BufferedImage;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * This command generates a plot of the activity in the respective guild.
  */
 public class ActivityCommand extends AbstractGuildCommand {
-  private List<TextChannelValueObject> myChannels;
+  private List<TextChannelDto> myChannels;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {

@@ -17,14 +17,14 @@
 package zav.discord.blanc.api;
 
 import java.awt.image.BufferedImage;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Base interface for all functions that are performed on this application.
  */
 public interface SelfUser extends User {
   
-  UserValueObject getAbout();
+  UserDto getAbout();
 
   void setAvatar(BufferedImage image);
 }

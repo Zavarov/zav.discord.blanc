@@ -20,8 +20,8 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.api.TextChannel;
@@ -36,8 +36,8 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
     
   private String mySubreddit;
   private TextChannel myChannel;
-  private TextChannelValueObject myChannelData;
-  private GuildValueObject myGuildData;
+  private TextChannelDto myChannelData;
+  private GuildDto myGuildData;
     
   protected RedditCommandLegacy() {
     super(Permission.MANAGE_CHANNELS);

@@ -20,7 +20,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class PrefixCommand extends AbstractGuildCommand {
   @Nullable
   private String myPrefix;
   
-  private GuildValueObject myGuildData;
+  private GuildDto myGuildData;
     
   public PrefixCommand() {
     super(Permission.MANAGE_MESSAGES);

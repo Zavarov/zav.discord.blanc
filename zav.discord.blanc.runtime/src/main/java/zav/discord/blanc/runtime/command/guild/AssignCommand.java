@@ -23,9 +23,9 @@ import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.api.Role;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -41,8 +41,8 @@ public class AssignCommand extends AbstractGuildCommand {
   private static final LoadingCache<Long, Semaphore> activeMembers = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.ofMinutes(5))
         .build(CacheLoader.from(() -> new Semaphore(1)));
-  private RoleValueObject myRoleData;
-  private UserValueObject myAuthorData;
+  private RoleDto myRoleData;
+  private UserDto myAuthorData;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
@@ -74,8 +74,8 @@ public class AssignCommand extends AbstractGuildCommand {
           channel.send("You no longer have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup().orElseThrow());
         } else {
           // Assign role
-          Collection<RoleValueObject> rolesToRemove = getConflictingRoles();
-          Collection<RoleValueObject> rolesToAdd = Collections.singleton(myRoleData);
+          Collection<RoleDto> rolesToRemove = getConflictingRoles();
+          Collection<RoleDto> rolesToAdd = Collections.singleton(myRoleData);
           author.modifyRoles(rolesToAdd, rolesToRemove);
           channel.send("You now have the role \"%s\" from group \"%s\".", myRoleData.getName(), myRoleData.getGroup().orElseThrow());
         }
@@ -89,7 +89,7 @@ public class AssignCommand extends AbstractGuildCommand {
     }
   }
   
-  private Collection<RoleValueObject> getConflictingRoles() {
+  private Collection<RoleDto> getConflictingRoles() {
     return author.getRoles().stream()
           .map(Role::getAbout)
           .filter(role -> Objects.equals(role.getGroup(), myRoleData.getGroup()))

@@ -21,7 +21,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,7 +35,7 @@ import java.util.List;
  * the message that executed this command.
  */
 public class AvatarCommand extends AbstractCommand {
-  private MessageValueObject myMessageData;
+  private MessageDto myMessageData;
   
   public AvatarCommand() {
     super(Rank.DEVELOPER);

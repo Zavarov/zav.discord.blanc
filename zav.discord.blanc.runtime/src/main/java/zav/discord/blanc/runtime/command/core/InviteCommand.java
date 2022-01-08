@@ -19,7 +19,7 @@ package zav.discord.blanc.runtime.command.core;
 
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * This command posts the invitation link for the bot.
  */
 public class InviteCommand extends AbstractCommand {
-  private UserValueObject mySelfUserData;
+  private UserDto mySelfUserData;
   
   @Override
   public void postConstruct(List<? extends Argument> args) {

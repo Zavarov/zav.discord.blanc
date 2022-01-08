@@ -30,11 +30,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.Rank;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.UserDto;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
@@ -54,13 +54,13 @@ public final class DatabaseUtils {
    * @param guild A JDA guild.
    * @return A JSON object corresponding to the guild.
    */
-  public static GuildValueObject aboutGuild(Guild guild) {
+  public static GuildDto aboutGuild(Guild guild) {
     try {
       // Guild name may have changed since the db entry was last updated
       return GuildDatabase.get(guild.getIdLong())
             .withName(guild.getName());
     } catch (NoSuchElementException e) {
-      return new GuildValueObject()
+      return new GuildDto()
             .withId(guild.getIdLong())
             .withName(guild.getName());
       
@@ -77,7 +77,7 @@ public final class DatabaseUtils {
    * @param role A JDA role.
    * @return A JSON object corresponding to the role.
    */
-  public static RoleValueObject aboutRole(Role role) {
+  public static RoleDto aboutRole(Role role) {
     try {
       long guildId = role.getGuild().getIdLong();
       long roleId = role.getIdLong();
@@ -86,7 +86,7 @@ public final class DatabaseUtils {
       return RoleDatabase.get(guildId, roleId)
             .withName(role.getName());
     } catch (NoSuchElementException e) {
-      return new RoleValueObject()
+      return new RoleDto()
             .withId(role.getIdLong())
             .withName(role.getName());
     } catch (SQLException e) {
@@ -102,13 +102,13 @@ public final class DatabaseUtils {
    * @param selfUser A JDA self user.
    * @return A JSON object corresponding to the self user.
    */
-  public static UserValueObject aboutSelfUser(SelfUser selfUser) {
+  public static UserDto aboutSelfUser(SelfUser selfUser) {
     try {
       // Guild name may have changed since the db entry was last updated
       return UserDatabase.get(selfUser.getIdLong())
             .withName(selfUser.getName());
     } catch (NoSuchElementException e) {
-      return new UserValueObject()
+      return new UserDto()
             .withId(selfUser.getIdLong())
             .withName(selfUser.getName())
             .withDiscriminator(Long.parseLong(selfUser.getDiscriminator()))
@@ -126,7 +126,7 @@ public final class DatabaseUtils {
    * @param textChannel A JDA text channel.
    * @return A JSON object corresponding to the text channel.
    */
-  public static TextChannelValueObject aboutTextChannel(TextChannel textChannel) {
+  public static TextChannelDto aboutTextChannel(TextChannel textChannel) {
     try {
       long guildId = textChannel.getGuild().getIdLong();
       long channelId = textChannel.getIdLong();
@@ -135,7 +135,7 @@ public final class DatabaseUtils {
       return TextChannelDatabase.get(guildId, channelId)
             .withName(textChannel.getName());
     } catch (NoSuchElementException e) {
-      return new TextChannelValueObject()
+      return new TextChannelDto()
             .withId(textChannel.getIdLong())
             .withName(textChannel.getName());
       
@@ -152,14 +152,14 @@ public final class DatabaseUtils {
    * @param user A JDA user.
    * @return A JSON object corresponding to the user.
    */
-  public static UserValueObject aboutUser(User user) {
+  public static UserDto aboutUser(User user) {
     try {
       
       // User name may have changed since the db entry was last updated
       return UserDatabase.get(user.getIdLong())
             .withName(user.getName());
     } catch (NoSuchElementException e) {
-      return new UserValueObject()
+      return new UserDto()
             .withId(user.getIdLong())
             .withName(user.getName())
             .withDiscriminator(Long.parseLong(user.getDiscriminator()))
@@ -177,7 +177,7 @@ public final class DatabaseUtils {
    * @param webHook A JDA web hook.
    * @return A JSON object corresponding to the web hook.
    */
-  public static WebHookValueObject aboutWebHook(Webhook webHook) {
+  public static WebHookDto aboutWebHook(Webhook webHook) {
     try {
       long guildId = webHook.getGuild().getIdLong();
       long channelId = webHook.getChannel().getIdLong();
@@ -191,7 +191,7 @@ public final class DatabaseUtils {
       SelfUser selfUser = webHook.getJDA().getSelfUser();
       boolean isOwner = webHook.getOwnerAsUser() != null && Objects.equals(selfUser, owner);
       
-      return new WebHookValueObject()
+      return new WebHookDto()
             .withId(webHook.getIdLong())
             .withChannelId(webHook.getChannel().getIdLong())
             .withName(webHook.getName())

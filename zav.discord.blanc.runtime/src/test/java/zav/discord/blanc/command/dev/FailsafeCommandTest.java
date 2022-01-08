@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractDevCommandTest;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.UserDatabase;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
 
@@ -27,7 +27,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testBecomeRoot() throws Exception {
-    userValueObject.getRanks().add(Rank.DEVELOPER.name());
+    userDto.getRanks().add(Rank.DEVELOPER.name());
 
     command.run();
   
@@ -35,10 +35,10 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     verify(channelView, times(1)).send(anyString(), anyString());
     
     // Has the user been updated
-    assertThat(userValueObject.getRanks()).contains(Rank.ROOT.name());
+    assertThat(userDto.getRanks()).contains(Rank.ROOT.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserDatabase.get(userId);
+    UserDto dbUser = UserDatabase.get(userId);
   
     assertThat(dbUser.getId()).isEqualTo(userId);
     assertThat(dbUser.getName()).isEqualTo(userName);
@@ -48,7 +48,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testBecomeDeveloper() throws Exception {
-    userValueObject.getRanks().add(Rank.ROOT.name());
+    userDto.getRanks().add(Rank.ROOT.name());
   
     command.run();
   
@@ -56,10 +56,10 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     verify(channelView, times(1)).send(anyString(), anyString());
   
     // Has the user been updated
-    assertThat(userValueObject.getRanks()).contains(Rank.DEVELOPER.name());
+    assertThat(userDto.getRanks()).contains(Rank.DEVELOPER.name());
   
     // Has the database been updated?
-    UserValueObject dbUser = UserDatabase.get(userId);
+    UserDto dbUser = UserDatabase.get(userId);
   
     assertThat(dbUser.getId()).isEqualTo(userId);
     assertThat(dbUser.getName()).isEqualTo(userName);

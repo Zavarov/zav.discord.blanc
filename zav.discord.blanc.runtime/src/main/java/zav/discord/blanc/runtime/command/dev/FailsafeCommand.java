@@ -19,7 +19,7 @@ package zav.discord.blanc.runtime.command.dev;
 
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.UserDatabase;
 
 import java.sql.SQLException;
@@ -76,7 +76,7 @@ public class FailsafeCommand extends AbstractCommand {
       "You will regret your resistance, %s."
   };
   
-  private UserValueObject myAuthorData;
+  private UserDto myAuthorData;
   
   public FailsafeCommand() {
     super(DEVELOPER);

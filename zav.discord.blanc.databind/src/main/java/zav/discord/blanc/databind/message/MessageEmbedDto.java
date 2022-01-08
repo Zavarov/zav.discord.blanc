@@ -24,14 +24,14 @@ import org.eclipse.jdt.annotation.Nullable;
  * text fields or embedded images.
  */
 @NonNull
-public class MessageEmbedValueObject extends MessageEmbedTOPValueObject {
+public class MessageEmbedDto extends MessageEmbedTOPDto {
   
   public void setTitle(@NonNull String name) {
     setTitle(name, null);
   }
   
   public void setTitle(@NonNull String name, @Nullable String url) {
-    setTitle(new TitleValueObject(name, url));
+    setTitle(new TitleDto(name, url));
   }
   
   public void addField(@NonNull String name, @NonNull Object content) {
@@ -39,6 +39,6 @@ public class MessageEmbedValueObject extends MessageEmbedTOPValueObject {
   }
   
   public void addField(@NonNull String name, @NonNull Object content, boolean inline) {
-    getFields().add(new FieldValueObject(name, content.toString(), inline));
+    getFields().add(new FieldDto(name, content.toString(), inline));
   }
 }

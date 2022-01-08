@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.api.WebHook;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.jrc.databind.LinkValueObject;
 import zav.jrc.databind.SubredditValueObject;
 
@@ -44,7 +44,7 @@ public class JdaWebHook implements WebHook {
   private JDAWebhookClient jdaWebhookClient;
   
   @Override
-  public WebHookValueObject getAbout() {
+  public WebHookDto getAbout() {
     return aboutWebHook(jdaWebhook);
   }
   

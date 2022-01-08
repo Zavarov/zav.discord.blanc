@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.runtime.command.guild.info.MemberInfoCommand;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -30,9 +30,9 @@ public class MemberInfoCommandTest extends AbstractCommandTest {
     command.run();
   
     // Provided user (user) should be picked
-    ArgumentCaptor<UserValueObject> memberCaptor = ArgumentCaptor.forClass(UserValueObject.class);
+    ArgumentCaptor<UserDto> memberCaptor = ArgumentCaptor.forClass(UserDto.class);
     verify(channelView, times(1)).send(memberCaptor.capture());
-    assertThat(memberCaptor.getValue()).isEqualTo(selfUserValueObject);
+    assertThat(memberCaptor.getValue()).isEqualTo(selfUserDto);
   }
   
   @Test
@@ -42,8 +42,8 @@ public class MemberInfoCommandTest extends AbstractCommandTest {
     command.run();
   
     // Author (selfUser) should be picked
-    ArgumentCaptor<UserValueObject> memberCaptor = ArgumentCaptor.forClass(UserValueObject.class);
+    ArgumentCaptor<UserDto> memberCaptor = ArgumentCaptor.forClass(UserDto.class);
     verify(channelView, times(1)).send(memberCaptor.capture());
-    assertThat(memberCaptor.getValue()).isEqualTo(userValueObject);
+    assertThat(memberCaptor.getValue()).isEqualTo(userDto);
   }
 }

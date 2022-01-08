@@ -21,7 +21,7 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class LeaveCommand extends AbstractCommand {
   private Guild myGuild;
-  private GuildValueObject myGuildData;
+  private GuildDto myGuildData;
     
   public LeaveCommand() {
     super(Rank.DEVELOPER);

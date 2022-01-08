@@ -30,7 +30,7 @@ import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.command.guice.PrivateCommandModule;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 import zav.discord.blanc.jda.internal.guice.JdaPrivateMessageModule;
 
 /**
@@ -57,7 +57,7 @@ public class PrivateCommandListener extends AbstractCommandListener {
     }
 
     Message jdaMessage = event.getMessage();
-    MessageValueObject message = new MessageValueObject()
+    MessageDto message = new MessageDto()
           .withId(jdaMessage.getIdLong())
           .withAuthor(jdaMessage.getAuthor().getName())
           .withContent(jdaMessage.getContentRaw())

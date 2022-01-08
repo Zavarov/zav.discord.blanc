@@ -20,7 +20,7 @@ import static zav.discord.blanc.jda.internal.DatabaseUtils.aboutRole;
 
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Role;
-import zav.discord.blanc.databind.RoleValueObject;
+import zav.discord.blanc.databind.RoleDto;
 
 /**
  * Implementation of a role view, backed by JDA.
@@ -30,7 +30,7 @@ public class JdaRole implements zav.discord.blanc.api.Role {
   private Role jdaRole;
 
   @Override
-  public RoleValueObject getAbout() {
+  public RoleDto getAbout() {
     return aboutRole(jdaRole);
   }
   

@@ -21,7 +21,7 @@ import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildValueObject;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 
 import java.sql.SQLException;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  */
 public class BlacklistCommand extends AbstractGuildCommand {
   private String myRegEx;
-  private GuildValueObject myGuildData;
+  private GuildDto myGuildData;
   
   public BlacklistCommand() {
     super(Permission.MANAGE_MESSAGES);

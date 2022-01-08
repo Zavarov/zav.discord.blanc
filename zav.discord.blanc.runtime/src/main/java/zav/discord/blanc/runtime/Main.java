@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.activity.ActivityJob;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.Rank;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
@@ -81,7 +81,7 @@ public class Main {
     
     if (!UserDatabase.contains(ownerId)) {
       LOGGER.info("Owner with id {} not contained in database. Create new root user...", ownerId);
-      UserValueObject owner = new UserValueObject()
+      UserDto owner = new UserDto()
             .withId(ownerId)
             .withDiscriminator(-1)
             .withName(StringUtils.EMPTY)

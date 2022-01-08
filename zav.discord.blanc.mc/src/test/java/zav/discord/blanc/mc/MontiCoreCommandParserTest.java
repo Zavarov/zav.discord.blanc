@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.parser.IntermediateCommand;
 import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.MessageValueObject;
+import zav.discord.blanc.databind.MessageDto;
 import zav.discord.blanc.mc.argument._ast.ASTExpressionArgument;
 import zav.discord.blanc.mc.argument._ast.ASTRoleArgument;
 import zav.discord.blanc.mc.argument._ast.ASTStringArgument;
@@ -39,12 +39,12 @@ import zav.discord.blanc.mc.argument._ast.ASTUserArgument;
  */
 public class MontiCoreCommandParserTest {
   Parser parser;
-  MessageValueObject message;
+  MessageDto message;
 
   @BeforeEach
   public void setUp() {
     parser = new MontiCoreCommandParser();
-    message = new MessageValueObject();
+    message = new MessageDto();
   }
 
   @Test

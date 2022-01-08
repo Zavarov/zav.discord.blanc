@@ -22,8 +22,8 @@ import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.api.Message;
-import zav.discord.blanc.databind.MessageValueObject;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.MessageDto;
+import zav.discord.blanc.databind.UserDto;
 
 import java.util.List;
 
@@ -31,8 +31,8 @@ import java.util.List;
  * This commands allows to delete messages made by the bot.
  */
 public class DeleteCommand extends AbstractCommand {
-  private UserValueObject mySelfUserData;
-  private MessageValueObject myMessageData;
+  private UserDto mySelfUserData;
+  private MessageDto myMessageData;
   private Message myMessage;
   
   public DeleteCommand() {

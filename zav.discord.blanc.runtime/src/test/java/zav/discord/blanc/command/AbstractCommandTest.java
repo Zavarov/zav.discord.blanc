@@ -36,12 +36,12 @@ import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.TextChannel;
 import zav.discord.blanc.api.WebHook;
 import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.GuildValueObject;
-import zav.discord.blanc.databind.MessageValueObject;
-import zav.discord.blanc.databind.RoleValueObject;
-import zav.discord.blanc.databind.TextChannelValueObject;
-import zav.discord.blanc.databind.UserValueObject;
-import zav.discord.blanc.databind.WebHookValueObject;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.databind.MessageDto;
+import zav.discord.blanc.databind.RoleDto;
+import zav.discord.blanc.databind.TextChannelDto;
+import zav.discord.blanc.databind.UserDto;
+import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.GuildDatabase;
 import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
@@ -56,13 +56,13 @@ import zav.jrc.client.Client;
  * Base class for all JUnit command tests.
  */
 public abstract class AbstractCommandTest {
-  protected UserValueObject userValueObject;
-  protected UserValueObject selfUserValueObject;
-  protected RoleValueObject roleValueObject;
-  protected GuildValueObject guildValueObject;
-  protected TextChannelValueObject channelValueObject;
-  protected MessageValueObject messageValueObject;
-  protected WebHookValueObject webHookValueObject;
+  protected UserDto userDto;
+  protected UserDto selfUserDto;
+  protected RoleDto roleDto;
+  protected GuildDto guildDto;
+  protected TextChannelDto channelDto;
+  protected MessageDto messageDto;
+  protected WebHookDto webHookDto;
   
   protected SelfUser selfUser;
   protected Guild guild;
@@ -140,7 +140,7 @@ public abstract class AbstractCommandTest {
   // -------------------------------------------------------------------------------------------- //
   
   private void setUpMessage() {
-    messageValueObject = new MessageValueObject()
+    messageDto = new MessageDto()
           .withContent(messageContent)
           .withId(messageId)
           .withAttachment(messageAttachment)
@@ -149,7 +149,7 @@ public abstract class AbstractCommandTest {
   }
   
   private void setUpUser() {
-    userValueObject = new UserValueObject()
+    userDto = new UserDto()
           .withId(userId)
           .withName(userName)
           .withDiscriminator(userDiscriminator)
@@ -157,7 +157,7 @@ public abstract class AbstractCommandTest {
   }
   
   private void setUpSelfUser() {
-    selfUserValueObject = new UserValueObject()
+    selfUserDto = new UserDto()
           .withId(selfUserId)
           .withName(selfUserName)
           .withDiscriminator(selfUserDiscriminator)
@@ -165,7 +165,7 @@ public abstract class AbstractCommandTest {
   }
   
   private void setUpWebHook() {
-    webHookValueObject = new WebHookValueObject()
+    webHookDto = new WebHookDto()
           .withId(webHookId)
           .withName(webHookName)
           .withChannelId(webHookChannelId)
@@ -174,21 +174,21 @@ public abstract class AbstractCommandTest {
   }
   
   private void setUpRole() {
-    roleValueObject = new RoleValueObject()
+    roleDto = new RoleDto()
           .withGroup(roleGroup)
           .withId(roleId)
           .withName(roleName);
   }
   
   private void setUpTextChannel() {
-    channelValueObject = new TextChannelValueObject()
+    channelDto = new TextChannelDto()
           .withId(channelId)
           .withName(channelName)
           .withSubreddits(Lists.newArrayList(channelSubreddit));
   }
   
   private void setUpGuild() {
-    guildValueObject = new GuildValueObject()
+    guildDto = new GuildDto()
           .withId(guildId)
           .withName(guildName)
           .withPrefix(guildPrefix);
@@ -200,34 +200,34 @@ public abstract class AbstractCommandTest {
     setUpMessage();
     
     messageView = mock(GuildMessage.class);
-    when(messageView.getAbout()).thenReturn(messageValueObject);
+    when(messageView.getAbout()).thenReturn(messageDto);
   }
   
   private void setUpMemberView() {
     member = mock(Member.class);
     when(member.getPermissions()).thenReturn(Collections.emptySet());
-    when(member.getAbout()).thenReturn(userValueObject);
+    when(member.getAbout()).thenReturn(userDto);
   }
   
   private void setUpSelfUserView() {
     selfUser = mock(SelfUser.class);
-    when(selfUser.getAbout()).thenReturn(selfUserValueObject);
+    when(selfUser.getAbout()).thenReturn(selfUserDto);
   }
   
   private void setUpSelfMemberView() {
     selfMemberView = mock(SelfMember.class);
     when(selfMemberView.getPermissions()).thenReturn(Collections.emptySet());
-    when(selfMemberView.getAbout()).thenReturn(selfUserValueObject);
+    when(selfMemberView.getAbout()).thenReturn(selfUserDto);
   }
   
   private void setUpWebHookView() {
     webHook = mock(WebHook.class);
-    when(webHook.getAbout()).thenReturn(webHookValueObject);
+    when(webHook.getAbout()).thenReturn(webHookDto);
   }
   
   public void setUpRoleView() {
     role = mock(Role.class);
-    when(role.getAbout()).thenReturn(roleValueObject);
+    when(role.getAbout()).thenReturn(roleDto);
   }
   
   private void setUpTextChannelView() {
@@ -235,13 +235,13 @@ public abstract class AbstractCommandTest {
     when(channelView.getMessage(argThat(IdMatcher.of(messageId)))).thenReturn(messageView);
     when(channelView.getWebHook(any())).thenReturn(webHook);
     when(channelView.getWebHook(any(), anyBoolean())).thenReturn(webHook);
-    when(channelView.getAbout()).thenReturn(channelValueObject);
+    when(channelView.getAbout()).thenReturn(channelDto);
   }
   
   private void setUpGuildView() {
     guild = mock(Guild.class);
     when(guild.getSelfMember()).thenReturn(selfMemberView);
-    when(guild.getAbout()).thenReturn(guildValueObject);
+    when(guild.getAbout()).thenReturn(guildDto);
     when(guild.getMember(argThat(IdMatcher.of(userId)))).thenReturn(member);
     when(guild.getMember(argThat(IdMatcher.of(selfUserId)))).thenReturn(selfMemberView);
     when(guild.getRole(argThat(IdMatcher.of(roleId)))).thenReturn(role);
@@ -324,13 +324,13 @@ public abstract class AbstractCommandTest {
   }
   
   public Command parse(String content) {
-    MessageValueObject message = new MessageValueObject();
+    MessageDto message = new MessageDto();
     message.setContent(content);
     message.setAttachment(StringUtils.EMPTY);
     return parse(message);
   }
   
-  private Command parse(MessageValueObject message) {
+  private Command parse(MessageDto message) {
     GuildMessage source = mock(GuildMessage.class);
     
     when(source.getAbout()).thenReturn(message);

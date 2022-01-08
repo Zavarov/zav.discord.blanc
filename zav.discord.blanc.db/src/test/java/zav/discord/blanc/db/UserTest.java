@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.databind.UserValueObject;
+import zav.discord.blanc.databind.UserDto;
 
 /**
  * Test case for the User database.<br>
@@ -71,7 +71,7 @@ public class UserTest extends AbstractTest {
   public void testPutAlreadyExistingUser() throws SQLException {
     UserDatabase.put(user);
   
-    UserValueObject response = UserDatabase.get(user.getId());
+    UserDto response = UserDatabase.get(user.getId());
     assertThat(user.getName()).isEqualTo(response.getName());
     
     user.setName("Updated");
@@ -101,7 +101,7 @@ public class UserTest extends AbstractTest {
   public void testGetUser() throws SQLException {
     UserDatabase.put(user);
   
-    UserValueObject response = UserDatabase.get(user.getId());
+    UserDto response = UserDatabase.get(user.getId());
     
     Assertions.assertThat(response.getId()).isEqualTo(user.getId());
     Assertions.assertThat(response.getName()).isEqualTo(user.getName());

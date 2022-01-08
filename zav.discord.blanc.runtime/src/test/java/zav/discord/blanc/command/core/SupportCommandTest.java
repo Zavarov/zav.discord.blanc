@@ -6,7 +6,7 @@ import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractCommandTest;
 import zav.discord.blanc.command.Command;
-import zav.discord.blanc.databind.io.CredentialsValueObject;
+import zav.discord.blanc.databind.io.CredentialsDto;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
