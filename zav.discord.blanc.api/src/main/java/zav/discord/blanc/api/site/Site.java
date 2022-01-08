@@ -48,7 +48,9 @@ public class Site implements SiteListener {
    */
   public static Site of(List<SiteValueObject> sites) {
     Validate.validIndex(sites, 0);
-    Validate.validIndex(sites.get(0).getPages(), 0);
+    for (SiteValueObject site : sites) {
+      Validate.validIndex(site.getPages(), 0);
+    }
     return new Site(sites);
   }
   
