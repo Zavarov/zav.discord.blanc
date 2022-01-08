@@ -20,13 +20,14 @@ import static zav.discord.blanc.runtime.internal.ArgumentImpl.of;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import java.util.function.Consumer;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.Message;
 import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.api.site.SiteListener;
+import zav.discord.blanc.api.site.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildValueObject;
 import zav.discord.blanc.databind.RoleValueObject;
@@ -39,14 +40,7 @@ import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.db.WebHookDatabase;
 
-import java.sql.SQLException;
-import java.util.*;
-
-public class ConfigurationCommand extends AbstractGuildCommand implements SiteListener {
-  private int index;
-  private List<SiteValueObject> sites;
-  private SiteValueObject currentSite;
-  private PageValueObject currentPage;
+public class ConfigurationCommand extends AbstractGuildCommand {
   private GuildValueObject guildData;
   
   public ConfigurationCommand() {
@@ -55,19 +49,19 @@ public class ConfigurationCommand extends AbstractGuildCommand implements SiteLi
   
   @Override
   public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
     guildData = guild.getAbout();
-    sites = new ArrayList<>();
   }
   
   @Override
   public void run() throws SQLException {
-    sites.add(createMainSite());
-    sites.add(createBlacklistSite());
-    sites.add(createSubredditSite());
-    sites.add(createSelfAssignableRolesSite());
+    List<SiteValueObject> sites = new ArrayList<>();
     
-    channel.send(this, sites);
+    sites.add(createMainSite());
+    createBlacklistSite().ifPresent(sites::add);
+    createSubredditSite().ifPresent(sites::add);
+    createSelfAssignableRolesSite().ifPresent(sites::add);
+    
+    channel.send(Site.of(sites), sites);
   }
   
   // ---------------------------------------------------------------------------------------------//
@@ -76,22 +70,57 @@ public class ConfigurationCommand extends AbstractGuildCommand implements SiteLi
   //                                                                                              //
   // ---------------------------------------------------------------------------------------------//
   
-  
+  /**
+   * <pre>
+   *   +-----------------------+
+   *   | Main Page             |
+   *   +-----------------------+
+   *   |                       |
+   *   | Guild Prefix          |
+   *   |   ....                |
+   *   | Active User           |
+   *   |   @...                |
+   *   |                       |
+   *   +-----------------------+
+   * </pre>
+   *
+   * @return The main page.
+   */
   private SiteValueObject createMainSite() {
     MessageEmbedValueObject content = new MessageEmbedValueObject();
     content.setTitle(guildData.getName());
-    content.addField("Guild Prefix", guildData.getPrefix());
+    content.addField("Guild Prefix", guildData.getPrefix().orElse("<None>"));
+    content.addField("Active User", author.getAsMention());
     
     PageValueObject mainPage = new PageValueObject()
           .withContent(content);
     
     return new SiteValueObject()
           .withPages(List.of(mainPage))
-          .withLabel("mainPage")
-          .withDescription("Main Page");
+          .withLabel("Main Page")
+          .withDescription("Go back to the main page.");
   }
+  
+  /**
+   * <pre>
+   *   +-----------------------+
+   *   | Forbidden Expressions |
+   *   +-----------------------+
+   *   |                       |
+   *   |   ....                |
+   *   |   ....                |
+   *   |   ....                |
+   *   |                       |
+   *   +-----------------------+
+   * </pre>
+   *
+   * @return A site over all banned expressions; Empty if no such expressions exists.
+   */
+  private Optional<SiteValueObject> createBlacklistSite() {
+    if (guildData.getBlacklist().isEmpty()) {
+      return Optional.empty();
+    }
     
-  private SiteValueObject createBlacklistSite() {
     String value = guildData.getBlacklist()
           .stream()
           .reduce((u, v) -> u + StringUtils.LF + v)
@@ -104,13 +133,33 @@ public class ConfigurationCommand extends AbstractGuildCommand implements SiteLi
     PageValueObject blacklistPage = new PageValueObject()
           .withContent(content);
     
-    return new SiteValueObject()
+    SiteValueObject site = new SiteValueObject()
           .withPages(List.of(blacklistPage))
-          .withLabel("blacklist")
-          .withDescription("Forbidden Expressions");
+          .withLabel("Forbidden Expressions")
+          .withDescription("All words that are banned in this guild.");
+  
+    return Optional.of(site);
   }
-
-  private SiteValueObject createSubredditSite() throws SQLException {
+  
+  /**
+   * <pre>
+   *   +-----------------------+
+   *   | Subreddit Feeds       |
+   *   +-----------------------+
+   *   |                       |
+   *   | r/....                |
+   *   |     #....             |
+   *   |     #....             |
+   *   | r/....                |
+   *   |     #....             |
+   *   |                       |
+   *   +-----------------------+
+   * </pre>
+   *
+   * @return A site over all registered subreddit feeds; Empty if no subreddits are registered.
+   * @throws SQLException If a database error occurred.
+   */
+  private Optional<SiteValueObject> createSubredditSite() throws SQLException {
     // Subreddit Name -> Text Channels
     Multimap<String, String> subreddits = HashMultimap.create();
     
@@ -127,38 +176,53 @@ public class ConfigurationCommand extends AbstractGuildCommand implements SiteLi
       }
     }
   
-    SiteValueObject subredditSite = new SiteValueObject()
-          .withLabel("subreddits")
-          .withDescription("Subreddit Feeds");
+    MessageEmbedValueObject content = new MessageEmbedValueObject();
+    content.setTitle("Subreddit Feeds");
+  
+    PageValueObject subredditPage = new PageValueObject()
+          .withContent(content);
     
-    // Create a page for each subreddit
+    SiteValueObject subredditSite = new SiteValueObject()
+          .withLabel("Subreddit Feeds")
+          .withDescription("All subreddit feeds and their corresponding text channels.")
+          .withPages(List.of(subredditPage));
+    
+    // Create a field for each subreddit
     subreddits.asMap().forEach((key, values) -> {
       String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
-      
-      MessageEmbedValueObject content = new MessageEmbedValueObject();
-      content.setTitle("Subreddit Feeds");
-      content.addField(key, value);
-      
-      PageValueObject subredditPage = new PageValueObject()
-            .withContent(content);
-      
-      subredditSite.getPages().add(subredditPage);
+      content.addField("r/" + key, value);
     });
     
-    return subredditSite;
+    return subredditSite.getPages().isEmpty() ? Optional.empty() : Optional.of(subredditSite);
   }
-
-  private SiteValueObject createSelfAssignableRolesSite() throws SQLException {
+  
+  /**
+   * <pre>
+   *   +-----------------------+
+   *   | Self-assignable Roles |
+   *   +-----------------------+
+   *   |                       |
+   *   | &lt;Group&gt;         |
+   *   |     @....             |
+   *   |     @....             |
+   *   |                       |
+   *   +-----------------------+
+   * </pre>
+   *
+   * @return A site over all self-assignable roles; Empty if none of the roles are self-assignable.
+   * @throws SQLException If a database error occurred.
+   */
+  private Optional<SiteValueObject> createSelfAssignableRolesSite() throws SQLException {
     // Role Group -> Roles
     Multimap<String, String> roles = HashMultimap.create();
     
     for (RoleValueObject role : RoleDatabase.getAll(guildData.getId())) {
-      roles.put(role.getGroup(), guild.getRole(of(guildData.getId())).getAsMention());
+      roles.put(role.getGroup().orElse("default"), guild.getRole(of(guildData.getId())).getAsMention());
     }
   
     SiteValueObject roleSite = new SiteValueObject()
-          .withLabel("roles")
-          .withDescription("Self-assignable Roles");
+          .withLabel("Self-assignable Roles")
+          .withDescription("All self-assignable roles.");
     
     roles.asMap().forEach((key, values) -> {
       String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
@@ -173,48 +237,6 @@ public class ConfigurationCommand extends AbstractGuildCommand implements SiteLi
       roleSite.getPages().add(rolePage);
     });
     
-    return roleSite;
-  }
-  
-  // ---------------------------------------------------------------------------------------------//
-  //                                                                                              //
-  //  SiteListener                                                                                //
-  //                                                                                              //
-  // ---------------------------------------------------------------------------------------------//
-  
-  @Override
-  public boolean canMoveLeft() {
-    return index >= 0;
-  }
-  
-  @Override
-  public void moveLeft(Consumer<PageValueObject> consumer) {
-    currentSite = sites.get(--index);
-    currentPage = currentSite.getPages().get(0);
-    
-    consumer.accept(currentPage);
-  }
-  
-  @Override
-  public boolean canMoveRight() {
-    return index < currentSite.getPages().size() - 1;
-  }
-  
-  @Override
-  public void moveRight(Consumer<PageValueObject> consumer) {
-    currentSite = sites.get(++index);
-    currentPage = currentSite.getPages().get(0);
-  
-    consumer.accept(currentPage);
-  }
-  
-  @Override
-  public void changeSelection(String label) {
-    index = 0;
-    
-    currentSite = sites.stream()
-          .filter(site -> site.getLabel().equals(label))
-          .findFirst()
-          .orElseThrow();
+    return roleSite.getPages().isEmpty() ? Optional.empty() : Optional.of(roleSite);
   }
 }
