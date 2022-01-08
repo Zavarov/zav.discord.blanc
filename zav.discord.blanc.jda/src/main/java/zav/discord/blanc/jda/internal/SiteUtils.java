@@ -45,8 +45,8 @@ public final class SiteUtils {
   public static ActionRow[] getActionRows(SiteListener listener, List<SiteValueObject> sites) {
     List<ActionRow> actionRows = new ArrayList<>(2);
   
-    createSelectionMenu(sites).ifPresent(actionRows::add);
     createButtons(listener, sites).ifPresent(actionRows::add);
+    createSelectionMenu(sites).ifPresent(actionRows::add);
     
     return actionRows.toArray(ActionRow[]::new);
   }
@@ -81,7 +81,7 @@ public final class SiteUtils {
   }
   
   private static Optional<ActionRow> createSelectionMenu(List<SiteValueObject> sites) {
-    if (sites.size() > 1) {
+    if (sites.size() < 2) {
       return Optional.empty();
     }
     
