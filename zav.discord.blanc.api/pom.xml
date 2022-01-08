@@ -30,6 +30,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${lang3.version}</version>
+        </dependency>
+        <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>databind</artifactId>
             <version>${project.version}</version>

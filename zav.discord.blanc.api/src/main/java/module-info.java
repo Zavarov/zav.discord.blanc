@@ -1,5 +1,6 @@
 module zav.discord.blanc.api {
   requires java.desktop;
+  requires org.apache.commons.lang3;
   requires zav.discord.blanc.databind;
   requires zav.jrc.databind;
   
