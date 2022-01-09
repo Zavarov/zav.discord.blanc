@@ -10,7 +10,6 @@ module zav.discord.blanc.db {
   exports zav.discord.blanc.db;
   
   opens guild;
-  opens role;
   opens textchannel;
   opens user;
   opens webhook;
