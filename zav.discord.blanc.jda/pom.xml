@@ -43,12 +43,6 @@
 
         <dependency>
             <groupId>zav.discord.blanc</groupId>
-            <artifactId>activity</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>zav.discord.blanc</groupId>
             <artifactId>db</artifactId>
             <version>${project.version}</version>
         </dependency>

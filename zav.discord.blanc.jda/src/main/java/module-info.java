@@ -11,7 +11,6 @@ module zav.discord.blanc.jda {
   requires net.dv8tion.jda;
   requires org.apache.commons.lang3;
   requires org.apache.logging.log4j;
-  requires zav.discord.blanc.activity;
   requires zav.discord.blanc.api;
   requires zav.discord.blanc.databind;
   requires zav.jrc.databind;
