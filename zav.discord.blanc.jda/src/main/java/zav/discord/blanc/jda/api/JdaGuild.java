@@ -25,43 +25,27 @@ import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMember;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveRole;
 import static zav.discord.blanc.jda.internal.ResolverUtils.resolveTextChannel;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.activity.ActivityChart;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.RoleDto;
-import zav.discord.blanc.databind.TextChannelDto;
-import zav.discord.blanc.databind.activity.DataPointDto;
 import zav.discord.blanc.jda.internal.GuiceUtils;
 import zav.discord.blanc.jda.internal.listener.BlacklistListener;
-import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
 
 /**
  * Implementation of a guild view, backed by JDA.
  */
 public class JdaGuild implements zav.discord.blanc.api.Guild {
-  protected final ActivityChart activityChart;
   
   @Inject
   protected Guild jdaGuild;
-  
-  public JdaGuild() {
-    this.activityChart = new ActivityChart();
-  }
   
   @Override
   public GuildDto getAbout() {
@@ -121,24 +105,6 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   }
   
   @Override
-  public void updateActivity() {
-    DataPointDto dp = new DataPointDto();
-    
-    double activity = GuildActivityListener.getActivity(this);
-    long membersCount = jdaGuild.getMemberCount();
-    long membersOnline = jdaGuild.getMembers()
-          .stream()
-          .filter(member -> member.getOnlineStatus() == OnlineStatus.ONLINE)
-          .count();
-    
-    dp.setActivity(activity);
-    dp.setMembersCount(membersCount);
-    dp.setMembersOnline(membersOnline);
-    
-    activityChart.add(LocalDateTime.now(), dp);
-  }
-  
-  @Override
   public void updateBlacklist(Pattern pattern) {
     BlacklistListener.setPattern(jdaGuild.getIdLong(), pattern);
   }
@@ -146,22 +112,5 @@ public class JdaGuild implements zav.discord.blanc.api.Guild {
   @Override
   public void leave() {
     jdaGuild.leave().complete();
-  }
-  
-  @Override
-  public boolean canInteract(zav.discord.blanc.api.Member member, RoleDto role) {
-    @Nullable Member jdaMember = jdaGuild.getMemberById(member.getAbout().getId());
-    @Nullable Role jdaRole = jdaGuild.getRoleById(role.getId());
-  
-    // Return false, if either the member or the role doesn't exist.
-    return jdaMember != null && jdaRole != null && jdaMember.canInteract(jdaRole);
-  }
-  
-  @Override
-  public BufferedImage getActivity(List<TextChannelDto> channels) {
-    return activityChart.new Builder()
-          .withGuild(getAbout())
-          .withChannels(channels)
-          .build(new Rectangle(800, 600));
   }
 }

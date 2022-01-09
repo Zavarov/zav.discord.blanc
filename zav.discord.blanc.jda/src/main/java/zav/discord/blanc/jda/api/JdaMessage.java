@@ -57,14 +57,4 @@ public abstract class JdaMessage implements zav.discord.blanc.api.Message {
   
     return injectShard(jda);
   }
-  
-  @Override
-  public void delete() {
-    jdaMessage.delete().complete();
-  }
-  
-  @Override
-  public void react(String reaction) {
-    jdaMessage.addReaction(reaction).complete();
-  }
 }

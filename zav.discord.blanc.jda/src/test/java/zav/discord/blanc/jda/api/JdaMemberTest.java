@@ -40,14 +40,6 @@ public class JdaMemberTest extends AbstractTest {
   }
   
   @Test
-  public void testGetRoles() {
-    Set<JdaRole> roles = member.getRoles();
-    
-    assertThat(roles).hasSize(1);
-    assertThat(roles).doesNotContainNull();
-  }
-  
-  @Test
   public void testGetPermissions() {
     assertThat(member.getPermissions()).containsExactly(MANAGE_MESSAGES);
   }

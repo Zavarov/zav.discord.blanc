@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.jda.api;
 
-import static zav.discord.blanc.jda.internal.DatabaseUtils.aboutRole;
-
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Role;
 import zav.discord.blanc.databind.RoleDto;
@@ -28,10 +26,11 @@ import zav.discord.blanc.databind.RoleDto;
 public class JdaRole implements zav.discord.blanc.api.Role {
   @Inject
   private Role jdaRole;
-
+  
   @Override
   public RoleDto getAbout() {
-    return aboutRole(jdaRole);
+    return new RoleDto().withId(jdaRole.getIdLong())
+          .withName(jdaRole.getName());
   }
   
   @Override

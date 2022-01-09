@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -31,12 +30,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.command.Rank;
 import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.GuildDatabase;
-import zav.discord.blanc.db.RoleDatabase;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.db.UserDatabase;
 import zav.discord.blanc.db.WebHookDatabase;
@@ -64,31 +61,6 @@ public final class DatabaseUtils {
             .withId(guild.getIdLong())
             .withName(guild.getName());
       
-    } catch (SQLException e) {
-      LOGGER.error(e.getMessage(), e);
-      throw new RuntimeException(e);
-    }
-  }
-  
-  /**
-   * Deserializes the given role by looking up a matching entry in the database. If no entry is
-   * found, a new object is constructed (but not added to the database).
-   *
-   * @param role A JDA role.
-   * @return A JSON object corresponding to the role.
-   */
-  public static RoleDto aboutRole(Role role) {
-    try {
-      long guildId = role.getGuild().getIdLong();
-      long roleId = role.getIdLong();
-      
-      // Role name may have changed since the last time the database was updated
-      return RoleDatabase.get(guildId, roleId)
-            .withName(role.getName());
-    } catch (NoSuchElementException e) {
-      return new RoleDto()
-            .withId(role.getIdLong())
-            .withName(role.getName());
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
       throw new RuntimeException(e);
