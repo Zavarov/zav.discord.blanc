@@ -8,10 +8,6 @@
     "name" : {
       "description" : "Human-readable name of the role.",
       "type" : "string"
-    },
-    "group" : {
-      "description" : "Self-assignable role-group.",
-      "type" : "string"
     }
   },
   "required" : ["id", "name"]
