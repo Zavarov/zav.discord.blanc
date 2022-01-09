@@ -31,8 +31,4 @@ public interface Message {
   User getAuthor();
 
   Shard getShard();
-
-  void delete();
-
-  void react(String reaction);
 }

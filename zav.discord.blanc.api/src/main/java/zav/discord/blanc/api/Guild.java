@@ -74,13 +74,6 @@ public interface Guild {
   TextChannel getTextChannel(Argument argument);
   
   /**
-   * Creates a snapshot of the guild activity at the current time.<br>
-   * The activity includes the numbers of messages per minute, the total number of members and the
-   * number of members that are currently online.
-   */
-  void updateActivity();
-  
-  /**
    * Updates all expressions that can't be used in this guild.<br>
    * Every message that contains at least one forbidden expression is automatically deleted.
    *
@@ -92,25 +85,4 @@ public interface Guild {
    * Forces the bot to leave this guild.
    */
   void leave();
-  
-  /**
-   * Checks whether the given member is allowed to interact with the role.<br>
-   * Relevant e.g. for checking whether a user can assign a specific role.
-   *
-   * @param member The view over member of this guild.
-   * @param role A role of this guild.
-   * @return {@code true}, when the member is allowed to assign this role to a user.
-   */
-  boolean canInteract(Member member, RoleDto role);
-  
-  /**
-   * Creates an activity chart over this guild. The chart plots the total number of members, the
-   * number of members that have been online at a given time as well as the number of messages per
-   * minute.<br>
-   * Additionally, the activity per minutes in {@code channels} is plotted as well.
-   *
-   * @param channels A list of text channels in this guild.
-   * @return An line chart plotting the recent guild activity.
-   */
-  BufferedImage getActivity(List<TextChannelDto> channels);
 }
