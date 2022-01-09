@@ -25,7 +25,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>zav.discord.blanc.activity</module>
         <module>zav.discord.blanc.api</module>
         <module>zav.discord.blanc.command</module>
         <module>zav.discord.blanc.db</module>
