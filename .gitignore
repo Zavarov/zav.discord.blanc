@@ -89,4 +89,7 @@ fabric.properties
 **/*.iml
 
 **/src/main/resources/*.json
-*.db
+Guild.db
+TextChannel.db
+User.db
+WebHook.db
