@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,9 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda;
-
-import static zav.discord.blanc.jda.internal.GuiceUtils.injectShard;
+package zav.discord.blanc.api.internal;
 
 import com.google.inject.Injector;
 import java.util.ArrayList;
@@ -33,19 +31,16 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
-import zav.discord.blanc.jda.api.JdaShard;
-import zav.discord.blanc.jda.internal.GuiceUtils;
-import zav.discord.blanc.jda.internal.guice.JdaModule;
-import zav.discord.blanc.jda.internal.listener.BlacklistListener;
-import zav.discord.blanc.jda.internal.listener.GuildActivityListener;
-import zav.discord.blanc.jda.internal.listener.GuildCommandListener;
-import zav.discord.blanc.jda.internal.listener.PrivateCommandListener;
-import zav.discord.blanc.jda.internal.listener.SiteComponentListener;
+import zav.discord.blanc.api.internal.guice.ShardModule;
+import zav.discord.blanc.api.internal.listener.BlacklistListener;
+import zav.discord.blanc.api.internal.listener.GuildCommandListener;
+import zav.discord.blanc.api.internal.listener.PrivateCommandListener;
+import zav.discord.blanc.api.internal.listener.SiteComponentListener;
 
 /**
  * Utility class for initializing Discord shards.
  */
-public class JdaShardSupplier implements Iterator<JdaShard> {
+public class JdaShardSupplier implements Iterator<JDA> {
   /**
    * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
    * We use an additional second as buffer, bringing the time up to 6 seconds.
@@ -65,15 +60,15 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
   );
   
   @Inject
-  private Injector injector;
-  
-  @Inject
   @Named("discordToken")
   private String token;
   
   @Inject
   @Named("shardCount")
   private long shardCount;
+  
+  @Inject
+  private Injector injector;
   
   private int index = 0;
   
@@ -83,7 +78,7 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
   }
   
   @Override
-  public JdaShard next() {
+  public JDA next() {
     try {
       rateLimiter.acquire();
     
@@ -96,23 +91,19 @@ public class JdaShardSupplier implements Iterator<JdaShard> {
       
       jda.awaitReady();
       
-      Injector shardInjector = injector.createChildInjector(new JdaModule());
-
-      GuiceUtils.setInjector(shardInjector);
-      JdaShard shard = injectShard(jda);
-      
       List<EventListener> listeners = new ArrayList<>();
       
       listeners.add(new BlacklistListener());
-      listeners.add(new GuildActivityListener());
-      listeners.add(new GuildCommandListener(shard));
-      listeners.add(new PrivateCommandListener(shard));
+      listeners.add(new GuildCommandListener());
+      listeners.add(new PrivateCommandListener());
       listeners.add(new SiteComponentListener());
+      
+      Injector shardInjector = injector.createChildInjector(new ShardModule());
       
       listeners.forEach(shardInjector::injectMembers);
       listeners.forEach(jda::addEventListener);
       
-      return shard;
+      return jda;
     } catch (Exception e)  {
       throw new RuntimeException(e);
     }

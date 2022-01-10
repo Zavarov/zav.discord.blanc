@@ -14,34 +14,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.internal.listener;
+package zav.discord.blanc.api.internal.listener;
 
-import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.Shard;
-import zav.discord.blanc.command.Command;
+import zav.discord.blanc.api.command.Command;
 
 /**
  * Abstract base class for both the guild and private command listener.
  */
 public abstract class AbstractCommandListener extends ListenerAdapter {
   private static final Logger LOGGER = LogManager.getLogger(AbstractCommandListener.class);
-  private final Shard shard;
 
-  protected AbstractCommandListener(Shard shard) {
-    this.shard = shard;
-  }
+  @Inject
+  private ScheduledExecutorService queue;
 
-  protected void submit(MessageChannel channel, Command command, List<? extends Argument> args) {
-    shard.submit(() -> {
+  protected void submit(MessageChannel channel, Command command) {
+    queue.submit(() -> {
       try {
-        command.postConstruct(args);
         command.validate();
         command.run();
       } catch (Exception e) {

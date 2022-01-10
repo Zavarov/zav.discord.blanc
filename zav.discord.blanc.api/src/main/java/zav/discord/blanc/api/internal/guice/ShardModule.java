@@ -13,7 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.jda.internal.listener;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+package zav.discord.blanc.api.internal.guice;
+
+import com.google.inject.AbstractModule;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+/**
+ * The module containing the fields of each individual shard.
+ */
+public class ShardModule extends AbstractModule {
+  private static final ScheduledExecutorService queue = Executors.newScheduledThreadPool(16);
+  
+  @Override
+  protected void configure() {
+    bind(ExecutorService.class).toInstance(queue);
+    bind(ScheduledExecutorService.class).toInstance(queue);
+  }
+}

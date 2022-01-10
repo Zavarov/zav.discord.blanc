@@ -14,9 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.internal.listener;
+package zav.discord.blanc.api.internal.listener;
 
-import static zav.discord.blanc.jda.internal.MessageEmbedUtils.forPage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -29,7 +28,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Button;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.site.SiteListener;
+import zav.discord.blanc.api.Site;
 
 /**
  * The listener for notifying the message components of a command whenever the author interacts with
@@ -38,21 +37,21 @@ import zav.discord.blanc.api.site.SiteListener;
 public class SiteComponentListener extends ListenerAdapter {
   private static final long MAX_CACHE_SIZE = 1024;
   
-  private static final Cache<Message, SiteListener> CACHE = CacheBuilder.newBuilder()
+  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder()
         .expireAfterAccess(Duration.ofHours(1))
         .maximumSize(MAX_CACHE_SIZE)
         .build();
   
-  public static void add(Message jdaMessage, SiteListener listener) {
-    CACHE.put(jdaMessage, listener);
+  public static void add(Message message, Site site) {
+    CACHE.put(message, site);
   }
   
   @Override
   public void onButtonClick(@NonNull ButtonClickEvent event) {
-    @Nullable SiteListener listener = CACHE.getIfPresent(event.getMessage());
+    @Nullable Site site = CACHE.getIfPresent(event.getMessage());
     
     // Unknown message -> ignore
-    if (listener == null) {
+    if (site == null) {
       return;
     }
     
@@ -72,27 +71,28 @@ public class SiteComponentListener extends ListenerAdapter {
     
     switch (id) {
       case "left":
-        listener.moveLeft(embed -> event.getInteraction()
+        site.moveLeft(embed -> event.getInteraction()
               .deferEdit()
-              .setEmbeds(forPage(embed))
+              .setEmbeds(embed)
               .complete());
         break;
       case "right":
-        listener.moveRight(embed -> event.getInteraction()
+        site.moveRight(embed -> event.getInteraction()
               .deferEdit()
-              .setEmbeds(forPage(embed))
+              .setEmbeds(embed)
               .complete());
         break;
       default:
+        // TODO ERROR
     }
   }
   
   @Override
   public void onSelectionMenu(@NonNull SelectionMenuEvent event) {
-    @Nullable SiteListener listener = CACHE.getIfPresent(event.getMessage());
+    @Nullable Site site = CACHE.getIfPresent(event.getMessage());
   
     // Unknown message -> ignore
-    if (listener == null) {
+    if (site == null) {
       return;
     }
     
@@ -103,9 +103,9 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
-    listener.changeSelection(values.get(0), embed -> event.getInteraction()
+    site.changeSelection(values.get(0), embed -> event.getInteraction()
           .deferEdit()
-          .setEmbeds(forPage(embed))
+          .setEmbeds(embed)
           .complete());
   }
 }
