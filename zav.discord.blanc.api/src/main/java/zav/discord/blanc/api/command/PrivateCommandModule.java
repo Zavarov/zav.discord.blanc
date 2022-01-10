@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.internal.guice;
+package zav.discord.blanc.api.command;
 
 import com.google.inject.AbstractModule;
 import net.dv8tion.jda.api.JDA;
@@ -26,23 +26,23 @@ import net.dv8tion.jda.api.entities.User;
 /**
  * A module for injecting all fields of a private command.
  */
-public class JdaPrivateMessageModule  extends AbstractModule {
+public class PrivateCommandModule extends AbstractModule {
   
-  private final Message jdaMessage;
+  private final Message message;
   
-  public JdaPrivateMessageModule(Message jdaMessage) {
-    this.jdaMessage = jdaMessage;
+  public PrivateCommandModule(Message message) {
+    this.message = message;
   }
   
   @Override
   protected void configure() {
     // General
-    bind(JDA.class).toInstance(jdaMessage.getJDA());
-    bind(MessageChannel.class).toInstance(jdaMessage.getChannel());
-    bind(Message.class).toInstance(jdaMessage);
-    bind(User.class).toInstance(jdaMessage.getAuthor());
+    bind(JDA.class).toInstance(message.getJDA());
+    bind(MessageChannel.class).toInstance(message.getChannel());
+    bind(Message.class).toInstance(message);
+    bind(User.class).toInstance(message.getAuthor());
     
     // Private channel specific
-    bind(PrivateChannel.class).toInstance(jdaMessage.getPrivateChannel());
+    bind(PrivateChannel.class).toInstance(message.getPrivateChannel());
   }
 }

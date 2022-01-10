@@ -14,29 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.runtime.command.core;
+package zav.discord.blanc.api.command;
 
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.UserDto;
-
-import java.util.List;
+import zav.discord.blanc.api.Job;
 
 /**
- * This command shows information about the mentioned member.
+ * Base interface implemented by all commands.
  */
-public class MemberInfoCommand extends AbstractGuildCommand {
-  @Nullable
-  private UserDto myMemberData;
-  
-  @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myMemberData = args.isEmpty() ? author.getAbout() : guild.getMember(args.get(0)).getAbout();
-  }
-
-  @Override
-  public void run() {
-    channel.send(myMemberData);
-  }
+public interface Command extends Job {
+  void validate() throws InvalidCommandException;
 }

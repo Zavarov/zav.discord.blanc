@@ -14,7 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@NonNullByDefault
-package zav.discord.blanc.command.guice;
+package zav.discord.blanc.api.command;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+/**
+ * Base class for all command-related exception.<br>
+ */
+public abstract class InvalidCommandException extends Exception {
+  public InvalidCommandException() {
+    super();
+  }
+  
+  public InvalidCommandException(String message) {
+    super(message);
+  }
+}

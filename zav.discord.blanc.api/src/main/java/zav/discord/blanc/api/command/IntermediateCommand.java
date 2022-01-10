@@ -14,27 +14,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.runtime.command.core;
-
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildDto;
+package zav.discord.blanc.api.command;
 
 import java.util.List;
+import java.util.Optional;
+import zav.discord.blanc.api.Argument;
 
 /**
- * This command show the information about the guild the command was executed in.
+ * Base interface for the intermediate representation of a command.<br>
+ * All commands consist of a (guild-specific) prefix, a distinct name and optionally, flags and
+ * arguments. As an example:
+ * <pre>
+ *   b:foo -f bar
+ *
+ *   (prefix) b
+ *   (name) foo
+ *   (flags) [f]
+ *   (arguments) [bar]
+ * </pre>
  */
-public class GuildInfoCommand extends AbstractGuildCommand {
-  private GuildDto myGuildData;
+public interface IntermediateCommand {
+  Optional<String> getPrefix();
   
-  @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myGuildData = guild.getAbout();
-  }
+  String getName();
   
-  @Override
-  public void run() {
-    channel.send(myGuildData);
-  }
+  List<String> getFlags();
+  
+  List<? extends Argument> getArguments();
 }
