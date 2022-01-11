@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.internal.guice.ShardModule;
 import zav.discord.blanc.api.internal.listener.BlacklistListener;
 import zav.discord.blanc.api.internal.listener.GuildCommandListener;
@@ -73,11 +74,13 @@ public class JdaShardSupplier implements Iterator<JDA> {
   private int index = 0;
   
   @Override
+  @Contract(pure = true)
   public boolean hasNext() {
     return index < shardCount;
   }
   
   @Override
+  @Contract(pure = true)
   public JDA next() {
     try {
       rateLimiter.acquire();

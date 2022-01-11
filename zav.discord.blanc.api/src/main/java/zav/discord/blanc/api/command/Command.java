@@ -16,11 +16,13 @@
 
 package zav.discord.blanc.api.command;
 
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Job;
 
 /**
  * Base interface implemented by all commands.
  */
 public interface Command extends Job {
+  @Contract(pure = true)
   void validate() throws InvalidCommandException;
 }

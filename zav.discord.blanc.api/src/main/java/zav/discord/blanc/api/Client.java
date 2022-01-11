@@ -22,6 +22,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.internal.JdaShardSupplier;
 
 /**
@@ -37,6 +38,7 @@ public class Client {
     supplier.forEachRemaining(shards::add);
   }
   
+  @Contract(pure = true)
   public List<JDA> getShards() {
     return List.copyOf(shards);
   }
@@ -48,6 +50,7 @@ public class Client {
    * @param guildId A guild id.
    * @return The shard in which the guild is located.
    */
+  @Contract(pure = true)
   public JDA getShard(long guildId) {
     // @See https://discord.com/developers/docs/topics/gateway#sharding
     long index = (guildId >> 22) % shards.size();

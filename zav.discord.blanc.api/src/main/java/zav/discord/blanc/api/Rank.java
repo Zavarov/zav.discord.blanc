@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.Contract;
 
 /**
  * An enumeration of all possible ranks a user may have.<br>
@@ -52,11 +53,13 @@ public enum Rank {
    * @param ranks A collection of rank names.
    * @return A list of effective ranks.
    */
+  @Contract(pure = true)
   public static Set<Rank> getEffectiveRank(Collection<String> ranks) {
     Set<Rank> source = ranks.stream()
           .map(String::toUpperCase)
           .map(Rank::valueOf)
           .collect(Collectors.toSet());
+
     Set<Rank> target = new HashSet<>();
     
     for (Rank userRank : source) {

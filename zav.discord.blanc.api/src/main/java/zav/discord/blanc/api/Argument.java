@@ -18,13 +18,16 @@ package zav.discord.blanc.api;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import org.jetbrains.annotations.Contract;
 
 /**
  * A generic argument of a command.<br>
  * An argument may either be a number (e.g. when providing a user id) or a plain string.
  */
 public interface Argument {
+  @Contract(pure = true)
   Optional<BigDecimal> asNumber();
   
+  @Contract(pure = true)
   Optional<String> asString();
 }

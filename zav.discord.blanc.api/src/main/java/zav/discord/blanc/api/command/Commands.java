@@ -19,6 +19,7 @@ package zav.discord.blanc.api.command;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.jetbrains.annotations.Contract;
 
 /**
  * This class contains all commands that are known during runtime.<br>
@@ -34,6 +35,7 @@ public final class Commands {
     return commands.put(key, command) != null;
   }
   
+  @Contract(pure = true)
   public static Optional<Class<? extends Command>> get(String key) {
     return Optional.ofNullable(commands.get(key));
   }

@@ -18,6 +18,7 @@ package zav.discord.blanc.api.command;
 
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Argument;
 
 /**
@@ -34,11 +35,15 @@ import zav.discord.blanc.api.Argument;
  * </pre>
  */
 public interface IntermediateCommand {
+  @Contract(pure = true)
   Optional<String> getPrefix();
   
+  @Contract(pure = true)
   String getName();
   
+  @Contract(pure = true)
   List<String> getFlags();
   
+  @Contract(pure = true)
   List<? extends Argument> getArguments();
 }

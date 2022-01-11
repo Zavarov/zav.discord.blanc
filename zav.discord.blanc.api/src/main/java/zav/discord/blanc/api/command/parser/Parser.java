@@ -20,6 +20,7 @@ import com.google.inject.Module;
 import java.util.Optional;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.api.command.Commands;
 import zav.discord.blanc.api.command.IntermediateCommand;
@@ -34,7 +35,9 @@ import zav.discord.blanc.api.command.IntermediateCommand;
  * @see Commands
  */
 public interface Parser {
+  @Contract(pure = true)
   @Nullable IntermediateCommand parse(Message source);
   
+  @Contract(pure = true)
   Optional<? extends Command> parse(Module module, Message source);
 }
