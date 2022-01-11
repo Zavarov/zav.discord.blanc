@@ -32,7 +32,7 @@ public final class Commands {
   private Commands() {}
   
   public static boolean bind(String key, Class<? extends Command> command) {
-    return commands.put(key, command) != null;
+    return commands.putIfAbsent(key, command) == null;
   }
   
   @Contract(pure = true)
