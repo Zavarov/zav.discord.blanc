@@ -43,7 +43,7 @@ public class Site {
    */
   public static Site create(List<Page> pages) {
     Validate.validIndex(pages, 0);
-    return new Site(pages);
+    return new Site(List.copyOf(pages));
   }
   
   public void moveLeft(Consumer<MessageEmbed> consumer) {
@@ -95,7 +95,7 @@ public class Site {
     public static Page create(String label, List<MessageEmbed> entries) {
       // Page needs at least one entry
       Validate.validIndex(entries, 0);
-      return new Page(label, entries);
+      return new Page(label, List.copyOf(entries));
     }
   }
 }
