@@ -80,7 +80,6 @@ public class JdaShardSupplier implements Iterator<JDA> {
   }
   
   @Override
-  @Contract(pure = true)
   public JDA next() {
     try {
       rateLimiter.acquire();
