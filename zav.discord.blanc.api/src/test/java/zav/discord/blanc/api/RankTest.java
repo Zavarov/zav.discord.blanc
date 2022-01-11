@@ -19,6 +19,7 @@ package zav.discord.blanc.api;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,6 +44,6 @@ public class RankTest {
   @ParameterizedTest
   @MethodSource
   public void testGetEffectiveRanks(String name, Set<Rank> effectiveRanks) {
-    assertThat(Rank.getEffectiveRank(name)).isEqualTo(effectiveRanks);
+    assertThat(Rank.getEffectiveRank(List.of(name))).isEqualTo(effectiveRanks);
   }
 }
