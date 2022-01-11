@@ -52,7 +52,7 @@ public class Site {
   }
   
   public void moveRight(Consumer<MessageEmbed> consumer) {
-    currentPage.index = Math.floorMod(currentPage.index - 1, currentPage.entries.size());
+    currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
     consumer.accept(currentPage.entries.get(currentPage.index));
   }
   
