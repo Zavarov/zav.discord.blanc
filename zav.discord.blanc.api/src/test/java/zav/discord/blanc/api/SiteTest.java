@@ -25,6 +25,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test class for interactive messages.
+ */
 public class SiteTest {
   Site site;
   

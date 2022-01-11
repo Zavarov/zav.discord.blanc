@@ -21,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test class for managing executable commands.
+ */
 public class CommandsTest {
   
   @AfterEach
