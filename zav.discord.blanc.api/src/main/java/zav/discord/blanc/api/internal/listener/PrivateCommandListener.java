@@ -16,15 +16,14 @@
 
 package zav.discord.blanc.api.internal.listener;
 
-import com.google.inject.Injector;
 import com.google.inject.Module;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.parser.Parser;
 import zav.discord.blanc.api.command.PrivateCommandModule;
+import zav.discord.blanc.api.command.parser.Parser;
 
 /**
  * Listener for private commands.<br>

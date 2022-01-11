@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,13 +16,41 @@
 
 package zav.discord.blanc.api;
 
+import com.google.inject.Injector;
+import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import net.dv8tion.jda.api.JDA;
+import zav.discord.blanc.api.internal.JdaShardSupplier;
 
 /**
  * The application instance over all shards.
  */
-public interface Client {
-  List<Shard> getShards();
+@Singleton
+public class Client {
+  private final List<JDA> shards = new ArrayList<>();
   
-  Shard getShard(long guildId);
+  @Inject
+  private void postConstruct(Injector injector) {
+    JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
+    supplier.forEachRemaining(shards::add);
+  }
+  
+  public List<JDA> getShards() {
+    return List.copyOf(shards);
+  }
+  
+  /**
+   * The shard in which a guild is located is determined using the following formula:
+   * {@code (guild id >> 22) / #shards}.
+   *
+   * @param guildId A guild id.
+   * @return The shard in which the guild is located.
+   */
+  public JDA getShard(long guildId) {
+    // @See https://discord.com/developers/docs/topics/gateway#sharding
+    long index = (guildId >> 22) % shards.size();
+    return shards.get((int) index);
+  }
 }

@@ -30,19 +30,34 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>${jda.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${lang3.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>databind</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>zav.jrc</groupId>
-            <artifactId>jrc-databind</artifactId>
-            <version>${jrc.version}</version>
         </dependency>
     </dependencies>
 </project>
