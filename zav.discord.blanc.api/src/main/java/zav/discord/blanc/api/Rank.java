@@ -16,13 +16,11 @@
 
 package zav.discord.blanc.api;
 
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -50,22 +48,15 @@ public enum Rank {
    * {@link Rank#ROOT} will always include all other ranks.<br>
    * The mapping is {@code case-insensitive}.
    *
-   * @param ranks A collection of rank names.
+   * @param rank A rank name.
    * @return A list of effective ranks.
    */
   @Contract(pure = true)
-  public static Set<Rank> getEffectiveRank(Collection<String> ranks) {
-    Set<Rank> source = ranks.stream()
-          .map(String::toUpperCase)
-          .map(Rank::valueOf)
-          .collect(Collectors.toSet());
+  public static Set<Rank> getEffectiveRank(String rank) {
+    Rank source = Rank.valueOf(rank.toUpperCase(Locale.ENGLISH));
+    
+    Set<Rank> target = effectiveRanks.getOrDefault(source, EnumSet.of(Rank.USER));
 
-    Set<Rank> target = new HashSet<>();
-    
-    for (Rank userRank : source) {
-      target.addAll(effectiveRanks.getOrDefault(userRank, EnumSet.of(Rank.USER)));
-    }
-    
-    return target;
+    return EnumSet.copyOf(target);
   }
 }
