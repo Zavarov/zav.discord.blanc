@@ -23,6 +23,9 @@ import zav.discord.blanc.api.Job;
  * Base interface implemented by all commands.
  */
 public interface Command extends Job {
+  
+  default void postConstruct() {}
+  
   @Contract(pure = true)
   void validate() throws InvalidCommandException;
 }
