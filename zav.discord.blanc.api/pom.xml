@@ -45,21 +45,6 @@
             <version>${jda.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>zav.discord.blanc</groupId>
-            <artifactId>databind</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>db</artifactId>
             <version>${project.version}</version>
