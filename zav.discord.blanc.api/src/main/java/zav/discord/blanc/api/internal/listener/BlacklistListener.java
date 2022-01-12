@@ -20,6 +20,7 @@ import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.db.GuildDatabase;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>
@@ -76,16 +78,40 @@ public class BlacklistListener extends ListenerAdapter {
     }
   }
   
-  private @Nullable Pattern getPattern(long guildId) {
-    return patternCache.getIfPresent(guildId);
+  /**
+   * Updates the pattern of banned expressions of the guild with the unique guild id.<br>
+   * All messages matching this pattern are deleted automatically.
+   *
+   * @param guildId The unique id of a guild.
+   * @param pattern The pattern all messages are matched against.
+   */
+  public static void setPattern(long guildId, @Nullable Pattern pattern) {
+    if (pattern == null) {
+      patternCache.invalidate(guildId);
+    } else {
+      patternCache.put(guildId, pattern);
+    }
   }
   
-  public static void setPattern(long guildId, Pattern pattern) {
-    patternCache.put(guildId, pattern);
+  private @Nullable Pattern getPattern(long guildId) {
+    @Nullable Pattern pattern = patternCache.getIfPresent(guildId);
+    
+    // Pattern has been cached
+    if (pattern != null) {
+      return pattern;
+    }
+    
+    // Fetch pattern from database if it has already been garbage-collected.
+    try {
+      return GuildDatabase.get(guildId).getPattern();
+    } catch (SQLException e) {
+      LOGGER.error(e.getMessage(), e);
+      return null;
+    }
   }
 
   private boolean isSelfUser(User author) {
-    return author.getIdLong() == author.getJDA().getSelfUser().getIdLong();
+    return author.equals(author.getJDA().getSelfUser());
   }
 
   private boolean hasRequiredPermissions(Guild guild, TextChannel channel) {
@@ -105,15 +131,13 @@ public class BlacklistListener extends ListenerAdapter {
      * @return {@code true}, if the message contains a forbidden expression.
      */
     public static boolean shouldDelete(Message message, Pattern pattern) {
-      boolean shouldDelete;
-      
-      shouldDelete = shouldDelete(message.getContentRaw(), pattern);
+      boolean shouldDelete = checkContent(message.getContentRaw(), pattern);
       
       if (shouldDelete) {
         return true;
       }
       
-      shouldDelete = shouldDelete(message.getEmbeds(), pattern);
+      shouldDelete = checkEmbeds(message.getEmbeds(), pattern);
       
       return shouldDelete;
     }
@@ -125,7 +149,7 @@ public class BlacklistListener extends ListenerAdapter {
      * @param pattern The pattern against which the content is validated.
      * @return {@code true}, if the message contains a forbidden expression.
      */
-    private static boolean shouldDelete(String content, Pattern pattern) {
+    private static boolean checkContent(String content, Pattern pattern) {
       return pattern.matcher(content).find();
     }
   
@@ -136,9 +160,9 @@ public class BlacklistListener extends ListenerAdapter {
      * @param pattern The pattern against which the embeds is validated.
      * @return {@code true}, if at least one of the embeds contains a forbidden expression.
      */
-    private static boolean shouldDelete(List<MessageEmbed> embeds, Pattern pattern) {
+    private static boolean checkEmbeds(List<MessageEmbed> embeds, Pattern pattern) {
       for (MessageEmbed embed : embeds) {
-        if (shouldDelete(embed, pattern)) {
+        if (checkEmbed(embed, pattern)) {
           return true;
         }
       }
@@ -148,13 +172,13 @@ public class BlacklistListener extends ListenerAdapter {
   
     /**
      * Checks whether the message embed contains a forbidden expression.<br>
-     * The title, url and all fields are validated.
+     * The title, url, description, footer and all fields are validated.
      *
-     * @param embed One of the embeds of a message.
+     * @param embed One of the embeds of the message.
      * @param pattern The pattern against which the embed is validated.
      * @return {@code true}, if the embed contains a forbidden expression.
      */
-    private static boolean shouldDelete(MessageEmbed embed, Pattern pattern) {
+    private static boolean checkEmbed(MessageEmbed embed, Pattern pattern) {
       if (embed.getTitle() != null && pattern.matcher(embed.getTitle()).find()) {
         return true;
       }
@@ -162,9 +186,17 @@ public class BlacklistListener extends ListenerAdapter {
       if (embed.getUrl() != null && pattern.matcher(embed.getUrl()).find()) {
         return true;
       }
+  
+      if (embed.getDescription() != null && pattern.matcher(embed.getDescription()).find()) {
+        return true;
+      }
+      
+      if (embed.getFooter() != null && checkFooter(embed.getFooter(), pattern)) {
+        return true;
+      }
       
       for (MessageEmbed.Field field : embed.getFields()) {
-        if (shouldDelete(field, pattern)) {
+        if (checkField(field, pattern)) {
           return true;
         }
       }
@@ -176,16 +208,27 @@ public class BlacklistListener extends ListenerAdapter {
      * Checks whether the embed field contains an forbidden expression.<br>
      * Both the name and the value of the field is validated.
      *
-     * @param field One of the fields of a message embed.
+     * @param field One of the fields of the message embed.
      * @param pattern The pattern against which the field is validated.
      * @return {@code true}, if the field contains a forbidden expression.
      */
-    private static boolean shouldDelete(MessageEmbed.Field field, Pattern pattern) {
+    private static boolean checkField(MessageEmbed.Field field, Pattern pattern) {
       if (field.getName() != null && pattern.matcher(field.getName()).find()) {
         return true;
       }
   
       return field.getValue() != null && pattern.matcher(field.getValue()).find();
+    }
+  
+    /**
+     * Checks whether the embed footer contains an forbidden expression.
+     *
+     * @param footer The footer of the message embed..
+     * @param pattern The pattern against which the field is validated.
+     * @return {@code true}, if the field contains a forbidden expression.
+     */
+    private static boolean checkFooter(MessageEmbed.Footer footer, Pattern pattern) {
+      return footer.getText() != null && pattern.matcher(footer.getText()).find();
     }
   }
 }

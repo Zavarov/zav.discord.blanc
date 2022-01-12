@@ -59,5 +59,10 @@
             <artifactId>databind</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>zav.discord.blanc</groupId>
+            <artifactId>db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
