@@ -19,31 +19,37 @@ package zav.discord.blanc.api;
 import java.util.List;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Contract;
 
 /**
  * Implementation of site.
  */
 public class Site {
   private final List<Page> pages;
+  private final User owner;
   private Page currentPage;
   
-  private Site(List<Page> pages) {
+  private Site(List<Page> pages, User owner) {
     this.pages = pages;
+    this.owner = owner;
     this.currentPage = pages.get(0);
   }
   
   /**
    * Creates a new instance of a site over the provided arguments.<br>
    * The argument has to contain at least one element. Furthermore, all sites need to contain at
-   * least one page.
+   * least one page.<br>
+   * Only the owner should be allowed to interact with this site.
    *
    * @param pages All sites of this object.
+   * @param owner The user for which this site was created.
    * @return A new site instance over the argument.
    */
-  public static Site create(List<Page> pages) {
+  public static Site create(List<Page> pages, User owner) {
     Validate.validIndex(pages, 0);
-    return new Site(List.copyOf(pages));
+    return new Site(List.copyOf(pages), owner);
   }
   
   public void moveLeft(Consumer<MessageEmbed> consumer) {
@@ -54,6 +60,11 @@ public class Site {
   public void moveRight(Consumer<MessageEmbed> consumer) {
     currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
     consumer.accept(currentPage.entries.get(currentPage.index));
+  }
+  
+  @Contract(pure = true)
+  public User getOwner() {
+    return owner;
   }
   
   /**

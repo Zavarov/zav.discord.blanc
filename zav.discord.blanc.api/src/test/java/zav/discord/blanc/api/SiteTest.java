@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,8 @@ public class SiteTest {
   List<MessageEmbed> entries2;
   Site.Page page2;
   
+  User owner;
+  
   /**
    * Creates a site with 2 pages. The first page contains 3 entries, the second page only 1 entry.
    */
@@ -51,8 +54,10 @@ public class SiteTest {
     entries2 = new ArrayList<>();
     entries2.add(mock(MessageEmbed.class));
     page2 = Site.Page.create("page2", entries2);
+  
+    owner = mock(User.class);
     
-    site = Site.create(List.of(page1, page2));
+    site = Site.create(List.of(page1, page2), owner);
   }
   
   @Test
@@ -75,5 +80,10 @@ public class SiteTest {
   public void testChangeSelection() {
     site.changeSelection("page1", entry -> assertThat(entry).isEqualTo(entries1.get(0)));
     site.changeSelection("page2", entry -> assertThat(entry).isEqualTo(entries2.get(0)));
+  }
+  
+  @Test
+  public void testGetOwner() {
+    assertThat(site.getOwner()).isEqualTo(owner);
   }
 }
