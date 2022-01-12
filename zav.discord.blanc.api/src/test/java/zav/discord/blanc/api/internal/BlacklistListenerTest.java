@@ -47,10 +47,10 @@ import zav.discord.blanc.api.internal.listener.BlacklistListener;
 public class BlacklistListenerTest {
   MockedStatic<PermissionUtil> mocked;
   
-  long guildId = 11111L;
-  long responseId = 22222L;
-  
-  Pattern pattern = Pattern.compile("banana");
+  final long guildId = 11111L;
+  final long responseId = 22222L;
+  final Pattern pattern = Pattern.compile("banana");
+
   BlacklistListener listener;
 
   @Mock JDA jda;

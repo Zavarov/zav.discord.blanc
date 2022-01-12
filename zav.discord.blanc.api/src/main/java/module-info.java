@@ -2,7 +2,6 @@ module zav.discord.blanc.api {
   requires static org.eclipse.jdt.annotation;
   requires static org.jetbrains.annotations;
   
-  requires com.fasterxml.jackson.databind;
   requires com.google.common;
   requires com.google.guice;
   requires net.dv8tion.jda;
@@ -12,8 +11,7 @@ module zav.discord.blanc.api {
   requires java.inject;
   requires java.sql;
   
-  requires zav.discord.blanc.databind;
-  requires zav.discord.blanc.db;
+  requires transitive zav.discord.blanc.db;
   
   exports zav.discord.blanc.api;
   exports zav.discord.blanc.api.command;
