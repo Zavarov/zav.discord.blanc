@@ -43,6 +43,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 
+/**
+ * Test class for checking whether forbidden message are deleted automatically.
+ */
 public class BlacklistListenerTest {
   MockedStatic<PermissionUtil> mocked;
   
@@ -68,6 +71,9 @@ public class BlacklistListenerTest {
   
   GuildMessageReceivedEvent event;
   
+  /**
+   * Initializes a fictitious GuildMessageReceivedEvent.
+   */
   @BeforeEach
   public void setUp() {
     mocked = mockStatic(PermissionUtil.class);
