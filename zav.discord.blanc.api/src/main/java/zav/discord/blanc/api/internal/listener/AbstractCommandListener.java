@@ -38,6 +38,7 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
   protected void submit(MessageChannel channel, Command command) {
     queue.submit(() -> {
       try {
+        command.postConstruct();
         command.validate();
         command.run();
       } catch (Exception e) {
