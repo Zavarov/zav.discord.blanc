@@ -83,7 +83,7 @@ public class JdaShardSupplier implements Iterator<JDA> {
   public JDA next() {
     try {
       rateLimiter.acquire();
-    
+      
       JDA jda = JDABuilder.create(intents)
             .setToken(token)
             .useSharding(index++, (int) shardCount)

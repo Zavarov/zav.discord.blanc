@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.api;
 
-import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -34,8 +33,7 @@ public class Client {
   
   @Inject
   @Contract(mutates = "this")
-  private void postConstruct(Injector injector) {
-    JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
+  /*package*/ void postConstruct(JdaShardSupplier supplier) {
     supplier.forEachRemaining(shards::add);
   }
   
