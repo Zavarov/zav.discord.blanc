@@ -33,6 +33,7 @@ public class Client {
   private final List<JDA> shards = new ArrayList<>();
   
   @Inject
+  @Contract(mutates = "this")
   private void postConstruct(Injector injector) {
     JdaShardSupplier supplier = injector.getInstance(JdaShardSupplier.class);
     supplier.forEachRemaining(shards::add);
