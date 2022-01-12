@@ -26,6 +26,8 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Button;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Site;
@@ -35,6 +37,7 @@ import zav.discord.blanc.api.Site;
  * it.
  */
 public class SiteComponentListener extends ListenerAdapter {
+  private static final Logger LOGGER = LogManager.getLogger(SiteComponentListener.class);
   private static final long MAX_CACHE_SIZE = 1024;
   
   private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder()
@@ -83,7 +86,7 @@ public class SiteComponentListener extends ListenerAdapter {
               .complete());
         break;
       default:
-        // TODO ERROR
+        LOGGER.error("unknown id '{}'.", id);
     }
   }
   
