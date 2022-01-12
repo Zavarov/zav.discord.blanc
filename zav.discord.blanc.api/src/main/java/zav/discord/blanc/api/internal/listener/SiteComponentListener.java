@@ -58,6 +58,12 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
+    // Invalid user -> reject
+    if (!site.getOwner().equals(event.getUser())) {
+      event.getInteraction().deferReply().complete();
+      return;
+    }
+    
     @Nullable Button button = event.getButton();
     
     // Null for ephemeral messages
@@ -96,6 +102,12 @@ public class SiteComponentListener extends ListenerAdapter {
   
     // Unknown message -> ignore
     if (site == null) {
+      return;
+    }
+  
+    // Invalid user -> reject
+    if (!site.getOwner().equals(event.getUser())) {
+      event.getInteraction().deferReply().complete();
       return;
     }
     
