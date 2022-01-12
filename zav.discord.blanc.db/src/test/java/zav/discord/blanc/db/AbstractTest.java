@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.RoleDto;
 import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.databind.WebHookDto;
@@ -45,7 +44,6 @@ public abstract class AbstractTest {
   private static final Path RESOURCES = Paths.get("src/test/resources");
   
   protected GuildDto guild;
-  protected RoleDto role;
   protected TextChannelDto channel;
   protected WebHookDto hook;
   protected UserDto user;
@@ -58,7 +56,6 @@ public abstract class AbstractTest {
   @BeforeEach
   public void setUp() throws SQLException {
     guild = read("Guild.json", GuildDto.class);
-    role = read("Role.json", RoleDto.class);
     channel = read("TextChannel.json", TextChannelDto.class);
     hook = read("WebHook.json", WebHookDto.class);
     user = read("User.json", UserDto.class);
