@@ -16,6 +16,8 @@
 
 package zav.discord.blanc.api.internal.listener;
 
+import static org.apache.commons.lang3.StringUtils.LF;
+
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,7 +58,7 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
           errorBuilder.addField("Cause", e.getCause().toString(), false);
         }
         
-        errorBuilder.addField("StackTrace", StringUtils.join(e.getStackTrace(), '\n'), false);
+        errorBuilder.addField("StackTrace", StringUtils.join(e.getStackTrace(), LF), false);
 
         channel.sendMessageEmbeds(errorBuilder.build()).complete();
       }
