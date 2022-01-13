@@ -16,14 +16,18 @@
 
 package zav.discord.blanc.api.internal.listener;
 
+import static net.dv8tion.jda.api.entities.MessageEmbed.VALUE_MAX_LENGTH;
 import static org.apache.commons.lang3.StringUtils.LF;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.truncate;
 
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.api.command.Command;
@@ -45,23 +49,27 @@ public abstract class AbstractCommandListener extends ListenerAdapter {
         command.run();
       } catch (Exception e) {
         LOGGER.warn(e.getMessage(), e);
-
-        EmbedBuilder errorBuilder = new EmbedBuilder();
-        
-        errorBuilder.setTitle(e.getClass().getSimpleName());
-        
-        if (StringUtils.isNotBlank(e.getMessage())) {
-          errorBuilder.addField("Message", e.getMessage(), false);
-        }
-      
-        if (e.getCause() != null) {
-          errorBuilder.addField("Cause", e.getCause().toString(), false);
-        }
-        
-        errorBuilder.addField("StackTrace", StringUtils.join(e.getStackTrace(), LF), false);
-
-        channel.sendMessageEmbeds(errorBuilder.build()).complete();
+        channel.sendMessageEmbeds(buildErrorMessage(e)).complete();
       }
     });
+  }
+  
+  private MessageEmbed buildErrorMessage(Exception e) {
+    EmbedBuilder errorBuilder = new EmbedBuilder();
+  
+    errorBuilder.setTitle(e.getClass().getSimpleName());
+  
+    if (isNotBlank(e.getMessage())) {
+      errorBuilder.addField("Message", e.getMessage(), false);
+    }
+  
+    if (e.getCause() != null) {
+      errorBuilder.addField("Cause", e.getCause().toString(), false);
+    }
+  
+    String stackTrace = join(e.getStackTrace(), LF);
+    errorBuilder.addField("StackTrace", truncate(stackTrace, VALUE_MAX_LENGTH), false);
+    
+    return errorBuilder.build();
   }
 }
