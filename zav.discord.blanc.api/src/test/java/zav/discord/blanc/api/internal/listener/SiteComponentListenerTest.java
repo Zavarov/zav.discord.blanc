@@ -70,7 +70,7 @@ public class SiteComponentListenerTest {
   AutoCloseable closeable;
   
   /**
-   * Initialize an site and fictitious Button and SelectionMenu interactions which are used to
+   * Initialize a site and fictitious Button and SelectionMenu interactions which are used to
    * modify the page.
    */
   @BeforeEach
