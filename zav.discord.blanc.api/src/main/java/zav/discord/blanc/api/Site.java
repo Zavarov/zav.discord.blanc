@@ -71,7 +71,7 @@ public class Site {
    * Changes the current page of this site to the one specified by the label.
    *
    * @param label The name of the newly selected page.
-   * @param consumer The consumer, updating the updating the MessageEmbed.
+   * @param consumer The consumer, updating the MessageEmbed.
    */
   public void changeSelection(String label, Consumer<MessageEmbed> consumer) {
     currentPage = pages.stream()

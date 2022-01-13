@@ -124,7 +124,7 @@ public class BlacklistListener extends ListenerAdapter {
   private static class MessageChecker {
     /**
      * Checks whether the message contains a forbidden expression.<br>
-     * Both the raw content of the message as well as all message embeds are validated.
+     * Both the raw content of the message and all message embeds are validated.
      *
      * @param message A channel message.
      * @param pattern The pattern against which the content is validated.
@@ -157,7 +157,7 @@ public class BlacklistListener extends ListenerAdapter {
      * Checks whether one of the message embed contains a forbidden expression.
      *
      * @param embeds All embeds of a message.
-     * @param pattern The pattern against which the embeds is validated.
+     * @param pattern The pattern against which the embeds are validated.
      * @return {@code true}, if at least one of the embeds contains a forbidden expression.
      */
     private static boolean checkEmbeds(List<MessageEmbed> embeds, Pattern pattern) {
@@ -205,7 +205,7 @@ public class BlacklistListener extends ListenerAdapter {
     }
   
     /**
-     * Checks whether the embed field contains an forbidden expression.<br>
+     * Checks whether the embed field contains a forbidden expression.<br>
      * Both the name and the value of the field is validated.
      *
      * @param field One of the fields of the message embed.
@@ -221,9 +221,9 @@ public class BlacklistListener extends ListenerAdapter {
     }
   
     /**
-     * Checks whether the embed footer contains an forbidden expression.
+     * Checks whether the embed footer contains a forbidden expression.
      *
-     * @param footer The footer of the message embed..
+     * @param footer The footer of the message embed.
      * @param pattern The pattern against which the field is validated.
      * @return {@code true}, if the field contains a forbidden expression.
      */
