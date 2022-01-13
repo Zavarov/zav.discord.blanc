@@ -31,8 +31,13 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 public class RankTest {
   
+  /**
+   * Parameter source for {@link #testGetEffectiveRanks(String, Set)}.
+   *
+   * @return The arguments provided for unit test.
+   */
   @SuppressWarnings("unused") // used via @MethodSource
-  private static Stream<Arguments> testGetEffectiveRanks() {
+  public static Stream<Arguments> testGetEffectiveRanks() {
     return Stream.of(
           Arguments.of("reddit", EnumSet.of(Rank.USER, Rank.REDDIT)),
           Arguments.of("user", EnumSet.of(Rank.USER)),
