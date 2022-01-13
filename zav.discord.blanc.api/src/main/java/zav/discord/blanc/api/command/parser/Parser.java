@@ -39,5 +39,5 @@ public interface Parser {
   @Nullable IntermediateCommand parse(Message source);
   
   @Contract(pure = true)
-  Optional<? extends Command> parse(Module module, Message source);
+  Optional<Command> parse(Module module, Message source);
 }

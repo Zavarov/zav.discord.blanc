@@ -1,18 +1,15 @@
 package zav.discord.blanc.command.parser;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import java.util.Optional;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.GuildMessage;
-import zav.discord.blanc.api.Message;
-import zav.discord.blanc.api.PrivateMessage;
-import zav.discord.blanc.command.Command;
-import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.command.guice.GuildCommandModule;
-import zav.discord.blanc.command.guice.PrivateCommandModule;
+import zav.discord.blanc.api.command.Command;
+import zav.discord.blanc.api.command.Commands;
+import zav.discord.blanc.api.command.IntermediateCommand;
+import zav.discord.blanc.api.command.parser.Parser;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
 
 /**
@@ -24,34 +21,22 @@ public abstract class AbstractParser implements Parser {
   private Injector injector;
   
   @Override
-  public Optional<? extends Command> parse(GuildMessage msg) {
-    return parse(new GuildCommandModule(msg), msg);
-  }
-  
-  @Override
-  public Optional<? extends Command> parse(PrivateMessage msg) {
-    return parse(new PrivateCommandModule(msg), msg);
-  }
-  
-  private Optional<? extends Command> parse(AbstractModule msgModule, Message msg) {
+  public Optional<Command> parse(Module module, Message message) {
     @Nullable
-    IntermediateCommand cmd = parse(msg.getAbout());
+    IntermediateCommand cmd = parse(message);
     
     // Input is not a valid command
     if (cmd == null) {
       return Optional.empty();
     }
     
-    IntermediateCommandModule cmdModule = new IntermediateCommandModule(cmd);
+    Module cmdModule = new IntermediateCommandModule(cmd);
     
     return Commands.get(cmd.getName()).map(cmdClass -> {
-      Injector cmdInjector = injector.createChildInjector(msgModule, cmdModule);
+      // Injector w/ JDA & arguments
+      Injector cmdInjector = injector.createChildInjector(module, cmdModule);
       
-      Command result = cmdInjector.getInstance(cmdClass);
-      
-      result.postConstruct(cmd.getArguments());
-      
-      return result;
+      return cmdInjector.getInstance(cmdClass);
     });
   }
 }
