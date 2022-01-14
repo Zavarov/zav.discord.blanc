@@ -36,7 +36,7 @@ public abstract class TextChannelDatabase {
   /**
    * Serializes the channel and stores its value in the database.<br>
    * Text Channels are identified by their id and the id of their associated {@code guild}.<br>
-   * If the database doesn't contain an entry for the channel, a new one is created. Otherwise the
+   * If the database doesn't contain an entry for the channel, a new one is created. Otherwise, the
    * old entry is overwritten.
    *
    * @param guild The {@code guild} instance associated with the role.

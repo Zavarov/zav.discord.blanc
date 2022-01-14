@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.TextChannelDto;
 import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.internal.SqlObject;
 import zav.discord.blanc.db.internal.SqlQuery;
@@ -38,19 +37,18 @@ public abstract class WebHookDatabase {
    * Serializes the web hook and stores its value in the database.<br>
    * Text Channels are identified by their id and the id of their associated {@code guild} and
    * the id of the {@code channel} they are in.<br>
-   * If the database doesn't contain an entry for the web hook, a new one is created. Otherwise the
+   * If the database doesn't contain an entry for the web hook, a new one is created. Otherwise, the
    * old entry is overwritten.
    *
    * @param guild The {@code guild} instance associated with the role.
-   * @param channel The {@code text channel} instance stored in the database.
    * @param hook The {@code web hook} instance stored in the database.
    * @return The number of lines modified. Should be {@code 1}.
    * @throws SQLException If a database error occurred.
    */
-  public static int put(GuildDto guild, TextChannelDto channel, WebHookDto hook) throws SQLException {
+  public static int put(GuildDto guild, WebHookDto hook) throws SQLException {
     return SQL.update("webhook/InsertWebHook.sql", (stmt) -> {
       stmt.setLong(1, guild.getId());
-      stmt.setLong(2, channel.getId());
+      stmt.setLong(2, hook.getChannelId());
       stmt.setLong(3, hook.getId());
       stmt.setString(4, hook.getName());
       // Serialize List<String> to String

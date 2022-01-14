@@ -17,7 +17,7 @@
 package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -48,7 +48,7 @@ public class WebHookDatabaseTest extends AbstractTest {
   @Test
   public void testCreateOverExistingTable() throws SQLException {
     // Table has already been created in setUp()
-    assertThat(WebHookDatabase.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookDatabase.put(guild, hook)).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
     // Should not replace the existing DB
     WebHookDatabase.create();
@@ -58,26 +58,26 @@ public class WebHookDatabaseTest extends AbstractTest {
   @Test
   public void testContains() throws SQLException {
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
-    assertThat(WebHookDatabase.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookDatabase.put(guild, hook)).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
   }
   
   @Test
   public void testPut() throws SQLException {
     // One row has been modified
-    assertThat(WebHookDatabase.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookDatabase.put(guild, hook)).isEqualTo(1);
   }
   
   @Test
   public void testPutAlreadyExistingHook() throws SQLException {
-    WebHookDatabase.put(guild, channel, hook);
+    WebHookDatabase.put(guild, hook);
   
     WebHookDto response = WebHookDatabase.get(guild.getId(), channel.getId(), hook.getId());
     Assertions.assertThat(hook.getName()).isEqualTo(response.getName());
   
     hook.setName("Updated");
     
-    WebHookDatabase.put(guild, channel, hook);
+    WebHookDatabase.put(guild, hook);
     response = WebHookDatabase.get(guild.getId(), channel.getId(), hook.getId());
     // Old row has been updated
     Assertions.assertThat(hook.getName()).isEqualTo(response.getName());
@@ -86,7 +86,7 @@ public class WebHookDatabaseTest extends AbstractTest {
   @Test
   public void testDelete() throws SQLException {
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
-    assertThat(WebHookDatabase.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookDatabase.put(guild, hook)).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
     assertThat(WebHookDatabase.delete(guild.getId(), channel.getId(), hook.getId())).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
@@ -95,7 +95,7 @@ public class WebHookDatabaseTest extends AbstractTest {
   @Test
   public void testDeleteAll() throws SQLException {
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
-    assertThat(WebHookDatabase.put(guild, channel, hook)).isEqualTo(1);
+    assertThat(WebHookDatabase.put(guild, hook)).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isTrue();
     assertThat(WebHookDatabase.deleteAll(guild.getId())).isEqualTo(1);
     assertThat(WebHookDatabase.contains(guild.getId(), channel.getId(), hook.getId())).isFalse();
@@ -109,7 +109,7 @@ public class WebHookDatabaseTest extends AbstractTest {
   
   @Test
   public void testGetHook() throws SQLException {
-    WebHookDatabase.put(guild, channel, hook);
+    WebHookDatabase.put(guild, hook);
   
     WebHookDto response = WebHookDatabase.get(guild.getId(), channel.getId(), hook.getId());
     
@@ -121,7 +121,7 @@ public class WebHookDatabaseTest extends AbstractTest {
   
   @Test
   public void testGetAllHooks() throws SQLException {
-    WebHookDatabase.put(guild, channel, hook);
+    WebHookDatabase.put(guild, hook);
   
     List<WebHookDto> responses = WebHookDatabase.getAll(guild.getId());
   
@@ -141,6 +141,7 @@ public class WebHookDatabaseTest extends AbstractTest {
     long guildId = guild.getId();
     long channelId = channel.getId();
     long hookId = hook.getId();
-    assertThrows(NoSuchElementException.class, () -> WebHookDatabase.get(guildId, channelId, hookId));
+    assertThatThrownBy(() -> WebHookDatabase.get(guildId, channelId, hookId))
+          .isInstanceOf(NoSuchElementException.class);
   }
 }

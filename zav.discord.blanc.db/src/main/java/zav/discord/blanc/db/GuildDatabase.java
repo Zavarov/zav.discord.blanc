@@ -31,7 +31,7 @@ public abstract class GuildDatabase {
   /**
    * Serializes the guild and stores its value in the database.<br>
    * Guilds are identified by their id.<br>
-   * If the database doesn't contain an entry for the guild, a new one is created. Otherwise the
+   * If the database doesn't contain an entry for the guild, a new one is created. Otherwise, the
    * old entry is overwritten.
    *
    * @param guild The {@code guild} instance stored in the database.

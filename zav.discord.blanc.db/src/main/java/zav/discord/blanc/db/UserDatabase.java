@@ -30,7 +30,7 @@ public abstract class UserDatabase {
   /**
    * Serializes the user and stores its value in the database.<br>
    * Users are identified by their id and the id.<br>
-   * If the database doesn't contain an entry for the user, a new one is created. Otherwise the
+   * If the database doesn't contain an entry for the user, a new one is created. Otherwise, the
    * old entry is overwritten.
    *
    * @param user The {@code user} instance to be serialized.

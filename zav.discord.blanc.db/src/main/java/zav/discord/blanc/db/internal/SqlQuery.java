@@ -29,7 +29,6 @@ public class SqlQuery {
   // Remove unnecessary spaces & line breaks
   private static final String LOGGER_REGEX = "\\s{2,}|" + System.lineSeparator();
   public static final String GUILD_DB = "jdbc:sqlite:Guild.db";
-  public static final String ROLE_DB = "jdbc:sqlite:Role.db";
   public static final String TEXTCHANNEL_DB = "jdbc:sqlite:TextChannel.db";
   public static final String WEBHOOK_DB = "jdbc:sqlite:WebHook.db";
   public static final String USER_DB = "jdbc:sqlite:User.db";
@@ -73,12 +72,10 @@ public class SqlQuery {
    * @throws SQLException If a database error occurred.
    */
   public synchronized int update(String sqlStmt, SqlConsumer consumer) throws SQLException {
-    synchronized (this) {
-      try (Connection conn = DriverManager.getConnection(db)) {
-        try (PreparedStatement stmt = conn.prepareStatement(readFromFile(sqlStmt))) {
-          stmt.setQueryTimeout(60); // timeout in sec
-          return executeUpdate(stmt, consumer);
-        }
+    try (Connection conn = DriverManager.getConnection(db)) {
+      try (PreparedStatement stmt = conn.prepareStatement(readFromFile(sqlStmt))) {
+        stmt.setQueryTimeout(60); // timeout in sec
+        return executeUpdate(stmt, consumer);
       }
     }
   }
@@ -86,9 +83,7 @@ public class SqlQuery {
   private int executeUpdate(Statement stmt, String sql) throws SQLException {
     int affectedRows = stmt.executeUpdate(sql);
     
-    if (LOGGER.isInfoEnabled()) {
-      LOGGER.info("{} row(s) affected.", affectedRows);
-    }
+    LOGGER.info("{} row(s) affected.", affectedRows);
     
     return affectedRows;
   }
@@ -98,9 +93,7 @@ public class SqlQuery {
     
     int affectedRows = stmt.executeUpdate();
     
-    if (LOGGER.isInfoEnabled()) {
-      LOGGER.info("{} row(s) affected.", affectedRows);
-    }
+    LOGGER.info("{} row(s) affected.", affectedRows);
     
     return affectedRows;
   }
@@ -115,7 +108,7 @@ public class SqlQuery {
    * @return An immutable list containing the retrieved elements .
    * @throws SQLException If a database error occurred.
    */
-  public List<SqlObject> query(String sqlStmt, Object... args) throws SQLException {
+  public synchronized List<SqlObject> query(String sqlStmt, Object... args) throws SQLException {
     try (Connection conn = DriverManager.getConnection(db)) {
       try (Statement stmt = conn.createStatement()) {
         stmt.setQueryTimeout(60); // timeout in sec
@@ -138,9 +131,7 @@ public class SqlQuery {
         }
         result.add(sqlObj);
         
-        if (LOGGER.isInfoEnabled()) {
-          LOGGER.info("Queried {},", sqlObj);
-        }
+        LOGGER.info("Queried {},", sqlObj);
       }
     }
     return List.copyOf(result);
@@ -160,9 +151,7 @@ public class SqlQuery {
       result = String.format(result, args);
       
       // Prettify log message
-      if (LOGGER.isInfoEnabled()) {
-        LOGGER.info(result.replaceAll(LOGGER_REGEX, StringUtils.SPACE));
-      }
+      LOGGER.info(result.replaceAll(LOGGER_REGEX, StringUtils.SPACE));
 
       return result;
     } catch (IOException e) {

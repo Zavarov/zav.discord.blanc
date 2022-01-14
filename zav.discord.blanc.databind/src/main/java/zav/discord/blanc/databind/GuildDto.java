@@ -18,8 +18,21 @@ package zav.discord.blanc.databind;
 
 import java.util.regex.Pattern;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
 
+/**
+ * {@inheritDoc}
+ */
 public class GuildDto extends GuildTOPDto {
+  /**
+   * Each expression is concatenated using an {@code or}, meaning the pattern will match any String
+   * that matches at least one banned expression.<br>
+   * This method acts as a utility function to simplify the transformation of multiple Strings into
+   * a single pattern.
+   *
+   * @return The pattern corresponding to all blacklisted expressions.
+   */
+  @Contract(pure = true)
   public @Nullable Pattern getPattern() {
     @Nullable String regex = getBlacklist().stream()
           .reduce((u, v) -> u + "|" + v)
