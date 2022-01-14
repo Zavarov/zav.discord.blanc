@@ -1,6 +1,7 @@
 package zav.discord.blanc.command;
 
 import org.apache.commons.lang3.StringUtils;
+import zav.discord.blanc.api.Rank;
 
 /**
  * This exception is thrown whenever a user executes a command for which they lack the required
@@ -8,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @see Rank
  */
-public class InsufficientRankException extends InvalidCommandException {
+public class InsufficientRankException extends Exception {
   public InsufficientRankException(Rank... ranks) {
     super(getMessage(ranks));
   }

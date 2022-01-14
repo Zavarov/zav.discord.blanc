@@ -1,12 +1,19 @@
 package zav.discord.blanc.command;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Message;
-import zav.discord.blanc.api.MessageChannel;
-import zav.discord.blanc.api.Shard;
-import zav.discord.blanc.api.User;
+import javax.inject.Named;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.api.command.Command;
+import zav.discord.blanc.db.UserDatabase;
 
 /**
  * Abstract base class for all commands.<br>
@@ -14,13 +21,16 @@ import zav.discord.blanc.api.User;
  */
 public abstract class AbstractCommand implements Command {
   @Inject
-  protected Shard shard;
+  protected JDA shard;
   @Inject
   protected MessageChannel channel;
   @Inject
   protected User author;
   @Inject
   protected Message message;
+  @Inject
+  @Named("args")
+  protected List<? extends Argument> args;
   
   private final Rank requiredRank;
   
@@ -33,8 +43,15 @@ public abstract class AbstractCommand implements Command {
   }
   
   @Override
-  public void validate() throws InvalidCommandException {
-    Set<Rank> effectiveRanks = Rank.getEffectiveRank(author.getAbout().getRanks());
+  @Contract(pure = true)
+  public void validate() throws Exception {
+    Set<Rank> effectiveRanks;
+    
+    try {
+      effectiveRanks = Rank.getEffectiveRank(UserDatabase.get(author.getIdLong()).getRanks());
+    } catch (SQLException e) {
+      effectiveRanks = Set.of(Rank.USER);
+    }
     
     // Does the user have the required rank?
     if (!effectiveRanks.contains(requiredRank)) {

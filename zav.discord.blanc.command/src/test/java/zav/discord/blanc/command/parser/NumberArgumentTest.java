@@ -1,8 +1,8 @@
 package zav.discord.blanc.command.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -17,7 +17,7 @@ public class NumberArgumentTest {
   NumberArgument argument;
   
   /**
-   * Initializes the resolver. Furthermore an argument that always returns the decimal value of
+   * Initializes the resolver. Furthermore, an argument that always returns the decimal value of
    * 10 and the corresponding string is returned.
    */
   @BeforeEach

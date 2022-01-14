@@ -2,12 +2,13 @@ package zav.discord.blanc.command;
 
 import java.util.Set;
 import javax.inject.Inject;
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Guild;
-import zav.discord.blanc.api.GuildMessage;
-import zav.discord.blanc.api.Member;
-import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.api.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Rank;
 
 /**
  * Base class for all guild commands.<br>
@@ -21,7 +22,7 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   @Inject
   protected Member author;
   @Inject
-  protected GuildMessage message;
+  protected Message message;
   
   private final Set<Permission> permissions;
   
@@ -39,7 +40,8 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   }
   
   @Override
-  public void validate() throws InvalidCommandException {
+  @Contract(pure = true)
+  public void validate() throws Exception {
     super.validate();
     
     // Does the user have the required permissions?

@@ -1,6 +1,7 @@
 package zav.discord.blanc.command.parser;
 
 import java.util.Optional;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Argument;
 
 /**
@@ -9,6 +10,7 @@ import zav.discord.blanc.api.Argument;
  */
 public interface NumberArgument extends Argument {
   @Override
+  @Contract(pure = true)
   default Optional<String> asString() {
     return asNumber().map(Number::toString);
   }

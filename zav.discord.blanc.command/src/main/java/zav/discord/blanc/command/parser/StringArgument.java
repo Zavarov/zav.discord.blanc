@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Argument;
 
 /**
@@ -14,6 +15,7 @@ import zav.discord.blanc.api.Argument;
 public interface StringArgument extends Argument {
   Logger LOGGER = LogManager.getLogger(StringArgument.class);
   @Override
+  @Contract(pure = true)
   default Optional<BigDecimal> asNumber() {
     try {
       return asString().map(BigDecimal::new);

@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.api.command.Commands;
 import zav.discord.blanc.api.command.IntermediateCommand;
@@ -21,6 +22,7 @@ public abstract class AbstractParser implements Parser {
   private Injector injector;
   
   @Override
+  @Contract(pure = true)
   public Optional<Command> parse(Module module, Message message) {
     @Nullable
     IntermediateCommand cmd = parse(message);
