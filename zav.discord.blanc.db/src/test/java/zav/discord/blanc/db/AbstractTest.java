@@ -36,7 +36,6 @@ import zav.discord.blanc.databind.WebHookDto;
 @SuppressWarnings("NotNullFieldNotInitialized")
 public abstract class AbstractTest {
   private static final Path GUILD_DB = Paths.get("Guild.db");
-  private static final Path ROLE_DB = Paths.get("Role.db");
   private static final Path CHANNEL_DB = Paths.get("TextChannel.db");
   private static final Path WEBHOOK_DB = Paths.get("WebHook.db");
   private static final Path USER_DB = Paths.get("User.db");
@@ -69,7 +68,6 @@ public abstract class AbstractTest {
   @AfterEach
   public void cleanUp() throws IOException {
     delete(GUILD_DB);
-    delete(ROLE_DB);
     delete(CHANNEL_DB);
     delete(WEBHOOK_DB);
     delete(USER_DB);
