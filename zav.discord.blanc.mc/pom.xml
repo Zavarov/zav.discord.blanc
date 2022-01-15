@@ -70,12 +70,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>zav.mc</groupId>
             <artifactId>math</artifactId>
             <version>${math.version}</version>
