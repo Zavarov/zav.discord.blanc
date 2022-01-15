@@ -18,15 +18,18 @@
 package zav.discord.blanc.mc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import net.dv8tion.jda.api.entities.Message;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.parser.IntermediateCommand;
-import zav.discord.blanc.command.parser.Parser;
-import zav.discord.blanc.databind.MessageDto;
+import zav.discord.blanc.api.command.IntermediateCommand;
+import zav.discord.blanc.api.command.parser.Parser;
 import zav.discord.blanc.mc.argument._ast.ASTExpressionArgument;
 import zav.discord.blanc.mc.argument._ast.ASTRoleArgument;
 import zav.discord.blanc.mc.argument._ast.ASTStringArgument;
@@ -39,16 +42,17 @@ import zav.discord.blanc.mc.argument._ast.ASTUserArgument;
  */
 public class MontiCoreCommandParserTest {
   Parser parser;
-  MessageDto message;
+  Message message;
 
   @BeforeEach
   public void setUp() {
     parser = new MontiCoreCommandParser();
-    message = new MessageDto();
+    message = mock(Message.class);
   }
 
   @Test
   public void testParseEmpty() {
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     @Nullable IntermediateCommand command = parser.parse(message);
     
     assertThat(command).isNull();
@@ -56,7 +60,7 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseName() {
-    message.setContent("b: command Argument");
+    when(message.getContentRaw()).thenReturn("b: command Argument");
     @Nullable IntermediateCommand command = parser.parse(message);
 
     assertThat(command).isNotNull();
@@ -71,7 +75,7 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseString() {
-    message.setContent("b: command \"12345\"");
+    when(message.getContentRaw()).thenReturn("b: command \"12345\"");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -83,10 +87,21 @@ public class MontiCoreCommandParserTest {
     Argument argument = command.getArguments().get(0);
     assertThat(argument.asString()).contains("12345");
   }
+  
+  @Test
+  public void testParseInvalidRole() {
+    when(message.getContentRaw()).thenReturn("b: command <@&>");
+    @Nullable IntermediateCommand command = parser.parse(message);
+    assertThat(command).isNull();
+    
+    when(message.getContentRaw()).thenReturn("b: command <@&1.2345>");
+    command = parser.parse(message);
+    assertThat(command).isNull();
+  }
 
   @Test
   public void testParseRole() {
-    message.setContent("b: command <@&12345>");
+    when(message.getContentRaw()).thenReturn("b: command <@&12345>");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -98,10 +113,21 @@ public class MontiCoreCommandParserTest {
     Argument argument = command.getArguments().get(0);
     assertThat(argument.asNumber().map(BigDecimal::longValue)).contains(12345L);
   }
+  
+  @Test
+  public void testParseInvalidTextChannel() {
+    when(message.getContentRaw()).thenReturn("b: command <#>");
+    @Nullable IntermediateCommand command = parser.parse(message);
+    assertThat(command).isNull();
+    
+    when(message.getContentRaw()).thenReturn("b: command <#1.2345>");
+    command = parser.parse(message);
+    assertThat(command).isNull();
+  }
 
   @Test
   public void testParseTextChannel() {
-    message.setContent("b: command <#12345>");
+    when(message.getContentRaw()).thenReturn("b: command <#12345>");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -116,7 +142,7 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseUser() {
-    message.setContent("b: command <@12345>");
+    when(message.getContentRaw()).thenReturn("b: command <@12345>");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -128,10 +154,21 @@ public class MontiCoreCommandParserTest {
     Argument argument = command.getArguments().get(0);
     assertThat(argument.asNumber().map(BigDecimal::longValue)).contains(12345L);
   }
+  
+  @Test
+  public void testParseInvalidUser() {
+    when(message.getContentRaw()).thenReturn("b: command <@>");
+    @Nullable IntermediateCommand command = parser.parse(message);
+    assertThat(command).isNull();
+    
+    when(message.getContentRaw()).thenReturn("b: command <@1.2345>");
+    command = parser.parse(message);
+    assertThat(command).isNull();
+  }
 
   @Test
   public void testParseExpression() {
-    message.setContent("b: command 5+3");
+    when(message.getContentRaw()).thenReturn("b: command 5+3");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -146,7 +183,7 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseMathFunction() {
-    message.setContent("b: command sqrt(5)");
+    when(message.getContentRaw()).thenReturn("b: command sqrt(5)");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
@@ -161,7 +198,7 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseFlags() {
-    message.setContent("b: command -Flag Argument");
+    when(message.getContentRaw()).thenReturn("b: command -Flag Argument");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();

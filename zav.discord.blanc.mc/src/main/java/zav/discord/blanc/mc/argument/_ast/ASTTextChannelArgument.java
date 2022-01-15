@@ -28,10 +28,6 @@ import zav.discord.blanc.command.parser.NumberArgument;
 public class ASTTextChannelArgument extends ASTTextChannelArgumentTOP implements NumberArgument {
   @Override
   public Optional<BigDecimal> asNumber() {
-    try {
-      return Optional.of(new BigDecimal(super.getId().getDigits()));
-    } catch (NumberFormatException e) {
-      return Optional.empty();
-    }
+    return Optional.of(new BigDecimal(super.getId().getDigits()));
   }
 }
