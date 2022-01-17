@@ -41,6 +41,8 @@ import zav.jrc.databind.LinkEntity;
  */
 public final class MessageUtils {
   
+  private MessageUtils() {}
+  
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageUtils.class);
   
   /**

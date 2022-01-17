@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.awt.Color;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.jrc.databind.LinkEntity;
@@ -45,6 +46,31 @@ public class MessageUtilsTest {
     link.setAuthor("author");
     link.setThumbnail("https://www.foo.bar/image.jpg");
     link.setLinkFlairText("flair");
+    link.setUrl("https://www.foo.bar");
+  }
+  
+  @Test
+  public void testPermalink() {
+    MessageEmbed embed = getMessageEmbed();
+    assertNotNull(embed.getUrl());
+    
+    // Too long -> null
+    link.setPermalink(StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
+    embed = getMessageEmbed();
+    assertNull(embed.getUrl());
+  }
+  
+  @Test
+  public void testUrl() {
+    MessageEmbed embed = getMessageEmbed();
+    assertNotNull(embed.getAuthor());
+    assertNotNull(embed.getAuthor().getUrl());
+    
+    // Too long -> null
+    link.setUrl(StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
+    embed = getMessageEmbed();
+    assertNotNull(embed.getAuthor());
+    assertNull(embed.getAuthor().getUrl());
   }
   
   @Test
@@ -95,6 +121,12 @@ public class MessageUtilsTest {
     embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
   
+    // Too long -> null
+    link.setThumbnail("https://www.foo.bar/" + StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
+    embed = getMessageEmbed();
+    assertNull(embed.getThumbnail());
+  
+    // Invalid URL -> null
     link.setThumbnail("xxx");
     embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
