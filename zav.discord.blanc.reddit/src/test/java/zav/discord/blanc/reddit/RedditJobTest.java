@@ -48,6 +48,9 @@ import zav.discord.blanc.databind.WebHookDto;
 import zav.discord.blanc.db.TextChannelDatabase;
 import zav.discord.blanc.db.WebHookDatabase;
 
+/**
+ * Checks whether the Reddit job can recover from the persistent database values.
+ */
 public class RedditJobTest {
   static final Path CHANNEL_DB = Paths.get("TextChannel.db");
   static final Path WEBHOOK_DB = Paths.get("WebHook.db");
@@ -68,6 +71,11 @@ public class RedditJobTest {
   AutoCloseable closeable;
   Injector injector;
   
+  /**
+   * Creates a database for text channels and webhooks and fills it with dummy values.
+   *
+   * @throws SQLException In case a database error occurred.
+   */
   @BeforeEach
   public void setUp() throws SQLException {
     closeable = openMocks(this);

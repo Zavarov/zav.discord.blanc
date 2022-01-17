@@ -16,22 +16,24 @@
 
 package zav.discord.blanc.reddit.internal;
 
-import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.Color;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.jrc.databind.LinkValueObject;
 
+/**
+ * Checks whether the message created from a Reddit link contains the expected fields.
+ */
 public class MessageUtilsTest {
   
   LinkValueObject link;
   
+  /**
+   * Create a dummy Link DTO.
+   */
   @BeforeEach
   public void setUp() {
     link = new LinkValueObject();

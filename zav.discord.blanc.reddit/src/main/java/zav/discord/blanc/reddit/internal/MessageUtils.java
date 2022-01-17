@@ -20,6 +20,8 @@ import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
 import static net.dv8tion.jda.api.entities.MessageEmbed.DESCRIPTION_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.URL_MAX_LENGTH;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.truncate;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -28,7 +30,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
@@ -49,11 +50,12 @@ public final class MessageUtils {
    * @return A JDA message embed displaying the relevant link information.
    */
   public static Message forLink(LinkValueObject link) {
-    String qualifiedTitle = (link.getLinkFlairText() != null ? "[" + link.getLinkFlairText() + "]" : StringUtils.EMPTY)
-          + (link.getOver18() ? "[NSFW] " : StringUtils.EMPTY)
-          + (link.getSpoiler() ? "[Spoiler] " : StringUtils.EMPTY)
+    String qualifiedTitle =
+          (link.getLinkFlairText() != null ? "[" + link.getLinkFlairText() + "]" : EMPTY)
+          + (link.getOver18() ? "[NSFW] " : EMPTY)
+          + (link.getSpoiler() ? "[Spoiler] " : EMPTY)
           + link.getTitle();
-    qualifiedTitle = StringUtils.truncate(qualifiedTitle, TITLE_MAX_LENGTH);
+    qualifiedTitle = truncate(qualifiedTitle, TITLE_MAX_LENGTH);
     
     @Nullable String permalink = "https://www.reddit.com" + link.getPermalink();
     permalink = (permalink.length() < URL_MAX_LENGTH) ? permalink : null;
@@ -65,7 +67,7 @@ public final class MessageUtils {
     thumbnail = (thumbnail != null && thumbnail.length() < URL_MAX_LENGTH) ? thumbnail : null;
     
     @Nullable String description = link.getSelftext();
-    description = StringUtils.truncate(description, DESCRIPTION_MAX_LENGTH);
+    description = truncate(description, DESCRIPTION_MAX_LENGTH);
   
     EmbedBuilder builder = new EmbedBuilder();
     
@@ -94,7 +96,12 @@ public final class MessageUtils {
     }
   
     String shortlink = "https://redd.it/" + link.getId();
-    String content = String.format("New submission from u/%s in `r/%s`:\n\n<%s>", link.getAuthor(), link.getName(), shortlink);
+    String content = String.format(
+          "New submission from u/%s in `r/%s`:\n\n<%s>",
+          link.getAuthor(),
+          link.getName(),
+          shortlink
+    );
     MessageEmbed embed = builder.build();
   
     MessageBuilder messageBuilder = new MessageBuilder();

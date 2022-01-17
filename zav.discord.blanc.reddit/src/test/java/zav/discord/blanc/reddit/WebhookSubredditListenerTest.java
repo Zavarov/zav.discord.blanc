@@ -33,6 +33,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.jrc.databind.LinkValueObject;
 
+/**
+ * Checks whether links can be sent via a webhook.
+ */
 public class WebhookSubredditListenerTest {
   
   LinkValueObject link;
@@ -41,6 +44,9 @@ public class WebhookSubredditListenerTest {
   TextChannel textChannel;
   MessageAction action;
   
+  /**
+   * Initializes a new webhook based listener.
+   */
   @BeforeEach
   public void setUp() {
     webhook = mock(Webhook.class);

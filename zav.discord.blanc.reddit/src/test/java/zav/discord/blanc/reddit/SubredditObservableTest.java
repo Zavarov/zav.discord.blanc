@@ -19,10 +19,8 @@ package zav.discord.blanc.reddit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -39,6 +37,9 @@ import zav.jrc.api.Subreddit;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.listener.observer.SubredditObserver;
 
+/**
+ * Checks whether listeners are unique.
+ */
 public class SubredditObservableTest {
   
   final long textChannel1Id = 11111L;
@@ -57,6 +58,9 @@ public class SubredditObservableTest {
   AutoCloseable closeable;
   SubredditObservable observable;
   
+  /**
+   * Initializes an observable with one text channel and webhook registered.
+   */
   @BeforeEach
   public void setUp() {
     closeable = openMocks(this);

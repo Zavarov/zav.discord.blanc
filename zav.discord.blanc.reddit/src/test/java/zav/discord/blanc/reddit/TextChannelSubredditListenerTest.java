@@ -32,6 +32,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.jrc.databind.LinkValueObject;
 
+/**
+ * Checks whether links can be sent via a text channel.
+ */
 public class TextChannelSubredditListenerTest {
   
   LinkValueObject link;
@@ -39,7 +42,9 @@ public class TextChannelSubredditListenerTest {
   TextChannel textChannel;
   MessageAction action;
   
-  
+  /**
+   * Initializes a new text-channel based listener.
+   */
   @BeforeEach
   public void setUp() {
     textChannel = mock(TextChannel.class);
