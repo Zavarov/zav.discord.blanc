@@ -1,9 +1,11 @@
 package zav.discord.blanc.reddit;
 
-import com.google.inject.Inject;
+import static zav.discord.blanc.reddit.internal.MessageUtils.forLink;
+
 import java.util.Objects;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.TextChannel;
 import zav.jrc.databind.LinkValueObject;
 import zav.jrc.listener.SubredditListener;
 
@@ -23,26 +25,22 @@ public final class TextChannelSubredditListener implements SubredditListener {
   
   @Inject
   public void handle(LinkValueObject link) {
-    channel.send(link);
+    channel.sendMessage(forLink(link)).complete();
   }
   
   @Override
   public int hashCode() {
-    return Objects.hashCode(channel.getAbout().getId());
+    return Objects.hashCode(channel.getIdLong());
   }
   
   @Override
   public boolean equals(@Nullable Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    
     if (!(obj instanceof TextChannelSubredditListener)) {
       return false;
     }
   
     TextChannelSubredditListener other = (TextChannelSubredditListener) obj;
     
-    return Objects.equals(this.channel.getAbout().getId(), other.channel.getAbout().getId());
+    return this.channel.getIdLong() == other.channel.getIdLong();
   }
 }
