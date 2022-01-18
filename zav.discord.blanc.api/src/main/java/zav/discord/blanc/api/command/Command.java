@@ -25,7 +25,7 @@ import zav.discord.blanc.api.Job;
 public interface Command extends Job {
   
   @Contract(mutates = "this")
-  default void postConstruct() {}
+  default void postConstruct() throws Exception {}
   
   @Contract(pure = true)
   void validate() throws Exception;
