@@ -1,8 +1,6 @@
 module zav.discord.blanc.reddit {
   requires static org.eclipse.jdt.annotation;
   
-  requires java.sql;
-  
   requires com.google.guice;
   requires org.apache.logging.log4j;
   requires net.dv8tion.jda;
