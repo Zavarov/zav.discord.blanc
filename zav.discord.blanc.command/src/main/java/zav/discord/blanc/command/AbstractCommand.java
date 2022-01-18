@@ -48,7 +48,7 @@ public abstract class AbstractCommand implements Command {
     Set<Rank> effectiveRanks;
     
     try {
-      effectiveRanks = Rank.getEffectiveRank(UserDatabase.get(author.getIdLong()).getRanks());
+      effectiveRanks = Rank.getEffectiveRanks(UserDatabase.get(author.getIdLong()).getRanks());
     } catch (SQLException e) {
       effectiveRanks = Set.of(Rank.USER);
     }

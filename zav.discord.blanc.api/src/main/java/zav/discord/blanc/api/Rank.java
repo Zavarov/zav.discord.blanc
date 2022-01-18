@@ -54,7 +54,7 @@ public enum Rank {
    * @return A list of effective ranks.
    */
   @Contract(pure = true)
-  public static Set<Rank> getEffectiveRank(Collection<String> ranks) {
+  public static Set<Rank> getEffectiveRanks(Collection<String> ranks) {
     Set<Rank> source = ranks.stream()
           .map(String::toUpperCase)
           .map(Rank::valueOf)

@@ -49,6 +49,6 @@ public class RankTest {
   @ParameterizedTest
   @MethodSource
   public void testGetEffectiveRanks(String name, Set<Rank> effectiveRanks) {
-    assertThat(Rank.getEffectiveRank(List.of(name))).isEqualTo(effectiveRanks);
+    assertThat(Rank.getEffectiveRanks(List.of(name))).isEqualTo(effectiveRanks);
   }
 }
