@@ -66,6 +66,6 @@ public enum Rank {
       target.addAll(effectiveRanks.getOrDefault(userRank, EnumSet.of(Rank.USER)));
     }
     
-    return target;
+    return Set.copyOf(target);
   }
 }
