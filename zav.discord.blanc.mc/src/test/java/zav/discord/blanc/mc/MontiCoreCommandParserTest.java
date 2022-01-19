@@ -27,14 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.command.IntermediateCommand;
 import zav.discord.blanc.api.command.parser.Parser;
-import zav.discord.blanc.mc.argument._ast.ASTExpressionArgument;
-import zav.discord.blanc.mc.argument._ast.ASTRoleArgument;
-import zav.discord.blanc.mc.argument._ast.ASTStringArgument;
-import zav.discord.blanc.mc.argument._ast.ASTTextChannelArgument;
-import zav.discord.blanc.mc.argument._ast.ASTUserArgument;
+import zav.discord.blanc.mc.parameter._ast.ASTExpressionParameter;
+import zav.discord.blanc.mc.parameter._ast.ASTRoleParameter;
+import zav.discord.blanc.mc.parameter._ast.ASTStringParameter;
+import zav.discord.blanc.mc.parameter._ast.ASTTextChannelParameter;
+import zav.discord.blanc.mc.parameter._ast.ASTUserParameter;
 
 /**
  * Test case for the command parser.<br>
@@ -60,17 +60,17 @@ public class MontiCoreCommandParserTest {
 
   @Test
   public void testParseName() {
-    when(message.getContentRaw()).thenReturn("b: command Argument");
+    when(message.getContentRaw()).thenReturn("b: command Parameter");
     @Nullable IntermediateCommand command = parser.parse(message);
 
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTExpressionParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asString()).contains("Argument");
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asString()).contains("Parameter");
   }
 
   @Test
@@ -79,13 +79,13 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTStringArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTStringParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asString()).contains("12345");
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asString()).contains("12345");
   }
   
   @Test
@@ -105,13 +105,13 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTRoleArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTRoleParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asNumber().map(BigDecimal::longValue)).contains(12345L);
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asNumber().map(BigDecimal::longValue)).contains(12345L);
   }
   
   @Test
@@ -131,13 +131,13 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTTextChannelArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTTextChannelParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asNumber().map(BigDecimal::longValue)).contains(12345L);
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asNumber().map(BigDecimal::longValue)).contains(12345L);
   }
 
   @Test
@@ -146,13 +146,13 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTUserArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTUserParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asNumber().map(BigDecimal::longValue)).contains(12345L);
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asNumber().map(BigDecimal::longValue)).contains(12345L);
   }
   
   @Test
@@ -172,13 +172,13 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTExpressionParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asNumber().map(BigDecimal::intValue)).contains(8);
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asNumber().map(BigDecimal::intValue)).contains(8);
   }
 
   @Test
@@ -187,18 +187,18 @@ public class MontiCoreCommandParserTest {
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();
-    assertThat(command.getArguments()).hasSize(1);
-    assertThat(command.getArguments().get(0)).isInstanceOf(ASTExpressionArgument.class);
+    assertThat(command.getParameters()).hasSize(1);
+    assertThat(command.getParameters().get(0)).isInstanceOf(ASTExpressionParameter.class);
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
 
-    Argument argument = command.getArguments().get(0);
-    assertThat(argument.asNumber().map(BigDecimal::doubleValue)).contains(Math.sqrt(5));
+    Parameter parameter = command.getParameters().get(0);
+    assertThat(parameter.asNumber().map(BigDecimal::doubleValue)).contains(Math.sqrt(5));
   }
 
   @Test
   public void testParseFlags() {
-    when(message.getContentRaw()).thenReturn("b: command -Flag Argument");
+    when(message.getContentRaw()).thenReturn("b: command -Flag Parameter");
     @Nullable IntermediateCommand command = parser.parse(message);
   
     assertThat(command).isNotNull();

@@ -14,36 +14,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.command;
+package zav.discord.blanc.mc.parameter._ast;
 
-import java.util.List;
-import java.util.Optional;
-import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Parameter;
 
 /**
- * Base interface for the intermediate representation of a command.<br>
- * All commands consist of a (guild-specific) prefix, a distinct name and optionally, flags and
- * parameters. As an example:
- * <pre>
- *   b:foo -f bar
- *
- *   (prefix) b
- *   (name) foo
- *   (flags) [f]
- *   (parameters) [bar]
- * </pre>
+ * Interface between a MontiCore argument and a command argument.
  */
-public interface IntermediateCommand {
-  @Contract(pure = true)
-  Optional<String> getPrefix();
-  
-  @Contract(pure = true)
-  String getName();
-  
-  @Contract(pure = true)
-  List<String> getFlags();
-  
-  @Contract(pure = true)
-  List<? extends Parameter> getParameters();
+public interface ASTParameter extends ASTParameterTOP, Parameter {
 }

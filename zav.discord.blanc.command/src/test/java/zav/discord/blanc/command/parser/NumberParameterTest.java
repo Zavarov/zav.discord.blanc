@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
  * Test case for the number argument.<br>
  * Verifies that the correct decimal and string representation is retrieved from an argument.
  */
-public class NumberArgumentTest {
-  NumberArgument argument;
+public class NumberParameterTest {
+  NumberParameter argument;
   
   /**
    * Initializes the resolver. Furthermore, an argument that always returns the decimal value of
@@ -22,7 +22,7 @@ public class NumberArgumentTest {
    */
   @BeforeEach
   public void setUp() {
-    argument = mock(NumberArgument.class);
+    argument = mock(NumberParameter.class);
     when(argument.asNumber()).thenReturn(Optional.of(BigDecimal.TEN));
     when(argument.asString()).thenCallRealMethod();
   }

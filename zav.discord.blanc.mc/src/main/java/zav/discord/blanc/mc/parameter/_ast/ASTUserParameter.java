@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.mc.argument._ast;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
+package zav.discord.blanc.mc.parameter._ast;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import zav.discord.blanc.command.parser.NumberParameter;
+
+/**
+ * Interface between a Discord user and a command argument.<br>
+ * Each user is uniquely identified by its id.
+ */
+public class ASTUserParameter extends ASTUserParameterTOP implements NumberParameter {
+  @Override
+  public Optional<BigDecimal> asNumber() {
+    return Optional.of(new BigDecimal(super.getId().getDigits()));
+  }
+}

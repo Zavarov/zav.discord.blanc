@@ -68,7 +68,7 @@ public class AbstractParserTest {
     IntermediateCommand privateCommand = mock(IntermediateCommand.class);
     when(privateCommand.getPrefix()).thenReturn(Optional.of("b"));
     when(privateCommand.getName()).thenReturn("privateCommand");
-    when(privateCommand.getArguments()).thenReturn(Collections.emptyList());
+    when(privateCommand.getParameters()).thenReturn(Collections.emptyList());
     when(privateCommand.getFlags()).thenReturn(Collections.emptyList());
     
     privateMessage = mock(Message.class);
@@ -84,7 +84,7 @@ public class AbstractParserTest {
     IntermediateCommand guildCommand = mock(IntermediateCommand.class);
     when(guildCommand.getPrefix()).thenReturn(Optional.of("b"));
     when(guildCommand.getName()).thenReturn("guildCommand");
-    when(guildCommand.getArguments()).thenReturn(Collections.emptyList());
+    when(guildCommand.getParameters()).thenReturn(Collections.emptyList());
     when(guildCommand.getFlags()).thenReturn(Collections.emptyList());
   
     guildMessage = mock(Message.class);

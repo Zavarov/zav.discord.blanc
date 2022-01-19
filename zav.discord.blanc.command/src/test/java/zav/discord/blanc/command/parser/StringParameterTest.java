@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
  * Test case for the string argument.<br>
  * Verifies that the correct decimal and string representation is retrieved from an argument.
  */
-public class StringArgumentTest {
-  StringArgument argument;
+public class StringParameterTest {
+  StringParameter argument;
   
   @BeforeEach
   public void setUp() {
-    argument = mock(StringArgument.class);
+    argument = mock(StringParameter.class);
     when(argument.asNumber()).thenCallRealMethod();
   }
   

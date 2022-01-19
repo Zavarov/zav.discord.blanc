@@ -29,7 +29,7 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.api.command.IntermediateCommand;
 
@@ -45,7 +45,7 @@ public class IntermediateCommandModuleTest {
   @BeforeEach
   public void setUp() {
     IntermediateCommand command = mock(IntermediateCommand.class);
-    when(command.getArguments()).thenReturn(Collections.emptyList());
+    when(command.getParameters()).thenReturn(Collections.emptyList());
     when(command.getFlags()).thenReturn(Collections.emptyList());
     when(command.getName()).thenReturn(StringUtils.EMPTY);
     when(command.getPrefix()).thenReturn(Optional.empty());
@@ -60,8 +60,8 @@ public class IntermediateCommandModuleTest {
   
   private static class TestCommand implements Command {
     @Inject
-    @Named("args")
-    private List<? extends Argument> args;
+    @Named("params")
+    private List<? extends Parameter> args;
     
     @Inject
     @Named("flags")

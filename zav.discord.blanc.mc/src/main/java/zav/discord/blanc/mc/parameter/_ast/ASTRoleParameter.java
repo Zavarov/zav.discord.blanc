@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,17 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.mc.argument._ast;
+package zav.discord.blanc.mc.parameter._ast;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import zav.discord.blanc.command.parser.NumberArgument;
+import zav.discord.blanc.command.parser.NumberParameter;
 
 /**
- * Interface between a Discord text channel and a command argument.<br>
- * Each channel is uniquely identified by its id.
+ * Interface between a Discord role and a command argument.<br>
+ * Each role is uniquely identified by its id.
  */
-public class ASTTextChannelArgument extends ASTTextChannelArgumentTOP implements NumberArgument {
+public class ASTRoleParameter extends ASTRoleParameterTOP implements NumberParameter {
   @Override
   public Optional<BigDecimal> asNumber() {
     return Optional.of(new BigDecimal(super.getId().getDigits()));

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,12 +14,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.mc.argument._ast;
+package zav.discord.blanc.mc.parameter._ast;
 
-import zav.discord.blanc.api.Argument;
+import java.math.BigDecimal;
+import java.util.Optional;
+import zav.discord.blanc.command.parser.NumberParameter;
 
 /**
- * Interface between a MontiCore argument and a command argument.
+ * Interface between a Discord text channel and a command argument.<br>
+ * Each channel is uniquely identified by its id.
  */
-public interface ASTArgument extends ASTArgumentTOP, Argument {
+public class ASTTextChannelParameter extends ASTTextChannelParameterTOP implements NumberParameter {
+  @Override
+  public Optional<BigDecimal> asNumber() {
+    return Optional.of(new BigDecimal(super.getId().getDigits()));
+  }
 }

@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.db.UserDatabase;
@@ -29,8 +29,8 @@ public abstract class AbstractCommand implements Command {
   @Inject
   protected Message message;
   @Inject
-  @Named("args")
-  protected List<? extends Argument> args;
+  @Named("params")
+  protected List<? extends Parameter> params;
   
   private final Rank requiredRank;
   

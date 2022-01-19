@@ -20,7 +20,7 @@ package zav.discord.blanc.mc.callable._ast;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.command.IntermediateCommand;
 
 /**
@@ -44,7 +44,7 @@ public class ASTCallable extends ASTCallableTOP implements IntermediateCommand {
   }
 
   @Override
-  public List<? extends Argument> getArguments() {
-    return super.getAstArgumentList();
+  public List<? extends Parameter> getParameters() {
+    return super.getAstParameterList();
   }
 }

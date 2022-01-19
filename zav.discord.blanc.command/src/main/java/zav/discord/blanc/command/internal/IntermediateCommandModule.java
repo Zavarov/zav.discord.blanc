@@ -4,15 +4,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.util.List;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.command.IntermediateCommand;
 
 /**
  * Injector module for all commands.<br>
  * It provides all arguments that were used to create the command for injection:
  * <pre>
- *   &#64;Inject &#64;Named("args")
- *   List&lt;String&gt args;
+ *   &#64;Inject &#64;Named("params")
+ *   List&lt;String&gt params;
  *
  *   &#64;Inject &#64;Named("flags")
  *   List&lt;String&gt flags;
@@ -33,9 +33,9 @@ public class IntermediateCommandModule extends AbstractModule {
   
   @Override
   protected void configure() {
-    bind(new TypeLiteral<List<? extends Argument>>(){})
-          .annotatedWith(Names.named("args"))
-          .toInstance(cmd.getArguments());
+    bind(new TypeLiteral<List<? extends Parameter>>(){})
+          .annotatedWith(Names.named("params"))
+          .toInstance(cmd.getParameters());
     
     bind(new TypeLiteral<List<String>>(){})
           .annotatedWith(Names.named("flags"))

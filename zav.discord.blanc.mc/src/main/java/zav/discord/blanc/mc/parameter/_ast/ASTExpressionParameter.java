@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,19 +14,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.mc.argument._ast;
+package zav.discord.blanc.mc.parameter._ast;
 
 import de.monticore.prettyprint.IndentPrinter;
 import java.math.BigDecimal;
 import java.util.Optional;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 import zav.mc.math.ArithmeticExpressionsPrettyPrinter;
 import zav.mc.math.ArithmeticExpressionsValueCalculator;
 
 /**
  * Interface between an arithmetic expression and a command argument.
  */
-public class ASTExpressionArgument extends ASTExpressionArgumentTOP implements Argument {
+public class ASTExpressionParameter extends ASTExpressionParameterTOP implements Parameter {
   private static final ArithmeticExpressionsPrettyPrinter prettyPrinter =
         new ArithmeticExpressionsPrettyPrinter(new IndentPrinter());
   

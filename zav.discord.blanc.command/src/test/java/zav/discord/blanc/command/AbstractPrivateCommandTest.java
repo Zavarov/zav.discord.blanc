@@ -70,7 +70,7 @@ public class AbstractPrivateCommandTest {
     when(message.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
     
     IntermediateCommand command = mock(IntermediateCommand.class);
-    when(command.getArguments()).thenReturn(Collections.emptyList());
+    when(command.getParameters()).thenReturn(Collections.emptyList());
     when(command.getFlags()).thenReturn(Collections.emptyList());
     when(command.getName()).thenReturn(StringUtils.EMPTY);
     when(command.getPrefix()).thenReturn(Optional.empty());

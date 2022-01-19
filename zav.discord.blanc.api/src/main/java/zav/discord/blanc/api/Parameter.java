@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020 Zavarov
- *
+ * Copyright (c) 2021 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,19 +14,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.mc.argument._ast;
+package zav.discord.blanc.api;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import zav.discord.blanc.command.parser.NumberArgument;
+import org.jetbrains.annotations.Contract;
 
 /**
- * Interface between a Discord role and a command argument.<br>
- * Each role is uniquely identified by its id.
+ * A generic argument of a command.<br>
+ * An argument may either be a number (e.g. when providing a user id) or a plain string.
  */
-public class ASTRoleArgument extends ASTRoleArgumentTOP implements NumberArgument {
-  @Override
-  public Optional<BigDecimal> asNumber() {
-    return Optional.of(new BigDecimal(super.getId().getDigits()));
-  }
+public interface Parameter {
+  @Contract(pure = true)
+  Optional<BigDecimal> asNumber();
+  
+  @Contract(pure = true)
+  Optional<String> asString();
 }

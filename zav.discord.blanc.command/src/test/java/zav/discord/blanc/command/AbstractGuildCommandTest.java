@@ -79,7 +79,7 @@ public class AbstractGuildCommandTest {
     when(message.getMember()).thenReturn(member);
   
     IntermediateCommand command = mock(IntermediateCommand.class);
-    when(command.getArguments()).thenReturn(Collections.emptyList());
+    when(command.getParameters()).thenReturn(Collections.emptyList());
     when(command.getFlags()).thenReturn(Collections.emptyList());
     when(command.getName()).thenReturn(StringUtils.EMPTY);
     when(command.getPrefix()).thenReturn(Optional.empty());

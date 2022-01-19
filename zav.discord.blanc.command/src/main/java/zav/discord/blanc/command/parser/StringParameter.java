@@ -5,15 +5,15 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Parameter;
 
 /**
  * This interface is for arguments that only have a string representation.<br>
- * It implements {@link Argument#asNumber()} using {@link BigDecimal#BigDecimal(String)}. If the
+ * It implements {@link Parameter#asNumber()} using {@link BigDecimal#BigDecimal(String)}. If the
  * string can't be converted into a number, {@link Optional#empty()} is returned.
  */
-public interface StringArgument extends Argument {
-  Logger LOGGER = LogManager.getLogger(StringArgument.class);
+public interface StringParameter extends Parameter {
+  Logger LOGGER = LogManager.getLogger(StringParameter.class);
   @Override
   @Contract(pure = true)
   default Optional<BigDecimal> asNumber() {
