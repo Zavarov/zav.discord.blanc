@@ -16,12 +16,14 @@
 
 package zav.discord.blanc.api.command;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Job;
 
 /**
  * Base interface implemented by all commands.
  */
+@NonNullByDefault
 public interface Command extends Job {
   
   @Contract(mutates = "this")

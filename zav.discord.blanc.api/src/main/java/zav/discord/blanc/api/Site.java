@@ -21,11 +21,13 @@ import java.util.function.Consumer;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Implementation of site.
  */
+@NonNullByDefault
 public class Site {
   private final List<Page> pages;
   private final User owner;

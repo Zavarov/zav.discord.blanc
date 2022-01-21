@@ -18,6 +18,7 @@ package zav.discord.blanc.api.command;
 
 import java.util.List;
 import java.util.Optional;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Parameter;
 
@@ -34,6 +35,7 @@ import zav.discord.blanc.api.Parameter;
  *   (parameters) [bar]
  * </pre>
  */
+@NonNullByDefault
 public interface IntermediateCommand {
   @Contract(pure = true)
   Optional<String> getPrefix();

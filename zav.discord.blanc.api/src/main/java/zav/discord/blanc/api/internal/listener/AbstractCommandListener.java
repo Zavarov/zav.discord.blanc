@@ -30,11 +30,13 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.command.Command;
 
 /**
  * Abstract base class for both the guild and private command listener.
  */
+@NonNullByDefault
 public abstract class AbstractCommandListener extends ListenerAdapter {
   private static final Logger LOGGER = LogManager.getLogger(AbstractCommandListener.class);
 

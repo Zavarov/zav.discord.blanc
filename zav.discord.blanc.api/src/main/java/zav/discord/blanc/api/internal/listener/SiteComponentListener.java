@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Site;
 
@@ -36,6 +37,7 @@ import zav.discord.blanc.api.Site;
  * The listener for notifying the message components of a command whenever the author interacts with
  * it.
  */
+@NonNullByDefault
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LogManager.getLogger(SiteComponentListener.class);
   private static final long MAX_CACHE_SIZE = 1024;

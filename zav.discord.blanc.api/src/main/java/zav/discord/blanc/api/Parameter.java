@@ -18,12 +18,14 @@ package zav.discord.blanc.api;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
  * A generic argument of a command.<br>
  * An argument may either be a number (e.g. when providing a user id) or a plain string.
  */
+@NonNullByDefault
 public interface Parameter {
   @Contract(pure = true)
   Optional<BigDecimal> asNumber();

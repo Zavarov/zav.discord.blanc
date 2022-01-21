@@ -20,10 +20,12 @@ import com.google.inject.AbstractModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * The module containing the fields of each individual shard.
  */
+@NonNullByDefault
 public class ShardModule extends AbstractModule {
   private static final ScheduledExecutorService queue = Executors.newScheduledThreadPool(16);
   

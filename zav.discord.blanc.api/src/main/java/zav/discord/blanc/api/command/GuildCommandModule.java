@@ -25,10 +25,12 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * A module for injecting all fields of a guild command.
  */
+@NonNullByDefault
 public class GuildCommandModule extends AbstractModule {
   
   private final Message message;

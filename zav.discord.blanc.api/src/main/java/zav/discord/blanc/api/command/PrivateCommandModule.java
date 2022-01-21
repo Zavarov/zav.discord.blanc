@@ -22,10 +22,12 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * A module for injecting all fields of a private command.
  */
+@NonNullByDefault
 public class PrivateCommandModule extends AbstractModule {
   
   private final Message message;

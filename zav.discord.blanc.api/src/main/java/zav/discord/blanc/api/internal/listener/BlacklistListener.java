@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.db.GuildDatabase;
 
@@ -43,6 +44,7 @@ import zav.discord.blanc.db.GuildDatabase;
  * a guild. Upon match, this message will then be deleted, assuming that the program has the
  * required permission to do so.
  */
+@NonNullByDefault
 public class BlacklistListener extends ListenerAdapter {
   private static final Cache<Long, Pattern> patternCache = CacheBuilder
         .newBuilder()

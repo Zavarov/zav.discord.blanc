@@ -20,6 +20,7 @@ import com.google.inject.Module;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.api.command.GuildCommandModule;
@@ -31,6 +32,7 @@ import zav.discord.blanc.api.command.parser.Parser;
  * Whenever a new message is received, it is checked whether it corresponds to a command. If so, the
  * corresponding command instance is created and submitted for execution.
  */
+@NonNullByDefault
 public class GuildCommandListener extends AbstractCommandListener {
   @Inject
   private Parser parser;

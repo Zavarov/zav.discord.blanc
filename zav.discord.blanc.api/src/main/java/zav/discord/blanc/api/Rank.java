@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.Contract;
  * Ranks are used to limit, what types of commands a user can use. For example, a normal user
  * shouldn't be able to use developer commands.
  */
+@NonNullByDefault
 public enum Rank {
   REDDIT,
   USER,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,18 +16,43 @@
 
 package zav.discord.blanc.api;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-import org.jetbrains.annotations.Contract;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * A generic argument of a command.<br>
- * An argument may either be a number (e.g. when providing a user id) or a plain string.
+ * This annotation is used inside commands to automatically deserialize the parameters into their
+ * desired data types. Example:
+ * <pre>
+ * &#064;Argument(index = 0)
+ * Guild guild;
+ *
+ * &#064;Nullable
+ * &#064;Argument(index = 1, nullable = true)
+ * TextChannel channel;
+ * </pre>
  */
-public interface Argument {
-  @Contract(pure = true)
-  Optional<BigDecimal> asNumber();
+@NonNullByDefault
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Argument {
+  /**
+   * Specifies the index of the parameter which is deserialized. When out of range or the parameter
+   * could not be transformed into an entity, the field is initialized with {@code null}.
+   *
+   * @return The index of the parameter which is used to initialize the annotated field.
+   */
+  int index();
   
-  @Contract(pure = true)
-  Optional<String> asString();
+  /**
+   * When set to {@code true}, tries to derive a default value when the provided index is out of
+   * range. For example, the default of a user is the message author.<br>
+   * <b>NOTE:</b> It is still possible to get {@code null} values, even when this flag is
+   * set. E.g. when the parameter could not be deserialized or when no default value exists.
+   *
+   * @return {@code true}, when default values should be used, when possible.
+   */
+  boolean useDefault() default false;
 }
