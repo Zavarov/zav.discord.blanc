@@ -1,6 +1,5 @@
 {
   "type" : "object",
-  "javaName": "GuildTOP",
   "properties" : {
     "id" : {
       "description" : "Unique 64bit long id of the guild.",
