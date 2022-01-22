@@ -23,8 +23,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,18 +42,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import zav.discord.blanc.databind.GuildDto;
+import zav.discord.blanc.db.GuildDatabase;
 
 /**
  * Test class for checking whether forbidden message are deleted automatically.
  */
 public class BlacklistListenerTest {
-  MockedStatic<PermissionUtil> mocked;
+  MockedStatic<PermissionUtil> permissions;
+  MockedStatic<GuildDatabase> db;
   
   final long guildId = 11111L;
   final long responseId = 22222L;
-  final Pattern pattern = Pattern.compile("banana");
+  final String pattern = "banana";
 
   BlacklistListener listener;
+  GuildDto data;
 
   @Mock JDA jda;
   @Mock SelfUser selfUser;
@@ -76,20 +80,22 @@ public class BlacklistListenerTest {
    */
   @BeforeEach
   public void setUp() {
-    mocked = mockStatic(PermissionUtil.class);
-    mocked.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
+    data = new GuildDto().withBlacklist(List.of(pattern));
+    
+    db = mockStatic(GuildDatabase.class);
+    db.when(() -> GuildDatabase.get(guildId)).thenReturn(data);
+    
+    permissions = mockStatic(PermissionUtil.class);
+    permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
+    
     closeable = openMocks(this);
-  
+    
     when(jda.getSelfUser()).thenReturn(selfUser);
-  
     when(user.getJDA()).thenReturn(jda);
     when(selfUser.getJDA()).thenReturn(jda);
-    
     when(guild.getSelfMember()).thenReturn(selfMember);
     when(guild.getIdLong()).thenReturn(guildId);
-    
     when(textChannel.getGuild()).thenReturn(guild);
-    
     when(message.getGuild()).thenReturn(guild);
     when(message.getTextChannel()).thenReturn(textChannel);
     when(message.getAuthor()).thenReturn(user);
@@ -99,15 +105,21 @@ public class BlacklistListenerTest {
     when(messageEmbed.getFields()).thenReturn(List.of(field));
     when(messageEmbed.getFooter()).thenReturn(footer);
   
-    BlacklistListener.setPattern(guildId, pattern);
+    BlacklistListener.updatePattern(guildId);
     
     listener = new BlacklistListener();
     event = new GuildMessageReceivedEvent(jda, responseId, message);
   }
   
+  /**
+   * Close all static mocks.
+   *
+   * @throws Exception When some mocks couldn't be closed.
+   */
   @AfterEach
   public void tearDown() throws Exception {
-    mocked.close();
+    permissions.close();
+    db.close();
     closeable.close();
   }
   
@@ -127,7 +139,7 @@ public class BlacklistListenerTest {
   @Test
   public void testIgnoreWithoutPermissions() {
     // We're not allowed to delete the message
-    mocked.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(false);
+    permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(false);
     // Banned word
     when(message.getContentRaw()).thenReturn("banana");
   
@@ -142,7 +154,8 @@ public class BlacklistListenerTest {
     // Banned word
     when(message.getContentRaw()).thenReturn("banana");
     // Remove pattern
-    BlacklistListener.setPattern(guildId, null);
+    data.setBlacklist(Collections.emptyList());
+    BlacklistListener.updatePattern(guildId);
   
     listener.onGuildMessageReceived(event);
   

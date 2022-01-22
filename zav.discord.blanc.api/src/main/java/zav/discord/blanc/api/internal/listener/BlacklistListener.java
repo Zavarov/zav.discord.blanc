@@ -36,6 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.databind.GuildDto;
 import zav.discord.blanc.db.GuildDatabase;
 
 /**
@@ -85,17 +87,17 @@ public class BlacklistListener extends ListenerAdapter {
    * All messages matching this pattern are deleted automatically.
    *
    * @param guildId The unique id of a guild.
-   * @param pattern The pattern all messages are matched against.
    */
-  public static void setPattern(long guildId, @Nullable Pattern pattern) {
-    if (pattern == null) {
-      patternCache.invalidate(guildId);
-    } else {
+  public static void updatePattern(long guildId) {
+    // getPattern(...) has to recompute the pattern
+    patternCache.invalidate(guildId);
+    Pattern pattern = getPattern(guildId);
+    if (pattern != null) {
       patternCache.put(guildId, pattern);
     }
   }
   
-  private @Nullable Pattern getPattern(long guildId) {
+  private static @Nullable Pattern getPattern(long guildId) {
     @Nullable Pattern pattern = patternCache.getIfPresent(guildId);
     
     // Pattern has been cached
@@ -105,11 +107,29 @@ public class BlacklistListener extends ListenerAdapter {
     
     // Fetch pattern from database if it has already been garbage-collected.
     try {
-      return GuildDatabase.get(guildId).getPattern();
+      return getPattern(GuildDatabase.get(guildId));
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
       return null;
     }
+  }
+  
+  /**
+   * Each expression is concatenated using an {@code or}, meaning the pattern will match any String
+   * that matches at least one banned expression.<br>
+   * This method acts as a utility function to simplify the transformation of multiple Strings into
+   * a single pattern.
+   *
+   * @param guild The database entry of the guild which blacklist pattern is calculated.
+   * @return The pattern corresponding to all blacklisted expressions.
+   */
+  @Contract(pure = true)
+  private static @Nullable Pattern getPattern(GuildDto guild) {
+    @Nullable String regex = guild.getBlacklist().stream()
+          .reduce((u, v) -> u + "|" + v)
+          .orElse(null);
+    
+    return regex == null ? null : Pattern.compile(regex);
   }
 
   private boolean isSelfUser(User author) {
