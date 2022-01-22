@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Rank;
 
@@ -14,6 +15,7 @@ import zav.discord.blanc.api.Rank;
  * Base class for all guild commands.<br>
  * Guild commands may require additional Guild-specific permissions in order to be executed.
  */
+@NonNullByDefault
 public abstract class AbstractGuildCommand extends AbstractCommand {
   @Inject
   protected Guild guild;

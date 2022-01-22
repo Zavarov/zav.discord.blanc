@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,24 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.jda.api;
-
-import static zav.discord.blanc.jda.internal.GuiceUtils.injectPrivateMessage;
-import static zav.discord.blanc.jda.internal.ResolverUtils.resolveMessage;
+package zav.discord.blanc.command.internal.resolver;
 
 import net.dv8tion.jda.api.entities.Message;
-import zav.discord.blanc.api.PrivateChannel;
-
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.api.Rank;
 
 /**
- * Implementation of a message view, backed by JDA.
+ * Derives a rank based on its (unique) name. Capitalization is ignored.
  */
-public class JdaPrivateChannel extends JdaMessageChannel implements PrivateChannel {
-  
+@NonNullByDefault
+public class RankResolver implements EntityResolver<Rank> {
   @Override
-  public JdaPrivateMessage getMessage(long messageId) {
-    Message jdaMessage = resolveMessage(jdaMessageChannel, messageId);
-    
-    return injectPrivateMessage(jdaMessage);
+  public @Nullable Rank apply(Parameter parameter, Message message) {
+    try {
+      return parameter.asString().map(String::toUpperCase).map(Rank::valueOf).orElse(null);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 }

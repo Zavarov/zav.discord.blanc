@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.command.IntermediateCommand;
 
@@ -24,6 +25,7 @@ import zav.discord.blanc.api.command.IntermediateCommand;
  *   String prefix;
  * </pre>
  */
+@NonNullByDefault
 public class IntermediateCommandModule extends AbstractModule {
   private final IntermediateCommand cmd;
   

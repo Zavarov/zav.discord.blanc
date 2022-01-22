@@ -13,7 +13,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.api.command;
 
+package zav.discord.blanc.command.internal.resolver;
+
+import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.Parameter;
+
+/**
+ * Extracts the string value of a {@link Parameter}.
+ */
+@NonNullByDefault
+public class StringResolver implements EntityResolver<String> {
+  @Override
+  public @Nullable String apply(Parameter parameter, Message message) {
+    return parameter.asString().orElse(null);
+  }
+}

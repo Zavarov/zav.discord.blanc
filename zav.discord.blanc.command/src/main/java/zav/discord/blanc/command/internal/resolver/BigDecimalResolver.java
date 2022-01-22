@@ -13,7 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.api.command.parser;
 
+package zav.discord.blanc.command.internal.resolver;
+
+import java.math.BigDecimal;
+import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.Parameter;
+
+/**
+ * Extracts the numerical value of a {@link Parameter}.
+ */
+@NonNullByDefault
+public class BigDecimalResolver implements EntityResolver<BigDecimal> {
+  @Override
+  public @Nullable BigDecimal apply(Parameter parameter, Message message) {
+    return parameter.asNumber().orElse(null);
+  }
+}

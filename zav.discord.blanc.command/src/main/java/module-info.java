@@ -1,4 +1,4 @@
-module zav.discord.blanc.command {
+open module zav.discord.blanc.command {
   requires static org.eclipse.jdt.annotation;
   requires static org.jetbrains.annotations;
   
@@ -15,8 +15,4 @@ module zav.discord.blanc.command {
   
   exports zav.discord.blanc.command;
   exports zav.discord.blanc.command.parser;
-  
-  opens zav.discord.blanc.command to com.google.guice;
-  opens zav.discord.blanc.command.internal to com.google.guice;
-  opens zav.discord.blanc.command.parser to com.google.guice;
 }

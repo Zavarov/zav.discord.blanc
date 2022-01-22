@@ -1,16 +1,14 @@
 package zav.discord.blanc.command;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.db.UserDatabase;
@@ -19,6 +17,7 @@ import zav.discord.blanc.db.UserDatabase;
  * Abstract base class for all commands.<br>
  * Commands can be either executed in a guild or private channel.
  */
+@NonNullByDefault
 public abstract class AbstractCommand implements Command {
   @Inject
   protected JDA shard;
@@ -28,9 +27,6 @@ public abstract class AbstractCommand implements Command {
   protected User author;
   @Inject
   protected Message message;
-  @Inject
-  @Named("params")
-  protected List<? extends Parameter> params;
   
   private final Rank requiredRank;
   

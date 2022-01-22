@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@NonNullByDefault
-package zav.discord.blanc.command.internal;
 
+package zav.discord.blanc.command.internal.resolver;
+
+import java.util.function.BiFunction;
+import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Parameter;
+
+/**
+ * Base class for all entity resolvers. The resolvers are used to deserialize a {@link Parameter}
+ * into a Java object.
+ *
+ * @param <T> The target type.
+ */
+@NonNullByDefault
+public interface EntityResolver<T> extends BiFunction<Parameter, Message, T> {
+}
