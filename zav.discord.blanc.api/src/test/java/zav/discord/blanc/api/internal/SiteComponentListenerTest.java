@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.listener;
+package zav.discord.blanc.api.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
+import static zav.discord.blanc.api.Constants.SITE;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import java.util.List;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
@@ -51,6 +59,7 @@ public class SiteComponentListenerTest {
   SiteComponentListener listener;
   ButtonClickEvent clickEvent;
   SelectionMenuEvent selectionEvent;
+  Cache<Message, Site> cache = CacheBuilder.newBuilder().build();
   
   final String left = "left";
   final String right = "right";
@@ -76,8 +85,6 @@ public class SiteComponentListenerTest {
   @BeforeEach
   public void setUp() {
     closeable = openMocks(this);
-    
-    SiteComponentListener.add(message, site);
     
     // Execute moveLeft(...) / moveRight(...) / changeSelection(...) calls
     doAnswer(invocation -> {
@@ -114,10 +121,13 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getUser()).thenReturn(user);
   
     when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
-  
+    
+    Injector injector = Guice.createInjector(new TestModule());
+    
     clickEvent = new ButtonClickEvent(jda, responseNumber, buttonInteraction);
     selectionEvent = new SelectionMenuEvent(jda, responseNumber, selectionInteraction);
-    listener = new SiteComponentListener();
+    listener = injector.getInstance(SiteComponentListener.class);
+    cache.put(message, site);
   }
   
   @AfterEach
@@ -235,5 +245,14 @@ public class SiteComponentListenerTest {
     listener.onSelectionMenu(selectionEvent);
   
     verify(replyAction, times(1)).complete();
+  }
+  
+  private class TestModule extends AbstractModule {
+    @Override
+    protected void configure() {
+      bind(new TypeLiteral<Cache<Message, Site>>(){})
+            .annotatedWith(Names.named(SITE))
+            .toInstance(cache);
+    }
   }
 }

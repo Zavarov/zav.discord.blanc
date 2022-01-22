@@ -18,6 +18,10 @@ package zav.discord.blanc.command.internal;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static zav.discord.blanc.api.Constants.FLAGS;
+import static zav.discord.blanc.api.Constants.NAME;
+import static zav.discord.blanc.api.Constants.PARAMS;
+import static zav.discord.blanc.api.Constants.PREFIX;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -29,9 +33,9 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Parameter;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.IntermediateCommand;
+import zav.discord.blanc.command.IntermediateCommand;
 
 /**
  * Checks whether the intermediate attributes of a command can be injected.
@@ -60,19 +64,19 @@ public class IntermediateCommandModuleTest {
   
   private static class TestCommand implements Command {
     @Inject
-    @Named("params")
+    @Named(PARAMS)
     private List<? extends Parameter> args;
     
     @Inject
-    @Named("flags")
+    @Named(FLAGS)
     private List<String> flags;
     
     @Inject
-    @Named("name")
+    @Named(NAME)
     private String name;
     
     @Inject(optional = true)
-    @Named("prefix")
+    @Named(PREFIX)
     private String prefix;
     
     @Override

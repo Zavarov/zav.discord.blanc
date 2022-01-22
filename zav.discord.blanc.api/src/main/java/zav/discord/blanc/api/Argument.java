@@ -26,11 +26,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * This annotation is used inside commands to automatically deserialize the parameters into their
  * desired data types. Example:
  * <pre>
- * &#064;Argument(index = 0)
+ * &#064;Argument(index = 0, useDefault = true)
  * Guild guild;
  *
- * &#064;Nullable
- * &#064;Argument(index = 1, nullable = true)
+ * &#064;Argument(index = 1)
  * TextChannel channel;
  * </pre>
  */

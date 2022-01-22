@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.listener;
+package zav.discord.blanc.api.internal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -31,23 +31,25 @@ import com.google.inject.Injector;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.parser.Parser;
+import zav.discord.blanc.api.Command;
+import zav.discord.blanc.api.Parser;
+import zav.discord.blanc.api.internal.GuildCommandListener;
 
 /**
- * Checks whether private messages are able to produce (private) commands.
+ * Checks whether guild messages are able to produce (guild) commands.
  */
-public class PrivateCommandListenerTest {
+public class GuildCommandListenerTest {
   
   final long responseNumber = 11111L;
   
@@ -57,16 +59,17 @@ public class PrivateCommandListenerTest {
   
   @Mock JDA jda;
   @Mock Message message;
-  @Mock PrivateChannel privateChannel;
+  @Mock Guild guild;
+  @Mock TextChannel textChannel;
   @Mock User author;
   @Mock MessageAction action;
   
-  PrivateMessageReceivedEvent event;
-  PrivateCommandListener listener;
+  GuildMessageReceivedEvent event;
+  GuildCommandListener listener;
   AutoCloseable closeable;
   
   /**
-   * Creates a private command listener with a valid private message received event.
+   * Creates a guild command listener with a valid guild message received event.
    */
   @BeforeEach
   public void setUp() {
@@ -78,15 +81,17 @@ public class PrivateCommandListenerTest {
       return null;
     }).when(queue).submit(any(Runnable.class));
   
-    when(parser.parse(any(), any())).thenReturn(Optional.of(command));
-    when(message.getPrivateChannel()).thenReturn(privateChannel);
+    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.of(command));
+    when(message.getGuild()).thenReturn(guild);
+    when(message.getTextChannel()).thenReturn(textChannel);
     when(message.getAuthor()).thenReturn(author);
-    when(privateChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
+    when(textChannel.getGuild()).thenReturn(guild);
+    when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
     
     Injector injector = Guice.createInjector(new TestModule());
-    listener = injector.getInstance(PrivateCommandListener.class);
+    listener = injector.getInstance(GuildCommandListener.class);
   
-    event = new PrivateMessageReceivedEvent(jda, responseNumber, message);
+    event = new GuildMessageReceivedEvent(jda, responseNumber, message);
   }
   
   @AfterEach
@@ -96,7 +101,7 @@ public class PrivateCommandListenerTest {
   
   @Test
   public void testExecuteCommand() throws Exception {
-    listener.onPrivateMessageReceived(event);
+    listener.onGuildMessageReceived(event);
     
     verify(command, times(1)).postConstruct();
     verify(command, times(1)).validate();
@@ -109,9 +114,9 @@ public class PrivateCommandListenerTest {
     Throwable cause = new Exception();
     doThrow(new Exception(message, cause)).when(command).run();
   
-    listener.onPrivateMessageReceived(event);
+    listener.onGuildMessageReceived(event);
   
-    verify(privateChannel, times(1)).sendMessageEmbeds(any(MessageEmbed.class));
+    verify(textChannel, times(1)).sendMessageEmbeds(any(MessageEmbed.class));
   }
   
   @Test
@@ -119,7 +124,7 @@ public class PrivateCommandListenerTest {
     // Bot message -> ignore
     when(author.isBot()).thenReturn(true);
   
-    listener.onPrivateMessageReceived(event);
+    listener.onGuildMessageReceived(event);
   
     verifyNoInteractions(queue);
   }
@@ -127,9 +132,9 @@ public class PrivateCommandListenerTest {
   @Test
   public void testIgnoreInvalidCommands() {
     // Message not a command
-    when(parser.parse(any(), any())).thenReturn(Optional.empty());
+    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.empty());
   
-    listener.onPrivateMessageReceived(event);
+    listener.onGuildMessageReceived(event);
   
     verifyNoInteractions(queue);
   }

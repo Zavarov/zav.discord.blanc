@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,13 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.listener;
+package zav.discord.blanc.api.internal;
 
+
+import static zav.discord.blanc.api.Constants.SITE;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import java.time.Duration;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
@@ -40,20 +42,14 @@ import zav.discord.blanc.api.Site;
 @NonNullByDefault
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LogManager.getLogger(SiteComponentListener.class);
-  private static final long MAX_CACHE_SIZE = 1024;
   
-  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder()
-        .expireAfterAccess(Duration.ofHours(1))
-        .maximumSize(MAX_CACHE_SIZE)
-        .build();
-  
-  public static void add(Message message, Site site) {
-    CACHE.put(message, site);
-  }
+  @Inject
+  @Named(SITE)
+  private Cache<Message, Site> cache;
   
   @Override
   public void onButtonClick(@NonNull ButtonClickEvent event) {
-    @Nullable Site site = CACHE.getIfPresent(event.getMessage());
+    @Nullable Site site = cache.getIfPresent(event.getMessage());
     
     // Unknown message -> ignore
     if (site == null) {
@@ -100,7 +96,7 @@ public class SiteComponentListener extends ListenerAdapter {
   
   @Override
   public void onSelectionMenu(@NonNull SelectionMenuEvent event) {
-    @Nullable Site site = CACHE.getIfPresent(event.getMessage());
+    @Nullable Site site = cache.getIfPresent(event.getMessage());
   
     // Unknown message -> ignore
     if (site == null) {

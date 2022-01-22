@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,46 +14,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.listener;
+package zav.discord.blanc.api.internal;
 
-import com.google.inject.Module;
 import javax.inject.Inject;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.PrivateCommandModule;
-import zav.discord.blanc.api.command.parser.Parser;
+import zav.discord.blanc.api.Command;
+import zav.discord.blanc.api.Parser;
+
 
 /**
- * Listener for private commands.<br>
+ * Listener for guild commands.<br>
  * Whenever a new message is received, it is checked whether it corresponds to a command. If so, the
  * corresponding command instance is created and submitted for execution.
  */
 @NonNullByDefault
-public class PrivateCommandListener extends AbstractCommandListener {
+public class GuildCommandListener extends AbstractCommandListener {
   @Inject
   private Parser parser;
 
   @Override
-  public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+  public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
     //Ignore bots
     if (event.getAuthor().isBot()) {
       return;
     }
-  
-    Message message = event.getMessage();
-    Module module = new PrivateCommandModule(message);
-  
+    
     @Nullable
-    Command command = parser.parse(module, message).orElse(null);
-  
+    Command command = parser.parse(event).orElse(null);
+    
     // Message doesn't correspond to a command -> abort
     if (command == null) {
       return;
     }
-  
+    
     super.submit(event.getChannel(), command);
   }
 }

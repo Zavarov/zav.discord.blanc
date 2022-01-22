@@ -26,6 +26,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
+import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
+import static zav.discord.blanc.api.Constants.SHARD_COUNT;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -40,7 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
-import zav.discord.blanc.api.command.parser.Parser;
+import zav.discord.blanc.api.Parser;
 
 /**
  * Test case for initializing the JDA instances for all requested shards.
@@ -97,8 +99,8 @@ public class JdaShardSupplierTest {
   private static class TestModule extends AbstractModule {
     @Override
     protected void configure() {
-      bind(Long.class).annotatedWith(Names.named("shardCount")).toInstance(2L);
-      bind(String.class).annotatedWith(Names.named("discordToken")).toInstance("token");
+      bind(Long.class).annotatedWith(Names.named(SHARD_COUNT)).toInstance(2L);
+      bind(String.class).annotatedWith(Names.named(DISCORD_TOKEN)).toInstance("token");
       bind(Parser.class).toInstance(mock(Parser.class));
     }
   }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import zav.discord.blanc.api.Parameter;
-import zav.discord.blanc.api.command.IntermediateCommand;
+import zav.discord.blanc.command.IntermediateCommand;
 
 /**
  * Interface between a MontiCore callable and an intermediate command.

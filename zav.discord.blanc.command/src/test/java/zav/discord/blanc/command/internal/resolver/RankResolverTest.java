@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.api.command.Command;
 
 public class RankResolverTest extends AbstractResolverTest {
   

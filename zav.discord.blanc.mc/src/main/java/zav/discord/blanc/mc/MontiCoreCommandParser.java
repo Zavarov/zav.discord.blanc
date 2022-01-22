@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.command.IntermediateCommand;
+import zav.discord.blanc.command.IntermediateCommand;
 import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.mc.callable._parser.CallableParser;
 

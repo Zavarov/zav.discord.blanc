@@ -14,17 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.command.parser;
+package zav.discord.blanc.api;
 
-import com.google.inject.Module;
 import java.util.Optional;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.Commands;
-import zav.discord.blanc.api.command.IntermediateCommand;
 
 /**
  * Base interface for all command parser.<br>
@@ -38,8 +34,8 @@ import zav.discord.blanc.api.command.IntermediateCommand;
 @NonNullByDefault
 public interface Parser {
   @Contract(pure = true)
-  @Nullable IntermediateCommand parse(Message source);
+  Optional<Command> parse(GuildMessageReceivedEvent event);
   
   @Contract(pure = true)
-  Optional<Command> parse(Module module, Message source);
+  Optional<Command> parse(PrivateMessageReceivedEvent event);
 }

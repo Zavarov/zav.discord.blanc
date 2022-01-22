@@ -28,8 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Parameter;
-import zav.discord.blanc.api.command.IntermediateCommand;
-import zav.discord.blanc.api.command.parser.Parser;
+import zav.discord.blanc.command.IntermediateCommand;
 import zav.discord.blanc.mc.parameter._ast.ASTExpressionParameter;
 import zav.discord.blanc.mc.parameter._ast.ASTRoleParameter;
 import zav.discord.blanc.mc.parameter._ast.ASTStringParameter;
@@ -41,7 +40,7 @@ import zav.discord.blanc.mc.parameter._ast.ASTUserParameter;
  * It verifies whether a correct intermediate command is created from a raw string.
  */
 public class MontiCoreCommandParserTest {
-  Parser parser;
+  MontiCoreCommandParser parser;
   Message message;
 
   @BeforeEach

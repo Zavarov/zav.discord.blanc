@@ -25,7 +25,7 @@ import java.util.List;
 import net.dv8tion.jda.api.entities.Role;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.command.Command;
+import zav.discord.blanc.api.Command;
 
 public class RoleResolverTest extends AbstractResolverTest {
   

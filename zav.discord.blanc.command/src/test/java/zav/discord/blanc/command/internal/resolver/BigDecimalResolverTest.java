@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.command.Command;
+import zav.discord.blanc.api.Command;
 
 public class BigDecimalResolverTest extends AbstractResolverTest {
   

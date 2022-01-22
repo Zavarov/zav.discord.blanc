@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,24 +14,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.guice;
+package zav.discord.blanc.api.internal;
 
+import static zav.discord.blanc.api.Constants.SITE;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Site;
 
 /**
  * The module containing the fields of each individual shard.
  */
 @NonNullByDefault
 public class ShardModule extends AbstractModule {
-  private static final ScheduledExecutorService queue = Executors.newScheduledThreadPool(16);
+  private static final int MAX_CACHE_SIZE = 1024;
+  private static final ScheduledExecutorService QUEUE = Executors.newScheduledThreadPool(16);
+  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).maximumSize(MAX_CACHE_SIZE).build();
   
   @Override
   protected void configure() {
-    bind(ExecutorService.class).toInstance(queue);
-    bind(ScheduledExecutorService.class).toInstance(queue);
+    bind(ExecutorService.class).toInstance(QUEUE);
+    bind(ScheduledExecutorService.class).toInstance(QUEUE);
+    bind(new TypeLiteral<Cache<Message, Site>>(){})
+          .annotatedWith(Names.named(SITE))
+          .toInstance(CACHE);
   }
 }

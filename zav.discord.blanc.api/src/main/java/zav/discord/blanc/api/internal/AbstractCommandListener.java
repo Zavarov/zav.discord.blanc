@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Zavarov.
+ * Copyright (c) 2022 Zavarov.
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.listener;
+package zav.discord.blanc.api.internal;
 
 import static net.dv8tion.jda.api.entities.MessageEmbed.VALUE_MAX_LENGTH;
 import static org.apache.commons.lang3.StringUtils.LF;
@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import zav.discord.blanc.api.command.Command;
+import zav.discord.blanc.api.Command;
 
 /**
  * Abstract base class for both the guild and private command listener.

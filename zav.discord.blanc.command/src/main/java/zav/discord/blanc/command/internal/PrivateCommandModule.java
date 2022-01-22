@@ -14,44 +14,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.command;
+package zav.discord.blanc.command.internal;
 
 import com.google.inject.AbstractModule;
-import java.util.Objects;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * A module for injecting all fields of a guild command.
+ * A module for injecting all fields of a private command.
  */
 @NonNullByDefault
-public class GuildCommandModule extends AbstractModule {
+public class PrivateCommandModule extends AbstractModule {
   
   private final Message message;
   
-  public GuildCommandModule(Message message) {
+  public PrivateCommandModule(Message message) {
     this.message = message;
   }
-
+  
   @Override
   protected void configure() {
-    Objects.requireNonNull(message.getMember());
-    
     // General
     bind(JDA.class).toInstance(message.getJDA());
     bind(MessageChannel.class).toInstance(message.getChannel());
     bind(Message.class).toInstance(message);
     bind(User.class).toInstance(message.getAuthor());
-
-    // Guild specific
-    bind(Guild.class).toInstance(message.getGuild());
-    bind(TextChannel.class).toInstance(message.getTextChannel());
-    bind(Member.class).toInstance(message.getMember());
+    
+    // Private channel specific
+    bind(PrivateChannel.class).toInstance(message.getPrivateChannel());
   }
 }

@@ -2,14 +2,13 @@ package zav.discord.blanc.command.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import java.util.Collections;
 import java.util.Optional;
 import net.dv8tion.jda.api.JDA;
@@ -20,31 +19,34 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.Commands;
-import zav.discord.blanc.api.command.GuildCommandModule;
-import zav.discord.blanc.api.command.IntermediateCommand;
-import zav.discord.blanc.api.command.PrivateCommandModule;
-import zav.discord.blanc.api.command.parser.Parser;
+import org.mockito.Mock;
+import zav.discord.blanc.api.Command;
+import zav.discord.blanc.api.Commands;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
+import zav.discord.blanc.command.IntermediateCommand;
 
 /**
  * Test case for the parser implementation.<br>
  * Verifies that the correct intermediate command representation is retrieved from a raw string.
  */
 public class AbstractParserTest {
-  private Parser parser;
-
-  private Message guildMessage;
-  private Message privateMessage;
-
-  private Module guildModule;
-  private Module privateModule;
+  
+  private @Mock GuildMessageReceivedEvent guildEvent;
+  private @Mock PrivateMessageReceivedEvent privateEvent;
+  private @Mock IntermediateCommand privateCommand;
+  private @Mock IntermediateCommand guildCommand;
+  private @Mock Message privateMessage;
+  private @Mock Message guildMessage;
+  private @Mock AbstractParser parser;
+  private AutoCloseable closeable;
   
   @BeforeAll
   public static void setUpAll() {
@@ -63,31 +65,26 @@ public class AbstractParserTest {
    */
   @BeforeEach
   public void setUp() {
+    closeable = openMocks(this);
     // Mock private command
     
-    IntermediateCommand privateCommand = mock(IntermediateCommand.class);
     when(privateCommand.getPrefix()).thenReturn(Optional.of("b"));
     when(privateCommand.getName()).thenReturn("privateCommand");
     when(privateCommand.getParameters()).thenReturn(Collections.emptyList());
     when(privateCommand.getFlags()).thenReturn(Collections.emptyList());
     
-    privateMessage = mock(Message.class);
     when(privateMessage.getJDA()).thenReturn(mock(JDA.class));
     when(privateMessage.getChannel()).thenReturn(mock(MessageChannel.class));
     when(privateMessage.getAuthor()).thenReturn(mock(User.class));
     when(privateMessage.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
-    
-    privateModule = new PrivateCommandModule(privateMessage);
   
     // Mock guild command
     
-    IntermediateCommand guildCommand = mock(IntermediateCommand.class);
     when(guildCommand.getPrefix()).thenReturn(Optional.of("b"));
     when(guildCommand.getName()).thenReturn("guildCommand");
     when(guildCommand.getParameters()).thenReturn(Collections.emptyList());
     when(guildCommand.getFlags()).thenReturn(Collections.emptyList());
   
-    guildMessage = mock(Message.class);
     when(guildMessage.getJDA()).thenReturn(mock(JDA.class));
     when(guildMessage.getChannel()).thenReturn(mock(MessageChannel.class));
     when(guildMessage.getAuthor()).thenReturn(mock(User.class));
@@ -95,11 +92,13 @@ public class AbstractParserTest {
     when(guildMessage.getTextChannel()).thenReturn(mock(TextChannel.class));
     when(guildMessage.getMember()).thenReturn(mock(Member.class));
     
-    guildModule = new GuildCommandModule(guildMessage);
+    when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenCallRealMethod();
+    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenCallRealMethod();
     
-    parser = mock(AbstractParser.class);
-    when(parser.parse(any(), eq(privateMessage))).thenCallRealMethod();
-    when(parser.parse(any(), eq(guildMessage))).thenCallRealMethod();
+    // Mock events
+    
+    when(guildEvent.getMessage()).thenReturn(guildMessage);
+    when(privateEvent.getMessage()).thenReturn(privateMessage);
   
     // Inject injector into the parser
     Injector injector = Guice.createInjector();
@@ -109,9 +108,14 @@ public class AbstractParserTest {
     doReturn(guildCommand).when(parser).parse(guildMessage);
   }
   
+  @AfterEach
+  public void tearDown() throws Exception {
+    closeable.close();
+  }
+  
   @Test
   public void testParseGuildCommand() {
-    Optional<? extends Command> result = parser.parse(guildModule, guildMessage);
+    Optional<? extends Command> result = parser.parse(guildEvent);
   
     assertThat(result).isPresent();
     assertThat(result.orElseThrow()).isInstanceOf(GuildCommand.class);
@@ -119,7 +123,7 @@ public class AbstractParserTest {
   
   @Test
   public void testParsePrivateCommand() {
-    Optional<? extends Command> result = parser.parse(privateModule, privateMessage);
+    Optional<? extends Command> result = parser.parse(privateEvent);
     
     assertThat(result).isPresent();
     assertThat(result.orElseThrow()).isInstanceOf(PrivateCommand.class);
@@ -132,10 +136,10 @@ public class AbstractParserTest {
     
     Optional<? extends Command> result;
     
-    result = parser.parse(mock(Module.class), guildMessage);
+    result = parser.parse(guildEvent);
     assertThat(result).isEmpty();
     
-    result = parser.parse(mock(Module.class), privateMessage);
+    result = parser.parse(privateEvent);
     assertThat(result).isEmpty();
   }
   

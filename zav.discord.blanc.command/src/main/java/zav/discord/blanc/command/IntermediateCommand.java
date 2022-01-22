@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.command;
+package zav.discord.blanc.command;
 
 import java.util.List;
 import java.util.Optional;

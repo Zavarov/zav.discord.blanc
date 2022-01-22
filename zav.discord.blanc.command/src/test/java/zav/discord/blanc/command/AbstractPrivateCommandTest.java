@@ -38,11 +38,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.api.command.Command;
-import zav.discord.blanc.api.command.IntermediateCommand;
-import zav.discord.blanc.api.command.PrivateCommandModule;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
+import zav.discord.blanc.command.internal.PrivateCommandModule;
 import zav.discord.blanc.databind.UserDto;
 import zav.discord.blanc.db.UserDatabase;
 

@@ -14,35 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.command;
+package zav.discord.blanc.api;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Job;
 
 /**
- * This class contains all commands that are known during runtime.<br>
- * Each command is identified by a distinct key. New commands can be registers via
- * {@link Commands#bind(String, Class)} and retrieved via {@link Commands#get(String)}.
+ * Base interface implemented by all commands.
  */
 @NonNullByDefault
-public final class Commands {
-  private static final Map<String, Class<? extends Command>> commands = new HashMap<>();
+public interface Command extends Job {
   
-  private Commands() {}
-  
-  public static boolean bind(String key, Class<? extends Command> command) {
-    return commands.putIfAbsent(key, command) == null;
-  }
+  @Contract(mutates = "this")
+  default void postConstruct() throws Exception {}
   
   @Contract(pure = true)
-  public static Optional<Class<? extends Command>> get(String key) {
-    return Optional.ofNullable(commands.get(key));
-  }
-  
-  public static void clear() {
-    commands.clear();
-  }
+  void validate() throws Exception;
 }

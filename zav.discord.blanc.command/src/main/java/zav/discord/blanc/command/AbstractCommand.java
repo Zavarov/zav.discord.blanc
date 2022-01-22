@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.api.command.Command;
 import zav.discord.blanc.db.UserDatabase;
 
 /**

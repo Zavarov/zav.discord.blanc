@@ -16,6 +16,9 @@
 
 package zav.discord.blanc.api.internal;
 
+import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
+import static zav.discord.blanc.api.Constants.SHARD_COUNT;
+
 import com.google.inject.Injector;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,11 +36,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.internal.guice.ShardModule;
-import zav.discord.blanc.api.internal.listener.BlacklistListener;
-import zav.discord.blanc.api.internal.listener.GuildCommandListener;
-import zav.discord.blanc.api.internal.listener.PrivateCommandListener;
-import zav.discord.blanc.api.internal.listener.SiteComponentListener;
 
 /**
  * Utility class for initializing Discord shards.
@@ -63,11 +61,11 @@ public class JdaShardSupplier implements Iterator<JDA> {
   );
   
   @Inject
-  @Named("discordToken")
+  @Named(DISCORD_TOKEN)
   private String token;
   
   @Inject
-  @Named("shardCount")
+  @Named(SHARD_COUNT)
   private long shardCount;
   
   @Inject
