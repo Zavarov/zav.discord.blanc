@@ -17,9 +17,10 @@
 package zav.discord.blanc.api.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,6 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.util.List;
-import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -59,7 +59,9 @@ public class SiteComponentListenerTest {
   SiteComponentListener listener;
   ButtonClickEvent clickEvent;
   SelectionMenuEvent selectionEvent;
-  Cache<Message, Site> cache = CacheBuilder.newBuilder().build();
+  Cache<Message, Site> cache;
+  Site site;
+  Site.Page page;
   
   final String left = "left";
   final String right = "right";
@@ -69,12 +71,11 @@ public class SiteComponentListenerTest {
   @Mock User user;
   @Mock ButtonInteraction buttonInteraction;
   @Mock SelectionMenuInteraction selectionInteraction;
-  @Mock Site site;
   @Mock Message message;
   @Mock Button button;
   @Mock ReplyAction replyAction;
   @Mock UpdateInteractionAction updateAction;
-  @Mock MessageEmbed messageEmbed;
+  @Mock MessageEmbed mainPage;
   
   AutoCloseable closeable;
   
@@ -85,27 +86,10 @@ public class SiteComponentListenerTest {
   @BeforeEach
   public void setUp() {
     closeable = openMocks(this);
-    
-    // Execute moveLeft(...) / moveRight(...) / changeSelection(...) calls
-    doAnswer(invocation -> {
-      Consumer<MessageEmbed> response = invocation.getArgument(0);
-      response.accept(messageEmbed);
-      return null;
-    }).when(site).moveLeft();
-    
-    doAnswer(invocation -> {
-      Consumer<MessageEmbed> response = invocation.getArgument(0);
-      response.accept(messageEmbed);
-      return null;
-    }).when(site).moveRight();
   
-    doAnswer(invocation -> {
-      Consumer<MessageEmbed> response = invocation.getArgument(1);
-      response.accept(messageEmbed);
-      return null;
-    }).when(site).changeSelection(any());
-    
-    when(site.getOwner()).thenReturn(user);
+    cache = CacheBuilder.newBuilder().build();
+    page = Site.Page.create("mainPage", List.of(mainPage));
+    site = spy(Site.create(List.of(page), user));
     
     // Mock JDA instructions
     when(buttonInteraction.getMessage()).thenReturn(message);
@@ -115,7 +99,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     
     when(selectionInteraction.getMessage()).thenReturn(message);
-    when(selectionInteraction.getValues()).thenReturn(List.of(EMPTY));
+    when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(selectionInteraction.deferEdit()).thenReturn(updateAction);
     when(selectionInteraction.getUser()).thenReturn(user);
