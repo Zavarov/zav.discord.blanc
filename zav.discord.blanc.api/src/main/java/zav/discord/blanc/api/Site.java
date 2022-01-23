@@ -17,7 +17,6 @@
 package zav.discord.blanc.api;
 
 import java.util.List;
-import java.util.function.Consumer;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
@@ -54,14 +53,16 @@ public class Site {
     return new Site(List.copyOf(pages), owner);
   }
   
-  public void moveLeft(Consumer<MessageEmbed> consumer) {
+  public void moveLeft() {
     currentPage.index = Math.floorMod(currentPage.index - 1, currentPage.entries.size());
-    consumer.accept(currentPage.entries.get(currentPage.index));
   }
   
-  public void moveRight(Consumer<MessageEmbed> consumer) {
+  public void moveRight() {
     currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
-    consumer.accept(currentPage.entries.get(currentPage.index));
+  }
+  
+  public MessageEmbed getCurrentPage() {
+    return currentPage.entries.get(currentPage.index);
   }
   
   @Contract(pure = true)
@@ -73,15 +74,12 @@ public class Site {
    * Changes the current page of this site to the one specified by the label.
    *
    * @param label The name of the newly selected page.
-   * @param consumer The consumer, updating the MessageEmbed.
    */
-  public void changeSelection(String label, Consumer<MessageEmbed> consumer) {
+  public void changeSelection(String label) {
     currentPage = pages.stream()
           .filter(page -> page.label.equals(label))
           .findFirst()
           .orElseThrow();
-    
-    consumer.accept(currentPage.entries.get(currentPage.index));
   }
   
   /**

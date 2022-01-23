@@ -63,23 +63,31 @@ public class SiteTest {
   @Test
   public void testMoveLeft() {
     // Roll over
-    site.moveLeft(entry -> assertThat(entry).isEqualTo(entries1.get(2)));
-    site.moveLeft(entry -> assertThat(entry).isEqualTo(entries1.get(1)));
-    site.moveLeft(entry -> assertThat(entry).isEqualTo(entries1.get(0)));
+    site.moveLeft();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(2));
+    site.moveLeft();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(1));
+    site.moveLeft();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
   }
   
   @Test
   public void testMoveRight() {
-    site.moveRight(entry -> assertThat(entry).isEqualTo(entries1.get(1)));
-    site.moveRight(entry -> assertThat(entry).isEqualTo(entries1.get(2)));
+    site.moveRight();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(1));
+    site.moveRight();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(2));
     // Roll over
-    site.moveRight(entry -> assertThat(entry).isEqualTo(entries1.get(0)));
+    site.moveRight();
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
   }
   
   @Test
   public void testChangeSelection() {
-    site.changeSelection("page1", entry -> assertThat(entry).isEqualTo(entries1.get(0)));
-    site.changeSelection("page2", entry -> assertThat(entry).isEqualTo(entries2.get(0)));
+    site.changeSelection("page1");
+    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
+    site.changeSelection("page2");
+    assertThat(site.getCurrentPage()).isEqualTo(entries2.get(0));
   }
   
   @Test

@@ -91,19 +91,19 @@ public class SiteComponentListenerTest {
       Consumer<MessageEmbed> response = invocation.getArgument(0);
       response.accept(messageEmbed);
       return null;
-    }).when(site).moveLeft(any());
+    }).when(site).moveLeft();
     
     doAnswer(invocation -> {
       Consumer<MessageEmbed> response = invocation.getArgument(0);
       response.accept(messageEmbed);
       return null;
-    }).when(site).moveRight(any());
+    }).when(site).moveRight();
   
     doAnswer(invocation -> {
       Consumer<MessageEmbed> response = invocation.getArgument(1);
       response.accept(messageEmbed);
       return null;
-    }).when(site).changeSelection(any(), any());
+    }).when(site).changeSelection(any());
     
     when(site.getOwner()).thenReturn(user);
     
@@ -142,8 +142,8 @@ public class SiteComponentListenerTest {
     
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -153,8 +153,8 @@ public class SiteComponentListenerTest {
     
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -164,8 +164,8 @@ public class SiteComponentListenerTest {
     
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -174,8 +174,8 @@ public class SiteComponentListenerTest {
   
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(1)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(1)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -184,8 +184,8 @@ public class SiteComponentListenerTest {
   
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(1)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(1)).moveRight();
   }
   
   @Test
@@ -194,8 +194,8 @@ public class SiteComponentListenerTest {
   
     listener.onButtonClick(clickEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -205,8 +205,8 @@ public class SiteComponentListenerTest {
   
     listener.onSelectionMenu(selectionEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
@@ -216,15 +216,15 @@ public class SiteComponentListenerTest {
   
     listener.onSelectionMenu(selectionEvent);
   
-    verify(site, times(0)).moveLeft(any());
-    verify(site, times(0)).moveRight(any());
+    verify(site, times(0)).moveLeft();
+    verify(site, times(0)).moveRight();
   }
   
   @Test
   public void testChangeSelection() {
     listener.onSelectionMenu(selectionEvent);
   
-    verify(site, times(1)).changeSelection(any(), any());
+    verify(site, times(1)).changeSelection(any());
   }
   
   @Test
