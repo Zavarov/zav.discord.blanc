@@ -41,7 +41,7 @@ public abstract class UserDatabase {
     return SQL.update("user/InsertUser.sql", (stmt) -> {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
-      stmt.setLong(3, user.getDiscriminator());
+      stmt.setString(3, user.getDiscriminator());
       // Serialize List<String> to String
       stmt.setString(4, SqlQuery.marshal(user.getRanks()));
     });

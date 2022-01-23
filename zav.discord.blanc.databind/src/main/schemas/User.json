@@ -11,7 +11,7 @@
     },
     "discriminator" : {
       "description" : "Discriminator.",
-      "type" : "integer"
+      "type" : "string"
     },
     "ranks" : {
       "description" : "Program-specific user rank.",
