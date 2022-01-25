@@ -84,7 +84,7 @@ public class ParameterModule extends AbstractModule {
         
         // Try to resolve when the index specifies a valid parameter.
         if (argument.index() < params.size()) {
-          value = resolve(targetType, params.get(0), message);
+          value = resolve(targetType, params.get(argument.index()), message);
         }
         
         // Try to resolve when the index is out of range (and therefore value is still null) and if
