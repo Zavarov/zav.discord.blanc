@@ -16,17 +16,57 @@
 
 package zav.discord.blanc.api;
 
+/**
+ * A collection of all named objects that may be dependency-injected.
+ */
 public class Constants {
+  /**
+   * A list of command parameters.
+   */
   public static final String PARAMS = "params";
+  /**
+   * Additional command flags. Flags are prefix with {@code -f}.
+   */
   public static final String FLAGS = "flags";
+  /**
+   * The prefix that triggered this command.
+   */
   public static final String PREFIX = "prefix";
+  /**
+   * A command name.
+   */
   public static final String NAME = "name";
+  /**
+   * An interactive message.
+   */
   public static final String SITE = "site";
+  /**
+   * The user id of the program owner. The owner is always a super-user.
+   */
   public static final String OWNER = "owner";
+  /**
+   * The internal name of this application.
+   */
   public static final String BOT_NAME = "botName";
+  /**
+   * The prefix for all commands which work in any guild and also in private messages.
+   */
   public static final String GLOBAL_PREFIX = "globalPrefix";
+  /**
+   * The total number of shard instances that should be created for this program.
+   */
   public static final String SHARD_COUNT = "shardCount";
+  /**
+   * A Discord invitation link to the development server.
+   */
   public static final String INVITE_SUPPORT_SERVER = "inviteSupportServer";
+  /**
+   * A https link to the wiki of this application, showing a list of all commands and their
+   * function.
+   */
   public static final String WIKI_URL = "wikiUrl";
+  /**
+   * The Discord token of this application, required for authentication.
+   */
   public static final String DISCORD_TOKEN = "discordToken";
 }

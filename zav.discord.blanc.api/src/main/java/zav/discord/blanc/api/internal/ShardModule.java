@@ -24,9 +24,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Site;
@@ -37,13 +34,13 @@ import zav.discord.blanc.api.Site;
 @NonNullByDefault
 public class ShardModule extends AbstractModule {
   private static final int MAX_CACHE_SIZE = 1024;
-  private static final ScheduledExecutorService QUEUE = Executors.newScheduledThreadPool(16);
-  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofHours(1)).maximumSize(MAX_CACHE_SIZE).build();
+  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder()
+        .expireAfterAccess(Duration.ofHours(1))
+        .maximumSize(MAX_CACHE_SIZE)
+        .build();
   
   @Override
   protected void configure() {
-    bind(ExecutorService.class).toInstance(QUEUE);
-    bind(ScheduledExecutorService.class).toInstance(QUEUE);
     bind(new TypeLiteral<Cache<Message, Site>>(){})
           .annotatedWith(Names.named(SITE))
           .toInstance(CACHE);

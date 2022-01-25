@@ -33,6 +33,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -99,8 +102,12 @@ public class JdaShardSupplierTest {
   private static class TestModule extends AbstractModule {
     @Override
     protected void configure() {
+      bind(ExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
+      bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
+      
       bind(Long.class).annotatedWith(Names.named(SHARD_COUNT)).toInstance(2L);
       bind(String.class).annotatedWith(Names.named(DISCORD_TOKEN)).toInstance("token");
+      
       bind(Parser.class).toInstance(mock(Parser.class));
     }
   }
