@@ -1,2 +1,2 @@
-INSERT OR REPLACE INTO 'WebHook' ('guildId', 'channelId', 'id', 'name', 'subreddits', 'owner')
+INSERT OR REPLACE INTO 'WebHook' ('id', 'guildId', 'channelId', 'name', 'subreddits', 'owner')
 VALUES (?, ?, ?, ?, ?, ?);

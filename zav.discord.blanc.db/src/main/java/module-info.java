@@ -1,4 +1,4 @@
-module zav.discord.blanc.db {
+open module zav.discord.blanc.db {
   requires static org.eclipse.jdt.annotation;
   
   requires org.apache.commons.lang3;
@@ -6,11 +6,8 @@ module zav.discord.blanc.db {
   requires zav.discord.blanc.databind;
   
   requires transitive java.sql;
+  requires transitive java.inject;
   
   exports zav.discord.blanc.db;
-  
-  opens guild;
-  opens textchannel;
-  opens user;
-  opens webhook;
+  exports zav.discord.blanc.db.sql;
 }

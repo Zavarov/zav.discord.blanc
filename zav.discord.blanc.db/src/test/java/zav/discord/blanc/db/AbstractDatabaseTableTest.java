@@ -16,36 +16,31 @@
 
 package zav.discord.blanc.db;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.TextChannelDto;
-import zav.discord.blanc.databind.UserDto;
-import zav.discord.blanc.databind.WebHookDto;
+import org.junit.jupiter.api.Test;
 
 /**
  * Base class for all test suites.<br>
  * Initializes all databases.
  */
-@SuppressWarnings("NotNullFieldNotInitialized")
-public abstract class AbstractTest {
-  private static final Path GUILD_DB = Paths.get("Guild.db");
-  private static final Path CHANNEL_DB = Paths.get("TextChannel.db");
-  private static final Path WEBHOOK_DB = Paths.get("WebHook.db");
-  private static final Path USER_DB = Paths.get("User.db");
-  
+public abstract class AbstractDatabaseTableTest {
   private static final Path RESOURCES = Paths.get("src/test/resources");
   
-  protected GuildDto guild;
-  protected TextChannelDto channel;
-  protected WebHookDto hook;
-  protected UserDto user;
+  protected Injector guice;
   
   /**
    * Deserializes Discord instances.
@@ -54,10 +49,7 @@ public abstract class AbstractTest {
    */
   @BeforeEach
   public void setUp() throws SQLException {
-    guild = read("Guild.json", GuildDto.class);
-    channel = read("TextChannel.json", TextChannelDto.class);
-    hook = read("WebHook.json", WebHookDto.class);
-    user = read("User.json", UserDto.class);
+    guice = Guice.createInjector();
   }
   
   /**
@@ -67,16 +59,8 @@ public abstract class AbstractTest {
    */
   @AfterEach
   public void cleanUp() throws IOException {
-    delete(GUILD_DB);
-    delete(CHANNEL_DB);
-    delete(WEBHOOK_DB);
-    delete(USER_DB);
-  }
-  
-  private void delete(Path db) throws IOException {
-    if (Files.exists(db)) {
-      Files.delete(db);
-    }
+    Files.deleteIfExists(ENTITY_DB_PATH);
+    Files.deleteIfExists(ENTITY_DB_PATH.getParent());
   }
   
   /**
@@ -93,6 +77,41 @@ public abstract class AbstractTest {
       return om.readValue(RESOURCES.resolve(fileName).toFile(), clazz);
     } catch (IOException e) {
       throw new IllegalArgumentException(e.getMessage(), e);
+    }
+  }
+  
+  protected <T> T get(DatabaseTable<T> db, Object... keys) throws SQLException {
+    List<T> response = db.get(keys);
+    assertThat(response).hasSize(1);
+    return response.get(0);
+  }
+  
+  @Test
+  public void testPostConstruct() {
+    // Should throw an SQLException
+    assertThatThrownBy(() -> guice.getInstance(DummyDatabaseTable.class)).isNotNull();
+  }
+  
+  private static class DummyDatabaseTable extends AbstractDatabaseTable<Object> {
+  
+    @Override
+    protected void create() throws SQLException {
+      throw new SQLException();
+    }
+  
+    @Override
+    public int delete(Object... keys) throws SQLException {
+      throw new SQLException();
+    }
+  
+    @Override
+    public int put(Object entity) throws SQLException {
+      throw new SQLException();
+    }
+  
+    @Override
+    public List<Object> get(Object... keys) throws SQLException {
+      throw new SQLException();
     }
   }
 }

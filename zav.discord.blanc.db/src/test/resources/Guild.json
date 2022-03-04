@@ -1,5 +1,5 @@
 {
-  "id" : 1,
+  "id" : 1000,
   "name" : "Guild",
   "prefix" : "b",
   "blacklist" : ["foo", "bar"]

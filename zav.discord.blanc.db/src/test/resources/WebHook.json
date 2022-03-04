@@ -1,6 +1,7 @@
 {
-  "id" : 5,
-  "channelId" : 3,
+  "id" : 3000,
+  "guildId" : 1000,
+  "channelId" : 2000,
   "name" : "WebHook",
   "subreddits" : ["redditdev", "announcements"],
   "owner" : true

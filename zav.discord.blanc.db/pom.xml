@@ -56,6 +56,18 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>${sqlite.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>${jakarta.inject.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

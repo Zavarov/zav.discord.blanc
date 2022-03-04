@@ -1,4 +1,20 @@
-package zav.discord.blanc.db.internal;
+/*
+ * Copyright (c) 2022 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package zav.discord.blanc.db.sql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +34,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,19 +43,13 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * Wrapper class for performing SQL requests on the local database.
  */
+@Singleton
 public class SqlQuery {
   private static final Logger LOGGER = LogManager.getLogger(SqlQuery.class);
   // Remove unnecessary spaces & line breaks
   private static final String LOGGER_REGEX = "\\s{2,}|" + System.lineSeparator();
-  public static final String GUILD_DB = "jdbc:sqlite:Guild.db";
-  public static final String TEXTCHANNEL_DB = "jdbc:sqlite:TextChannel.db";
-  public static final String WEBHOOK_DB = "jdbc:sqlite:WebHook.db";
-  public static final String USER_DB = "jdbc:sqlite:User.db";
-  private final String db;
-  
-  public SqlQuery(String db) {
-    this.db = db;
-  }
+  public static final Path ENTITY_DB_PATH = Paths.get("db/Entity.db");
+  public static final String ENTITY_DB = "jdbc:sqlite:" + ENTITY_DB_PATH;
   
   /**
    * Used to insert, update or delete elements from the database.<br>
@@ -50,7 +63,7 @@ public class SqlQuery {
    * @throws SQLException If a database error occurred.
    */
   public synchronized int update(String sqlStmt, Object... args) throws SQLException {
-    try (Connection conn = DriverManager.getConnection(db)) {
+    try (Connection conn = DriverManager.getConnection(ENTITY_DB)) {
       try (Statement stmt = conn.createStatement()) {
         stmt.setQueryTimeout(60); // timeout in sec
         return executeUpdate(stmt, readFromFile(sqlStmt, args));
@@ -72,7 +85,7 @@ public class SqlQuery {
    * @throws SQLException If a database error occurred.
    */
   public synchronized int update(String sqlStmt, SqlConsumer consumer) throws SQLException {
-    try (Connection conn = DriverManager.getConnection(db)) {
+    try (Connection conn = DriverManager.getConnection(ENTITY_DB)) {
       try (PreparedStatement stmt = conn.prepareStatement(readFromFile(sqlStmt))) {
         stmt.setQueryTimeout(60); // timeout in sec
         return executeUpdate(stmt, consumer);
@@ -109,7 +122,7 @@ public class SqlQuery {
    * @throws SQLException If a database error occurred.
    */
   public synchronized List<SqlObject> query(String sqlStmt, Object... args) throws SQLException {
-    try (Connection conn = DriverManager.getConnection(db)) {
+    try (Connection conn = DriverManager.getConnection(ENTITY_DB)) {
       try (Statement stmt = conn.createStatement()) {
         stmt.setQueryTimeout(60); // timeout in sec
         return executeQuery(stmt, readFromFile(sqlStmt, args));

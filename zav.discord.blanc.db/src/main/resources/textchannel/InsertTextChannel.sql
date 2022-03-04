@@ -1,2 +1,2 @@
-INSERT OR REPLACE INTO 'TextChannel' ('guildId', 'id', 'name', 'subreddits')
+INSERT OR REPLACE INTO 'TextChannel' ('id', 'guildId', 'name', 'subreddits')
 VALUES (?, ?, ?, ?);

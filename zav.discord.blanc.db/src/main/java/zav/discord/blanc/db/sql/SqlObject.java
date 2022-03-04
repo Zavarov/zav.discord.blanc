@@ -1,4 +1,4 @@
-package zav.discord.blanc.db.internal;
+package zav.discord.blanc.db.sql;
 
 import java.util.LinkedHashMap;
 

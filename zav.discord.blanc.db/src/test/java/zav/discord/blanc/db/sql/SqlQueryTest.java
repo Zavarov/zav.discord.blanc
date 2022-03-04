@@ -14,10 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db.internal;
+package zav.discord.blanc.db.sql;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static zav.discord.blanc.db.internal.SqlQuery.GUILD_DB;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,14 +30,7 @@ public class SqlQueryTest {
   
   @BeforeEach
   public void setUp() {
-    // Any database is fine, we just need something to specify the correct driver
-    query = new SqlQuery(GUILD_DB);
-  }
-  
-  @Test
-  public void testQueryWithUnknownStatement() {
-    assertThatThrownBy(() -> query.query("unknown"))
-          .isInstanceOf(IllegalArgumentException.class);
+    query = new SqlQuery();
   }
   
   @Test
