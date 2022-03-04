@@ -73,6 +73,10 @@ public class JdaShardSupplier implements Iterator<JDA> {
   
   private int index = 0;
   
+  /*package*/ JdaShardSupplier() {
+    // Create instance with Guice
+  }
+  
   @Override
   @Contract(pure = true)
   public boolean hasNext() {
@@ -92,18 +96,13 @@ public class JdaShardSupplier implements Iterator<JDA> {
             .build();
       
       jda.awaitReady();
-      
-      List<EventListener> listeners = new ArrayList<>();
-      
-      listeners.add(new BlacklistListener());
-      listeners.add(new GuildCommandListener());
-      listeners.add(new PrivateCommandListener());
-      listeners.add(new SiteComponentListener());
-      
+  
       Injector shardInjector = injector.createChildInjector(new ShardModule());
-      
-      listeners.forEach(shardInjector::injectMembers);
-      listeners.forEach(jda::addEventListener);
+  
+      jda.addEventListener(shardInjector.getInstance(BlacklistListener.class));
+      jda.addEventListener(shardInjector.getInstance(GuildCommandListener.class));
+      jda.addEventListener(shardInjector.getInstance(PrivateCommandListener.class));
+      jda.addEventListener(shardInjector.getInstance(SiteComponentListener.class));
       
       return jda;
     } catch (Exception e)  {

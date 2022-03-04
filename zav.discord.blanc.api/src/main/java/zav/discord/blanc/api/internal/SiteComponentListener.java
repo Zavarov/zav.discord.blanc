@@ -41,11 +41,15 @@ import zav.discord.blanc.api.Site;
  */
 @NonNullByDefault
 public class SiteComponentListener extends ListenerAdapter {
-  private static final Logger LOGGER = LogManager.getLogger(SiteComponentListener.class);
+  private static final Logger LOGGER = LogManager.getLogger();
   
   @Inject
   @Named(SITE)
   private Cache<Message, Site> cache;
+  
+  /*package*/ SiteComponentListener() {
+    // Create instance with Guice
+  }
   
   @Override
   public void onButtonClick(@NonNull ButtonClickEvent event) {

@@ -33,6 +33,10 @@ import zav.discord.blanc.api.Parser;
 public class GuildCommandListener extends AbstractCommandListener {
   @Inject
   private Parser parser;
+  
+  /*package*/ GuildCommandListener() {
+    // Create instance with Guice
+  }
 
   @Override
   public void onGuildMessageReceived(GuildMessageReceivedEvent event) {

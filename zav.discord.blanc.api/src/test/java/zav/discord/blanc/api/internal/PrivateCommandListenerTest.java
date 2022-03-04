@@ -23,79 +23,54 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Parser;
 
 /**
  * Checks whether private messages are able to produce (private) commands.
  */
-public class PrivateCommandListenerTest {
+@ExtendWith(MockitoExtension.class)
+public class PrivateCommandListenerTest extends AbstractListenerTest {
   
-  final long responseNumber = 11111L;
-  
-  @Mock Parser parser;
-  @Mock ScheduledExecutorService queue;
   @Mock Command command;
-  
-  @Mock JDA jda;
-  @Mock Message message;
   @Mock PrivateChannel privateChannel;
   @Mock User author;
   @Mock MessageAction action;
+  @Mock PrivateMessageReceivedEvent event;
   
-  PrivateMessageReceivedEvent event;
   PrivateCommandListener listener;
-  AutoCloseable closeable;
   
   /**
    * Creates a private command listener with a valid private message received event.
    */
   @BeforeEach
-  public void setUp() {
-    closeable = openMocks(this);
-    
+  public void setUp() throws Exception {
+    super.setUp();
+    listener = injector.getInstance(PrivateCommandListener.class);
+  }
+  
+  @Test
+  public void testExecuteCommand() throws Exception {
+    when(event.getAuthor()).thenReturn(author);
+    when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenReturn(Optional.of(command));
+  
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();
       return null;
     }).when(queue).submit(any(Runnable.class));
-  
-    when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenReturn(Optional.of(command));
-    when(message.getPrivateChannel()).thenReturn(privateChannel);
-    when(message.getAuthor()).thenReturn(author);
-    when(privateChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
     
-    Injector injector = Guice.createInjector(new TestModule());
-    listener = injector.getInstance(PrivateCommandListener.class);
-  
-    event = new PrivateMessageReceivedEvent(jda, responseNumber, message);
-  }
-  
-  @AfterEach
-  public void tearDown() throws Exception {
-    closeable.close();
-  }
-  
-  @Test
-  public void testExecuteCommand() throws Exception {
     listener.onPrivateMessageReceived(event);
     
     verify(command, times(1)).postConstruct();
@@ -105,9 +80,18 @@ public class PrivateCommandListenerTest {
   
   @Test
   public void testExecuteCommandWithError() throws Exception {
-    String message = "message";
-    Throwable cause = new Exception();
-    doThrow(new Exception(message, cause)).when(command).run();
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getChannel()).thenReturn(privateChannel);
+    when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenReturn(Optional.of(command));
+    when(privateChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
+
+    doThrow(new Exception("message", null)).when(command).run();
+  
+    doAnswer(invocation -> {
+      Runnable job = invocation.getArgument(0);
+      job.run();
+      return null;
+    }).when(queue).submit(any(Runnable.class));
   
     listener.onPrivateMessageReceived(event);
   
@@ -116,6 +100,7 @@ public class PrivateCommandListenerTest {
   
   @Test
   public void testIgnoreBotMessages() {
+    when(event.getAuthor()).thenReturn(author);
     // Bot message -> ignore
     when(author.isBot()).thenReturn(true);
   
@@ -126,19 +111,12 @@ public class PrivateCommandListenerTest {
   
   @Test
   public void testIgnoreInvalidCommands() {
+    when(event.getAuthor()).thenReturn(author);
     // Message not a command
     when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenReturn(Optional.empty());
   
     listener.onPrivateMessageReceived(event);
   
     verifyNoInteractions(queue);
-  }
-  
-  private class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(Parser.class).toInstance(parser);
-      bind(ScheduledExecutorService.class).toInstance(queue);
-    }
   }
 }

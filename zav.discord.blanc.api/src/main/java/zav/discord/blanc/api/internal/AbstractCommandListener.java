@@ -38,7 +38,7 @@ import zav.discord.blanc.api.Command;
  */
 @NonNullByDefault
 public abstract class AbstractCommandListener extends ListenerAdapter {
-  private static final Logger LOGGER = LogManager.getLogger(AbstractCommandListener.class);
+  private static final Logger LOGGER = LogManager.getLogger();
 
   @Inject
   private ScheduledExecutorService queue;

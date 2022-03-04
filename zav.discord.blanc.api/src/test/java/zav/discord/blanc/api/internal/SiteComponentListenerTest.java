@@ -23,16 +23,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
-import static zav.discord.blanc.api.Constants.SITE;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -45,20 +36,21 @@ import net.dv8tion.jda.api.interactions.components.ButtonInteraction;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenuInteraction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.UpdateInteractionAction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
 
 /**
  * Checks whether site interactions are processed correctly.
  */
-public class SiteComponentListenerTest {
+@ExtendWith(MockitoExtension.class)
+public class SiteComponentListenerTest extends AbstractListenerTest {
   SiteComponentListener listener;
   ButtonClickEvent clickEvent;
   SelectionMenuEvent selectionEvent;
-  Cache<Message, Site> cache;
   Site site;
   Site.Page page;
   
@@ -76,46 +68,21 @@ public class SiteComponentListenerTest {
   @Mock UpdateInteractionAction updateAction;
   @Mock MessageEmbed mainPage;
   
-  AutoCloseable closeable;
-  
   /**
    * Initialize a site and fictitious Button and SelectionMenu interactions which are used to
    * modify the page.
    */
   @BeforeEach
-  public void setUp() {
-    closeable = openMocks(this);
-  
-    cache = CacheBuilder.newBuilder().build();
+  public void setUp() throws Exception {
+    super.setUp();
     page = Site.Page.create("mainPage", List.of(mainPage));
     site = spy(Site.create(List.of(page), user));
     
-    // Mock JDA instructions
-    when(buttonInteraction.getMessage()).thenReturn(message);
-    when(buttonInteraction.getButton()).thenReturn(button);
-    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
-    when(buttonInteraction.deferReply()).thenReturn(replyAction);
-    when(buttonInteraction.getUser()).thenReturn(user);
-    
-    when(selectionInteraction.getMessage()).thenReturn(message);
-    when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
-    when(selectionInteraction.deferReply()).thenReturn(replyAction);
-    when(selectionInteraction.deferEdit()).thenReturn(updateAction);
-    when(selectionInteraction.getUser()).thenReturn(user);
-  
-    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
-    
-    Injector injector = Guice.createInjector(new TestModule());
-    
     clickEvent = new ButtonClickEvent(jda, responseNumber, buttonInteraction);
     selectionEvent = new SelectionMenuEvent(jda, responseNumber, selectionInteraction);
-    listener = injector.getInstance(SiteComponentListener.class);
-    cache.put(message, site);
-  }
+    siteCache.put(message, site);
   
-  @AfterEach
-  public void tearDown() throws Exception {
-    closeable.close();
+    listener = injector.getInstance(SiteComponentListener.class);
   }
   
   @Test
@@ -131,6 +98,8 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testIgnoreClickOnEphemeralMessage() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.getUser()).thenReturn(user);
     // Null for ephemeral message
     when(buttonInteraction.getButton()).thenReturn(null);
     
@@ -142,6 +111,9 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testIgnoreClickOnUnknownId() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.getUser()).thenReturn(user);
+    when(buttonInteraction.getButton()).thenReturn(button);
     // Null for unknown button ids
     when(button.getId()).thenReturn(null);
     
@@ -153,7 +125,12 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testClickLeft() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.getUser()).thenReturn(user);
+    when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(left);
+    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
   
     listener.onButtonClick(clickEvent);
   
@@ -163,7 +140,12 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testClickRight() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.getUser()).thenReturn(user);
+    when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(right);
+    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
   
     listener.onButtonClick(clickEvent);
   
@@ -173,6 +155,9 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testClickInvalidId() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.getUser()).thenReturn(user);
+    when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(EMPTY);
   
     listener.onButtonClick(clickEvent);
@@ -194,6 +179,8 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testSelectOnMultipleEntries() {
+    when(selectionInteraction.getMessage()).thenReturn(message);
+    when(selectionInteraction.getUser()).thenReturn(user);
     // Interaction with two selected items
     when(selectionInteraction.getValues()).thenReturn(List.of(EMPTY, EMPTY));
   
@@ -205,6 +192,12 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testChangeSelection() {
+    when(selectionInteraction.getMessage()).thenReturn(message);
+    when(selectionInteraction.getUser()).thenReturn(user);
+    when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
+    when(selectionInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
+    
     listener.onSelectionMenu(selectionEvent);
   
     verify(site, times(1)).changeSelection(any());
@@ -212,6 +205,8 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testIgnoreButtonByUnknownUser() {
+    when(buttonInteraction.getMessage()).thenReturn(message);
+    when(buttonInteraction.deferReply()).thenReturn(replyAction);
     // Only the owner can interact with this site.
     when(buttonInteraction.getUser()).thenReturn(mock(User.class));
     
@@ -222,20 +217,13 @@ public class SiteComponentListenerTest {
   
   @Test
   public void testIgnoreSelectionByUnknownUser() {
+    when(selectionInteraction.getMessage()).thenReturn(message);
+    when(selectionInteraction.deferReply()).thenReturn(replyAction);
     // Only the owner can interact with this site.
     when(selectionInteraction.getUser()).thenReturn(mock(User.class));
     
     listener.onSelectionMenu(selectionEvent);
   
     verify(replyAction, times(1)).complete();
-  }
-  
-  private class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(new TypeLiteral<Cache<Message, Site>>(){})
-            .annotatedWith(Names.named(SITE))
-            .toInstance(cache);
-    }
   }
 }

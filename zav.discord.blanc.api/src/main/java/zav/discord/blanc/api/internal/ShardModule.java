@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api.internal;
 
+import static zav.discord.blanc.api.Constants.PATTERN;
 import static zav.discord.blanc.api.Constants.SITE;
 
 import com.google.common.cache.Cache;
@@ -24,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.time.Duration;
+import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Site;
@@ -34,7 +36,12 @@ import zav.discord.blanc.api.Site;
 @NonNullByDefault
 public class ShardModule extends AbstractModule {
   private static final int MAX_CACHE_SIZE = 1024;
-  private static final Cache<Message, Site> CACHE = CacheBuilder.newBuilder()
+  private static final Cache<Message, Site> SITE_CACHE = CacheBuilder.newBuilder()
+        .expireAfterAccess(Duration.ofHours(1))
+        .maximumSize(MAX_CACHE_SIZE)
+        .build();
+  
+  private static final Cache<Long, Pattern> PATTERN_CACHE = CacheBuilder.newBuilder()
         .expireAfterAccess(Duration.ofHours(1))
         .maximumSize(MAX_CACHE_SIZE)
         .build();
@@ -43,6 +50,10 @@ public class ShardModule extends AbstractModule {
   protected void configure() {
     bind(new TypeLiteral<Cache<Message, Site>>(){})
           .annotatedWith(Names.named(SITE))
-          .toInstance(CACHE);
+          .toInstance(SITE_CACHE);
+    
+    bind(new TypeLiteral<Cache<Long, Pattern>>(){})
+          .annotatedWith(Names.named(PATTERN))
+          .toInstance(PATTERN_CACHE);
   }
 }

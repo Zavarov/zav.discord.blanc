@@ -17,13 +17,14 @@
 package zav.discord.blanc.api.internal;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
+import static zav.discord.blanc.api.Constants.PATTERN;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
+import javax.inject.Named;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -32,13 +33,14 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.db.GuildDatabase;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildDatabaseTable;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>
@@ -48,12 +50,19 @@ import zav.discord.blanc.db.GuildDatabase;
  */
 @NonNullByDefault
 public class BlacklistListener extends ListenerAdapter {
-  private static final Cache<Long, Pattern> patternCache = CacheBuilder
-        .newBuilder()
-        .expireAfterAccess(Duration.ofHours(1))
-        .build();
   
-  private static final Logger LOGGER = LogManager.getLogger(AbstractCommandListener.class);
+  private static final Logger LOGGER = LogManager.getLogger();
+  
+  @Inject
+  @Named(PATTERN)
+  private Cache<Long, Pattern> patternCache;
+  
+  @Inject
+  private GuildDatabaseTable db;
+  
+  /*package*/ BlacklistListener() {
+    // Create instance with Guice
+  }
   
   @Override
   public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
@@ -82,22 +91,7 @@ public class BlacklistListener extends ListenerAdapter {
     }
   }
   
-  /**
-   * Updates the pattern of banned expressions of the guild with the unique guild id.<br>
-   * All messages matching this pattern are deleted automatically.
-   *
-   * @param guildId The unique id of a guild.
-   */
-  public static void updatePattern(long guildId) {
-    // getPattern(...) has to recompute the pattern
-    patternCache.invalidate(guildId);
-    Pattern pattern = getPattern(guildId);
-    if (pattern != null) {
-      patternCache.put(guildId, pattern);
-    }
-  }
-  
-  private static @Nullable Pattern getPattern(long guildId) {
+  private @Nullable Pattern getPattern(long guildId) {
     @Nullable Pattern pattern = patternCache.getIfPresent(guildId);
     
     // Pattern has been cached
@@ -107,7 +101,12 @@ public class BlacklistListener extends ListenerAdapter {
     
     // Fetch pattern from database if it has already been garbage-collected.
     try {
-      return getPattern(GuildDatabase.get(guildId));
+      List<GuildEntity> responses = db.get(guildId);
+  
+      // Each guild should have at most one database entry
+      Validate.validState(responses.size() <= 1);
+      
+      return responses.size() == 0 ? null : getPattern(responses.get(0));
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
       return null;
@@ -124,7 +123,7 @@ public class BlacklistListener extends ListenerAdapter {
    * @return The pattern corresponding to all blacklisted expressions.
    */
   @Contract(pure = true)
-  private static @Nullable Pattern getPattern(GuildDto guild) {
+  private @Nullable Pattern getPattern(GuildEntity guild) {
     @Nullable String regex = guild.getBlacklist().stream()
           .reduce((u, v) -> u + "|" + v)
           .orElse(null);

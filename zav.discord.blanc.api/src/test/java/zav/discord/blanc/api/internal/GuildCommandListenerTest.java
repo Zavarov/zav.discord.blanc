@@ -23,84 +23,56 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Parser;
-import zav.discord.blanc.api.internal.GuildCommandListener;
 
 /**
  * Checks whether guild messages are able to produce (guild) commands.
  */
-public class GuildCommandListenerTest {
+@ExtendWith(MockitoExtension.class)
+public class GuildCommandListenerTest extends AbstractListenerTest {
   
-  final long responseNumber = 11111L;
-  
-  @Mock Parser parser;
-  @Mock ScheduledExecutorService queue;
   @Mock Command command;
-  
-  @Mock JDA jda;
-  @Mock Message message;
-  @Mock Guild guild;
   @Mock TextChannel textChannel;
   @Mock User author;
   @Mock MessageAction action;
-  
-  GuildMessageReceivedEvent event;
+  @Mock GuildMessageReceivedEvent event;
+
   GuildCommandListener listener;
-  AutoCloseable closeable;
   
   /**
    * Creates a guild command listener with a valid guild message received event.
    */
   @BeforeEach
-  public void setUp() {
-    closeable = openMocks(this);
+  public void setUp() throws Exception {
+    super.setUp();
     
+    listener = injector.getInstance(GuildCommandListener.class);
+  }
+  
+  @Test
+  public void testExecuteCommand() throws Exception {
+    when(event.getAuthor()).thenReturn(author);
+    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.of(command));
+  
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();
       return null;
     }).when(queue).submit(any(Runnable.class));
-  
-    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.of(command));
-    when(message.getGuild()).thenReturn(guild);
-    when(message.getTextChannel()).thenReturn(textChannel);
-    when(message.getAuthor()).thenReturn(author);
-    when(textChannel.getGuild()).thenReturn(guild);
-    when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
     
-    Injector injector = Guice.createInjector(new TestModule());
-    listener = injector.getInstance(GuildCommandListener.class);
-  
-    event = new GuildMessageReceivedEvent(jda, responseNumber, message);
-  }
-  
-  @AfterEach
-  public void tearDown() throws Exception {
-    closeable.close();
-  }
-  
-  @Test
-  public void testExecuteCommand() throws Exception {
     listener.onGuildMessageReceived(event);
     
     verify(command, times(1)).postConstruct();
@@ -110,9 +82,18 @@ public class GuildCommandListenerTest {
   
   @Test
   public void testExecuteCommandWithError() throws Exception {
-    String message = "message";
-    Throwable cause = new Exception();
-    doThrow(new Exception(message, cause)).when(command).run();
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.of(command));
+    when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
+  
+    doThrow(new Exception("message", null)).when(command).run();
+  
+    doAnswer(invocation -> {
+      Runnable job = invocation.getArgument(0);
+      job.run();
+      return null;
+    }).when(queue).submit(any(Runnable.class));
   
     listener.onGuildMessageReceived(event);
   
@@ -121,6 +102,7 @@ public class GuildCommandListenerTest {
   
   @Test
   public void testIgnoreBotMessages() {
+    when(event.getAuthor()).thenReturn(author);
     // Bot message -> ignore
     when(author.isBot()).thenReturn(true);
   
@@ -131,19 +113,12 @@ public class GuildCommandListenerTest {
   
   @Test
   public void testIgnoreInvalidCommands() {
+    when(event.getAuthor()).thenReturn(author);
     // Message not a command
     when(parser.parse(any(GuildMessageReceivedEvent.class))).thenReturn(Optional.empty());
   
     listener.onGuildMessageReceived(event);
   
     verifyNoInteractions(queue);
-  }
-  
-  private class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(Parser.class).toInstance(parser);
-      bind(ScheduledExecutorService.class).toInstance(queue);
-    }
   }
 }

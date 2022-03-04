@@ -69,4 +69,8 @@ public class Constants {
    * The Discord token of this application, required for authentication.
    */
   public static final String DISCORD_TOKEN = "discordToken";
+  /**
+   * The Pattern cache over all blacklisted expressions.
+   */
+  public static final String PATTERN = "pattern";
 }

@@ -32,6 +32,10 @@ import zav.discord.blanc.api.Parser;
 public class PrivateCommandListener extends AbstractCommandListener {
   @Inject
   private Parser parser;
+  
+  /*package*/ PrivateCommandListener() {
+    // Create instance with Guice
+  }
 
   @Override
   public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {

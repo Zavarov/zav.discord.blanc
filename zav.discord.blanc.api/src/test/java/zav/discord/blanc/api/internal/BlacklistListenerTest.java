@@ -21,13 +21,13 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
@@ -40,24 +40,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.db.GuildDatabase;
+import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildDatabaseTable;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Test class for checking whether forbidden message are deleted automatically.
  */
-public class BlacklistListenerTest {
+@ExtendWith(MockitoExtension.class)
+public class BlacklistListenerTest extends AbstractListenerTest {
   MockedStatic<PermissionUtil> permissions;
-  MockedStatic<GuildDatabase> db;
-  
-  final long guildId = 11111L;
-  final long responseId = 22222L;
-  final String pattern = "banana";
 
   BlacklistListener listener;
-  GuildDto data;
+  GuildEntity data;
+  GuildDatabaseTable db;
 
   @Mock JDA jda;
   @Mock SelfUser selfUser;
@@ -66,49 +66,27 @@ public class BlacklistListenerTest {
   @Mock MessageEmbed messageEmbed;
   @Mock MessageEmbed.Field field;
   @Mock MessageEmbed.Footer footer;
-  @Mock User user;
+  @Mock User author;
   @Mock Guild guild;
   @Mock TextChannel textChannel;
-  @Mock Member selfMember;
-  
-  AutoCloseable closeable;
-  
-  GuildMessageReceivedEvent event;
+  @Mock GuildMessageReceivedEvent event;
   
   /**
    * Initializes a fictitious GuildMessageReceivedEvent.
    */
   @BeforeEach
-  public void setUp() {
-    data = new GuildDto().withBlacklist(List.of(pattern));
+  public void setUp() throws Exception {
+    super.setUp();
     
-    db = mockStatic(GuildDatabase.class);
-    db.when(() -> GuildDatabase.get(guildId)).thenReturn(data);
+    data = read("Guild.json", GuildEntity.class);
+    
+    db = injector.getInstance(GuildDatabaseTable.class);
+    db.put(data);
     
     permissions = mockStatic(PermissionUtil.class);
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
     
-    closeable = openMocks(this);
-    
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(user.getJDA()).thenReturn(jda);
-    when(selfUser.getJDA()).thenReturn(jda);
-    when(guild.getSelfMember()).thenReturn(selfMember);
-    when(guild.getIdLong()).thenReturn(guildId);
-    when(textChannel.getGuild()).thenReturn(guild);
-    when(message.getGuild()).thenReturn(guild);
-    when(message.getTextChannel()).thenReturn(textChannel);
-    when(message.getAuthor()).thenReturn(user);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(messageEmbed.getFields()).thenReturn(List.of(field));
-    when(messageEmbed.getFooter()).thenReturn(footer);
-  
-    BlacklistListener.updatePattern(guildId);
-    
-    listener = new BlacklistListener();
-    event = new GuildMessageReceivedEvent(jda, responseId, message);
+    listener = injector.getInstance(BlacklistListener.class);
   }
   
   /**
@@ -119,16 +97,17 @@ public class BlacklistListenerTest {
   @AfterEach
   public void tearDown() throws Exception {
     permissions.close();
-    db.close();
-    closeable.close();
+  
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
   }
   
   @Test
   public void testIgnoreOwnMessage() {
     // We've sent the message
-    when(message.getAuthor()).thenReturn(selfUser);
-    // Banned word
-    when(message.getContentRaw()).thenReturn("banana");
+    when(event.getAuthor()).thenReturn(selfUser);
+    when(selfUser.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
     
     listener.onGuildMessageReceived(event);
     
@@ -138,10 +117,14 @@ public class BlacklistListenerTest {
   
   @Test
   public void testIgnoreWithoutPermissions() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    
     // We're not allowed to delete the message
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(false);
-    // Banned word
-    when(message.getContentRaw()).thenReturn("banana");
   
     listener.onGuildMessageReceived(event);
   
@@ -150,12 +133,17 @@ public class BlacklistListenerTest {
   }
   
   @Test
-  public void testIgnoreWithoutPattern() {
-    // Banned word
-    when(message.getContentRaw()).thenReturn("banana");
+  public void testIgnoreWithoutPattern() throws SQLException {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    
     // Remove pattern
     data.setBlacklist(Collections.emptyList());
-    BlacklistListener.updatePattern(guildId);
+    db.put(data);
   
     listener.onGuildMessageReceived(event);
   
@@ -165,6 +153,15 @@ public class BlacklistListenerTest {
   
   @Test
   public void testIgnoreValidMessage() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    
     listener.onGuildMessageReceived(event);
   
     verify(message, times(0)).delete();
@@ -172,6 +169,14 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByTextContent() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
     // Banned word
     when(message.getContentRaw()).thenReturn("banana");
   
@@ -182,6 +187,16 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByEmbedTitle() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
     // Banned word
     when(messageEmbed.getTitle()).thenReturn("banana");
   
@@ -192,6 +207,16 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByEmbedUrl() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
     // Banned word
     when(messageEmbed.getUrl()).thenReturn("www.banana.com");
   
@@ -202,6 +227,16 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByEmbedDescription() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
     // Banned word
     when(messageEmbed.getDescription()).thenReturn("banana");
   
@@ -212,6 +247,17 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByEmbedFieldName() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
+    when(messageEmbed.getFields()).thenReturn(List.of(field));
     // Banned word
     when(field.getName()).thenReturn("banana");
   
@@ -222,6 +268,17 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByEmbedFieldValue() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
+    when(messageEmbed.getFields()).thenReturn(List.of(field));
     // Banned word
     when(field.getValue()).thenReturn("banana");
     
@@ -232,6 +289,17 @@ public class BlacklistListenerTest {
   
   @Test
   public void testDeleteByFooterText() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
+    when(messageEmbed.getFooter()).thenReturn(footer);
     // Banned word
     when(footer.getText()).thenReturn("banana");
   
