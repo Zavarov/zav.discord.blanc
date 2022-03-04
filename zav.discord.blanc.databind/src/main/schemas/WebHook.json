@@ -9,6 +9,10 @@
       "description" : "Unique 64bit long id of the text channel related to the webhook.",
       "type" : "integer"
     },
+    "guildId" : {
+      "description" : "Unique 64bit long id of the guild related to this webhook.",
+      "type" : "integer"
+    },
     "name" : {
       "description" : "Human-readable name of the webhook.",
       "type" : "string"

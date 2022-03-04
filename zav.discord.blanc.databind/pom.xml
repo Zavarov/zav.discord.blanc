@@ -32,7 +32,7 @@
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>1.1.1</version>
                 <configuration>
-                    <classNameSuffix>Dto</classNameSuffix>
+                    <classNameSuffix>Entity</classNameSuffix>
                     <sourceDirectory>${basedir}/src/main/schemas</sourceDirectory>
                     <targetPackage>zav.discord.blanc.databind</targetPackage>
                     <includeAdditionalProperties>false</includeAdditionalProperties>
