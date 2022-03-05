@@ -18,27 +18,31 @@ package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Base class for all test suites.<br>
  * Initializes all databases.
  */
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractDatabaseTableTest {
   protected Injector guice;
+  protected @Mock AbstractDatabaseTable<Object> db;
   
   /**
    * Deserializes Discord instances.
@@ -68,31 +72,10 @@ public abstract class AbstractDatabaseTableTest {
   }
   
   @Test
-  public void testPostConstruct() {
-    // Should throw an SQLException
-    assertThatThrownBy(() -> guice.getInstance(DummyDatabaseTable.class)).isNotNull();
-  }
-  
-  private static class DummyDatabaseTable extends AbstractDatabaseTable<Object> {
-  
-    @Override
-    protected void create() throws SQLException {
-      throw new SQLException();
-    }
-  
-    @Override
-    public int delete(Object... keys) throws SQLException {
-      throw new SQLException();
-    }
-  
-    @Override
-    public int put(Object entity) throws SQLException {
-      throw new SQLException();
-    }
-  
-    @Override
-    public List<Object> get(Object... keys) throws SQLException {
-      throw new SQLException();
-    }
+  public void testPostConstruct() throws Exception {
+    doThrow(new SQLException()).when(db).create();
+    doCallRealMethod().when(db).postConstruct();
+    
+    assertThatThrownBy(() -> db.postConstruct()).isInstanceOf(SQLException.class);
   }
 }

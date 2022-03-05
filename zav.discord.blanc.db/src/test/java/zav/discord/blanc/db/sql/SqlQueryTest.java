@@ -17,7 +17,11 @@
 package zav.discord.blanc.db.sql;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +32,29 @@ public class SqlQueryTest {
   
   SqlQuery query;
   
+  /**
+   * Initializes an SQL query over an empty database.
+   *
+   * @throws IOException If the database couldn't be created.
+   */
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws IOException {
     query = new SqlQuery();
+  
+    Files.createDirectories(ENTITY_DB_PATH.getParent());
+    Files.createFile(ENTITY_DB_PATH);
+  }
+  
+  @AfterEach
+  public void tearDown() throws IOException {
+    Files.deleteIfExists(ENTITY_DB_PATH);
+    Files.deleteIfExists(ENTITY_DB_PATH.getParent());
+  }
+  
+  @Test
+  public void testUnknownStatement() {
+    assertThatThrownBy(() -> query.query("unknown.sql"))
+          .isInstanceOf(IllegalArgumentException.class);
   }
   
   @Test

@@ -18,7 +18,6 @@ package zav.discord.blanc.db;
 
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import javax.inject.Inject;
@@ -40,7 +39,7 @@ public abstract class AbstractDatabaseTable<T> implements DatabaseTable<T> {
   protected SqlQuery sql;
   
   @Inject
-  private void postConstruct() throws Exception {
+  /*package*/ void postConstruct() throws Exception {
     try {
       if (!Files.exists(ENTITY_DB_PATH)) {
         Files.createDirectories(ENTITY_DB_PATH.getParent());
