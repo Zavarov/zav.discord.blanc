@@ -8,7 +8,7 @@
   <suppress checks="AbbreviationAsWordInName"
     files="AST.*.java"/>
   <suppress checks="PackageName"
-    files="zav[\\/]discord[\\/]blanc[\\/]mc[\\/]argument[\\/]_ast[\\/].*.java"/>
+    files="zav[\\/]discord[\\/]blanc[\\/]mc[\\/]parameter[\\/]_ast[\\/].*.java"/>
   <suppress checks="PackageName"
     files="zav[\\/]discord[\\/]blanc[\\/]mc[\\/]callable[\\/]_ast[\\/].*.java"/>
 </suppressions>
