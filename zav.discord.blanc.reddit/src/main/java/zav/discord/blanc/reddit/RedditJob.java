@@ -13,8 +13,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebHookEntity;
-import zav.discord.blanc.db.TextChannelDatabaseTable;
-import zav.discord.blanc.db.WebHookDatabaseTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebHookTable;
 
 /**
  * Executable class for updating all registered Subreddit feeds.
@@ -26,10 +26,10 @@ public class RedditJob implements Runnable {
   private SubredditObservable observable;
   
   @Inject
-  private TextChannelDatabaseTable textDb;
+  private TextChannelTable textDb;
   
   @Inject
-  private WebHookDatabaseTable hookDb;
+  private WebHookTable hookDb;
   
   /*package*/ RedditJob() {
     // Instantiated with Guice

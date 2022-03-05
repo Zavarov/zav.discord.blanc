@@ -31,7 +31,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  *
  * @param <T> The type of entity that is stored in this database table.
  */
-public abstract class AbstractDatabaseTable<T> implements DatabaseTable<T> {
+public abstract class AbstractTable<T> implements DatabaseTable<T> {
   
   private static final Logger LOGGER = LogManager.getLogger();
   

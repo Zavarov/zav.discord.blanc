@@ -48,7 +48,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildDatabaseTable;
+import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
@@ -60,7 +60,7 @@ public class BlacklistListenerTest extends AbstractListenerTest {
 
   BlacklistListener listener;
   GuildEntity data;
-  GuildDatabaseTable db;
+  GuildTable db;
 
   @Mock JDA jda;
   @Mock SelfUser selfUser;
@@ -83,7 +83,7 @@ public class BlacklistListenerTest extends AbstractListenerTest {
     
     data = read("Guild.json", GuildEntity.class);
     
-    db = injector.getInstance(GuildDatabaseTable.class);
+    db = injector.getInstance(GuildTable.class);
     db.put(data);
     
     permissions = mockStatic(PermissionUtil.class);

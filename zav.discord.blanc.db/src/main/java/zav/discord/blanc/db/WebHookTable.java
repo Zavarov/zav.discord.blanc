@@ -12,9 +12,9 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code WebHook} database.
  */
 @Singleton
-public class WebHookDatabaseTable extends AbstractDatabaseTable<WebHookEntity> {
+public class WebHookTable extends AbstractTable<WebHookEntity> {
   
-  /*package*/ WebHookDatabaseTable() {
+  /*package*/ WebHookTable() {
     // Created via Guice
   }
 
@@ -69,7 +69,7 @@ public class WebHookDatabaseTable extends AbstractDatabaseTable<WebHookEntity> {
     }
   
     return result.stream()
-          .map(WebHookDatabaseTable::transform)
+          .map(WebHookTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, WebHookEntity.class))
           .collect(Collectors.toUnmodifiableList());
   }

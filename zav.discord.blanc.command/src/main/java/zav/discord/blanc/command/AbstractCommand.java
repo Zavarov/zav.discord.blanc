@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.db.UserDatabaseTable;
+import zav.discord.blanc.db.UserTable;
 
 /**
  * Abstract base class for all commands.<br>
@@ -31,7 +31,7 @@ public abstract class AbstractCommand implements Command {
   @Inject
   protected Message message;
   @Inject
-  private UserDatabaseTable db;
+  private UserTable db;
   
   private final Rank requiredRank;
   

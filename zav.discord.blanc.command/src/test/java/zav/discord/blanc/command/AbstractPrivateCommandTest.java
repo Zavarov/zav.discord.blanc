@@ -41,14 +41,14 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
 import zav.discord.blanc.command.internal.PrivateCommandModule;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.db.UserDatabaseTable;
+import zav.discord.blanc.db.UserTable;
 
 /**
  * Checks whether private commands fail if a user with insufficient rank tries to execute them.
  */
 public class AbstractPrivateCommandTest {
   protected Injector injector;
-  protected UserDatabaseTable db;
+  protected UserTable db;
   
   /**
    * Initializes the injector used for instantiating private commands.
@@ -72,7 +72,7 @@ public class AbstractPrivateCommandTest {
           new IntermediateCommandModule(command)
     );
   
-    db = injector.getInstance(UserDatabaseTable.class);
+    db = injector.getInstance(UserTable.class);
   
     UserEntity user = read("User.json", UserEntity.class);
     db.put(user);

@@ -28,9 +28,9 @@ import zav.discord.blanc.databind.GuildEntity;
  * Test case for the Guild database.<br>
  * Verifies that entries are written and read correctly.
  */
-public class GuildDatabaseTableTest extends AbstractDatabaseTableTest {
+public class GuildTableTest extends AbstractTableTest {
   
-  GuildDatabaseTable db;
+  GuildTable db;
   GuildEntity guild;
   
   /**
@@ -41,7 +41,7 @@ public class GuildDatabaseTableTest extends AbstractDatabaseTableTest {
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
-    db = guice.getInstance(GuildDatabaseTable.class);
+    db = guice.getInstance(GuildTable.class);
     guild = read("Guild.json", GuildEntity.class);
   }
   

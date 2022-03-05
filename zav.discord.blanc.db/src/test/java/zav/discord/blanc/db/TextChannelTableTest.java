@@ -29,9 +29,9 @@ import zav.discord.blanc.databind.TextChannelEntity;
  * Test case for the TextChannel database.<br>
  * Verifies that entries are written and read correctly.
  */
-public class TextChannelDatabaseTableTest extends AbstractDatabaseTableTest {
+public class TextChannelTableTest extends AbstractTableTest {
   
-  TextChannelDatabaseTable db;
+  TextChannelTable db;
   TextChannelEntity channel;
   
   /**
@@ -42,7 +42,7 @@ public class TextChannelDatabaseTableTest extends AbstractDatabaseTableTest {
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
-    db = guice.getInstance(TextChannelDatabaseTable.class);
+    db = guice.getInstance(TextChannelTable.class);
     channel = read("TextChannel.json", TextChannelEntity.class);
   }
   

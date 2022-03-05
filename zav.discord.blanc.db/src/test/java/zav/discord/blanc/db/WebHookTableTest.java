@@ -29,9 +29,9 @@ import zav.discord.blanc.databind.WebHookEntity;
  * Test case for the WebHook database.<br>
  * Verifies that entries are written and read correctly.
  */
-public class WebHookDatabaseTableTest extends AbstractDatabaseTableTest {
+public class WebHookTableTest extends AbstractTableTest {
   
-  WebHookDatabaseTable db;
+  WebHookTable db;
   WebHookEntity hook;
   
   /**
@@ -42,7 +42,7 @@ public class WebHookDatabaseTableTest extends AbstractDatabaseTableTest {
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
-    db = guice.getInstance(WebHookDatabaseTable.class);
+    db = guice.getInstance(WebHookTable.class);
     hook = read("WebHook.json", WebHookEntity.class);
   }
   

@@ -10,11 +10,14 @@ import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Utility class for communicating with the {@code TextChannel} database.
+ *
+ * @deprecated Deprecated in favor of {@link WebHookTable}.
  */
 @Singleton
-public class TextChannelDatabaseTable extends AbstractDatabaseTable<TextChannelEntity> {
+@Deprecated
+public class TextChannelTable extends AbstractTable<TextChannelEntity> {
   
-  /*package*/ TextChannelDatabaseTable() {
+  /*package*/ TextChannelTable() {
     // Created via Guice
   }
   
@@ -62,7 +65,7 @@ public class TextChannelDatabaseTable extends AbstractDatabaseTable<TextChannelE
     }
   
     return result.stream()
-          .map(TextChannelDatabaseTable::transform)
+          .map(TextChannelTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, TextChannelEntity.class))
           .collect(Collectors.toUnmodifiableList());
   }

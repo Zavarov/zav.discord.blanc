@@ -40,9 +40,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * Initializes all databases.
  */
 @ExtendWith(MockitoExtension.class)
-public abstract class AbstractDatabaseTableTest {
+public abstract class AbstractTableTest {
   protected Injector guice;
-  protected @Mock AbstractDatabaseTable<Object> db;
+  protected @Mock AbstractTable<Object> db;
   
   /**
    * Deserializes Discord instances.

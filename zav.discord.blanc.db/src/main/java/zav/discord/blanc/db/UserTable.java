@@ -13,9 +13,9 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code User} database.
  */
 @Singleton
-public class UserDatabaseTable extends AbstractDatabaseTable<UserEntity> {
+public class UserTable extends AbstractTable<UserEntity> {
   
-  /*package*/ UserDatabaseTable() {
+  /*package*/ UserTable() {
     // Created via Guice
   }
 
@@ -49,7 +49,7 @@ public class UserDatabaseTable extends AbstractDatabaseTable<UserEntity> {
     List<SqlObject> result = sql.query("user/SelectUser.sql", keys);
   
     return result.stream()
-          .map(UserDatabaseTable::transform)
+          .map(UserTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, UserEntity.class))
           .collect(Collectors.toUnmodifiableList());
   }

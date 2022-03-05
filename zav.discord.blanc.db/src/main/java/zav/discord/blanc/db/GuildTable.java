@@ -13,9 +13,9 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code Guild} database.
  */
 @Singleton
-public class GuildDatabaseTable extends AbstractDatabaseTable<GuildEntity> {
+public class GuildTable extends AbstractTable<GuildEntity> {
   
-  /*package*/ GuildDatabaseTable() {
+  /*package*/ GuildTable() {
     // Created via Guice
   }
   
@@ -49,7 +49,7 @@ public class GuildDatabaseTable extends AbstractDatabaseTable<GuildEntity> {
     List<SqlObject> result = sql.query("guild/SelectGuild.sql", keys);
   
     return result.stream()
-          .map(GuildDatabaseTable::transform)
+          .map(GuildTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, GuildEntity.class))
           .collect(Collectors.toUnmodifiableList());
   }

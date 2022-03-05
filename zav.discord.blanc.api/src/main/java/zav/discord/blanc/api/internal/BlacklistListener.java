@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildDatabaseTable;
+import zav.discord.blanc.db.GuildTable;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>
@@ -58,7 +58,7 @@ public class BlacklistListener extends ListenerAdapter {
   private Cache<Long, Pattern> patternCache;
   
   @Inject
-  private GuildDatabaseTable db;
+  private GuildTable db;
   
   /*package*/ BlacklistListener() {
     // Create instance with Guice

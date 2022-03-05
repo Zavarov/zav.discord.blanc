@@ -28,9 +28,9 @@ import zav.discord.blanc.databind.UserEntity;
  * Test case for the User database.<br>
  * Verifies that entries are written and read correctly.
  */
-public class UserDatabaseTableTest extends AbstractDatabaseTableTest {
+public class UserTableTest extends AbstractTableTest {
   
-  UserDatabaseTable db;
+  UserTable db;
   UserEntity user;
   
   /**
@@ -41,7 +41,7 @@ public class UserDatabaseTableTest extends AbstractDatabaseTableTest {
   @BeforeEach
   public void setUp() throws SQLException {
     super.setUp();
-    db = guice.getInstance(UserDatabaseTable.class);
+    db = guice.getInstance(UserTable.class);
     user = read("User.json", UserEntity.class);
   }
   

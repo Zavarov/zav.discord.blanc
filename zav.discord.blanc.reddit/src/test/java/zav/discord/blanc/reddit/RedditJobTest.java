@@ -45,8 +45,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebHookEntity;
-import zav.discord.blanc.db.TextChannelDatabaseTable;
-import zav.discord.blanc.db.WebHookDatabaseTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebHookTable;
 
 /**
  * Checks whether the Reddit job can recover from the persistent database values.
@@ -70,8 +70,8 @@ public class RedditJobTest {
   protected WebHookEntity webHookEntity;
   
   protected Injector injector;
-  protected TextChannelDatabaseTable textDb;
-  protected WebHookDatabaseTable hookDb;
+  protected TextChannelTable textDb;
+  protected WebHookTable hookDb;
   
   /**
    * Creates a database for text channels and webhooks and fills it with dummy values.
@@ -81,8 +81,8 @@ public class RedditJobTest {
   @BeforeEach
   public void setUp() throws SQLException {
     injector = Guice.createInjector(new TestModule());
-    textDb = injector.getInstance(TextChannelDatabaseTable.class);
-    hookDb = injector.getInstance(WebHookDatabaseTable.class);
+    textDb = injector.getInstance(TextChannelTable.class);
+    hookDb = injector.getInstance(WebHookTable.class);
   
     channelEntity = read("TextChannel.json", TextChannelEntity.class);
     webHookEntity = read("WebHook.json", WebHookEntity.class);
