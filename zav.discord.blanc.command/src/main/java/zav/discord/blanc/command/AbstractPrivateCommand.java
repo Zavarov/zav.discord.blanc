@@ -16,11 +16,11 @@ public abstract class AbstractPrivateCommand extends AbstractCommand {
   @Inject
   protected Message message;
   
-  public AbstractPrivateCommand(Rank rank) {
+  protected AbstractPrivateCommand(Rank rank) {
     super(rank);
   }
   
-  public AbstractPrivateCommand() {
+  protected AbstractPrivateCommand() {
     super();
   }
 }

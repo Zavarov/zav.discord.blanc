@@ -20,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static zav.test.io.JsonUtils.read;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -42,26 +44,21 @@ import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
 import zav.discord.blanc.command.internal.PrivateCommandModule;
-import zav.discord.blanc.databind.UserDto;
-import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserDatabaseTable;
 
 /**
  * Checks whether private commands fail if a user with insufficient rank tries to execute them.
  */
 public class AbstractPrivateCommandTest {
-  MockedStatic<UserDatabase> mocked;
-  Injector injector;
+  protected Injector injector;
+  protected UserDatabaseTable db;
   
   /**
    * Initializes the injector used for instantiating private commands.
    */
   @BeforeEach
-  public void setUp() {
-    UserDto user = new UserDto().withRanks(List.of(Rank.USER.name()));
-    
-    mocked = mockStatic(UserDatabase.class);
-    mocked.when(() -> UserDatabase.get(anyLong())).thenReturn(user);
-    
+  public void setUp() throws SQLException {
     Message message = mock(Message.class);
     when(message.getJDA()).thenReturn(mock(JDA.class));
     when(message.getChannel()).thenReturn(mock(MessageChannel.class));
@@ -78,11 +75,11 @@ public class AbstractPrivateCommandTest {
           new PrivateCommandModule(message),
           new IntermediateCommandModule(command)
     );
-  }
   
-  @AfterEach
-  public void tearDown() {
-    mocked.close();
+    db = injector.getInstance(UserDatabaseTable.class);
+  
+    UserEntity user = read("User.json", UserEntity.class);
+    db.put(user);
   }
   
   @Test
@@ -94,7 +91,8 @@ public class AbstractPrivateCommandTest {
   
   @Test
   public void testValidateWithDefaultRank() throws Exception {
-    mocked.when(() -> UserDatabase.get(anyLong())).thenThrow(new SQLException());
+    db = spy(db);
+    when(db.get(anyLong())).thenThrow(new SQLException());
     
     Command guildCommand = injector.getInstance(PrivateCommand.class);
     

@@ -17,15 +17,22 @@
 package zav.discord.blanc.command.internal.resolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+@ExtendWith(MockitoExtension.class)
 public class StringResolverTestTest extends AbstractResolverTest {
   
   @Test
   public void testInject() {
+    when(parameter.asString()).thenReturn(Optional.of(string));
+    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
     assertThat(cmd.field).isEqualTo(string);

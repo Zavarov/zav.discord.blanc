@@ -28,6 +28,10 @@ public abstract class AbstractParser implements Parser {
   @Inject
   private Injector injector;
   
+  protected AbstractParser() {
+    // Instantiated by Guice
+  }
+  
   @Contract(pure = true)
   protected abstract @Nullable IntermediateCommand parse(Message source);
   

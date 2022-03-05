@@ -48,7 +48,6 @@ import zav.discord.blanc.command.internal.resolver.UserResolver;
 public final class ParameterResolver {
   
   private ParameterResolver() {
-  
   }
   
   private static final Map<Class<?>, EntityResolver<?>> RESOLVERS = new HashMap<>();

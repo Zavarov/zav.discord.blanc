@@ -21,16 +21,24 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.Member;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+@ExtendWith(MockitoExtension.class)
 public class MemberResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectById() {
+    when(message.getMember()).thenReturn(member);
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asNumber()).thenReturn(Optional.of(BigDecimal.valueOf(number)));
     when(guild.getMemberById(number)).thenReturn(member);
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -40,6 +48,9 @@ public class MemberResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectByName() {
+    when(message.getMember()).thenReturn(member);
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asString()).thenReturn(Optional.of(string));
     when(guild.getMembersByName(eq(string), anyBoolean())).thenReturn(List.of(member));
   
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -49,6 +60,9 @@ public class MemberResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectByNickname() {
+    when(message.getMember()).thenReturn(member);
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asString()).thenReturn(Optional.of(string));
     when(guild.getMembersByNickname(eq(string), anyBoolean())).thenReturn(List.of(member));
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -58,6 +72,9 @@ public class MemberResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectDefault() {
+    when(message.getMember()).thenReturn(member);
+    when(message.getGuild()).thenReturn(guild);
+    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
     assertThat(cmd.defaultField).isEqualTo(member);

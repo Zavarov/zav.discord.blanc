@@ -22,28 +22,32 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+@ExtendWith(MockitoExtension.class)
 public class UserResolverTest extends AbstractResolverTest {
   
   @Mock RestAction<User> action;
   
-  @BeforeEach
-  public void setUp() {
-    super.setUp();
-    when(jda.retrieveUserById(anyLong())).thenReturn(action);
-    when(action.complete()).thenReturn(user);
-  }
-  
   @Test
   public void testInjectById() {
+    when(message.getJDA()).thenReturn(jda);
+    when(message.getAuthor()).thenReturn(user);
+    when(parameter.asNumber()).thenReturn(Optional.of(BigDecimal.valueOf(number)));
+    when(jda.retrieveUserById(number)).thenReturn(action);
+    when(action.complete()).thenReturn(user);
+    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
     assertThat(cmd.field).isEqualTo(user);
@@ -51,7 +55,9 @@ public class UserResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectByName() {
-    when(action.complete()).thenReturn(null);
+    when(message.getJDA()).thenReturn(jda);
+    when(message.getAuthor()).thenReturn(user);
+    when(parameter.asString()).thenReturn(Optional.of(string));
     when(jda.getUsersByName(eq(string), anyBoolean())).thenReturn(List.of(user));
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -61,7 +67,8 @@ public class UserResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectDefault() {
-    when(action.complete()).thenReturn(null);
+    when(message.getJDA()).thenReturn(jda);
+    when(message.getAuthor()).thenReturn(user);
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     

@@ -21,16 +21,23 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+@ExtendWith(MockitoExtension.class)
 public class TextChannelResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectById() {
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asNumber()).thenReturn(Optional.of(BigDecimal.valueOf(number)));
     when(guild.getTextChannelById(number)).thenReturn(textChannel);
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -40,6 +47,8 @@ public class TextChannelResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectByName() {
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asString()).thenReturn(Optional.of(string));
     when(guild.getTextChannelsByName(eq(string), anyBoolean())).thenReturn(List.of(textChannel));
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -49,6 +58,9 @@ public class TextChannelResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectDefault() {
+    when(message.getGuild()).thenReturn(guild);
+    when(message.getTextChannel()).thenReturn(textChannel);
+    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
     assertThat(cmd.defaultField).isEqualTo(textChannel);

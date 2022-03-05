@@ -21,16 +21,23 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.Role;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+@ExtendWith(MockitoExtension.class)
 public class RoleResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectById() {
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asNumber()).thenReturn(Optional.of(BigDecimal.valueOf(number)));
     when(guild.getRoleById(number)).thenReturn(role);
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -40,6 +47,8 @@ public class RoleResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectByName() {
+    when(message.getGuild()).thenReturn(guild);
+    when(parameter.asString()).thenReturn(Optional.of(string));
     when(guild.getRolesByName(eq(string), anyBoolean())).thenReturn(List.of(role));
     
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
@@ -49,6 +58,8 @@ public class RoleResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInjectDefault() {
+    when(message.getGuild()).thenReturn(guild);
+    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
     assertThat(cmd.defaultField).isNull();

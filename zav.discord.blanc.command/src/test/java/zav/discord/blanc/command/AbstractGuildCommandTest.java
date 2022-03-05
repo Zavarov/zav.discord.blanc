@@ -21,9 +21,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static zav.test.io.JsonUtils.read;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,35 +44,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.GuildCommandModule;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
-import zav.discord.blanc.databind.UserDto;
-import zav.discord.blanc.db.UserDatabase;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserDatabaseTable;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Checks whether guild commands fail if a user with insufficient rank or permission tries to
  * execute them.
  */
 public class AbstractGuildCommandTest {
-  MockedStatic<UserDatabase> mocked;
-  Injector injector;
+  protected Injector injector;
+  protected UserDatabaseTable db;
   
   /**
    * Initializes the injector used for instantiating guild commands.
    */
   @BeforeEach
-  public void setUp() {
-    UserDto user = new UserDto().withRanks(List.of(Rank.USER.name()));
-    
+  public void setUp() throws SQLException {
     Member member = mock(Member.class);
     when(member.getPermissions()).thenReturn(EnumSet.noneOf(Permission.class));
     
-    mocked = mockStatic(UserDatabase.class);
-    mocked.when(() -> UserDatabase.get(anyLong())).thenReturn(user);
-  
     Message message = mock(Message.class);
     when(message.getJDA()).thenReturn(mock(JDA.class));
     when(message.getChannel()).thenReturn(mock(MessageChannel.class));
@@ -87,11 +86,19 @@ public class AbstractGuildCommandTest {
           new GuildCommandModule(message),
           new IntermediateCommandModule(command)
     );
+    
+    db = injector.getInstance(UserDatabaseTable.class);
+  
+    UserEntity user = read("User.json", UserEntity.class);
+    db.put(user);
+  
+  
   }
   
   @AfterEach
-  public void tearDown() {
-    mocked.close();
+  public void tearDown() throws IOException {
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
   }
   
   @Test
