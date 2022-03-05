@@ -19,7 +19,6 @@ package zav.discord.blanc.api.internal;
 import static zav.discord.blanc.api.Constants.PATTERN;
 import static zav.discord.blanc.api.Constants.SITE;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.AbstractModule;
@@ -27,9 +26,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Message;

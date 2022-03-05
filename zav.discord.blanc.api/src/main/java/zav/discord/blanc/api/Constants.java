@@ -19,7 +19,10 @@ package zav.discord.blanc.api;
 /**
  * A collection of all named objects that may be dependency-injected.
  */
-public class Constants {
+public final class Constants {
+  
+  private Constants() {}
+  
   /**
    * A list of command parameters.
    */

@@ -23,10 +23,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static zav.test.io.JsonUtils.read;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -161,11 +163,51 @@ public class BlacklistListenerTest extends AbstractListenerTest {
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
     when(guild.getIdLong()).thenReturn(1000L);
+    // Check message + embeds + fields
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
+    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
+    when(messageEmbed.getFields()).thenReturn(List.of(field));
     
     listener.onGuildMessageReceived(event);
   
     verify(message, times(0)).delete();
+  }
+  
+  @Test
+  public void testIgnoreOnError() throws IOException {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    
+    // SQLError b/c database no longer exists
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    
+    listener.onGuildMessageReceived(event);
+    
+    verify(message, times(0)).delete();
+  }
+  
+  @Test
+  public void testDeleteWithCachedPattern() {
+    when(event.getAuthor()).thenReturn(author);
+    when(event.getGuild()).thenReturn(guild);
+    when(event.getChannel()).thenReturn(textChannel);
+    when(event.getMessage()).thenReturn(message);
+    when(author.getJDA()).thenReturn(jda);
+    when(jda.getSelfUser()).thenReturn(selfUser);
+    when(guild.getIdLong()).thenReturn(1000L);
+    when(message.delete()).thenReturn(restAction);
+    // Banned word
+    when(message.getContentRaw()).thenReturn("banana");
+  
+    patternCache.put(data.getId(), Pattern.compile("banana"));
+  
+    listener.onGuildMessageReceived(event);
+  
+    verify(message, times(1)).delete();
   }
   
   @Test

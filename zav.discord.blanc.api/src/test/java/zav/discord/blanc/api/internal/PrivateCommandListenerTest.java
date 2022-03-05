@@ -85,7 +85,7 @@ public class PrivateCommandListenerTest extends AbstractListenerTest {
     when(parser.parse(any(PrivateMessageReceivedEvent.class))).thenReturn(Optional.of(command));
     when(privateChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
 
-    doThrow(new Exception("message", null)).when(command).run();
+    doThrow(new Exception("message", new Exception())).when(command).run();
   
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
