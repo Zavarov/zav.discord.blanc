@@ -65,7 +65,7 @@ public abstract class AbstractTableTest {
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
   }
   
-  protected <T> T get(DatabaseTable<T> db, Object... keys) throws SQLException {
+  protected <T> T get(Table<T> db, Object... keys) throws SQLException {
     List<T> response = db.get(keys);
     assertThat(response).hasSize(1);
     return response.get(0);

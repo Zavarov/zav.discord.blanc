@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @param <T> The type of entity that is stored in this database table.
  */
-public interface DatabaseTable<T> {
+public interface Table<T> {
   
   /**
    * Checks whether the database table contains at least one entity with the specified keys.
