@@ -18,6 +18,7 @@ package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static zav.test.io.JsonUtils.read;
 
 import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;

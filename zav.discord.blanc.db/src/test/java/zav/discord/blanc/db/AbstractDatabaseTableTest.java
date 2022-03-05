@@ -38,8 +38,6 @@ import org.junit.jupiter.api.Test;
  * Initializes all databases.
  */
 public abstract class AbstractDatabaseTableTest {
-  private static final Path RESOURCES = Paths.get("src/test/resources");
-  
   protected Injector guice;
   
   /**
@@ -61,23 +59,6 @@ public abstract class AbstractDatabaseTableTest {
   public void cleanUp() throws IOException {
     Files.deleteIfExists(ENTITY_DB_PATH);
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
-  }
-  
-  /**
-   * Deserializes the file with the specified name.
-   *
-   * @param fileName The file name of the serialized class.
-   * @param clazz The desired target class.
-   * @param <T> The desired class type.
-   * @return A deserialized instance.
-   */
-  public static <T> T read(String fileName, Class<T> clazz) {
-    try {
-      ObjectMapper om = new ObjectMapper();
-      return om.readValue(RESOURCES.resolve(fileName).toFile(), clazz);
-    } catch (IOException e) {
-      throw new IllegalArgumentException(e.getMessage(), e);
-    }
   }
   
   protected <T> T get(DatabaseTable<T> db, Object... keys) throws SQLException {

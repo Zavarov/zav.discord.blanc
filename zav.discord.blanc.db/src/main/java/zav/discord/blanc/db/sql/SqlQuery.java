@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 @Singleton
 public class SqlQuery {
-  private static final Logger LOGGER = LogManager.getLogger(SqlQuery.class);
+  private static final Logger LOGGER = LogManager.getLogger();
   // Remove unnecessary spaces & line breaks
   private static final String LOGGER_REGEX = "\\s{2,}|" + System.lineSeparator();
   public static final Path ENTITY_DB_PATH = Paths.get("db/Entity.db");

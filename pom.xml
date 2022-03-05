@@ -29,7 +29,6 @@
         <module>zav.discord.blanc.command</module>
         <module>zav.discord.blanc.db</module>
         <module>zav.discord.blanc.databind</module>
-        <module>zav.discord.blanc.jda</module>
         <module>zav.discord.blanc.mc</module>
         <module>zav.discord.blanc.reddit</module>
         <module>zav.discord.blanc.runtime</module>
@@ -38,17 +37,19 @@
     <properties>
         <!-- .. Libraries ..................................................... -->
 
-        <discord-webhooks.version>0.7.4</discord-webhooks.version>
-        <fasterxml.version>2.12.5</fasterxml.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <discord-webhooks.version>0.7.5</discord-webhooks.version>
+        <fasterxml.version>2.13.1</fasterxml.version>
+        <guava.version>31.0.1-jre</guava.version>
         <guice.version>5.0.1</guice.version>
-        <jakarta.inject.version>1.0.3</jakarta.inject.version>
-        <jda.version>4.4.0_350</jda.version>
+        <jakarta.inject.version>1.0.5</jakarta.inject.version>
+        <jda.version>4.4.0_352</jda.version>
         <lang3.version>3.12.0</lang3.version>
-        <log4j.version>2.16.0</log4j.version>
-        <powermock.version>2.0.9</powermock.version>
+        <log4j.version>2.17.1</log4j.version>
+        <math.version>1.0.0-SNAPSHOT</math.version>
+        <mockito.version>4.2.0</mockito.version>
         <sqlite.version>3.36.0.3</sqlite.version>
         <jrc.version>0.3.2-SNAPSHOT</jrc.version>
+        <zav.test.version>1.0.0-SNAPSHOT</zav.test.version>
 
         <!-- .. MontiCore .......................................................................................... -->
 
@@ -58,6 +59,7 @@
 
         <!-- .. Annotations ........................................................................................ -->
         <org.eclipse.jdt.annotation.version>2.2.600</org.eclipse.jdt.annotation.version>
+        <org.jetbrains.annotations.version>23.0.0</org.jetbrains.annotations.version>
 
         <!-- .. Test ............................................................................................... -->
         <junit.version>5.8.0</junit.version>
@@ -113,6 +115,95 @@
 
     <!-- == Dependencies =========================================== -->
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.inject</groupId>
+                        <artifactId>javax.inject</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.dv8tion</groupId>
+                <artifactId>JDA</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jetbrains</groupId>
+                        <artifactId>annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.checkerframework</groupId>
+                        <artifactId>checker-qual</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.j2objc</groupId>
+                        <artifactId>j2objc-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>animal-sniffer-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>de.se_rwth.commons</groupId>
+                <artifactId>se-commons-utilities</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.inject</groupId>
+                        <artifactId>javax.inject</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>de.monticore.lang.bs</groupId>
+                <artifactId>cd4analysis</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- NonNull annotations -->
         <dependency>
@@ -122,18 +213,24 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${org.jetbrains.annotations.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>zav.test</groupId>
+            <artifactId>io</artifactId>
+            <version>${zav.test.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -145,16 +242,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <version>${powermock.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

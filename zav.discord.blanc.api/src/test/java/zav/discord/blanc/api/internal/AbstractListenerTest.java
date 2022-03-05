@@ -42,7 +42,6 @@ import zav.discord.blanc.api.Site;
  * The base class for all Listener related JUnit tests.
  */
 public abstract class AbstractListenerTest {
-  private static final Path RESOURCES = Paths.get("src/test/resources");
   
   protected @Mock Parser parser;
   protected @Mock ScheduledExecutorService queue;
@@ -77,23 +76,6 @@ public abstract class AbstractListenerTest {
       bind(new TypeLiteral<Cache<Long, Pattern>>(){})
             .annotatedWith(Names.named(PATTERN))
             .toInstance(patternCache);
-    }
-  }
-  
-  /**
-   * Deserializes the file with the specified name.
-   *
-   * @param fileName The file name of the serialized class.
-   * @param clazz The desired target class.
-   * @param <T> The desired class type.
-   * @return A deserialized instance.
-   */
-  public static <T> T read(String fileName, Class<T> clazz) {
-    try {
-      ObjectMapper om = new ObjectMapper();
-      return om.readValue(RESOURCES.resolve(fileName).toFile(), clazz);
-    } catch (IOException e) {
-      throw new IllegalArgumentException(e.getMessage(), e);
     }
   }
 }

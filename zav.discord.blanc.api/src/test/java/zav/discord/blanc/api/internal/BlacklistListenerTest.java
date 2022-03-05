@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static zav.test.io.JsonUtils.read;
 
 import java.nio.file.Files;
 import java.sql.SQLException;
