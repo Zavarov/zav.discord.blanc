@@ -18,7 +18,6 @@ package zav.discord.blanc.command.internal.resolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -35,6 +33,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+/**
+ * Test case for resolving strings into user instances either by id or name.
+ */
 @ExtendWith(MockitoExtension.class)
 public class UserResolverTest extends AbstractResolverTest {
   

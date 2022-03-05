@@ -122,8 +122,8 @@ public class SubredditObservableTest {
   
   @Test
   public void testNotifyAllObserversWithException() {
-    try (MockedConstruction<SubredditObserver> ignored = mockConstruction(SubredditObserver.class, (t, c) ->
-          doThrow(FailedRequestException.wrap(null)).when(t).notifyAllListeners())
+    try (MockedConstruction<SubredditObserver> ignored = mockConstruction(SubredditObserver.class,
+          (t, c) -> doThrow(FailedRequestException.wrap(null)).when(t).notifyAllListeners())
     ) {
       // Should always throw a FailedRequestException
       observable.addListener("exception", webhook1);

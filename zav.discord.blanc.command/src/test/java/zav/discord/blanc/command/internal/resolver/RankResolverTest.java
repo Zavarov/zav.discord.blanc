@@ -19,7 +19,6 @@ package zav.discord.blanc.command.internal.resolver;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +27,9 @@ import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 
+/**
+ * Test case for resolving strings into ranks by name.
+ */
 @ExtendWith(MockitoExtension.class)
 public class RankResolverTest extends AbstractResolverTest {
   

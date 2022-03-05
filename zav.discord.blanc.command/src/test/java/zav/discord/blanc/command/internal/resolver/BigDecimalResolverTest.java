@@ -27,6 +27,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
 
+/**
+ * Test case for resolving strings into numbers.
+ */
 @ExtendWith(MockitoExtension.class)
 public class BigDecimalResolverTest extends AbstractResolverTest {
   

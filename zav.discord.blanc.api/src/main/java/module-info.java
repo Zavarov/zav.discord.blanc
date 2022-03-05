@@ -10,7 +10,5 @@ open module zav.discord.blanc.api {
   requires zav.discord.blanc.databind;
   requires zav.discord.blanc.db;
   
-  requires java.inject;
-  
   exports zav.discord.blanc.api;
 }

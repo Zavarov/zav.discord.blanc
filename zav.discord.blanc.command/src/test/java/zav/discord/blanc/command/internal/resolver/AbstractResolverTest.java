@@ -27,13 +27,14 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.ParameterModule;
 
+/**
+ * Base class for all resolver tests.
+ */
 public abstract class AbstractResolverTest {
   
   protected final String string = "string";

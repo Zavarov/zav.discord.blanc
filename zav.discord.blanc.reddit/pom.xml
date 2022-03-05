@@ -28,17 +28,6 @@
             <artifactId>api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>zav.discord.blanc</groupId>
-            <artifactId>db</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>JDA</artifactId>
-            <version>4.4.0_350</version>
-        </dependency>
     </dependencies>
 
 </project>

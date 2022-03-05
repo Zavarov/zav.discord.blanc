@@ -30,7 +30,9 @@ public final class SubredditObservable {
   @Nullable
   private Injector injector;
   
-  public SubredditObservable() { }
+  /*package*/ SubredditObservable() {
+    // Instantiated with Guice
+  }
   
   @Inject
   /*package*/ void setInjector(Injector injector) {

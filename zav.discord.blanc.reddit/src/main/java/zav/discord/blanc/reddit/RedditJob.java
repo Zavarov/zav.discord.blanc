@@ -11,10 +11,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Client;
-import zav.discord.blanc.databind.TextChannelDto;
-import zav.discord.blanc.databind.WebHookDto;
-import zav.discord.blanc.db.TextChannelDatabase;
-import zav.discord.blanc.db.WebHookDatabase;
+import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.db.TextChannelDatabaseTable;
+import zav.discord.blanc.db.WebHookDatabaseTable;
 
 /**
  * Executable class for updating all registered Subreddit feeds.
@@ -24,6 +24,16 @@ public class RedditJob implements Runnable {
   
   @Inject
   private SubredditObservable observable;
+  
+  @Inject
+  private TextChannelDatabaseTable textDb;
+  
+  @Inject
+  private WebHookDatabaseTable hookDb;
+  
+  /*package*/ RedditJob() {
+    // Instantiated with Guice
+  }
   
   /**
    * Creates listener for all text channel and webhooks that have been stored in the database.<br>
@@ -37,23 +47,23 @@ public class RedditJob implements Runnable {
   private void load(Client client) throws SQLException {
     for (JDA shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {
-        for (WebHookDto webHook : WebHookDatabase.getAll(guild.getIdLong())) {
+        for (WebHookEntity webHook : hookDb.get(guild.getIdLong())) {
           loadWebHooks(guild, webHook);
         }
-        for (TextChannelDto textChannel : TextChannelDatabase.getAll(guild.getIdLong())) {
+        for (TextChannelEntity textChannel : textDb.get(guild.getIdLong())) {
           loadTextChannels(guild, textChannel);
         }
       }
     }
   }
   
-  private void loadWebHooks(Guild guild, WebHookDto dto) throws SQLException {
+  private void loadWebHooks(Guild guild, WebHookEntity entity) throws SQLException {
     // Text channel may no longer exist...
-    @Nullable TextChannel textChannel = guild.getTextChannelById(dto.getChannelId());
+    @Nullable TextChannel textChannel = guild.getTextChannelById(entity.getChannelId());
   
     if (textChannel == null) {
-      WebHookDatabase.delete(guild.getIdLong(), dto.getChannelId(), dto.getId());
-      LOGGER.error("TextChannel with id {} no longer exists -> delete...", dto.getChannelId());
+      hookDb.delete(entity.getGuildId(), entity.getChannelId(), entity.getId());
+      LOGGER.error("TextChannel with id {} no longer exists -> delete...", entity.getChannelId());
       return;
     }
     
@@ -66,28 +76,28 @@ public class RedditJob implements Runnable {
           .orElse(null);
     
     if (webhook == null) {
-      WebHookDatabase.delete(guild.getIdLong(), dto.getChannelId(), dto.getId());
-      LOGGER.error("Webhook with id {} no longer exists -> delete...", dto.getId());
+      hookDb.delete(entity.getGuildId(), entity.getChannelId(), entity.getId());
+      LOGGER.error("Webhook with id {} no longer exists -> delete...", entity.getId());
       return;
     }
     
-    for (String subreddit : dto.getSubreddits()) {
-      LOGGER.info("Add subreddit '{}' to webhook '{}'.", subreddit, dto.getName());
+    for (String subreddit : entity.getSubreddits()) {
+      LOGGER.info("Add subreddit '{}' to webhook '{}'.", subreddit, entity.getName());
       observable.addListener(subreddit, webhook);
     }
   }
   
-  private void loadTextChannels(Guild guild, TextChannelDto dto) throws SQLException {
+  private void loadTextChannels(Guild guild, TextChannelEntity entity) throws SQLException {
     // Text channel may no longer exist...
-    @Nullable TextChannel textChannel = guild.getTextChannelById(dto.getId());
+    @Nullable TextChannel textChannel = guild.getTextChannelById(entity.getId());
   
     if (textChannel == null) {
-      TextChannelDatabase.delete(guild.getIdLong(), dto.getId());
-      LOGGER.error("TextChannel with id {} no longer exists -> delete...", dto.getId());
+      textDb.delete(entity.getGuildId(), entity.getId());
+      LOGGER.error("TextChannel with id {} no longer exists -> delete...", entity.getId());
       return;
     }
     
-    for (String subreddit : dto.getSubreddits()) {
+    for (String subreddit : entity.getSubreddits()) {
       observable.addListener(subreddit, textChannel);
       LOGGER.info("Add subreddit '{}' to textChannel '{}'.", subreddit, textChannel.getName());
     }
