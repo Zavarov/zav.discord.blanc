@@ -14,21 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.command.internal;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Job;
+import zav.discord.blanc.command.AbstractCommand;
 
-/**
- * Base interface implemented by all commands.
- */
-@NonNullByDefault
-public interface Command extends Job, Help {
-  
-  @Contract(mutates = "this")
-  default void postConstruct() throws Exception {}
-  
-  @Contract(pure = true)
-  void validate() throws Exception;
+public class HelpCommand extends AbstractCommand {
+  @Override
+  public void run() throws Exception {
+    channel.sendMessageEmbeds(getHelp()).complete();
+  }
 }

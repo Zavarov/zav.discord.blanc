@@ -15,6 +15,7 @@ import zav.discord.blanc.api.Commands;
 import zav.discord.blanc.api.Parser;
 import zav.discord.blanc.command.IntermediateCommand;
 import zav.discord.blanc.command.internal.GuildCommandModule;
+import zav.discord.blanc.command.internal.HelpCommand;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
 import zav.discord.blanc.command.internal.ParameterModule;
 import zav.discord.blanc.command.internal.PrivateCommandModule;
@@ -25,6 +26,8 @@ import zav.discord.blanc.command.internal.PrivateCommandModule;
  */
 @NonNullByDefault
 public abstract class AbstractParser implements Parser {
+  private static final String HELP = "h";
+  
   @Inject
   private Injector injector;
   
@@ -47,13 +50,16 @@ public abstract class AbstractParser implements Parser {
     
     Module cmdModule = new IntermediateCommandModule(cmd);
     Module paramModule = new ParameterModule(message, cmd.getParameters());
+  
+    // Injector w/ JDA & arguments
+    Injector cmdInjector = injector.createChildInjector(module, cmdModule, paramModule);
+  
+    // The help flag overrules the normal command
+    if (cmd.getFlags().contains(HELP)) {
+      return Optional.of(cmdInjector.getInstance(HelpCommand.class));
+    }
     
-    return Commands.get(cmd.getName()).map(cmdClass -> {
-      // Injector w/ JDA & arguments
-      Injector cmdInjector = injector.createChildInjector(module, cmdModule, paramModule);
-      
-      return cmdInjector.getInstance(cmdClass);
-    });
+    return Commands.get(cmd.getName()).map(cmdInjector::getInstance);
   }
   
   @Override

@@ -16,19 +16,23 @@
 
 package zav.discord.blanc.api;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Job;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
-/**
- * Base interface implemented by all commands.
- */
-@NonNullByDefault
-public interface Command extends Job, Help {
+public interface Help {
+  default MessageEmbed getHelp() throws IOException {
+    String fileName = getClass().getCanonicalName() + ".md";
+    
+    try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
+      Objects.requireNonNull(is);
+      
+      String source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
   
-  @Contract(mutates = "this")
-  default void postConstruct() throws Exception {}
-  
-  @Contract(pure = true)
-  void validate() throws Exception;
+      return new EmbedBuilder().setDescription(source).build();
+    }
+  }
 }
