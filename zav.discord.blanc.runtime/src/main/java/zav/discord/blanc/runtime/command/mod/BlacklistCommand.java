@@ -16,57 +16,67 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
+import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static zav.discord.blanc.api.Constants.PATTERN;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
+
+import com.google.common.cache.Cache;
+import java.sql.SQLException;
+import java.util.regex.Pattern;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.lang3.Validate;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.Permission;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.db.GuildDatabase;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.regex.Pattern;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildTable;
 
 /**
  * This command allows to blacklist certain words. Any message that contains the
  * word will be deleted by the bot.
  */
 public class BlacklistCommand extends AbstractGuildCommand {
-  private String myRegEx;
-  private GuildDto myGuildData;
+  @Argument(index = 0)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private String regex;
+  
+  @Inject
+  private GuildTable db;
+  
+  @Inject
+  @Named(PATTERN)
+  private Cache<Long, Pattern> cache;
+  
+  private GuildEntity guildEntity;
   
   public BlacklistCommand() {
-    super(Permission.MANAGE_MESSAGES);
+    super(MESSAGE_MANAGE);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
-    myRegEx = args.get(0).asString().orElseThrow();
-    Validate.notBlank(myRegEx);
-    myGuildData = guild.getAbout();
+  public void postConstruct() {
+    Validate.notBlank(regex);
+    guildEntity = getOrCreate(db, guild);
   }
   
   @Override
   public void run() throws SQLException {
-    if (myGuildData.getBlacklist().remove(myRegEx)) {
-      channel.send("Removed '%s' from the blacklist.", myRegEx);
+    if (guildEntity.getBlacklist().remove(regex)) {
+      channel.sendMessageFormat(i18n.getString("remove_blacklist"), regex).complete();
     } else {
       //Check if the regex is valid
-      Pattern.compile(myRegEx);
+      Pattern.compile(regex);
   
-      myGuildData.getBlacklist().add(myRegEx);
-      channel.send("Added '%s' to the blacklist.", myRegEx);
+      guildEntity.getBlacklist().add(regex);
+      channel.sendMessageFormat(i18n.getString("add_blacklist"), regex).complete();
     }
   
     // Update database
-    GuildDatabase.put(myGuildData);
-    
+    db.put(guildEntity);
+  
     // Update pattern
-    String regEx = myGuildData.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse("");
-
-    Pattern result = Pattern.compile(regEx);
-    
-    guild.updateBlacklist(result);
+    String regex = guildEntity.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse(EMPTY);
+    cache.put(guild.getIdLong(), Pattern.compile(regex));
   }
 }

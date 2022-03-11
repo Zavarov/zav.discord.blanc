@@ -17,29 +17,25 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import org.apache.commons.lang3.StringUtils;
+import net.dv8tion.jda.api.entities.Guild;
 import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.Rank;
+import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.api.Guild;
-
-import java.util.List;
 
 /**
  * This command allows to modify the nickname of the bot in a specified guild.
  */
 public class NicknameCommand extends AbstractGuildCommand {
-  private String myNickname;
-  private Guild myGuild;
+  @Argument(index = 0, useDefault = true)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private String nickname;
+  
+  @Argument(index = 1, useDefault = true)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private Guild defaultGuild;
   
   public NicknameCommand() {
     super(Rank.DEVELOPER);
-  }
-  
-  @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myNickname = args.size() > 0 ? args.get(0).asString().orElseThrow() : StringUtils.EMPTY;
-    myGuild = args.size() > 1 ? shard.getGuild(args.get(1)) : guild;
   }
   
   /**
@@ -47,6 +43,6 @@ public class NicknameCommand extends AbstractGuildCommand {
    */
   @Override
   public void run() {
-    myGuild.getSelfMember().setNickname(myNickname);
+    defaultGuild.getSelfMember().modifyNickname(nickname).complete();
   }
 }

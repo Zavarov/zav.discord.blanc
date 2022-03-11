@@ -17,24 +17,28 @@
 
 package zav.discord.blanc.runtime.command.core;
 
+import static zav.discord.blanc.api.Constants.INVITE_SUPPORT_SERVER;
+
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.command.AbstractCommand;
 
 /**
  * This command prints an invitation link to the support server.
  */
+@NonNullByDefault
 public class SupportCommand extends AbstractCommand {
   @Inject
-  @Named("inviteSupportServer")
+  @Named(INVITE_SUPPORT_SERVER)
   private String link;
   
   @Override
   public void run() {
     StringBuilder stringBuilder = new StringBuilder()
-          .append("If you have any questions, hit me up in the support server:\n")
+          .append(i18n.getString("server_invitation"))
           .append(link);
 
-    channel.send(stringBuilder);
+    channel.sendMessage(stringBuilder).complete();
   }
 }

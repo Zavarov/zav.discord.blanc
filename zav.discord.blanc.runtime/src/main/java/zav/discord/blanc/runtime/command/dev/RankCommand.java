@@ -14,54 +14,61 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package zav.discord.blanc.runtime.command.dev;
 
-import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.command.Rank;
-import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.UserDto;
-import zav.discord.blanc.db.UserDatabase;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
-import java.util.List;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.User;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserTable;
 
 /**
  * This command assigns and removes the Reddit rank.
  */
 public class RankCommand extends AbstractCommand {
-  private Rank myRank;
-  private UserDto myUserData;
-  private UserDto myAuthorData;
+  @Argument(index = 0)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private Rank rank;
+  
+  @Argument(index = 1, useDefault = true)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private User user;
+  
+  @Inject
+  private UserTable db;
+  
+  private UserEntity userEntity;
   
   public RankCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
-    myUserData = shard.getUser(args.get(0)).getAbout();
-    Validate.validIndex(args, 1);
-    myRank = args.get(1).asString().map(String::toUpperCase).map(Rank::valueOf).orElseThrow();
-    myAuthorData = author.getAbout();
+  public void postConstruct() {
+    userEntity = getOrCreate(db, user);
   }
   
   @Override
   public void run() throws SQLException {
     // Can the author grant the role?
-    if (myAuthorData.getRanks().contains(myRank.name())) {
+    if (Rank.getEffectiveRanks(db, author).contains(rank)) {
       // Does the user have the rank? => add
-      if (myUserData.getRanks().contains(myRank.name())) {
-        myUserData.getRanks().remove(myRank.name());
-        channel.send("Removed rank \"%s\" from %s.", myRank.name(), myUserData.getName());
+      if (userEntity.getRanks().contains(rank.name())) {
+        userEntity.getRanks().remove(rank.name());
+        channel.sendMessageFormat(i18n.getString("remove_rank"), rank.name(), userEntity.getName()).complete();
       } else {
-        myUserData.getRanks().add(myRank.name());
-        channel.send("Granted rank \"%s\" to %s.", myRank.name(), myUserData.getName());
+        userEntity.getRanks().add(rank.name());
+        channel.sendMessageFormat(i18n.getString("add_rank"), rank.name(), userEntity.getName()).complete();
       }
-      UserDatabase.put(myUserData);
+      db.put(userEntity);
     } else {
-      channel.send("You lack the rank to grant the \"%s\" Rank", myRank.name());
+      channel.sendMessageFormat(i18n.getString("insufficient_rank"), rank.name()).complete();
     }
   }
 }

@@ -17,13 +17,13 @@
 package zav.discord.blanc.runtime.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.managers.Presence;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.api.Presence;
-import zav.discord.blanc.runtime.internal.guice.BlancModule;
+import zav.discord.blanc.runtime.internal.BlancModule;
 
 public class PresenceJob implements Runnable {
   private static final Logger LOGGER = LogManager.getLogger(PresenceJob.class);
@@ -49,6 +49,6 @@ public class PresenceJob implements Runnable {
   
   
     LOGGER.info("Change activity to '{}'.", statusMessage);
-    self.setActivity(statusMessage);
+    self.setActivity(Activity.playing(statusMessage));
   }
 }

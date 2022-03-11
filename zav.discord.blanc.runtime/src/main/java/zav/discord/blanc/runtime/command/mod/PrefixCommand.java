@@ -13,48 +13,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package zav.discord.blanc.runtime.command.mod;
 
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.db.GuildDatabase;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
-import java.util.List;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.Permission;
+import org.eclipse.jdt.annotation.Nullable;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildTable;
 
 /**
  * This command allows to set a custom prefix for a server.
  */
 public class PrefixCommand extends AbstractGuildCommand {
   @Nullable
+  @Argument(index = 0)
+  @SuppressWarnings({"UnusedDeclaration"})
   private String myPrefix;
   
-  private GuildDto myGuildData;
+  @Inject
+  private GuildTable db;
+  
+  private GuildEntity myGuildData;
     
   public PrefixCommand() {
-    super(Permission.MANAGE_MESSAGES);
+    super(Permission.MESSAGE_MANAGE);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myPrefix = args.isEmpty() ? null : args.get(0).asString().orElseThrow();
-    myGuildData = guild.getAbout();
+  public void postConstruct() {
+    myGuildData = getOrCreate(db, guild);
   }
   
   @Override
   public void run() throws SQLException {
     
     if (myPrefix == null) {
-      channel.send("Removed the custom prefix.");
+      channel.sendMessage(i18n.getString("remove_prefix")).complete();
     } else {
-      channel.send("Set the custom prefix to '%s'.", myPrefix);
+      channel.sendMessageFormat(i18n.getString("add_prefix"), myPrefix).complete();
     }
   
     myGuildData.setPrefix(myPrefix);
     
-    GuildDatabase.put(myGuildData);
+    db.put(myGuildData);
   }
 }

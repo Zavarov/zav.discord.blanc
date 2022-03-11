@@ -17,20 +17,22 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.UserDto;
-import zav.discord.blanc.db.UserDatabase;
+import static zav.discord.blanc.api.Rank.DEVELOPER;
+import static zav.discord.blanc.api.Rank.ROOT;
+import static zav.discord.blanc.api.Rank.getEffectiveRanks;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static zav.discord.blanc.command.Rank.DEVELOPER;
-import static zav.discord.blanc.command.Rank.ROOT;
+import javax.inject.Inject;
+import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserTable;
 
 /**
- * This command allows developers to become super-user and therefore allows them to bypass any permission checks.
+ * This command allows developers to become super-user and therefore allows them to bypass any
+ * permission checks.
  */
 public class FailsafeCommand extends AbstractCommand {
   /**
@@ -54,6 +56,7 @@ public class FailsafeCommand extends AbstractCommand {
       "This is what you face.",
       "Assuming control of this form."
   };
+  
   /**
    * A list of quotes when becoming a developer again.
    */
@@ -76,15 +79,21 @@ public class FailsafeCommand extends AbstractCommand {
       "You will regret your resistance, %s."
   };
   
-  private UserDto myAuthorData;
+  @Inject
+  private UserTable db;
+  
+  private UserEntity entity;
+  
+  private List<String> ranks;
   
   public FailsafeCommand() {
     super(DEVELOPER);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myAuthorData = author.getAbout();
+  public void postConstruct() {
+    entity = getOrCreate(db, author);
+    ranks = entity.getRanks();
   }
   
   /**
@@ -92,21 +101,21 @@ public class FailsafeCommand extends AbstractCommand {
    */
   @Override
   public void run() throws SQLException {
-    String myMessage;
+    String response;
     
-    if (myAuthorData.getRanks().contains(DEVELOPER.name())) {
-      myAuthorData.getRanks().remove(DEVELOPER.name());
-      myAuthorData.getRanks().add(ROOT.name());
+    if (ranks.contains(DEVELOPER.name())) {
+      entity.getRanks().remove(DEVELOPER.name());
+      entity.getRanks().add(ROOT.name());
       
-      myMessage = BECOME_ROOT[ThreadLocalRandom.current().nextInt(BECOME_ROOT.length)];
+      response = BECOME_ROOT[ThreadLocalRandom.current().nextInt(BECOME_ROOT.length)];
     } else {
-      myAuthorData.getRanks().remove(ROOT.name());
-      myAuthorData.getRanks().add(DEVELOPER.name());
+      entity.getRanks().remove(ROOT.name());
+      entity.getRanks().add(DEVELOPER.name());
       
-      myMessage = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
+      response = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
     }
   
-    UserDatabase.put(myAuthorData);
-    channel.send(myMessage, myAuthorData.getName());
+    db.put(entity);
+    channel.sendMessageFormat(response, author.getName()).complete();
   }
 }

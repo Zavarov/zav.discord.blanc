@@ -17,50 +17,40 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import org.eclipse.jdt.annotation.Nullable;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.Rank;
+import java.io.InputStream;
+import net.dv8tion.jda.api.entities.Icon;
+import net.dv8tion.jda.api.entities.Message;
+import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.MessageDto;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
 
 /**
  * This command changes the avatar of the bot to the one that was attached to
  * the message that executed this command.
  */
+@NonNullByDefault
 public class AvatarCommand extends AbstractCommand {
-  private MessageDto myMessageData;
+  private static final Logger LOGGER = LogManager.getLogger();
   
   public AvatarCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    myMessageData = message.getAbout();
+  public void postConstruct() {
+    Validate.validIndex(message.getAttachments(), 0, i18n.getString("missing_image"));
   }
   
   @Override
-  public void run() throws IOException {
-    @Nullable String attachment = myMessageData.getAttachment().orElse(null);
+  public void run() throws Exception {
+    Message.Attachment attachment = message.getAttachments().get(0);
     
-    if (attachment == null) {
-      channel.send("Please attach an image to the command.");
-      return;
-    }
-    
-    byte[] data = Base64.getDecoder().decode(attachment);
-    try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
-      BufferedImage image = ImageIO.read(in);
-      
-      shard.getSelfUser().setAvatar(image);
-      channel.send("Avatar updated.");
+    try (InputStream is = attachment.retrieveInputStream().get()) {
+      shard.getSelfUser().getManager().setAvatar(Icon.from(is)).complete();
+      channel.sendMessage(i18n.getString("avatar_updated")).complete();
     }
   }
 }

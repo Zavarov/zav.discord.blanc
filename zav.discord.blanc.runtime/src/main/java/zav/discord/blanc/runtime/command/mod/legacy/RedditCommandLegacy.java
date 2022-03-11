@@ -16,55 +16,65 @@
 
 package zav.discord.blanc.runtime.command.mod.legacy;
 
-import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.TextChannelDto;
-import zav.discord.blanc.db.TextChannelDatabase;
-import zav.discord.blanc.reddit.SubredditObservable;
-import zav.discord.blanc.api.TextChannel;
+import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Locale;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.TextChannel;
+import org.apache.commons.lang3.StringUtils;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
  * This command allows to link subreddits to channels.
  */
 public class RedditCommandLegacy extends AbstractGuildCommand {
-    
-  private String mySubreddit;
-  private TextChannel myChannel;
-  private TextChannelDto myChannelData;
-  private GuildDto myGuildData;
+  @Argument(index = 0)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private String subreddit;
+  
+  @Argument(index = 1, useDefault = true)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private TextChannel target;
+  
+  @Inject
+  private SubredditObservable observable;
+  
+  @Inject
+  private TextChannelTable db;
+  
+  private TextChannelEntity entity;
     
   protected RedditCommandLegacy() {
-    super(Permission.MANAGE_CHANNELS);
+    super(MESSAGE_MANAGE);
   }
-    
+  
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
-    mySubreddit = args.get(0).asString().orElseThrow();
-    myChannel = args.size() < 2 ? channel : guild.getTextChannel(args.get(1));
-    myChannelData = myChannel.getAbout();
-    myGuildData = guild.getAbout();
+  public void postConstruct() throws Exception {
+    entity = getOrCreate(db, target);
+    subreddit = subreddit.toLowerCase(Locale.ENGLISH);
   }
-    
+  
   @Override
   public void run() throws SQLException {
     // Remove subreddit from database
-    if (myChannelData.getSubreddits().contains(mySubreddit)) {
-      myChannelData.getSubreddits().remove(mySubreddit);
-      SubredditObservable.removeListener(mySubreddit, myChannel);
-  
+    if (entity.getSubreddits().contains(subreddit)) {
+      entity.getSubreddits().remove(subreddit);
+      
+      // Update the Reddit job
+      observable.removeListener(subreddit, target);
+      
       //Update the persistence file
-      TextChannelDatabase.put(myGuildData, myChannelData);
+      db.put(entity);
  
-      channel.send("Submissions from r/%s will no longer be posted in %s.", mySubreddit, myChannelData.getName());
+      channel.sendMessageFormat(i18n.getString("remove_subreddit"), subreddit, target.getAsMention()).complete();
     } else {
-      channel.send("This functionality is deprecated. Please use the `reddit` command instead.");
+      channel.sendMessage(i18n.getString("add_subreddit_deprecated")).complete();
     }
   }
 }

@@ -17,28 +17,26 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-
-import org.apache.commons.lang3.Validate;
+import java.math.BigDecimal;
+import java.util.Objects;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractCommand;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * This command can solve simple mathematical expressions.
  */
 public class MathCommand extends AbstractCommand {
-  private BigDecimal myValue;
+  @Argument(index = 0)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private BigDecimal value;
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
-    myValue = args.get(0).asNumber().orElseThrow();
+  public void postConstruct() throws Exception {
+    Objects.requireNonNull(value, i18n.getString("invalid_expression"));
   }
-    
+  
   @Override
   public void run() {
-    channel.send(myValue.toPlainString());
+    channel.sendMessage(value.toPlainString()).complete();
   }
 }

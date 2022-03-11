@@ -16,52 +16,96 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static zav.discord.blanc.runtime.internal.ArgumentImpl.of;
+import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.LF;
+import static zav.discord.blanc.api.Constants.SITE;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.api.Permission;
-import zav.discord.blanc.api.site.Site;
+import javax.inject.Inject;
+import javax.inject.Named;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.databind.RoleDto;
-import zav.discord.blanc.databind.TextChannelDto;
-import zav.discord.blanc.databind.WebHookDto;
-import zav.discord.blanc.databind.message.MessageEmbedDto;
-import zav.discord.blanc.databind.message.PageDto;
-import zav.discord.blanc.databind.message.SiteDto;
-import zav.discord.blanc.db.RoleDatabase;
-import zav.discord.blanc.db.TextChannelDatabase;
-import zav.discord.blanc.db.WebHookDatabase;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebHookTable;
 
 public class ConfigurationCommand extends AbstractGuildCommand {
-  private GuildDto guildData;
+  @Inject
+  @Named(SITE)
+  private Cache<Message, Site> cache;
+  
+  @Inject
+  private GuildTable guildDb;
+  
+  @Inject
+  private WebHookTable hookDb;
+  
+  @Inject
+  private TextChannelTable textDb;
+  
+  private GuildEntity guildData;
   
   public ConfigurationCommand() {
-    super(Permission.MANAGE_MESSAGES);
+    super(MESSAGE_MANAGE);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    guildData = guild.getAbout();
+  public void postConstruct() {
+    guildData = getOrCreate(guildDb, guild);
   }
   
   @Override
   public void run() throws SQLException {
-    List<SiteDto> sites = new ArrayList<>();
+    // Build pages
+    List<Site.Page> pages = new ArrayList<>();
+    pages.add(createMainPage());
+    createBlacklistPage().ifPresent(pages::add);
+    createSubredditPage().ifPresent(pages::add);
     
-    sites.add(createMainSite());
-    createBlacklistSite().ifPresent(sites::add);
-    createSubredditSite().ifPresent(sites::add);
-    createSelfAssignableRolesSite().ifPresent(sites::add);
+    // Build site
+    Site site = Site.create(pages, author.getUser());
     
-    channel.send(Site.of(sites), sites);
+    // Construct & Send message
+    Message message = createMessage(site);
+
+    channel.sendMessage(message).queue(success -> cache.put(success, site));
+  }
+  
+  // ---------------------------------------------------------------------------------------------//
+  //                                                                                              //
+  //  Message Construction                                                                        //
+  //                                                                                              //
+  // ---------------------------------------------------------------------------------------------//
+  
+  private Message createMessage(Site site) {
+    SelectionMenu menu = SelectionMenu.create("selectionMenu")
+          .addOption("Main Page", "mainPage")
+          .addOption("Blacklist", "blacklist")
+          .addOption("Subreddits", "subreddits")
+          .build();
+    
+    return new MessageBuilder()
+          .setActionRows(ActionRow.of(menu))
+          .setEmbeds(site.getCurrentPage())
+          .build();
   }
   
   // ---------------------------------------------------------------------------------------------//
@@ -86,19 +130,14 @@ public class ConfigurationCommand extends AbstractGuildCommand {
    *
    * @return The main page.
    */
-  private SiteDto createMainSite() {
-    MessageEmbedDto content = new MessageEmbedDto();
-    content.setTitle(guildData.getName());
-    content.addField("Guild Prefix", guildData.getPrefix().orElse("<None>"));
-    content.addField("Active User", author.getAsMention());
-    
-    PageDto mainPage = new PageDto()
-          .withContent(content);
-    
-    return new SiteDto()
-          .withPages(List.of(mainPage))
-          .withLabel("Main Page")
-          .withDescription("Go back to the main page.");
+  private Site.Page createMainPage() {
+    MessageEmbed content = new EmbedBuilder()
+          .setTitle(guildData.getName())
+          .addField("Guild Prefix", guildData.getPrefix().orElse("<None>"), false)
+          .addField("Active User", author.getAsMention(), false)
+          .build();
+  
+    return Site.Page.create("Main Page", List.of(content));
   }
   
   /**
@@ -116,29 +155,23 @@ public class ConfigurationCommand extends AbstractGuildCommand {
    *
    * @return A site over all banned expressions; Empty if no such expressions exists.
    */
-  private Optional<SiteDto> createBlacklistSite() {
+  private Optional<Site.Page> createBlacklistPage() {
     if (guildData.getBlacklist().isEmpty()) {
       return Optional.empty();
     }
     
     String value = guildData.getBlacklist()
           .stream()
-          .reduce((u, v) -> u + StringUtils.LF + v)
+          .reduce((u, v) -> u + LF + v)
           .orElse("");
   
-    MessageEmbedDto content = new MessageEmbedDto();
-    content.setTitle("Forbidden Expressions");
-    content.setContent(value);
+    MessageEmbed content = new EmbedBuilder()
+          .setTitle("Forbidden Expressions")
+          .setDescription(value)
+          .build();
     
-    PageDto blacklistPage = new PageDto()
-          .withContent(content);
-    
-    SiteDto site = new SiteDto()
-          .withPages(List.of(blacklistPage))
-          .withLabel("Forbidden Expressions")
-          .withDescription("All words that are banned in this guild.");
-  
-    return Optional.of(site);
+    Site.Page mainPage = Site.Page.create("Forbidden Expressions", List.of(content));
+    return Optional.of(mainPage);
   }
   
   /**
@@ -159,84 +192,47 @@ public class ConfigurationCommand extends AbstractGuildCommand {
    * @return A site over all registered subreddit feeds; Empty if no subreddits are registered.
    * @throws SQLException If a database error occurred.
    */
-  private Optional<SiteDto> createSubredditSite() throws SQLException {
+  private Optional<Site.Page> createSubredditPage() throws SQLException {
     // Subreddit Name -> Text Channels
     Multimap<String, String> subreddits = HashMultimap.create();
     
     // Get all subreddit feeds
-    for (WebHookDto webHook : WebHookDatabase.getAll(guildData.getId())) {
-      for (String subredditName : webHook.getSubreddits()) {
-        subreddits.put(subredditName, guild.getTextChannel(of(webHook.getChannelId())).getAsMention());
+    for (WebHookEntity entity : hookDb.get(guildData.getId())) {
+      for (String subredditName : entity.getSubreddits()) {
+        TextChannel textChannel = guild.getTextChannelById(entity.getChannelId());
+        // Channel may have been deleted
+        if (textChannel != null) {
+          subreddits.put(subredditName, textChannel.getAsMention());
+        }
       }
     }
     
-    for (TextChannelDto textChannel : TextChannelDatabase.getAll(guildData.getId())) {
-      for (String subredditName : textChannel.getSubreddits()) {
-        subreddits.put(subredditName, guild.getTextChannel(of(textChannel.getId())).getAsMention());
+    for (TextChannelEntity entity : textDb.get(guildData.getId())) {
+      for (String subredditName : entity.getSubreddits()) {
+        TextChannel textChannel = guild.getTextChannelById(entity.getId());
+        // Channel may have been deleted
+        if (textChannel != null) {
+          subreddits.put(subredditName, textChannel.getAsMention());
+        }
       }
     }
   
-    MessageEmbedDto content = new MessageEmbedDto();
-    content.setTitle("Subreddit Feeds");
+    if (subreddits.isEmpty()) {
+      return Optional.empty();
+    }
   
-    PageDto subredditPage = new PageDto()
-          .withContent(content);
-    
-    SiteDto subredditSite = new SiteDto()
-          .withLabel("Subreddit Feeds")
-          .withDescription("All subreddit feeds and their corresponding text channels.")
-          .withPages(List.of(subredditPage));
+    EmbedBuilder builder = new EmbedBuilder();
+    builder.setTitle("Subreddit Feeds");
     
     // Create a field for each subreddit
     subreddits.asMap().forEach((key, values) -> {
-      String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
-      content.addField("r/" + key, value);
+      String value = values.stream().reduce((u, v) -> u + LF + v).orElse(EMPTY);
+      builder.addField("r/" + key, value, false);
     });
     
-    return subredditSite.getPages().isEmpty() ? Optional.empty() : Optional.of(subredditSite);
-  }
-  
-  /**
-   * <pre>
-   *   +-----------------------+
-   *   | Self-assignable Roles |
-   *   +-----------------------+
-   *   |                       |
-   *   | &lt;Group&gt;         |
-   *   |     @....             |
-   *   |     @....             |
-   *   |                       |
-   *   +-----------------------+
-   * </pre>
-   *
-   * @return A site over all self-assignable roles; Empty if none of the roles are self-assignable.
-   * @throws SQLException If a database error occurred.
-   */
-  private Optional<SiteDto> createSelfAssignableRolesSite() throws SQLException {
-    // Role Group -> Roles
-    Multimap<String, String> roles = HashMultimap.create();
+    MessageEmbed content = builder.build();
     
-    for (RoleDto role : RoleDatabase.getAll(guildData.getId())) {
-      roles.put(role.getGroup().orElse("default"), guild.getRole(of(guildData.getId())).getAsMention());
-    }
-  
-    SiteDto roleSite = new SiteDto()
-          .withLabel("Self-assignable Roles")
-          .withDescription("All self-assignable roles.");
-    
-    roles.asMap().forEach((key, values) -> {
-      String value = values.stream().reduce((u, v) -> u + StringUtils.LF + v).orElse(StringUtils.EMPTY);
-  
-      MessageEmbedDto content = new MessageEmbedDto();
-      content.setTitle("Self-assignable Roles");
-      content.addField(key, value);
-      
-      PageDto rolePage = new PageDto()
-            .withContent(content);
-  
-      roleSite.getPages().add(rolePage);
-    });
-    
-    return roleSite.getPages().isEmpty() ? Optional.empty() : Optional.of(roleSite);
+    Site.Page mainPage = Site.Page.create("Subreddit Feeds", List.of(content));
+    return Optional.of(mainPage);
   }
 }

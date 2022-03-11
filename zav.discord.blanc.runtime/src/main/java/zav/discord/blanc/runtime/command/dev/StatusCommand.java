@@ -21,6 +21,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.time.Duration;
 import java.util.List;
+import net.dv8tion.jda.api.EmbedBuilder;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -28,10 +29,8 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
-import zav.discord.blanc.command.Rank;
+import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.message.MessageEmbedDto;
-import zav.discord.blanc.databind.message.TitleDto;
 
 /**
  * This command shows the status of the bot.
@@ -43,7 +42,7 @@ public class StatusCommand extends AbstractCommand {
   protected static final int MEBI = 1 << 20;
   protected static final double GIGA = 1e9;
   
-  private final MessageEmbedDto messageEmbed = new MessageEmbedDto();
+  private final EmbedBuilder messageEmbed = new EmbedBuilder();
   private final SystemInfo systemInfo = new SystemInfo();
   private final HardwareAbstractionLayer hardware = systemInfo.getHardware();
   
@@ -59,12 +58,12 @@ public class StatusCommand extends AbstractCommand {
     printOs();
     printMemory();
     printJvm();
-    channel.send(messageEmbed);
+    channel.sendMessageEmbeds(messageEmbed.build()).complete();
   }
   
   private void setTitle() {
     OperatingSystem os = systemInfo.getOperatingSystem();
-    messageEmbed.withTitle(new TitleDto().withName(os.toString()));
+    messageEmbed.setTitle(os.toString());
   }
   
   private void printCpu() {
@@ -72,10 +71,10 @@ public class StatusCommand extends AbstractCommand {
     CentralProcessor cpu = hardware.getProcessor();
     CentralProcessor.ProcessorIdentifier identifier = cpu.getProcessorIdentifier();
     
-    messageEmbed.addField("CPU Name", identifier.getName());
-    messageEmbed.addField("Logical", cpu.getLogicalProcessorCount(), true);
-    messageEmbed.addField("Physical", cpu.getPhysicalProcessorCount(), true);
-    messageEmbed.addField("Available", os.getAvailableProcessors(), true);
+    messageEmbed.addField("CPU Name", identifier.getName(), false);
+    messageEmbed.addField("Logical", Integer.toString(cpu.getLogicalProcessorCount()), true);
+    messageEmbed.addField("Physical", Integer.toString(cpu.getPhysicalProcessorCount()), true);
+    messageEmbed.addField("Available", Integer.toString(os.getAvailableProcessors()), true);
     messageEmbed.addField("System Load", 100.0 * cpu.getSystemLoadAverage(1)[0] / cpu.getLogicalProcessorCount() + "%", true);
     
     StringBuilder frequencyBuilder = new StringBuilder();
@@ -89,8 +88,8 @@ public class StatusCommand extends AbstractCommand {
   
   private void printSensors() {
     Sensors sensors = hardware.getSensors();
-    messageEmbed.addField("CPU Temperature (°C)", sensors.getCpuTemperature(), true);
-    messageEmbed.addField("CPU Voltage (V)", sensors.getCpuVoltage(), true);
+    messageEmbed.addField("CPU Temperature (°C)", Double.toString(sensors.getCpuTemperature()), true);
+    messageEmbed.addField("CPU Voltage (V)", Double.toString(sensors.getCpuVoltage()), true);
   }
   
   private void printOs() {
@@ -111,7 +110,7 @@ public class StatusCommand extends AbstractCommand {
   
   private void printJvm() {
     RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
-    messageEmbed.addField("JVM", runtime.getSpecName());
+    messageEmbed.addField("JVM", runtime.getSpecName(), false);
     messageEmbed.addField("Vendor", runtime.getSpecVendor(), true);
     messageEmbed.addField("Version", runtime.getSpecVersion(), true);
   }

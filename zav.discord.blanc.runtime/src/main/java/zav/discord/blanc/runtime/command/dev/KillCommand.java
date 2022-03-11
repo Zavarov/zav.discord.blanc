@@ -17,13 +17,25 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import zav.discord.blanc.command.Rank;
+import java.util.concurrent.ScheduledExecutorService;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.JDA;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 
 /**
  * This command terminates the whole instance by halting all threads.
  */
+@NonNullByDefault
 public class KillCommand extends AbstractCommand {
+
+  @Inject
+  private Client client;
+  
+  @Inject
+  private ScheduledExecutorService executorService;
   
   public KillCommand() {
     super(Rank.DEVELOPER);
@@ -31,6 +43,9 @@ public class KillCommand extends AbstractCommand {
   
   @Override
   public void run() {
-    shard.shutdown();
+    executorService.shutdown();
+    for (JDA shard : client.getShards()) {
+      shard.shutdown();
+    }
   }
 }

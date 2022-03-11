@@ -17,45 +17,55 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.api.Argument;
-import zav.discord.blanc.command.Rank;
-import zav.discord.blanc.command.AbstractCommand;
-import zav.discord.blanc.databind.GuildDto;
-import zav.discord.blanc.db.GuildDatabase;
-import zav.discord.blanc.db.RoleDatabase;
-import zav.discord.blanc.db.TextChannelDatabase;
-import zav.discord.blanc.db.WebHookDatabase;
-import zav.discord.blanc.api.Guild;
+import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Objects;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.Guild;
+import zav.discord.blanc.api.Argument;
+import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebHookTable;
 
 /**
  * This command instructs the bot to leave the specified guild.
  */
 public class LeaveCommand extends AbstractCommand {
-  private Guild myGuild;
-  private GuildDto myGuildData;
+  @Argument(index = 0, useDefault = true)
+  @SuppressWarnings({"UnusedDeclaration"})
+  private Guild guild;
+  
+  @Inject
+  private GuildTable guildDb;
+  
+  @Inject
+  private TextChannelTable textDb;
+  
+  @Inject
+  private WebHookTable hookDb;
+  
+  private GuildEntity entity;
     
   public LeaveCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
-  public void postConstruct(List<? extends Argument> args) {
-    Validate.validIndex(args, 0);
-    myGuild = shard.getGuild(args.get(0));
-    myGuildData = myGuild.getAbout();
+  public void postConstruct() {
+    Objects.requireNonNull(guild, i18n.getString("invalid_guild"));
+    entity = getOrCreate(guildDb, guild);
   }
     
   @Override
   public void run() throws SQLException {
-    myGuild.leave();
+    guild.leave().complete();
   
-    GuildDatabase.delete(myGuildData.getId());
-    TextChannelDatabase.deleteAll(myGuildData.getId());
-    RoleDatabase.deleteAll(myGuildData.getId());
-    WebHookDatabase.deleteAll(myGuildData.getId());
+    guildDb.delete(entity.getId());
+    textDb.delete(entity.getId());
+    hookDb.delete(entity.getId());
   }
 }

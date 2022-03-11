@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core-java11</artifactId>
-            <version>5.8.3</version>
+            <version>${oshi.version}</version>
         </dependency>
     </dependencies>
 
