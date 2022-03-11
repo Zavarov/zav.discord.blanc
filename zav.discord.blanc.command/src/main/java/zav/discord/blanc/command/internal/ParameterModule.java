@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal;
 
-import static zav.discord.blanc.command.internal.ParameterResolver.getDefault;
-import static zav.discord.blanc.command.internal.ParameterResolver.resolve;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.MembersInjector;
 import com.google.inject.TypeLiteral;
@@ -84,13 +81,13 @@ public class ParameterModule extends AbstractModule {
         
         // Try to resolve when the index specifies a valid parameter.
         if (argument.index() < params.size()) {
-          value = resolve(targetType, params.get(argument.index()), message);
+          value = ParameterResolver.resolve(targetType, params.get(argument.index()), message);
         }
         
         // Try to resolve when the index is out of range (and therefore value is still null) and if
         // the useDefault flag is set.
         if (argument.index() >= params.size() && argument.useDefault()) {
-          value = getDefault(targetType, message);
+          value = ParameterResolver.getDefault(targetType, message);
         }
         
         FieldUtils.writeField(field, instance, value, true);

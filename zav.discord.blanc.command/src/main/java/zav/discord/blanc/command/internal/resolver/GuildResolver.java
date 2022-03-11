@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal.resolver;
 
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveById;
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.command.internal.ArgumentUtils;
 
 /**
  * Derives a guild based on its (unique) id or name, in this order. In case multiple guilds with the
@@ -48,14 +46,14 @@ public final class GuildResolver implements EntityResolver<Guild> {
   @Override
   public @Nullable Guild apply(Parameter parameter, Message message) {
     JDA jda = message.getJDA();
-    Guild jdaGuild = resolveById(parameter, jda::getGuildById);
+    Guild jdaGuild = ArgumentUtils.resolveById(parameter, jda::getGuildById);
   
     // A guild with matching id was found
     if (jdaGuild != null) {
       return jdaGuild;
     }
   
-    jdaGuild = resolveByName(parameter, name -> jda.getGuildsByName(name, true));
+    jdaGuild = ArgumentUtils.resolveByName(parameter, name -> jda.getGuildsByName(name, true));
   
     // A unique guild matching this name has been found
     if (jdaGuild != null) {

@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal.resolver;
 
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveById;
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
-
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.command.internal.ArgumentUtils;
 
 /**
  * Derives a text channel based on its (unique) id or name, in this order. In case multiple text
@@ -48,14 +46,14 @@ public class TextChannelResolver implements EntityResolver<TextChannel> {
   @Override
   public @Nullable TextChannel apply(Parameter parameter, Message message) {
     Guild guild = message.getGuild();
-    TextChannel textChannel = resolveById(parameter, guild::getTextChannelById);
+    TextChannel textChannel = ArgumentUtils.resolveById(parameter, guild::getTextChannelById);
   
     // A text channel with matching id was found
     if (textChannel != null) {
       return textChannel;
     }
   
-    textChannel = resolveByName(parameter, name -> guild.getTextChannelsByName(name, true));
+    textChannel = ArgumentUtils.resolveByName(parameter, name -> guild.getTextChannelsByName(name, true));
   
     // A text channel with matching name was found
     if (textChannel != null) {

@@ -17,6 +17,7 @@
 package zav.discord.blanc.command;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static zav.test.io.JsonUtils.read;
@@ -41,6 +42,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.GuildCommandModule;
@@ -53,22 +57,22 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Checks whether guild commands fail if a user with insufficient rank or permission tries to
  * execute them.
  */
+@ExtendWith(MockitoExtension.class)
 public class AbstractGuildCommandTest {
   protected Injector injector;
   protected UserTable db;
+  protected @Mock Member member;
+  protected @Mock User user;
   
   /**
    * Initializes the injector used for instantiating guild commands.
    */
   @BeforeEach
   public void setUp() throws SQLException {
-    Member member = mock(Member.class);
-    when(member.getPermissions()).thenReturn(EnumSet.noneOf(Permission.class));
-    
     Message message = mock(Message.class);
     when(message.getJDA()).thenReturn(mock(JDA.class));
     when(message.getChannel()).thenReturn(mock(MessageChannel.class));
-    when(message.getAuthor()).thenReturn(mock(User.class));
+    when(message.getAuthor()).thenReturn(user);
     when(message.getGuild()).thenReturn(mock(Guild.class));
     when(message.getTextChannel()).thenReturn(mock(TextChannel.class));
     when(message.getMember()).thenReturn(member);
@@ -101,6 +105,9 @@ public class AbstractGuildCommandTest {
   @Test
   public void testValidate() throws Exception {
     Command guildCommand = injector.getInstance(GuildCommand.class);
+  
+    when(member.getPermissions(any())).thenReturn(EnumSet.allOf(Permission.class));
+    when(member.getUser()).thenReturn(user);
     
     guildCommand.validate();
   }
@@ -116,6 +123,9 @@ public class AbstractGuildCommandTest {
   @Test
   public void testValidateWithInsufficientPermission() {
     Command guildCommand = injector.getInstance(ModeratorCommand.class);
+  
+    when(member.getPermissions(any())).thenReturn(EnumSet.noneOf(Permission.class));
+    when(member.getUser()).thenReturn(user);
     
     assertThatThrownBy(guildCommand::validate)
           .isInstanceOf(InsufficientPermissionException.class);

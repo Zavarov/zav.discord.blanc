@@ -1,21 +1,34 @@
+/*
+ * Copyright (c) 2022 Zavarov.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package zav.discord.blanc.command;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import static zav.discord.blanc.api.Rank.USER;
+import static zav.discord.blanc.api.Rank.getEffectiveRanks;
+
+import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 
 /**
@@ -24,8 +37,6 @@ import zav.discord.blanc.db.UserTable;
  */
 @NonNullByDefault
 public abstract class AbstractCommand implements Command {
-  private static final Logger LOGGER = LogManager.getLogger();
-  
   @Inject
   protected JDA shard;
   @Inject
@@ -37,38 +48,24 @@ public abstract class AbstractCommand implements Command {
   @Inject
   private UserTable db;
   
+  protected ResourceBundle i18n;
+  
   private final Rank requiredRank;
   
   protected AbstractCommand(Rank requiredRank) {
     this.requiredRank = requiredRank;
+    this.i18n = ResourceBundle.getBundle("i18n");
   }
   
   protected AbstractCommand() {
-    this(Rank.USER);
+    this(USER);
   }
   
   @Override
   @Contract(pure = true)
   public void validate() throws Exception {
-    Set<Rank> effectiveRanks;
-    
-    try {
-      List<UserEntity> responses = db.get(author.getIdLong());
-      
-      Validate.validState(responses.size() <= 1);
-      
-      if (responses.size() == 0) {
-        effectiveRanks = Set.of(Rank.USER);
-      } else {
-        effectiveRanks = Rank.getEffectiveRanks(responses.get(0).getRanks());
-      }
-    } catch (SQLException e) {
-      LOGGER.warn(e.getMessage(), e);
-      effectiveRanks = Set.of(Rank.USER);
-    }
-    
     // Does the user have the required rank?
-    if (!effectiveRanks.contains(requiredRank)) {
+    if (!getEffectiveRanks(db, author).contains(requiredRank)) {
       throw new InsufficientRankException(requiredRank);
     }
   }

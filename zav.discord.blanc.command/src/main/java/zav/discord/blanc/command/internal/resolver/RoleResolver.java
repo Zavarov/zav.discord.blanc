@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal.resolver;
 
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveById;
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
-
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.command.internal.ArgumentUtils;
 
 /**
  * Derives a role based on its (unique) id or name, in this order. In case multiple roles with the
@@ -48,14 +46,14 @@ public class RoleResolver implements EntityResolver<Role> {
   @Override
   public @Nullable Role apply(Parameter parameter, Message message) {
     Guild guild = message.getGuild();
-    Role role = resolveById(parameter, guild::getRoleById);
+    Role role = ArgumentUtils.resolveById(parameter, guild::getRoleById);
   
     // A role with matching id was found
     if (role != null) {
       return role;
     }
   
-    role = resolveByName(parameter, name -> guild.getRolesByName(name, true));
+    role = ArgumentUtils.resolveByName(parameter, name -> guild.getRolesByName(name, true));
   
     // A unique role matching this name has been found
     if (role != null) {

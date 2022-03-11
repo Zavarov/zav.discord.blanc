@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal.resolver;
 
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveById;
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.command.internal.ArgumentUtils;
 
 /**
  * Derives a user based on its (unique) id or name, in this order. In case multiple users with the
@@ -48,14 +46,14 @@ public class UserResolver implements EntityResolver<User> {
   @Override
   public @Nullable User apply(Parameter parameter, Message message) {
     JDA jda = message.getJDA();
-    User jdaUser = resolveById(parameter, id -> jda.retrieveUserById(id).complete());
+    User jdaUser = ArgumentUtils.resolveById(parameter, id -> jda.retrieveUserById(id).complete());
   
     // A user with matching id was found
     if (jdaUser != null) {
       return jdaUser;
     }
   
-    jdaUser = resolveByName(parameter, name -> jda.getUsersByName(name, true));
+    jdaUser = ArgumentUtils.resolveByName(parameter, name -> jda.getUsersByName(name, true));
   
     // A unique user matching this name has been found
     if (jdaUser != null) {

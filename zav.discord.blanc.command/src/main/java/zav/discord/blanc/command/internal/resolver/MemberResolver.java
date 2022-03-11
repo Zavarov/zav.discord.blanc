@@ -16,9 +16,6 @@
 
 package zav.discord.blanc.command.internal.resolver;
 
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveById;
-import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
-
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -27,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.api.Parameter;
+import zav.discord.blanc.command.internal.ArgumentUtils;
 
 /**
  * Derives a member based on its (unique) id name or nickname, in this order. In case multiple
@@ -48,21 +46,21 @@ public final class MemberResolver implements EntityResolver<Member> {
   @Override
   public @Nullable Member apply(Parameter parameter, Message message) {
     Guild guild = message.getGuild();
-    Member member = resolveById(parameter, guild::getMemberById);
+    Member member = ArgumentUtils.resolveById(parameter, guild::getMemberById);
   
     // A member with matching id was found
     if (member != null) {
       return member;
     }
   
-    member = resolveByName(parameter, name -> guild.getMembersByName(name, true));
+    member = ArgumentUtils.resolveByName(parameter, name -> guild.getMembersByName(name, true));
   
     // A member with matching name was found
     if (member != null) {
       return member;
     }
   
-    member = resolveByName(parameter, name -> guild.getMembersByNickname(name, true));
+    member = ArgumentUtils.resolveByName(parameter, name -> guild.getMembersByNickname(name, true));
   
     // A member with matching nickname was found
     if (member != null) {
