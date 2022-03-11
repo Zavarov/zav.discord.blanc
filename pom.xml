@@ -49,6 +49,8 @@
         <mockito.version>4.3.1</mockito.version>
         <sqlite.version>3.36.0.3</sqlite.version>
         <jrc.version>0.3.2-SNAPSHOT</jrc.version>
+        <oshi.version>6.1.4</oshi.version>
+        <jna.version>5.10.0</jna.version>
 
         <!-- .. MontiCore .......................................................................................... -->
 
@@ -200,6 +202,12 @@
                         <artifactId>logback-classic</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!-- Fix version conflict between club.minnced.opus-java-api & com.github.oshi.oshi-core-java11-->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${jna.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
