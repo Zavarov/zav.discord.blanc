@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
@@ -22,6 +24,8 @@ import zav.discord.blanc.db.UserTable;
  */
 @NonNullByDefault
 public abstract class AbstractCommand implements Command {
+  private static final Logger LOGGER = LogManager.getLogger();
+  
   @Inject
   protected JDA shard;
   @Inject
@@ -59,6 +63,7 @@ public abstract class AbstractCommand implements Command {
         effectiveRanks = Rank.getEffectiveRanks(responses.get(0).getRanks());
       }
     } catch (SQLException e) {
+      LOGGER.warn(e.getMessage(), e);
       effectiveRanks = Set.of(Rank.USER);
     }
     
