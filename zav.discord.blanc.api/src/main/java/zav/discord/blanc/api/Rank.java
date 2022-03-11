@@ -16,15 +16,23 @@
 
 package zav.discord.blanc.api;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserTable;
 
 /**
  * An enumeration of all possible ranks a user may have.<br>
@@ -39,6 +47,7 @@ public enum Rank {
   ROOT;
   
   private static final Map<Rank, EnumSet<Rank>> effectiveRanks = new HashMap<>();
+  private static final Logger LOGGER = LogManager.getLogger();
   
   static {
     effectiveRanks.put(Rank.REDDIT, EnumSet.of(Rank.REDDIT, Rank.USER));
@@ -69,5 +78,19 @@ public enum Rank {
     }
     
     return Set.copyOf(target);
+  }
+  
+  @Contract(pure = true)
+  public static Set<Rank> getEffectiveRanks(UserTable userTable, User user) {
+    try {
+      List<UserEntity> responses = userTable.get(user.getIdLong());
+    
+      Validate.validState(responses.size() <= 1);
+    
+      return responses.isEmpty() ? Set.of(USER) : getEffectiveRanks(responses.get(0).getRanks());
+    } catch (SQLException e) {
+      LOGGER.warn(e.getMessage(), e);
+      return Set.of(Rank.USER);
+    }
   }
 }
