@@ -24,7 +24,7 @@ import zav.discord.blanc.api.Job;
  * Base interface implemented by all commands.
  */
 @NonNullByDefault
-public interface Command extends Job, Help {
+public interface Command extends Job {
   
   @Contract(mutates = "this")
   default void postConstruct() throws Exception {}

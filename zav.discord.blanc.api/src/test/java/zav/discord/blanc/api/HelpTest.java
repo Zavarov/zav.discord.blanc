@@ -36,7 +36,7 @@ public class HelpTest {
   
   @Test
   public void getHelpTest() throws IOException {
-    assertThat(command.getHelp().getDescription()).contains("TestCommand");
+    assertThat(Help.getHelp(command.getClass()).getDescription()).contains("TestCommand");
   }
   
   private static final class TestCommand implements Command {
