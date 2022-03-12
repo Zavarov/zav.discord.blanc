@@ -23,11 +23,24 @@ import java.util.Objects;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
+/**
+ * Provides the user-help for commands. Can be triggered by calling a command with the {@code -h}
+ * flag.
+ */
 public interface Help {
+  /**
+   * Reads the help file corresponding to this class from disc. The file is located in the
+   * {@code help} directory, located in the root classpath. The file name is the chanonical class
+   * name. The file ending is {@code md}.
+   *
+   * @return A message embed containing the help for this class.
+   * @throws IOException If the help file couldn't be read.
+   */
   default MessageEmbed getHelp() throws IOException {
     String fileName = getClass().getCanonicalName() + ".md";
+    String filePath = "help/" + fileName;
     
-    try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
+    try (InputStream is = getClass().getClassLoader().getResourceAsStream(filePath)) {
       Objects.requireNonNull(is);
       
       String source = new String(is.readAllBytes(), StandardCharsets.UTF_8);

@@ -17,19 +17,54 @@
 package zav.discord.blanc.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static zav.test.io.JsonUtils.read;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import net.dv8tion.jda.api.entities.User;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Test class for checking user ranks.
  */
 public class RankTest {
+  UserTable userTable;
+  UserEntity userEntity;
+  User user;
+  
+  /**
+   * Initializes all member variables.
+   */
+  @BeforeEach
+  public void setUp() {
+    Injector injector = Guice.createInjector();
+    userTable = injector.getInstance(UserTable.class);
+    userEntity = read("User.json", UserEntity.class);
+    user = mock(User.class);
+  }
+  
+  @AfterEach
+  public void tearDown() throws Exception {
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
+  }
   
   /**
    * Parameter source for {@link #testGetEffectiveRanks(String, Set)}.
@@ -50,5 +85,26 @@ public class RankTest {
   @MethodSource
   public void testGetEffectiveRanks(String name, Set<Rank> effectiveRanks) {
     assertThat(Rank.getEffectiveRanks(List.of(name))).isEqualTo(effectiveRanks);
+  }
+  
+  @Test
+  public void testGetDefaultRanks() throws IOException {
+    assertThat(Rank.getEffectiveRanks(userTable, user))
+          .containsExactly(Rank.USER);
+    
+    Files.delete(SqlQuery.ENTITY_DB_PATH);
+    
+    assertThat(Rank.getEffectiveRanks(userTable, user))
+          .containsExactly(Rank.USER);
+  }
+  
+  @Test
+  public void testGetEffectivePersistedRanks() throws SQLException {
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    
+    userTable.put(userEntity);
+    
+    assertThat(Rank.getEffectiveRanks(userTable, user))
+          .containsExactlyInAnyOrder(Rank.USER, Rank.DEVELOPER);
   }
 }

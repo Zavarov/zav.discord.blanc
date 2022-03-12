@@ -80,6 +80,14 @@ public enum Rank {
     return Set.copyOf(target);
   }
   
+  /**
+   * Returns all ranks that are owned by the given user. If the user is not in the database or if
+   * an SQL error occurred, {@link Rank#USER} is returned.
+   *
+   * @param userTable The user database.
+   * @param user A Discord user.
+   * @return A list of effective ranks.
+   */
   @Contract(pure = true)
   public static Set<Rank> getEffectiveRanks(UserTable userTable, User user) {
     try {
