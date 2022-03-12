@@ -36,9 +36,8 @@ public final class Help {
    * name. The file ending is {@code md}.
    *
    * @return A message embed containing the help for this class.
-   * @throws IOException If the help file couldn't be read.
    */
-  public static MessageEmbed getHelp(Class<?> clazz) throws IOException {
+  public static MessageEmbed getHelp(Class<?> clazz) {
     String fileName = clazz.getCanonicalName() + ".md";
     String filePath = "help/" + fileName;
     
@@ -48,6 +47,8 @@ public final class Help {
       String source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
   
       return new EmbedBuilder().setDescription(source).build();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }
