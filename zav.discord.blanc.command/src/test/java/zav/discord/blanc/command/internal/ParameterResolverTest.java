@@ -14,59 +14,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command.internal.resolver;
+package zav.discord.blanc.command.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.command.internal.resolver.AbstractResolverTest;
 
 /**
- * Test case for resolving strings into ranks by name.
+ * Check whether static fields can't be injected.
  */
 @ExtendWith(MockitoExtension.class)
-public class RankResolverTest extends AbstractResolverTest {
+public class ParameterResolverTest extends AbstractResolverTest {
   
   @Test
   public void testInject() {
-    when(parameter.asString()).thenReturn(Optional.of(rank.name()));
-    
-    PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
-    
-    assertThat(cmd.field).isEqualTo(rank);
+    when(parameter.asString()).thenReturn(Optional.of(string));
+      
+    assertThatThrownBy(() -> injector.getInstance(PrivateCommand.class))
+            .isInstanceOf(RuntimeException.class);
   }
   
-  
-  @Test
-  public void testInjectInvalid() {
-    when(parameter.asString()).thenReturn(Optional.of("xxxxx"));
-    
-    PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
-  
-    assertThat(cmd.field).isNull();
-  }
-  
-  @Test
-  public void testInjectDefault() {
-    PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
-    
-    assertThat(cmd.defaultField).isNull();
-  }
-  
-  @SuppressWarnings("unused")
   private static class PrivateCommand implements Command {
-    
     @Argument(index = 0)
-    private Rank field;
-    
-    @Argument(index = 1)
-    private Rank defaultField;
+    @SuppressWarnings("unused")
+    private static final String field = StringUtils.EMPTY;
     
     @Override
     public void run() {}

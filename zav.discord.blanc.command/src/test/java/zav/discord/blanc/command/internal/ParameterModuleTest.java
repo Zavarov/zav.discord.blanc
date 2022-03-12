@@ -14,59 +14,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command.internal.resolver;
+package zav.discord.blanc.command.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.command.internal.resolver.AbstractResolverTest;
 
 /**
- * Test case for resolving strings into ranks by name.
+ * Check whether unknown types are resolved as {@code null}.
  */
 @ExtendWith(MockitoExtension.class)
-public class RankResolverTest extends AbstractResolverTest {
+public class ParameterModuleTest extends AbstractResolverTest {
   
   @Test
   public void testInject() {
-    when(parameter.asString()).thenReturn(Optional.of(rank.name()));
-    
     PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
     
-    assertThat(cmd.field).isEqualTo(rank);
-  }
-  
-  
-  @Test
-  public void testInjectInvalid() {
-    when(parameter.asString()).thenReturn(Optional.of("xxxxx"));
-    
-    PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
-  
     assertThat(cmd.field).isNull();
   }
   
-  @Test
-  public void testInjectDefault() {
-    PrivateCommand cmd = injector.getInstance(PrivateCommand.class);
-    
-    assertThat(cmd.defaultField).isNull();
-  }
-  
-  @SuppressWarnings("unused")
   private static class PrivateCommand implements Command {
-    
     @Argument(index = 0)
-    private Rank field;
-    
-    @Argument(index = 1)
-    private Rank defaultField;
+    @SuppressWarnings("unused")
+    private Object field;
     
     @Override
     public void run() {}

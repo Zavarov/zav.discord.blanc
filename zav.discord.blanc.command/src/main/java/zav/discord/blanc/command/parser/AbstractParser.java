@@ -28,10 +28,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Commands;
+import zav.discord.blanc.api.Help;
 import zav.discord.blanc.api.Parser;
 import zav.discord.blanc.command.IntermediateCommand;
 import zav.discord.blanc.command.internal.GuildCommandModule;
-import zav.discord.blanc.command.internal.HelpCommand;
 import zav.discord.blanc.command.internal.IntermediateCommandModule;
 import zav.discord.blanc.command.internal.ParameterModule;
 import zav.discord.blanc.command.internal.PrivateCommandModule;
@@ -64,18 +64,26 @@ public abstract class AbstractParser implements Parser {
       return Optional.empty();
     }
     
+    Optional<Class<? extends Command>> cmdClazz = Commands.get(cmd.getName());
+    
+    // No command with the specified name exists -> abort
+    if (cmdClazz.isEmpty()) {
+      return Optional.empty();
+    }
+  
+    // The help flag overrules the normal command
+    if (cmd.getFlags().contains(HELP)) {
+      message.getChannel().sendMessageEmbeds(Help.getHelp(cmdClazz.get())).complete();
+      return Optional.empty();
+    }
+    
     Module cmdModule = new IntermediateCommandModule(cmd);
     Module paramModule = new ParameterModule(message, cmd.getParameters());
   
     // Injector w/ JDA & arguments
     Injector cmdInjector = injector.createChildInjector(module, cmdModule, paramModule);
   
-    // The help flag overrules the normal command
-    if (cmd.getFlags().contains(HELP)) {
-      return Optional.of(cmdInjector.getInstance(HelpCommand.class));
-    }
-    
-    return Commands.get(cmd.getName()).map(cmdInjector::getInstance);
+    return cmdClazz.map(cmdInjector::getInstance);
   }
   
   @Override

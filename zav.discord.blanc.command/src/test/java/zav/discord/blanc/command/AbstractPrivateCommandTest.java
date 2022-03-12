@@ -25,6 +25,8 @@ import static zav.test.io.JsonUtils.read;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
@@ -34,6 +36,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Command;
@@ -42,6 +45,7 @@ import zav.discord.blanc.command.internal.IntermediateCommandModule;
 import zav.discord.blanc.command.internal.PrivateCommandModule;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Checks whether private commands fail if a user with insufficient rank tries to execute them.
@@ -76,6 +80,12 @@ public class AbstractPrivateCommandTest {
   
     UserEntity user = read("User.json", UserEntity.class);
     db.put(user);
+  }
+  
+  @AfterEach
+  public void tearDown() throws IOException {
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
   }
   
   @Test
