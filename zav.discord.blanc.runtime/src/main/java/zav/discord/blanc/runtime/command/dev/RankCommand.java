@@ -41,9 +41,11 @@ public class RankCommand extends AbstractCommand {
   private User user;
   
   @Inject
-  private UserTable db;
+  private UserTable userTable;
   
   private UserEntity userEntity;
+  private String rankName;
+  private String userName;
   
   public RankCommand() {
     super(Rank.DEVELOPER);
@@ -51,24 +53,26 @@ public class RankCommand extends AbstractCommand {
   
   @Override
   public void postConstruct() {
-    userEntity = getOrCreate(db, user);
+    userEntity = getOrCreate(userTable, user);
+    rankName = rank.name();
+    userName = userEntity.getName();
   }
   
   @Override
   public void run() throws SQLException {
     // Can the author grant the role?
-    if (Rank.getEffectiveRanks(db, author).contains(rank)) {
+    if (Rank.getEffectiveRanks(userTable, author).contains(rank)) {
       // Does the user have the rank? => add
-      if (userEntity.getRanks().contains(rank.name())) {
-        userEntity.getRanks().remove(rank.name());
-        channel.sendMessageFormat(i18n.getString("remove_rank"), rank.name(), userEntity.getName()).complete();
+      if (userEntity.getRanks().contains(rankName)) {
+        userEntity.getRanks().remove(rankName);
+        channel.sendMessageFormat(i18n.getString("remove_rank"), rankName, userName).complete();
       } else {
-        userEntity.getRanks().add(rank.name());
-        channel.sendMessageFormat(i18n.getString("add_rank"), rank.name(), userEntity.getName()).complete();
+        userEntity.getRanks().add(rankName);
+        channel.sendMessageFormat(i18n.getString("add_rank"), rankName, userName).complete();
       }
-      db.put(userEntity);
+      userTable.put(userEntity);
     } else {
-      channel.sendMessageFormat(i18n.getString("insufficient_rank"), rank.name()).complete();
+      channel.sendMessageFormat(i18n.getString("insufficient_rank"), rankName).complete();
     }
   }
 }

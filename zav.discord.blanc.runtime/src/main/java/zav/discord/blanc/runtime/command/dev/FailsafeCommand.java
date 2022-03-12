@@ -19,7 +19,6 @@ package zav.discord.blanc.runtime.command.dev;
 
 import static zav.discord.blanc.api.Rank.DEVELOPER;
 import static zav.discord.blanc.api.Rank.ROOT;
-import static zav.discord.blanc.api.Rank.getEffectiveRanks;
 import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
@@ -36,7 +35,7 @@ import zav.discord.blanc.db.UserTable;
  */
 public class FailsafeCommand extends AbstractCommand {
   /**
-   * A list of quotes when becoming a super user.
+   * A list of quotes when becoming a super-user.
    */
   private static final String[] BECOME_ROOT = {
       "Taking control over this form.",
@@ -80,7 +79,7 @@ public class FailsafeCommand extends AbstractCommand {
   };
   
   @Inject
-  private UserTable db;
+  private UserTable userTable;
   
   private UserEntity entity;
   
@@ -92,7 +91,7 @@ public class FailsafeCommand extends AbstractCommand {
   
   @Override
   public void postConstruct() {
-    entity = getOrCreate(db, author);
+    entity = getOrCreate(userTable, author);
     ranks = entity.getRanks();
   }
   
@@ -115,7 +114,7 @@ public class FailsafeCommand extends AbstractCommand {
       response = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
     }
   
-    db.put(entity);
+    userTable.put(entity);
     channel.sendMessageFormat(response, author.getName()).complete();
   }
 }

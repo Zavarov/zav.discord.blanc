@@ -18,7 +18,6 @@ package zav.discord.blanc.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,12 +40,12 @@ public class HelpTest {
   
   private static final class TestCommand implements Command {
     @Override
-    public void validate() throws Exception {
+    public void validate() {
       // Do nothing
     }
   
     @Override
-    public void run() throws Exception {
+    public void run() {
       // Do nothing
     }
   }

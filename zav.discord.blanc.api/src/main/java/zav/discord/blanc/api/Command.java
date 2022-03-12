@@ -18,7 +18,6 @@ package zav.discord.blanc.api;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Job;
 
 /**
  * Base interface implemented by all commands.
@@ -27,7 +26,7 @@ import zav.discord.blanc.api.Job;
 public interface Command extends Job {
   
   @Contract(mutates = "this")
-  default void postConstruct() throws Exception {}
+  default void postConstruct() {}
   
   @Contract(pure = true)
   void validate() throws Exception;

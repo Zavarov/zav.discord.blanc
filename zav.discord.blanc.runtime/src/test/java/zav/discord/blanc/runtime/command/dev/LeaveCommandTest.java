@@ -29,9 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Checks whether the database is cleared whenever the bot leaves a guild.
@@ -43,11 +43,7 @@ public class LeaveCommandTest extends AbstractDevCommandTest {
   private GuildTable guildTable;
   private GuildEntity guildEntity;
   
-  /**
-   * Initializes the guild table with an entity read from disk.
-   *
-   * @throws Exception In case of a database error.
-   */
+  @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();

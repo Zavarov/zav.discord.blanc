@@ -23,14 +23,25 @@ import zav.jrc.client.Client;
 import zav.jrc.client.Duration;
 import zav.jrc.client.FailedRequestException;
 
+/**
+ * Utility class for setting up the Reddit client.
+ */
 public class RedditUtils {
   private static final Logger LOGGER = LogManager.getLogger(RedditUtils.class);
   
+  /**
+   * Initializes the Reddit client and requests a fresh access token. The duration of the token is
+   * temporary. Furthermore, a shutdown hook is added, invalidating hte access token when terminated
+   * the application.
+   *
+   * @param injector The injector used by the Reddit client.
+   * @throws FailedRequestException If no access token could be requested.
+   */
   public static void init(Injector injector) throws FailedRequestException {
     Client reddit = injector.getInstance(Client.class);
     reddit.login(Duration.TEMPORARY);
   
-    // Revoke the (permanent) access token
+    // Revoke the (temporary) access token
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       try {
         reddit.logout();

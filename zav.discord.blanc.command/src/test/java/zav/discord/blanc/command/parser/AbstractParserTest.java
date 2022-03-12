@@ -18,12 +18,10 @@ package zav.discord.blanc.command.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -45,9 +43,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +54,6 @@ import zav.discord.blanc.api.Commands;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.AbstractPrivateCommand;
 import zav.discord.blanc.command.IntermediateCommand;
-import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.db.sql.SqlQuery;
 
 /**

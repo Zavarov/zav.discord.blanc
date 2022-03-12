@@ -30,6 +30,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
+/**
+ * Check whether the bot status is properly displayed.
+ */
 @ExtendWith(MockitoExtension.class)
 public class StatusCommandTest extends AbstractDevCommandTest {
   private @Mock MessageAction action;

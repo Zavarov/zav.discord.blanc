@@ -16,16 +16,16 @@
 
 package zav.discord.blanc.runtime.command;
 
-import java.nio.file.Files;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.sql.SqlQuery;
 
+/**
+ * Abstract base class for all developer commands.
+ */
 public abstract class AbstractDevCommandTest extends AbstractCommandTest {
   
   protected UserTable userTable;

@@ -16,25 +16,24 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.runtime.command.*;
-import zav.discord.blanc.runtime.command.AbstractCommandTest;
-import zav.test.io.JsonUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static zav.test.io.JsonUtils.read;
 
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.runtime.command.AbstractCommandTest;
+
+/**
+ * Checks whether the guild prefix can be modified.
+ */
 @ExtendWith(MockitoExtension.class)
 public class PrefixCommandTest extends AbstractCommandTest {
   private @Mock MessageAction action;
@@ -42,6 +41,7 @@ public class PrefixCommandTest extends AbstractCommandTest {
   private GuildTable guildTable;
   private GuildEntity guildEntity;
   
+  @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();

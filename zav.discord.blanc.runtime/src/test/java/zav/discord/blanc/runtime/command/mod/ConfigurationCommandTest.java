@@ -35,6 +35,9 @@ import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.runtime.command.AbstractCommandTest;
 import zav.test.io.JsonUtils;
 
+/**
+ * Checks whether the interactive configuration message is returned.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ConfigurationCommandTest  extends AbstractCommandTest {
   private @Mock MessageAction action;
@@ -42,6 +45,7 @@ public class ConfigurationCommandTest  extends AbstractCommandTest {
   private GuildTable guildTable;
   private GuildEntity guildEntity;
   
+  @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();

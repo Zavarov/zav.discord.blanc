@@ -32,7 +32,7 @@ import zav.discord.blanc.db.WebHookTable;
 import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
- * This command allows to link subreddits to channels.
+ * This command links subreddits to Discord channels.
  */
 public class RedditCommand extends AbstractGuildCommand {
   private static final String WEBHOOK = "Reddit";

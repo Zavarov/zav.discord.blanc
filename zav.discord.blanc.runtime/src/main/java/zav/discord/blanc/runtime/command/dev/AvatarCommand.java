@@ -21,8 +21,6 @@ import java.io.InputStream;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
@@ -33,7 +31,6 @@ import zav.discord.blanc.command.AbstractCommand;
  */
 @NonNullByDefault
 public class AvatarCommand extends AbstractCommand {
-  private static final Logger LOGGER = LogManager.getLogger();
   
   public AvatarCommand() {
     super(Rank.DEVELOPER);

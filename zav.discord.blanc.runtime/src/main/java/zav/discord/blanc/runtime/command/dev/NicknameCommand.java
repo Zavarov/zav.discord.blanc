@@ -26,7 +26,7 @@ import zav.discord.blanc.command.AbstractGuildCommand;
  * This command allows to modify the nickname of the bot in a specified guild.
  */
 public class NicknameCommand extends AbstractGuildCommand {
-  @Argument(index = 0, useDefault = true)
+  @Argument(index = 0)
   @SuppressWarnings({"UnusedDeclaration"})
   private String nickname;
   
@@ -39,7 +39,7 @@ public class NicknameCommand extends AbstractGuildCommand {
   }
   
   /**
-   * If the new nickname is empty, the old one will be removed. Otherwise it is overwritten.
+   * If the new nickname is empty, the old one will be removed. Otherwise, it is overwritten.
    */
   @Override
   public void run() {

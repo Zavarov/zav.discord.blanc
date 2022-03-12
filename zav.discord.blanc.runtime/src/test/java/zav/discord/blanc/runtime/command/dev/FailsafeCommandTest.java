@@ -27,8 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Check whether developer can request and relinquish super-user privileges.

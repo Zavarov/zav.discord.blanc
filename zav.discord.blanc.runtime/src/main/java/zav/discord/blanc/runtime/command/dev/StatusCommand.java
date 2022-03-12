@@ -46,86 +46,110 @@ public class StatusCommand extends AbstractCommand {
   private final SystemInfo systemInfo = new SystemInfo();
   private final HardwareAbstractionLayer hardware = systemInfo.getHardware();
   
+  private OperatingSystem os;
+  private OSProcess process;
+  private RuntimeMXBean runtime;
+  
+  private GlobalMemory memory;
+  private CentralProcessor cpu;
+  private List<CentralProcessor.LogicalProcessor> processors;
+  
+  private String cpuName;
+  private String logicalProcessorCount;
+  private String physicalProcessorCount;
+  private String availableProcessors;
+  private String systemLoad;
+  private String cpuTemperature;
+  private String cpuVoltage;
+  
   public StatusCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
-  public void run() {
-    setTitle();
-    printCpu();
-    printSensors();
-    printOs();
-    printMemory();
-    printJvm();
-    channel.sendMessageEmbeds(messageEmbed.build()).complete();
-  }
+  public void postConstruct() {
+    os = systemInfo.getOperatingSystem();
+    process = os.getProcess(os.getProcessId());
+    runtime = ManagementFactory.getRuntimeMXBean();
   
-  private void setTitle() {
-    OperatingSystem os = systemInfo.getOperatingSystem();
-    messageEmbed.setTitle(os.toString());
-  }
+    memory = hardware.getMemory();
+    cpu = hardware.getProcessor();
+    processors = cpu.getLogicalProcessors();
+
+    logicalProcessorCount = Integer.toString(cpu.getLogicalProcessorCount());
+    physicalProcessorCount = Integer.toString(cpu.getPhysicalProcessorCount());
+    systemLoad = (100.0 * cpu.getSystemLoadAverage(1)[0] / cpu.getLogicalProcessorCount()) + "%";
   
-  private void printCpu() {
     OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
-    CentralProcessor cpu = hardware.getProcessor();
+    availableProcessors = Integer.toString(os.getAvailableProcessors());
+  
     CentralProcessor.ProcessorIdentifier identifier = cpu.getProcessorIdentifier();
-    
-    messageEmbed.addField("CPU Name", identifier.getName(), false);
-    messageEmbed.addField("Logical", Integer.toString(cpu.getLogicalProcessorCount()), true);
-    messageEmbed.addField("Physical", Integer.toString(cpu.getPhysicalProcessorCount()), true);
-    messageEmbed.addField("Available", Integer.toString(os.getAvailableProcessors()), true);
-    messageEmbed.addField("System Load", 100.0 * cpu.getSystemLoadAverage(1)[0] / cpu.getLogicalProcessorCount() + "%", true);
-    
-    StringBuilder frequencyBuilder = new StringBuilder();
-    List<CentralProcessor.LogicalProcessor> processors = cpu.getLogicalProcessors();
-    long [] frequencies = cpu.getCurrentFreq();
-    for (int i = 0; i < Math.min(processors.size(), frequencies.length); ++i) {
-      frequencyBuilder.append(String.format("`[%-2d] %.2f`\n", processors.get(i).getProcessorNumber(), frequencies[i] / GIGA));
-    }
-    messageEmbed.addField("Frequency (GHz)", frequencyBuilder.toString(), true);
-  }
-  
-  private void printSensors() {
+    cpuName = identifier.getName();
+
     Sensors sensors = hardware.getSensors();
-    messageEmbed.addField("CPU Temperature (°C)", Double.toString(sensors.getCpuTemperature()), true);
-    messageEmbed.addField("CPU Voltage (V)", Double.toString(sensors.getCpuVoltage()), true);
+    cpuTemperature = Double.toString(sensors.getCpuTemperature());
+    cpuVoltage = Double.toString(sensors.getCpuVoltage());
   }
   
-  private void printOs() {
-    OperatingSystem os = systemInfo.getOperatingSystem();
-    OSProcess process = os.getProcess(os.getProcessId());
-    Duration duration = Duration.ofMillis(process.getUpTime());
-    messageEmbed.addField(
-          "Uptime",
-          String.format(
-                "Running for %d day(s), %d hour(s) and %d minute(s).\n",
-                duration.toDays(),
-                duration.toHours() % 24,
-                duration.toMinutes() % 60
-          ),
-          false
-    );
-  }
-  
-  private void printJvm() {
-    RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+  @Override
+  public void run() {
+    messageEmbed.setTitle(os.toString());
+    // CPU
+    messageEmbed.addField("CPU Name", cpuName, false);
+    messageEmbed.addField("Logical", logicalProcessorCount, true);
+    messageEmbed.addField("Physical", physicalProcessorCount, true);
+    messageEmbed.addField("Available", availableProcessors, true);
+    messageEmbed.addField("System Load", systemLoad, true);
+    messageEmbed.addField("Frequency (GHz)", getFrequencies(), true);
+    // Sensors
+    messageEmbed.addField("CPU Temperature (°C)", cpuTemperature, false);
+    messageEmbed.addField("CPU Voltage (V)", cpuVoltage, true);
+    // OS
+    messageEmbed.addField("Uptime", getUptime(), false);
+    // JVM
     messageEmbed.addField("JVM", runtime.getSpecName(), false);
     messageEmbed.addField("Vendor", runtime.getSpecVendor(), true);
     messageEmbed.addField("Version", runtime.getSpecVersion(), true);
+    // Global Uptime
+    messageEmbed.addField("Global Memory", getGlobalMemory(), false);
+    
+    channel.sendMessageEmbeds(messageEmbed.build()).complete();
   }
   
-  private void printMemory() {
-    GlobalMemory memory = hardware.getMemory();
-    OperatingSystem os = systemInfo.getOperatingSystem();
-    OSProcess process = os.getProcess(os.getProcessId());
+  private String getFrequencies() {
+    StringBuilder frequencyBuilder = new StringBuilder();
+    long [] frequencies = cpu.getCurrentFreq();
+
+    for (int i = 0; i < Math.min(processors.size(), frequencies.length); ++i) {
+      int processNumber = processors.get(i).getProcessorNumber();
+      double frequency = frequencies[i] / GIGA;
+      String pattern = "`[%-2d] %.2f`\n";
+      
+      frequencyBuilder.append(String.format(pattern, processNumber, frequency));
+    }
+
+    return frequencyBuilder.toString();
+  }
+  
+  private String getUptime() {
+    Duration duration = Duration.ofMillis(process.getUpTime());
+    
+    long days = duration.toDays();
+    long hours = duration.toHoursPart();
+    long minutes = duration.toMillisPart() % 24;
+    String pattern = "Running for %d day(s), %d hour(s) and %d minute(s).";
+    
+    return String.format(pattern, days, hours, minutes);
+  }
+  
+  private String getGlobalMemory() {
     long total = memory.getTotal() / MEBI;
     long free = memory.getAvailable() / MEBI;
     long used = process.getResidentSetSize() / MEBI;
     double ratio = (100.0 * used) / total;
+    String keys = "`Total | Used  | Free  | Ratio`\n";
+    String pattern = "%s\n`%-5d | %-5d | %-5d | %-4.1f%%`";
     
-    String memoryMessage = "`Total | Used  | Free  | Ratio`\n"
-          + String.format("`%-5d | %-5d | %-5d | %-4.1f%%`\n", total, used, free, ratio);
-    messageEmbed.addField("Global Memory", memoryMessage, false);
+    return String.format(pattern, keys, total, free, used, ratio);
   }
 }

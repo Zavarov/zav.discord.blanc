@@ -31,6 +31,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
+/**
+ * Checks whether the nickname of the user account associated with the application can be modified.
+ */
 @ExtendWith(MockitoExtension.class)
 public class NicknameCommandTest extends AbstractDevCommandTest {
   private @Mock AuditableRestAction<Void> action;

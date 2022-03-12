@@ -18,17 +18,22 @@
 package zav.discord.blanc.mc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.command.IntermediateCommand;
+import zav.discord.blanc.mc.callable._parser.CallableParser;
 import zav.discord.blanc.mc.parameter._ast.ASTExpressionParameter;
 import zav.discord.blanc.mc.parameter._ast.ASTRoleParameter;
 import zav.discord.blanc.mc.parameter._ast.ASTStringParameter;
@@ -204,5 +209,16 @@ public class MontiCoreCommandParserTest {
     assertThat(command.getFlags()).containsExactly("Flag");
     assertThat(command.getName()).isEqualTo("command");
     assertThat(command.getPrefix()).contains("b");
+  }
+  
+  @Test
+  public void testParseInvalidString() {
+    try (MockedConstruction<CallableParser> ignored = mockConstruction(CallableParser.class,
+          (c, i) -> when(c.parse_String(anyString())).thenThrow(new IOException()))) {
+      
+      when(message.getContentRaw()).thenReturn("%s%s");
+      @Nullable IntermediateCommand command = new MontiCoreCommandParser().parse(message);
+      assertThat(command).isNull();
+    }
   }
 }

@@ -1,6 +1,6 @@
 # Blanc
 
-A multi-purpose Discord bot specialized on cross-posting Reddit submissions in dedicated text channels.
+A multipurpose Discord bot specialized on cross-posting Reddit submissions in dedicated text channels.
 
 Its core functionality consists of:
    * **A Local Guild Prefix** in addition to the global prefix, it is possible to define a guild prefix for all commands. 

@@ -40,13 +40,13 @@ public class LeaveCommand extends AbstractCommand {
   private Guild guild;
   
   @Inject
-  private GuildTable guildDb;
+  private GuildTable guildTable;
   
   @Inject
-  private TextChannelTable textDb;
+  private TextChannelTable channelTable;
   
   @Inject
-  private WebHookTable hookDb;
+  private WebHookTable hookTable;
   
   private GuildEntity entity;
     
@@ -57,15 +57,15 @@ public class LeaveCommand extends AbstractCommand {
   @Override
   public void postConstruct() {
     Objects.requireNonNull(guild, i18n.getString("invalid_guild"));
-    entity = getOrCreate(guildDb, guild);
+    entity = getOrCreate(guildTable, guild);
   }
     
   @Override
   public void run() throws SQLException {
     guild.leave().complete();
   
-    guildDb.delete(entity.getId());
-    textDb.delete(entity.getId());
-    hookDb.delete(entity.getId());
+    guildTable.delete(entity.getId());
+    channelTable.delete(entity.getId());
+    hookTable.delete(entity.getId());
   }
 }

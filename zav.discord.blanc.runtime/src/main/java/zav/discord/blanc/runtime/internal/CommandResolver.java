@@ -17,7 +17,13 @@ import zav.discord.blanc.runtime.command.mod.PrefixCommand;
 import zav.discord.blanc.runtime.command.mod.RedditCommand;
 import zav.discord.blanc.runtime.command.mod.legacy.RedditCommandLegacy;
 
+/**
+ * Utility class for mapping each command class to their name.
+ */
 public class CommandResolver {
+  /**
+   * Initializes all supported commands.
+   */
   public static void init() {
     Commands.bind("math", MathCommand.class);
     Commands.bind("support", SupportCommand.class);

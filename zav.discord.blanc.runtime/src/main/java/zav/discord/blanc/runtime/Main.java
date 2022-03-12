@@ -17,10 +17,14 @@
 
 package zav.discord.blanc.runtime;
 
+import static zav.discord.blanc.runtime.internal.JsonUtils.read;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.databind.io.CredentialsEntity;
 import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.reddit.RedditJob;
 import zav.discord.blanc.runtime.internal.BlancModule;
@@ -41,10 +46,19 @@ import zav.discord.blanc.runtime.job.PresenceJob;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.client.guice.UserlessClientModule;
 
+/**
+ * Entry point for the application.
+ */
 public class Main {
   private static final Logger LOGGER = LogManager.getLogger(Main.class);
   private static Injector injector;
   
+  /**
+   * Main class of the application.
+   *
+   * @param args Command line arguments.
+   * @throws Exception If the application couldn't be started.
+   */
   public static void main(String[] args) throws Exception {
     setUp();
     
@@ -55,12 +69,15 @@ public class Main {
     initJda();
   }
   
-  private static void setUp() {
+  private static void setUp() throws IOException {
     LOGGER.info("Set up commands.");
     CommandResolver.init();
+    
+    LOGGER.info("Read Credentials.");
+    CredentialsEntity credentials = read("Credentials.json", CredentialsEntity.class);
   
     LOGGER.info("Set up injector.");
-    injector = Guice.createInjector(new BlancModule(null), new UserlessClientModule());
+    injector = Guice.createInjector(new BlancModule(credentials), new UserlessClientModule());
   }
   
   private static void initDb() throws SQLException {

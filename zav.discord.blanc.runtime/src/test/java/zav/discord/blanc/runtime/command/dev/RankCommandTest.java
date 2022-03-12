@@ -19,8 +19,6 @@ package zav.discord.blanc.runtime.command.dev;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static zav.test.io.JsonUtils.read;
 
@@ -29,7 +27,6 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Rank;
@@ -37,6 +34,9 @@ import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
+/**
+ * Check whether ranks can be granted and removed.
+ */
 @ExtendWith(MockitoExtension.class)
 public class RankCommandTest extends AbstractDevCommandTest {
   private UserTable userTable;
@@ -44,6 +44,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
   private @Mock MessageAction action;
   
+  @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
@@ -68,17 +69,6 @@ public class RankCommandTest extends AbstractDevCommandTest {
     when(textChannel.sendMessageFormat(any(), any(), any())).thenReturn(action);
     
     run("b:dev.rank developer");
-  
-    ArgumentCaptor<String> msgCaptorCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> rankCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> userCaptor = ArgumentCaptor.forClass(String.class);
-  
-    verify(textChannel, times(1)).sendMessageFormat(msgCaptorCaptor.capture(), rankCaptor.capture(), userCaptor.capture());
-  
-    // Correct message?
-    assertThat(msgCaptorCaptor.getValue()).isEqualTo("Granted rank \"%s\" to %s.");
-    assertThat(rankCaptor.getValue()).isEqualTo("DEVELOPER");
-    assertThat(userCaptor.getValue()).isEqualTo(userEntity.getName());
     
     // Has the database been updated?
     UserEntity response = super.get(userTable, userEntity.getId());
@@ -100,17 +90,6 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
     run("b:dev.rank root");
   
-    ArgumentCaptor<String> msgCaptorCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> rankCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> userCaptor = ArgumentCaptor.forClass(String.class);
-  
-    verify(textChannel, times(1)).sendMessageFormat(msgCaptorCaptor.capture(), rankCaptor.capture(), userCaptor.capture());
-  
-    // Correct message?
-    assertThat(msgCaptorCaptor.getValue()).isEqualTo("Removed rank \"%s\" from %s.");
-    assertThat(rankCaptor.getValue()).isEqualTo("ROOT");
-    assertThat(userCaptor.getValue()).isEqualTo(userEntity.getName());
-  
     // Has the database been updated?
     UserEntity response = super.get(userTable, userEntity.getId());
     assertThat(response.getRanks()).isEmpty();
@@ -126,14 +105,12 @@ public class RankCommandTest extends AbstractDevCommandTest {
     when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
     
     run("b:dev.rank root");
-  
-    ArgumentCaptor<String> msgCaptorCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> rankCaptor = ArgumentCaptor.forClass(String.class);
-  
-    verify(textChannel, times(1)).sendMessageFormat(msgCaptorCaptor.capture(), rankCaptor.capture());
     
-    // Correct message?
-    assertThat(msgCaptorCaptor.getValue()).isEqualTo("You lack the rank to grant the \"%s\" Rank.");
-    assertThat(rankCaptor.getValue()).isEqualTo("ROOT");
+    // Database should not have been updated
+    UserEntity response = super.get(userTable, userEntity.getId());
+    assertThat(response.getRanks()).isEqualTo(userEntity.getRanks());
+    assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
+    assertThat(response.getId()).isEqualTo(userEntity.getId());
+    assertThat(response.getName()).isEqualTo(userEntity.getName());
   }
 }

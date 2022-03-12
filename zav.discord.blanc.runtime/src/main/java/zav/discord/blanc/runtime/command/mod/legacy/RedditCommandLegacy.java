@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.Locale;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.TextChannelEntity;
@@ -31,7 +30,7 @@ import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
- * This command allows to link subreddits to channels.
+ * This command links subreddits to Discord channels.
  */
 public class RedditCommandLegacy extends AbstractGuildCommand {
   @Argument(index = 0)
@@ -55,7 +54,7 @@ public class RedditCommandLegacy extends AbstractGuildCommand {
   }
   
   @Override
-  public void postConstruct() throws Exception {
+  public void postConstruct() {
     entity = getOrCreate(db, target);
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
   }

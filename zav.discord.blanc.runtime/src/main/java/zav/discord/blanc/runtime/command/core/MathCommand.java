@@ -31,7 +31,7 @@ public class MathCommand extends AbstractCommand {
   private BigDecimal value;
   
   @Override
-  public void postConstruct() throws Exception {
+  public void postConstruct() {
     Objects.requireNonNull(value, i18n.getString("invalid_expression"));
   }
   

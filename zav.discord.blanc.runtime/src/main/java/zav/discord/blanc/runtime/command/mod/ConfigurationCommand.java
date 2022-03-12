@@ -47,6 +47,9 @@ import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.WebHookTable;
 
+/**
+ * Displays the guild-specific configuration like subreddit feeds.
+ */
 public class ConfigurationCommand extends AbstractGuildCommand {
   @Inject
   @Named(SITE)

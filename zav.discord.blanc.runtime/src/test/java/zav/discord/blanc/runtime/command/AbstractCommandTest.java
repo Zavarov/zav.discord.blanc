@@ -34,7 +34,6 @@ import com.google.inject.name.Names;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.JDA;
@@ -82,6 +81,11 @@ public abstract class AbstractCommandTest {
   protected CredentialsEntity credentials;
   protected Injector injector;
   
+  /**
+   * Initializes all member variables.
+   *
+   * @throws Exception If one or more members couldn't be initialized.
+   */
   @BeforeEach
   public void setUp() throws Exception {
     CommandResolver.init();
@@ -112,6 +116,12 @@ public abstract class AbstractCommandTest {
   
   // -------------------------------------------------------------------------------------------- //
   
+  /**
+   * Creates a new Discord message with the provided content and creates the corresponding command.
+   *
+   * @param content The raw String content of the created message.
+   * @return The command corresponding to the argument.
+   */
   public Command parse(String content) {
     Message message = mock(Message.class);
     when(message.getJDA()).thenReturn(shard);

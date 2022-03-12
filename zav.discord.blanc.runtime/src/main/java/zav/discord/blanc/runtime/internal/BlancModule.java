@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.runtime.internal;
 
+import static com.google.inject.name.Names.named;
 import static zav.discord.blanc.api.Constants.BOT_NAME;
 import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
 import static zav.discord.blanc.api.Constants.GLOBAL_PREFIX;
@@ -25,7 +26,6 @@ import static zav.discord.blanc.api.Constants.SHARD_COUNT;
 import static zav.discord.blanc.api.Constants.WIKI_URL;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,23 +33,44 @@ import zav.discord.blanc.api.Parser;
 import zav.discord.blanc.databind.io.CredentialsEntity;
 import zav.discord.blanc.mc.MontiCoreCommandParser;
 
+/**
+ * Root module of the application.
+ */
 public class BlancModule extends AbstractModule {
   private static final ScheduledExecutorService QUEUE = Executors.newScheduledThreadPool(16);
-  private final CredentialsEntity credentials;
   
+  private final String botName;
+  private final String globalPrefix;
+  private final long shardCount;
+  private final String inviteSupportServer;
+  private final String wikiUrl;
+  private final String discordToken;
+  private final long owner;
+  
+  /**
+   * Initializes all member variables with the elements stored in the credentials.
+   *
+   * @param credentials The user credentials.
+   */
   public BlancModule(CredentialsEntity credentials) {
-    this.credentials = credentials;
+    botName = credentials.getBotName();
+    globalPrefix = credentials.getGlobalPrefix();
+    shardCount = credentials.getShardCount();
+    inviteSupportServer = credentials.getInviteSupportServer();
+    wikiUrl = credentials.getWikiUrl();
+    discordToken = credentials.getDiscordToken();
+    owner = credentials.getOwner();
   }
   
   @Override
   protected void configure() {
-    bind(String.class).annotatedWith(Names.named(BOT_NAME)).toInstance(credentials.getBotName());
-    bind(String.class).annotatedWith(Names.named(GLOBAL_PREFIX)).toInstance(credentials.getGlobalPrefix());
-    bind(Long.class).annotatedWith(Names.named(SHARD_COUNT)).toInstance(credentials.getShardCount());
-    bind(String.class).annotatedWith(Names.named(INVITE_SUPPORT_SERVER)).toInstance(credentials.getInviteSupportServer());
-    bind(String.class).annotatedWith(Names.named(WIKI_URL)).toInstance(credentials.getWikiUrl());
-    bind(String.class).annotatedWith(Names.named(DISCORD_TOKEN)).toInstance(credentials.getDiscordToken());
-    bind(Long.class).annotatedWith(Names.named(OWNER)).toInstance(credentials.getOwner());
+    bind(String.class).annotatedWith(named(BOT_NAME)).toInstance(botName);
+    bind(String.class).annotatedWith(named(GLOBAL_PREFIX)).toInstance(globalPrefix);
+    bind(Long.class).annotatedWith(named(SHARD_COUNT)).toInstance(shardCount);
+    bind(String.class).annotatedWith(named(INVITE_SUPPORT_SERVER)).toInstance(inviteSupportServer);
+    bind(String.class).annotatedWith(named(WIKI_URL)).toInstance(wikiUrl);
+    bind(String.class).annotatedWith(named(DISCORD_TOKEN)).toInstance(discordToken);
+    bind(Long.class).annotatedWith(named(OWNER)).toInstance(owner);
     
     bind(Parser.class).to(MontiCoreCommandParser.class);
     bind(ExecutorService.class).toInstance(QUEUE);

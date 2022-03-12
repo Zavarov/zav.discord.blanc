@@ -17,14 +17,19 @@
 package zav.discord.blanc.runtime.job;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.managers.Presence;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import zav.discord.blanc.runtime.internal.BlancModule;
 
+/**
+ * Repeatable job which updates the status message of the user account associated with this
+ * application.
+ */
 public class PresenceJob implements Runnable {
   private static final Logger LOGGER = LogManager.getLogger(PresenceJob.class);
   
@@ -32,13 +37,20 @@ public class PresenceJob implements Runnable {
   
   private final List<String> statusMessages;
   
-  public PresenceJob(Presence self) throws Exception {
+  /**
+   * Reads the status messages from disk.
+   *
+   * @param self The presence of this application within a given shard.
+   * @throws IOException If the file containing the status messages couldn't be read.
+   */
+  public PresenceJob(Presence self) throws IOException {
     this.self = self;
     
     ObjectMapper om = new ObjectMapper();
-    String[] messages = om.readValue(BlancModule.class.getClassLoader().getResourceAsStream("status.json"), String[].class);
+    InputStream is = PresenceJob.class.getClassLoader().getResourceAsStream("Status.json");
+    String[] messages = om.readValue(is, String[].class);
     
-    LOGGER.info("{} status messages have been read", messages.length);
+    LOGGER.info("{} status messages have been read.", messages.length);
     statusMessages = List.of(messages);
   }
   

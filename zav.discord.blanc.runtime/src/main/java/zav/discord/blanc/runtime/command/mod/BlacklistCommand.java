@@ -33,8 +33,8 @@ import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
 
 /**
- * This command allows to blacklist certain words. Any message that contains the
- * word will be deleted by the bot.
+ * This command blacklists certain words. Any message that contains the word will be deleted by the
+ * application.
  */
 public class BlacklistCommand extends AbstractGuildCommand {
   @Argument(index = 0)

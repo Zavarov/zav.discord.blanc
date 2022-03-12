@@ -35,10 +35,6 @@ public class SupportCommand extends AbstractCommand {
   
   @Override
   public void run() {
-    StringBuilder stringBuilder = new StringBuilder()
-          .append(i18n.getString("server_invitation"))
-          .append(link);
-
-    channel.sendMessage(stringBuilder).complete();
+    channel.sendMessageFormat(i18n.getString("server_invitation"), link).complete();
   }
 }

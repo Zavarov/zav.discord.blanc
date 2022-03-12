@@ -19,7 +19,6 @@ package zav.discord.blanc.api;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -32,7 +31,7 @@ public final class Help {
   
   /**
    * Reads the help file corresponding to this class from disc. The file is located in the
-   * {@code help} directory, located in the root classpath. The file name is the chanonical class
+   * {@code help} directory, located in the root classpath. The file name is the canonical class
    * name. The file ending is {@code md}.
    *
    * @return A message embed containing the help for this class.

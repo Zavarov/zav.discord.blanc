@@ -48,7 +48,7 @@ public abstract class AbstractCommand implements Command {
   @Inject
   private UserTable db;
   
-  protected ResourceBundle i18n;
+  protected final ResourceBundle i18n;
   
   private final Rank requiredRank;
   

@@ -31,6 +31,9 @@ import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.runtime.command.AbstractCommandTest;
 import zav.test.io.JsonUtils;
 
+/**
+ * Checks whether it is possible to blacklist/whitelist regular expressions.
+ */
 @ExtendWith(MockitoExtension.class)
 public class BlacklistCommandTest extends AbstractCommandTest {
   private @Mock MessageAction action;
@@ -38,6 +41,7 @@ public class BlacklistCommandTest extends AbstractCommandTest {
   private GuildEntity guildEntity;
   private GuildTable guildTable;
   
+  @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
