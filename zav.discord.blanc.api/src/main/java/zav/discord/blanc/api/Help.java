@@ -42,7 +42,7 @@ public final class Help {
     String filePath = "help/" + fileName;
     
     try (InputStream is = clazz.getClassLoader().getResourceAsStream(filePath)) {
-      Objects.requireNonNull(is);
+      Objects.requireNonNull(is, filePath);
       
       String source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
   
