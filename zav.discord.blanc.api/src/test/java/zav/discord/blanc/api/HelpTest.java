@@ -17,6 +17,7 @@
 package zav.discord.blanc.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,13 @@ public class HelpTest {
   }
   
   @Test
-  public void getHelpTest() throws IOException {
+  public void getHelpTest() {
     assertThat(Help.getHelp(command.getClass()).getDescription()).contains("TestCommand");
+  }
+  
+  @Test
+  public void getInvalidHelpTest() {
+    assertThatThrownBy(() -> Help.getHelp(this.getClass())).isInstanceOf(RuntimeException.class);
   }
   
   private static final class TestCommand implements Command {

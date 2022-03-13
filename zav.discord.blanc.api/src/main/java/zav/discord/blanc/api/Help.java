@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +42,9 @@ public final class Help {
     String filePath = "help/" + fileName;
     
     try (InputStream is = clazz.getClassLoader().getResourceAsStream(filePath)) {
-      Objects.requireNonNull(is, filePath);
+      if (is == null) {
+        throw new FileNotFoundException(filePath);
+      }
       
       String source = new String(is.readAllBytes(), StandardCharsets.UTF_8);
   
