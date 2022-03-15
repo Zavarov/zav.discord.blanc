@@ -16,8 +16,7 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +24,6 @@ import static org.mockito.Mockito.when;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractCommandTest;
@@ -44,12 +42,10 @@ public class SupportCommandTest  extends AbstractCommandTest {
   
   @Test
   public void testSendSupportLink() throws Exception {
-    when(textChannel.sendMessage(any(CharSequence.class))).thenReturn(action);
+    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
     
     run("b:support");
     
-    ArgumentCaptor<StringBuilder> stringCaptor = ArgumentCaptor.forClass(StringBuilder.class);
-    verify(textChannel, times(1)).sendMessage(stringCaptor.capture());
-    assertThat(stringCaptor.getValue().toString()).contains(credentials.getInviteSupportServer());
+    verify(textChannel, times(1)).sendMessageFormat(anyString(), anyString());
   }
 }
