@@ -186,6 +186,16 @@
             </dependency>
             <dependency>
                 <groupId>de.monticore</groupId>
+                <artifactId>monticore-generator</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>de.monticore</groupId>
                 <artifactId>monticore-grammar</artifactId>
                 <exclusions>
                     <exclusion>
