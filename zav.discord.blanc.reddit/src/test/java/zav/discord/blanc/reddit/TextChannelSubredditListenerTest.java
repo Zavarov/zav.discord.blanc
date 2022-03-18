@@ -30,14 +30,14 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.jrc.databind.LinkValueObject;
+import zav.jrc.databind.LinkDto;
 
 /**
  * Checks whether links can be sent via a text channel.
  */
 public class TextChannelSubredditListenerTest {
   
-  LinkValueObject link;
+  LinkDto link;
   TextChannelSubredditListener listener;
   TextChannel textChannel;
   MessageAction action;
@@ -51,7 +51,7 @@ public class TextChannelSubredditListenerTest {
     action = mock(MessageAction.class);
     listener = new TextChannelSubredditListener(textChannel);
 
-    link = new LinkValueObject();
+    link = new LinkDto();
     link.setOver18(true);
     link.setSpoiler(true);
     link.setAuthor("author");

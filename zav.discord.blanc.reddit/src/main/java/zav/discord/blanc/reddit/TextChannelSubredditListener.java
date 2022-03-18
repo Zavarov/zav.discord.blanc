@@ -22,7 +22,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.jrc.databind.LinkValueObject;
+import zav.jrc.databind.LinkDto;
 import zav.jrc.listener.SubredditListener;
 
 /**
@@ -40,7 +40,7 @@ public final class TextChannelSubredditListener implements SubredditListener {
   }
   
   @Inject
-  public void handle(LinkValueObject link) {
+  public void handle(LinkDto link) {
     channel.sendMessage(forLink(link)).complete();
   }
   

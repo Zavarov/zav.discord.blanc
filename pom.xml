@@ -50,7 +50,7 @@
         <log4j.version>2.17.2</log4j.version>
         <math.version>1.0.0-SNAPSHOT</math.version>
         <sqlite.version>3.36.0.3</sqlite.version>
-        <jrc.version>0.3.2-SNAPSHOT</jrc.version>
+        <jrc.version>0.3.4-SNAPSHOT</jrc.version>
         <oshi.version>6.1.5</oshi.version>
         <jna.version>5.10.0</jna.version>
         <guava.version>31.1-jre</guava.version>
