@@ -18,7 +18,6 @@ package zav.discord.blanc.runtime;
 
 import static zav.discord.blanc.runtime.internal.JsonUtils.read;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -73,7 +72,7 @@ public class Main {
     CommandResolver.init();
     
     LOGGER.info("Read Credentials.");
-    CredentialsEntity credentials = read("Credentials.json", CredentialsEntity.class);
+    CredentialsEntity credentials = read("BlancCredentials.json", CredentialsEntity.class);
   
     LOGGER.info("Set up injector.");
     injector = Guice.createInjector(new BlancModule(credentials), new UserlessClientModule());
