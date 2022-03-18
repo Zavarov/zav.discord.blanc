@@ -22,6 +22,12 @@
     <artifactId>project</artifactId>
     <version>5.0.0-SNAPSHOT</version>
 
+    <parent>
+        <groupId>zav.parent</groupId>
+        <artifactId>project</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
     <packaging>pom</packaging>
 
     <modules>
@@ -37,19 +43,17 @@
     <properties>
         <!-- .. Libraries ..................................................... -->
 
-        <discord-webhooks.version>0.7.5</discord-webhooks.version>
-        <fasterxml.version>2.13.1</fasterxml.version>
-        <guava.version>31.1-jre</guava.version>
+        <discord-webhooks.version>0.8.0</discord-webhooks.version>
+        <fasterxml.version>2.13.2</fasterxml.version>
         <guice.version>5.1.0</guice.version>
         <jakarta.inject.version>1.0.5</jakarta.inject.version>
         <jda.version>4.4.0_352</jda.version>
         <lang3.version>3.12.0</lang3.version>
         <log4j.version>2.17.2</log4j.version>
         <math.version>1.0.0-SNAPSHOT</math.version>
-        <mockito.version>4.3.1</mockito.version>
         <sqlite.version>3.36.0.3</sqlite.version>
         <jrc.version>0.3.2-SNAPSHOT</jrc.version>
-        <oshi.version>6.1.4</oshi.version>
+        <oshi.version>6.1.5</oshi.version>
         <jna.version>5.10.0</jna.version>
 
         <!-- .. MontiCore .......................................................................................... -->
@@ -58,33 +62,8 @@
         <monticore.generator.version>7.0.0</monticore.generator.version>
         <grammars.classifier>grammars</grammars.classifier>
 
-        <!-- .. Annotations ........................................................................................ -->
-        <org.eclipse.jdt.annotation.version>2.2.600</org.eclipse.jdt.annotation.version>
-        <org.jetbrains.annotations.version>23.0.0</org.jetbrains.annotations.version>
-
         <!-- .. Test ............................................................................................... -->
-        <junit.version>5.8.2</junit.version>
-        <assertj.version>3.22.0</assertj.version>
         <zav.test.version>1.0.0-SNAPSHOT</zav.test.version>
-
-        <!-- .. Plugins ............................................................................................ -->
-
-        <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
-        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-        <maven-bundle-plugin.version>5.1.2</maven-bundle-plugin.version>
-
-        <!-- .. Misc .......................................................... -->
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <!-- == Repositories ==================================================== -->
@@ -213,54 +192,11 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- NonNull annotations -->
-        <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>org.eclipse.jdt.annotation</artifactId>
-            <version>${org.eclipse.jdt.annotation.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>${org.jetbrains.annotations.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>zav.test</groupId>
             <artifactId>io</artifactId>
             <version>${zav.test.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -281,53 +217,11 @@
             <url>https://maven.pkg.github.com/zavarov/zav.discord.blanc</url>
         </repository>
     </distributionManagement>
+
     <!-- == DEFAULT BUILD SETTINGS =========================================== -->
 
     <build>
         <plugins>
-            <!-- Classes -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-            </plugin>
-            <!-- Newer version required for JUnit5 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
-            </plugin>
-            <!-- Create sources jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source-plugin.version}</version>
-            </plugin>
-            <!-- Create docs jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-            </plugin>
-            <!-- Create classes jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-            </plugin>
-            <!-- Dependencies -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
-            </plugin>
-            <!-- OSGi -->
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven-bundle-plugin.version}</version>
-            </plugin>
-            <!-- Licenses -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -341,10 +235,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>${maven-resources-plugin.version}</version>
                     <executions>
                         <execution>
-                            <id>licenses</id>
+                            <id>copy-licenses</id>
                             <phase>prepare-package</phase>
                             <goals>
                                 <goal>copy-resources</goal>
@@ -352,73 +245,36 @@
                             <configuration>
                                 <resources>
                                     <resource>
-                                        <directory>${project.basedir}/../resources</directory>
+                                        <directory>${project.basedir}/..</directory>
+                                        <includes>
+                                            <include>LICENSE</include>
+                                        </includes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/generated-resources</directory>
                                     </resource>
                                 </resources>
-                                <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             </configuration>
                         </execution>
                     </executions>
                 </plugin>
-                <!-- Create docs jar -->
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${maven-javadoc-plugin.version}</version>
-                    <configuration>
-                        <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
-                    </configuration>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
                     <executions>
                         <execution>
-                            <id>generate-docs</id>
+                            <id>download-licenses</id>
+                            <phase>generate-resources</phase>
                             <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Create sources jar -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>${maven-source-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>generate-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Dependencies -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${maven-dependency-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>copy-dependencies</id>
-                            <goals>
-                                <goal>copy-dependencies</goal>
+                                <goal>download-licenses</goal>
                             </goals>
                         </execution>
                     </executions>
                     <configuration>
-                        <includeScope>runtime</includeScope>
-                    </configuration>
-                </plugin>
-                <!-- OSGi -->
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>${maven-bundle-plugin.version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <manifestLocation>META-INF</manifestLocation>
-                        <instructions>
-                            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        </instructions>
+                        <cleanLicensesOutputDirectory>true</cleanLicensesOutputDirectory>
+                        <licensesConfigFile>${project.basedir}/../license.xml</licensesConfigFile>
+                        <includedScopes>compile</includedScopes>
                     </configuration>
                 </plugin>
             </plugins>
