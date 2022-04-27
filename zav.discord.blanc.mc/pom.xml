@@ -60,7 +60,7 @@
 
         <dependency>
             <groupId>zav.mc</groupId>
-            <artifactId>math</artifactId>
+            <artifactId>mc-math</artifactId>
             <version>${math.version}</version>
         </dependency>
 
@@ -80,7 +80,7 @@
 
         <dependency>
             <groupId>zav.mc</groupId>
-            <artifactId>math</artifactId>
+            <artifactId>mc-math</artifactId>
             <version>${math.version}</version>
             <classifier>${grammars.classifier}</classifier>
             <scope>provided</scope>
