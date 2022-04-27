@@ -1,6 +1,7 @@
 **/target
 **/*.idea
 **/*.iml
+**/.flattened-pom.xml
 
 **/src/main/resources/*.json
 Guild.db
