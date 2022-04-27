@@ -27,10 +27,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 
@@ -47,7 +47,7 @@ public enum Rank {
   ROOT;
   
   private static final Map<Rank, EnumSet<Rank>> effectiveRanks = new HashMap<>();
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LoggerFactory.getLogger(Rank.class);
   
   static {
     effectiveRanks.put(Rank.REDDIT, EnumSet.of(Rank.REDDIT, Rank.USER));

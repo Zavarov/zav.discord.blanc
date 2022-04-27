@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebHookEntity;
@@ -36,7 +36,7 @@ import zav.discord.blanc.db.WebHookTable;
  * Executable class for updating all registered Subreddit feeds.
  */
 public class RedditJob implements Runnable {
-  private static final Logger LOGGER = LogManager.getLogger(RedditJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RedditJob.class);
   
   @Inject
   private SubredditObservable observable;

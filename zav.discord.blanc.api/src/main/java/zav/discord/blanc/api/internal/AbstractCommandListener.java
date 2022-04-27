@@ -28,9 +28,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Command;
 
 /**
@@ -38,7 +38,7 @@ import zav.discord.blanc.api.Command;
  */
 @NonNullByDefault
 public abstract class AbstractCommandListener extends ListenerAdapter {
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCommandListener.class);
 
   @Inject
   private ScheduledExecutorService queue;

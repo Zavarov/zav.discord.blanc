@@ -17,8 +17,8 @@
 package zav.discord.blanc.runtime.internal;
 
 import com.google.inject.Injector;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.jrc.client.Client;
 import zav.jrc.client.Duration;
 import zav.jrc.client.FailedRequestException;
@@ -27,7 +27,7 @@ import zav.jrc.client.FailedRequestException;
  * Utility class for setting up the Reddit client.
  */
 public class RedditUtils {
-  private static final Logger LOGGER = LogManager.getLogger(RedditUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RedditUtils.class);
   
   /**
    * Initializes the Reddit client and requests a fresh access token. The duration of the token is

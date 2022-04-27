@@ -19,9 +19,9 @@ package zav.discord.blanc.mc;
 import de.se_rwth.commons.logging.Log;
 import java.io.IOException;
 import net.dv8tion.jda.api.entities.Message;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.command.IntermediateCommand;
 import zav.discord.blanc.command.parser.AbstractParser;
 import zav.discord.blanc.mc.callable._parser.CallableParser;
@@ -30,7 +30,7 @@ import zav.discord.blanc.mc.callable._parser.CallableParser;
  * Implementation of the Command parser using the CFG specified using MontiCore.
  */
 public class MontiCoreCommandParser extends AbstractParser {
-  private static final Logger LOGGER = LogManager.getLogger(MontiCoreCommandParser.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MontiCoreCommandParser.class);
   private final CallableParser parser = new CallableParser();
   
   static {

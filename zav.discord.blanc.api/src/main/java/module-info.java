@@ -6,7 +6,7 @@ open module zav.discord.blanc.api {
   requires com.google.guice;
   requires net.dv8tion.jda;
   requires org.apache.commons.lang3;
-  requires org.apache.logging.log4j;
+  requires org.slf4j;
   requires zav.discord.blanc.databind;
   requires zav.discord.blanc.db;
   

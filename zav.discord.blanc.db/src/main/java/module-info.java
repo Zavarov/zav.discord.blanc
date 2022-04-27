@@ -2,7 +2,7 @@ open module zav.discord.blanc.db {
   requires static org.eclipse.jdt.annotation;
   
   requires org.apache.commons.lang3;
-  requires org.apache.logging.log4j;
+  requires org.slf4j;
   requires zav.discord.blanc.databind;
   
   requires transitive java.sql;

@@ -26,9 +26,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
@@ -43,7 +43,7 @@ import zav.discord.blanc.db.WebHookTable;
  * Utility class for serializing JDA entities.
  */
 public final class DatabaseUtils {
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseUtils.class);
   
   /**
    * Deserializes the given guild by looking up a matching entry in the database. If no entry is

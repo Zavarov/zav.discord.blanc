@@ -47,7 +47,7 @@
         <jakarta.inject.version>1.0.5</jakarta.inject.version>
         <jda.version>4.4.0_352</jda.version>
         <lang3.version>3.12.0</lang3.version>
-        <log4j.version>2.17.2</log4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <math.version>1.0.1</math.version>
         <sqlite.version>3.36.0.3</sqlite.version>
         <jrc.version>0.3.4-SNAPSHOT</jrc.version>
@@ -98,6 +98,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
@@ -250,9 +255,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

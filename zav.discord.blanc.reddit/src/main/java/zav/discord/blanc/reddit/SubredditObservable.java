@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.jrc.api.Reddit;
 import zav.jrc.api.Subreddit;
 import zav.jrc.client.FailedRequestException;
@@ -41,7 +41,7 @@ import zav.jrc.listener.observer.SubredditObserver;
  */
 @Singleton
 public final class SubredditObservable {
-  private static final Logger LOGGER = LogManager.getLogger(SubredditObservable.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
   private final Map<String, SubredditObserver> observers = new ConcurrentHashMap<>();
   @Nullable
   private Injector injector;

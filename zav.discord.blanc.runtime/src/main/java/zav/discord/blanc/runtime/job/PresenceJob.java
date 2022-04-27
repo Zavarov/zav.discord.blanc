@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.managers.Presence;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Repeatable job which updates the status message of the user account associated with this
  * application.
  */
 public class PresenceJob implements Runnable {
-  private static final Logger LOGGER = LogManager.getLogger(PresenceJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PresenceJob.class);
   
   private final Presence self;
   

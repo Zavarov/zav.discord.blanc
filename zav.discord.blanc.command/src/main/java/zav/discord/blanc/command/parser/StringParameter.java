@@ -18,10 +18,10 @@ package zav.discord.blanc.command.parser;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Parameter;
 
 /**
@@ -31,7 +31,7 @@ import zav.discord.blanc.api.Parameter;
  */
 @NonNullByDefault
 public interface StringParameter extends Parameter {
-  Logger LOGGER = LogManager.getLogger(StringParameter.class);
+  Logger LOGGER = LoggerFactory.getLogger(StringParameter.class);
   @Override
   @Contract(pure = true)
   default Optional<BigDecimal> asNumber() {

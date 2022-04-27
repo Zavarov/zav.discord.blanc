@@ -30,9 +30,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.jrc.databind.LinkDto;
 
 /**
@@ -41,7 +41,7 @@ import zav.jrc.databind.LinkDto;
  */
 public final class MessageUtils {
   
-  private static final Logger LOGGER = LogManager.getLogger(MessageUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageUtils.class);
   
   /**
    * Creates an embedded message displaying the relevant information of the Reddit link.

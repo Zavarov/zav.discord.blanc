@@ -21,8 +21,8 @@ import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import javax.inject.Inject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
@@ -33,7 +33,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 public abstract class AbstractTable<T> implements Table<T> {
   
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTable.class);
   
   @Inject
   protected SqlQuery sql;

@@ -34,11 +34,11 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
 
@@ -51,7 +51,7 @@ import zav.discord.blanc.db.GuildTable;
 @NonNullByDefault
 public class BlacklistListener extends ListenerAdapter {
   
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
   
   @Inject
   @Named(PATTERN)

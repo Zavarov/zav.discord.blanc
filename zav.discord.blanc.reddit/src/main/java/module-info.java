@@ -3,7 +3,7 @@ open module zav.discord.blanc.reddit {
   
   requires com.google.guice;
   requires org.apache.commons.lang3;
-  requires org.apache.logging.log4j;
+  requires org.slf4j;
   requires net.dv8tion.jda;
   requires zav.discord.blanc.api;
   requires zav.discord.blanc.databind;

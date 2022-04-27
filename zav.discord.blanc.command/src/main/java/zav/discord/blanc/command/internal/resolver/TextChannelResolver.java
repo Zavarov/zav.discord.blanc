@@ -22,10 +22,10 @@ import static zav.discord.blanc.command.internal.ArgumentUtils.resolveByName;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Parameter;
 
 /**
@@ -34,7 +34,7 @@ import zav.discord.blanc.api.Parameter;
  */
 @NonNullByDefault
 public class TextChannelResolver implements EntityResolver<TextChannel> {
-  private static final Logger LOGGER = LogManager.getLogger(TextChannelResolver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelResolver.class);
   
   /**
    * Attempts to resolve the text channel corresponding to the provided argument.<br>

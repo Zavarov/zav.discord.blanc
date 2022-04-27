@@ -29,8 +29,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
@@ -48,7 +48,7 @@ import zav.jrc.client.guice.UserlessClientModule;
  * Entry point for the application.
  */
 public class Main {
-  private static final Logger LOGGER = LogManager.getLogger(Main.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
   private static Injector injector;
   
   /**

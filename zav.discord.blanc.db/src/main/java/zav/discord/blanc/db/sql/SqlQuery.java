@@ -36,16 +36,16 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper class for performing SQL requests on the local database.
  */
 @Singleton
 public class SqlQuery {
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LoggerFactory.getLogger(SqlQuery.class);
   // Remove unnecessary spaces & line breaks
   private static final String LOGGER_REGEX = "\\s{2,}|" + System.lineSeparator();
   public static final Path ENTITY_DB_PATH = Paths.get("db/Entity.db");

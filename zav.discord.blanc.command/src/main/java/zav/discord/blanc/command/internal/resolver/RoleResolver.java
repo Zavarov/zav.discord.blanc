@@ -19,10 +19,10 @@ package zav.discord.blanc.command.internal.resolver;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Parameter;
 import zav.discord.blanc.command.internal.ArgumentUtils;
 
@@ -32,7 +32,7 @@ import zav.discord.blanc.command.internal.ArgumentUtils;
  */
 @NonNullByDefault
 public class RoleResolver implements EntityResolver<Role> {
-  private static final Logger LOGGER = LogManager.getLogger(RoleResolver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RoleResolver.class);
   
   /**
    * Attempts to resolve the role corresponding to the provided argument.<br>
