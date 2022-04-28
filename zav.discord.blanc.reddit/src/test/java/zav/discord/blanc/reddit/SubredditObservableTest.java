@@ -17,29 +17,26 @@
 package zav.discord.blanc.reddit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedConstruction;
-import zav.jrc.api.Reddit;
-import zav.jrc.api.Subreddit;
-import zav.jrc.client.FailedRequestException;
-import zav.jrc.listener.observer.SubredditObserver;
+import org.mockito.junit.jupiter.MockitoExtension;
+import zav.jrc.client.Client;
+import zav.jrc.http.RestRequest;
+import zav.jrc.listener.requester.LinkRequester;
 
 /**
  * Checks whether listeners are unique.
  */
+@ExtendWith(MockitoExtension.class)
 public class SubredditObservableTest {
   
   final long textChannel1Id = 11111L;
@@ -47,44 +44,35 @@ public class SubredditObservableTest {
   final long webhook1Id = 33333L;
   final long webhook2Id = 44444L;
   
-  @Mock Injector injector;
-  @Mock Reddit reddit;
-  @Mock Subreddit subreddit;
+  @Mock LinkRequester requester;
+  @Mock Client client;
   @Mock TextChannel textChannel1;
   @Mock TextChannel textChannel2;
   @Mock Webhook webhook1;
   @Mock Webhook webhook2;
   
-  AutoCloseable closeable;
   SubredditObservable observable;
+  Injector injector;
   
   /**
    * Initializes an observable with one text channel and webhook registered.
    */
   @BeforeEach
   public void setUp() {
-    closeable = openMocks(this);
-  
-    when(injector.getInstance(Reddit.class)).thenReturn(reddit);
-    when(reddit.getSubreddit(any())).thenReturn(subreddit);
-    when(textChannel1.getIdLong()).thenReturn(textChannel1Id);
-    when(textChannel2.getIdLong()).thenReturn(textChannel2Id);
-    when(webhook1.getIdLong()).thenReturn(webhook1Id);
-    when(webhook2.getIdLong()).thenReturn(webhook2Id);
-    
-    observable = spy(new SubredditObservable());
-    observable.setInjector(injector);
+    new RestRequest.Builder();
+    injector = Guice.createInjector(new TestModule());
+    observable = injector.getInstance(SubredditObservable.class);
+    //observable = spy(new SubredditObservable());
+    // observable.setInjector(injector);
     observable.addListener("subreddit", textChannel1);
     observable.addListener("subreddit", webhook1);
   }
   
-  @AfterEach
-  public void tearDown() throws Exception {
-    closeable.close();
-  }
-  
   @Test
   public void testAddTextChannelListener() {
+    when(textChannel1.getIdLong()).thenReturn(textChannel1Id);
+    when(textChannel2.getIdLong()).thenReturn(textChannel2Id);
+    
     assertThat(observable.addListener("subreddit", textChannel1)).isFalse();
     assertThat(observable.addListener("SUBREDDIT", textChannel1)).isFalse();
     assertThat(observable.addListener("XXXXXXXXX", textChannel1)).isTrue();
@@ -93,6 +81,9 @@ public class SubredditObservableTest {
   
   @Test
   public void testAddWebhookListener() {
+    when(webhook1.getIdLong()).thenReturn(webhook1Id);
+    when(webhook2.getIdLong()).thenReturn(webhook2Id);
+    
     assertThat(observable.addListener("subreddit", webhook1)).isFalse();
     assertThat(observable.addListener("SUBREDDIT", webhook1)).isFalse();
     assertThat(observable.addListener("XXXXXXXXX", webhook1)).isTrue();
@@ -101,6 +92,8 @@ public class SubredditObservableTest {
   
   @Test
   public void testRemoveTextChannelListener() {
+    when(textChannel1.getIdLong()).thenReturn(textChannel1Id);
+    
     assertThat(observable.removeListener("SUBREDDIT", textChannel1)).isTrue();
     assertThat(observable.removeListener("subreddit", textChannel1)).isFalse();
     assertThat(observable.removeListener("XXXXXXXXX", textChannel1)).isFalse();
@@ -109,25 +102,18 @@ public class SubredditObservableTest {
   
   @Test
   public void testRemoveWebhookListener() {
+    when(webhook1.getIdLong()).thenReturn(webhook1Id);
+  
     assertThat(observable.removeListener("SUBREDDIT", webhook1)).isTrue();
     assertThat(observable.removeListener("subreddit", webhook1)).isFalse();
     assertThat(observable.removeListener("XXXXXXXXX", webhook1)).isFalse();
     assertThat(observable.removeListener("subreddit", webhook2)).isFalse();
   }
   
-  @Test
-  public void testNotifyAllObservers() {
-    observable.notifyAllObservers();
-  }
-  
-  @Test
-  public void testNotifyAllObserversWithException() {
-    try (MockedConstruction<SubredditObserver> ignored = mockConstruction(SubredditObserver.class,
-          (t, c) -> doThrow(FailedRequestException.wrap(null)).when(t).notifyAllListeners())
-    ) {
-      // Should always throw a FailedRequestException
-      observable.addListener("exception", webhook1);
-      observable.notifyAllObservers();
+  private class TestModule extends AbstractModule {
+    @Override
+    protected void configure() {
+      bind(Client.class).toInstance(client);
     }
   }
 }

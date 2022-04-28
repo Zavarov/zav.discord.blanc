@@ -16,9 +16,11 @@
 
 package zav.discord.blanc.reddit;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,8 +29,7 @@ import net.dv8tion.jda.api.entities.Webhook;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.jrc.api.Reddit;
-import zav.jrc.api.Subreddit;
+import zav.jrc.client.Client;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.listener.observer.SubredditObserver;
 
@@ -43,16 +44,11 @@ import zav.jrc.listener.observer.SubredditObserver;
 public final class SubredditObservable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
   private final Map<String, SubredditObserver> observers = new ConcurrentHashMap<>();
-  @Nullable
+  @Inject
   private Injector injector;
   
   /*package*/ SubredditObservable() {
     // Instantiated with Guice
-  }
-  
-  @Inject
-  /*package*/ void setInjector(Injector injector) {
-    this.injector = injector;
   }
   
   /**
@@ -138,11 +134,19 @@ public final class SubredditObservable {
   }
   
   private SubredditObserver getObserver(String subredditName) {
-    assert injector != null;
+    return injector.createChildInjector(new ObserverModule(subredditName)).getInstance(SubredditObserver.class);
+  }
+  
+  private static class ObserverModule extends AbstractModule {
+    private final String subredditName;
     
-    Subreddit subreddit = injector.getInstance(Reddit.class).getSubreddit(subredditName);
-    SubredditObserver observer = new SubredditObserver(subreddit);
-    injector.injectMembers(observer);
-    return observer;
+    public ObserverModule(String subredditName) {
+      this.subredditName = subredditName;
+    }
+  
+    @Override
+    protected void configure() {
+      bind(String.class).annotatedWith(Names.named("subreddit")).toInstance(subredditName);
+    }
   }
 }

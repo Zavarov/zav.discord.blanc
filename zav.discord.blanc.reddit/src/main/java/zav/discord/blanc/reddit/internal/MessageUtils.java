@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.jrc.databind.LinkDto;
+import zav.jrc.databind.LinkEntity;
 
 /**
  * Utility class for creating Discord messages displaying the relevant information about an entity
@@ -49,7 +49,7 @@ public final class MessageUtils {
    * @param link A Reddit link.
    * @return A JDA message embed displaying the relevant link information.
    */
-  public static Message forLink(LinkDto link) {
+  public static Message forLink(LinkEntity link) {
     String qualifiedTitle =
           (link.getLinkFlairText() != null ? "[" + link.getLinkFlairText() + "]" : EMPTY)
           + (link.getOver18() ? "[NSFW] " : EMPTY)

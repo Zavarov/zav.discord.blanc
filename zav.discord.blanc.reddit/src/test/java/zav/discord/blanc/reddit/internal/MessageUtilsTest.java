@@ -22,21 +22,21 @@ import java.awt.Color;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.jrc.databind.LinkDto;
+import zav.jrc.databind.LinkEntity;
 
 /**
  * Checks whether the message created from a Reddit link contains the expected fields.
  */
 public class MessageUtilsTest {
   
-  LinkDto link;
+  LinkEntity link;
   
   /**
    * Create a dummy Link DTO.
    */
   @BeforeEach
   public void setUp() {
-    link = new LinkDto();
+    link = new LinkEntity();
     link.setOver18(true);
     link.setSpoiler(true);
     link.setAuthor("author");

@@ -31,14 +31,15 @@ import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.jrc.databind.LinkDto;
+import zav.jrc.databind.LinkEntity;
+import zav.jrc.listener.event.LinkEvent;
 
 /**
  * Checks whether links can be sent via a webhook.
  */
 public class WebhookSubredditListenerTest {
   
-  LinkDto link;
+  LinkEntity link;
   WebhookSubredditListener listener;
   Webhook webhook;
   TextChannel textChannel;
@@ -54,7 +55,7 @@ public class WebhookSubredditListenerTest {
     action = mock(MessageAction.class);
     listener = new WebhookSubredditListener(webhook);
     
-    link = new LinkDto();
+    link = new LinkEntity();
     link.setOver18(true);
     link.setSpoiler(true);
     link.setAuthor("author");
@@ -64,8 +65,8 @@ public class WebhookSubredditListenerTest {
   }
   
   @Test
-  public void testHandle() {
-    listener.handle(link);
+  public void testNotify() {
+    listener.notify(new LinkEvent(link));
     verify(action, times(1)).complete();
   }
   

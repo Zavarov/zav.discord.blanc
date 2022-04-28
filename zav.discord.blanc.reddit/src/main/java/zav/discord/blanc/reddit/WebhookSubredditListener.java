@@ -19,11 +19,10 @@ package zav.discord.blanc.reddit;
 import static zav.discord.blanc.reddit.internal.MessageUtils.forLink;
 
 import java.util.Objects;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.eclipse.jdt.annotation.Nullable;
-import zav.jrc.databind.LinkDto;
 import zav.jrc.listener.SubredditListener;
+import zav.jrc.listener.event.LinkEvent;
 
 /**
  * This listener notifies a webhook, whenever a new submission has been received from a subreddit.
@@ -35,9 +34,9 @@ public final class WebhookSubredditListener implements SubredditListener {
     this.hook = hook;
   }
   
-  @Inject
-  public void handle(LinkDto link) {
-    hook.getChannel().sendMessage(forLink(link)).complete();
+  @Override
+  public void notify(LinkEvent linkEvent) {
+    hook.getChannel().sendMessage(forLink(linkEvent.getSource())).complete();
   }
   
   @Override
