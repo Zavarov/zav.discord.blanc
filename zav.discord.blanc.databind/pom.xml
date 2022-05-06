@@ -27,11 +27,23 @@
     <artifactId>blanc-databind</artifactId>
     <packaging>bundle</packaging>
 
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <spotbugs.skip>true</spotbugs.skip>
+        <pmd.skip>true</pmd.skip>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
