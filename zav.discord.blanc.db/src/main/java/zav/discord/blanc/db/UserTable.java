@@ -18,9 +18,10 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 import javax.inject.Singleton;
-import org.apache.commons.lang3.Validate;
+import net.dv8tion.jda.api.entities.User;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.sql.SqlObject;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -30,25 +31,16 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 @Singleton
 public class UserTable extends AbstractTable<UserEntity> {
-  
-  /*package*/ UserTable() {
-    // Created via Guice
-  }
 
   @Override
   protected void create() throws SQLException {
+    Objects.requireNonNull(sql);
     sql.update("user/CreateUserTable.sql");
   }
   
   @Override
-  public int delete(Object... keys) throws SQLException {
-    Validate.validState(keys.length == 1);
-    
-    return sql.update("user/DeleteUser.sql", keys);
-  }
-  
-  @Override
   public int put(UserEntity user) throws SQLException {
+    Objects.requireNonNull(sql);
     return sql.update("user/InsertUser.sql", (stmt) -> {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
@@ -58,16 +50,27 @@ public class UserTable extends AbstractTable<UserEntity> {
     });
   }
   
-  @Override
-  public List<UserEntity> get(Object... keys) throws SQLException {
-    Validate.validState(keys.length == 1);
-    
-    List<SqlObject> result = sql.query("user/SelectUser.sql", keys);
+  public int delete(User user) throws SQLException {
+    Objects.requireNonNull(sql);
+    return sql.update("user/DeleteUser.sql", user.getIdLong());
+  }
+  
+  /**
+   * Retrieves the entity associated with the provided {@link User}.
+   *
+   * @param user The {@link User} instance that is retrieved from the database.
+   * @return The entity associated with the {@link User} or {@link Optional#empty()} if no matching
+   *     entity exists in the database.
+   * @throws SQLException If a database error occurred.
+   */
+  public Optional<UserEntity> get(User user) throws SQLException {
+    Objects.requireNonNull(sql);
+    List<SqlObject> result = sql.query("user/SelectUser.sql", user.getIdLong());
   
     return result.stream()
           .map(UserTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, UserEntity.class))
-          .collect(Collectors.toUnmodifiableList());
+          .findFirst();
   }
   
   private static SqlObject transform(SqlObject entity) {

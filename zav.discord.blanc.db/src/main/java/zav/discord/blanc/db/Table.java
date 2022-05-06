@@ -17,7 +17,6 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Base class for all SQL database tables.
@@ -25,40 +24,12 @@ import java.util.List;
  * @param <T> The type of entity that is stored in this database table.
  */
 public interface Table<T> {
-  
-  /**
-   * Checks whether the database table contains at least one entity with the specified keys.
-   *
-   * @param keys The entity keys.
-   * @return {@code true} when the table contains the specified entity.
-   * @throws SQLException If a database error occurred.
-   */
-  boolean contains(Object... keys) throws SQLException;
-  
-  /**
-   * Deletes all entities with matching keys from the database table.
-   *
-   * @param keys The entity keys.
-   * @return The number of modified rows.
-   * @throws SQLException If a database error occurred.
-   */
-  int delete(Object... keys) throws SQLException;
-  
   /**
    * Stores the specified entity in the database table.
    *
-   * @param entity The entity that stored.
+   * @param entity The entity that is stored.
    * @return The number of modified rows.
    * @throws SQLException If a database error occurred.
    */
   int put(T entity) throws SQLException;
-  
-  /**
-   * Retrieves all entities with matching keys from the database table.
-   *
-   * @param keys The entity keys.
-   * @return An unmodifiable list of retrieved entities.
-   * @throws SQLException If a database error occurred.
-   */
-  List<T> get(Object... keys) throws SQLException;
 }

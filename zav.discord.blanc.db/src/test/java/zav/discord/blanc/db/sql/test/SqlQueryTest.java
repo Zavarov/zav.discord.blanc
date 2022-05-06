@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db.sql;
+package zav.discord.blanc.db.sql.test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Checks whether invalid queries throw the correct exceptions.
@@ -39,6 +40,9 @@ public class SqlQueryTest {
    */
   @BeforeEach
   public void setUp() throws IOException {
+    Files.deleteIfExists(ENTITY_DB_PATH);
+    Files.deleteIfExists(ENTITY_DB_PATH.getParent());
+    
     query = new SqlQuery();
   
     Files.createDirectories(ENTITY_DB_PATH.getParent());

@@ -14,26 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db;
+package zav.discord.blanc.db.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doThrow;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.SQLException;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Base class for all test suites.<br>
@@ -41,17 +32,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 public abstract class AbstractTableTest {
-  protected Injector guice;
-  protected @Mock AbstractTable<Object> db;
+  protected SqlQuery query;
   
   /**
    * Deserializes Discord instances.
    *
-   * @throws SQLException If a database error occurred.
+   * @throws Exception If the database couldn't be initialized.
    */
   @BeforeEach
-  public void setUp() throws SQLException {
-    guice = Guice.createInjector();
+  public void setUp() throws Exception {
+    Files.deleteIfExists(ENTITY_DB_PATH);
+    Files.deleteIfExists(ENTITY_DB_PATH.getParent());
+    
+    query = new SqlQuery();
   }
   
   /**
@@ -63,19 +56,5 @@ public abstract class AbstractTableTest {
   public void cleanUp() throws IOException {
     Files.deleteIfExists(ENTITY_DB_PATH);
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
-  }
-  
-  protected <T> T get(Table<T> db, Object... keys) throws SQLException {
-    List<T> response = db.get(keys);
-    assertThat(response).hasSize(1);
-    return response.get(0);
-  }
-  
-  @Test
-  public void testPostConstruct() throws Exception {
-    doThrow(new SQLException()).when(db).create();
-    doCallRealMethod().when(db).postConstruct();
-    
-    assertThatThrownBy(() -> db.postConstruct()).isInstanceOf(SQLException.class);
   }
 }

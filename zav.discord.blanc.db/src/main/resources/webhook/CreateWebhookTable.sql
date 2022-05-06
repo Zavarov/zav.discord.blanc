@@ -1,9 +1,9 @@
-CREATE TABLE IF NOT EXISTS 'WebHook' (
-    'id' INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS 'Webhook' (
     'guildId' INTEGER NOT NULL,
     'channelId' INTEGER NOT NULL,
+    'id' INTEGER NOT NULL,
     'name' TEXT NOT NULL,
     'subreddits' TEXT NOT NULL,
     'owner' BOOLEAN NOT NULL,
-    PRIMARY KEY ('id', 'guildId', 'channelId')
+    PRIMARY KEY ('guildId', 'channelId', 'id')
 );

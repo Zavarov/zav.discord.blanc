@@ -18,9 +18,10 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 import javax.inject.Singleton;
-import org.apache.commons.lang3.Validate;
+import net.dv8tion.jda.api.entities.Guild;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.sql.SqlObject;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -31,43 +32,53 @@ import zav.discord.blanc.db.sql.SqlQuery;
 @Singleton
 public class GuildTable extends AbstractTable<GuildEntity> {
   
-  /*package*/ GuildTable() {
-    // Created via Guice
-  }
-  
   @Override
   protected void create() throws SQLException {
+    Objects.requireNonNull(sql);
     sql.update("guild/CreateGuildTable.sql");
   }
   
   @Override
-  public int delete(Object... keys) throws SQLException {
-    Validate.validState(keys.length == 1);
-
-    return sql.update("guild/DeleteGuild.sql", keys);
-  }
-  
-  @Override
   public int put(GuildEntity entity) throws SQLException {
+    Objects.requireNonNull(sql);
+    
     return sql.update("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, entity.getId());
       stmt.setString(2, entity.getName());
-      stmt.setString(3, entity.getPrefix().orElse(null));
       // Serialize List<String> to String
-      stmt.setString(4, SqlQuery.marshal(entity.getBlacklist()));
+      stmt.setString(3, SqlQuery.marshal(entity.getBlacklist()));
     });
   }
   
-  @Override
-  public List<GuildEntity> get(Object... keys) throws SQLException {
-    Validate.validState(keys.length == 1);
-
-    List<SqlObject> result = sql.query("guild/SelectGuild.sql", keys);
+  /**
+   * Removes the {@link Guild} from the database.
+   *
+   * @param guild The {@link Guild} instance that is removed from the database.
+   * @return The number of modified rows.
+   * @throws SQLException If a database error occurred.
+   */
+  public int delete(Guild guild) throws SQLException {
+    Objects.requireNonNull(sql);
+    
+    return sql.update("guild/DeleteGuild.sql", guild.getIdLong());
+  }
+  
+  /**
+   * Retrieves the entity associated with the provided {@link Guild}.
+   *
+   * @param guild The {@link Guild} instance that is retrieved from the database.
+   * @return The entity associated with the {@link Guild} or {@link Optional#empty()} if no matching
+   *     entity exists in the database.
+   * @throws SQLException If a database error occurred.
+   */
+  public Optional<GuildEntity> get(Guild guild) throws SQLException {
+    Objects.requireNonNull(sql);
+    List<SqlObject> result = sql.query("guild/SelectGuild.sql", guild.getIdLong());
   
     return result.stream()
           .map(GuildTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, GuildEntity.class))
-          .collect(Collectors.toUnmodifiableList());
+          .findFirst();
   }
   
   private static SqlObject transform(SqlObject entity) {

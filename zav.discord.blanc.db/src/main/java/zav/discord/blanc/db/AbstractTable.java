@@ -21,8 +21,7 @@ import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
@@ -32,30 +31,27 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * @param <T> The type of entity that is stored in this database table.
  */
 public abstract class AbstractTable<T> implements Table<T> {
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTable.class);
-  
-  @Inject
+  @Nullable
   protected SqlQuery sql;
   
   @Inject
-  /*package*/ void postConstruct() throws Exception {
-    try {
-      if (!Files.exists(ENTITY_DB_PATH)) {
-        Files.createDirectories(ENTITY_DB_PATH.getParent());
-        Files.createFile(ENTITY_DB_PATH);
-      }
-      
-      create();
-    } catch (Exception e) {
-      LOGGER.error(e.getMessage(), e);
-      throw e;
-    }
+  public void setSqlQuery(SqlQuery sql) {
+    this.sql = sql;
   }
   
-  @Override
-  public boolean contains(Object... keys) throws SQLException {
-    return !get(keys).isEmpty();
+  /**
+   * Called after object construction.
+   *
+   * @throws Exception If the database file couldn't be created.
+   */
+  @Inject
+  public void postConstruct() throws Exception {
+    if (!Files.exists(ENTITY_DB_PATH)) {
+      Files.createDirectories(ENTITY_DB_PATH.getParent());
+      Files.createFile(ENTITY_DB_PATH);
+    }
+    
+    create();
   }
   
   protected abstract void create() throws SQLException;
