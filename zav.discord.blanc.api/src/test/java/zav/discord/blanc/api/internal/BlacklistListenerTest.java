@@ -17,12 +17,14 @@
 package zav.discord.blanc.api.internal;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static zav.test.io.JsonUtils.read;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
@@ -55,13 +57,11 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Test class for checking whether forbidden message are deleted automatically.
  */
 @ExtendWith(MockitoExtension.class)
-public class BlacklistListenerTest extends AbstractListenerTest {
+public class BlacklistListenerTest {
   MockedStatic<PermissionUtil> permissions;
 
   BlacklistListener listener;
-  GuildEntity data;
-  GuildTable db;
-
+  @Mock Cache<Long, Pattern> patternCache;
   @Mock JDA jda;
   @Mock SelfUser selfUser;
   @Mock Message message;
@@ -73,23 +73,20 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   @Mock Guild guild;
   @Mock TextChannel textChannel;
   @Mock GuildMessageReceivedEvent event;
+  @Mock GuildTable db;
+  @Mock GuildEntity guildEntity;
   
   /**
    * Initializes a fictitious GuildMessageReceivedEvent.
    */
   @BeforeEach
   public void setUp() throws Exception {
-    super.setUp();
-    
-    data = read("Guild.json", GuildEntity.class);
-    
-    db = injector.getInstance(GuildTable.class);
-    db.put(data);
-    
     permissions = mockStatic(PermissionUtil.class);
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
     
-    listener = injector.getInstance(BlacklistListener.class);
+    listener = new BlacklistListener();
+    listener.setDatabase(db);
+    listener.setPatternCache(patternCache);
   }
   
   /**
@@ -137,16 +134,13 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   
   @Test
   public void testIgnoreWithoutPattern() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(Collections.emptyList());
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
-    
-    // Remove pattern
-    data.setBlacklist(Collections.emptyList());
-    db.put(data);
   
     listener.onGuildMessageReceived(event);
   
@@ -155,14 +149,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testIgnoreValidMessage() {
+  public void testIgnoreValidMessage() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     // Check message + embeds + fields
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -174,16 +169,13 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testIgnoreOnError() throws IOException {
+  public void testIgnoreOnError() throws SQLException {
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
-    
-    // SQLError b/c database no longer exists
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
+    when(db.get(anyLong())).thenThrow(SQLException.class);
     
     listener.onGuildMessageReceived(event);
     
@@ -198,12 +190,10 @@ public class BlacklistListenerTest extends AbstractListenerTest {
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
+    when(patternCache.getIfPresent(anyLong())).thenReturn(Pattern.compile("banana"));
     // Banned word
     when(message.getContentRaw()).thenReturn("banana");
-  
-    patternCache.put(data.getId(), Pattern.compile("banana"));
   
     listener.onGuildMessageReceived(event);
   
@@ -211,14 +201,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByTextContent() {
+  public void testDeleteByTextContent() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     // Banned word
     when(message.getContentRaw()).thenReturn("banana");
@@ -229,14 +220,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByEmbedTitle() {
+  public void testDeleteByEmbedTitle() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -249,14 +241,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByEmbedUrl() {
+  public void testDeleteByEmbedUrl() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -269,14 +262,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByEmbedDescription() {
+  public void testDeleteByEmbedDescription() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -289,14 +283,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByEmbedFieldName() {
+  public void testDeleteByEmbedFieldName() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -310,14 +305,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByEmbedFieldValue() {
+  public void testDeleteByEmbedFieldValue() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
@@ -331,14 +327,15 @@ public class BlacklistListenerTest extends AbstractListenerTest {
   }
   
   @Test
-  public void testDeleteByFooterText() {
+  public void testDeleteByFooterText() throws SQLException {
+    when(db.get(anyLong())).thenReturn(List.of(guildEntity));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
     when(author.getJDA()).thenReturn(jda);
     when(jda.getSelfUser()).thenReturn(selfUser);
-    when(guild.getIdLong()).thenReturn(1000L);
     when(message.delete()).thenReturn(restAction);
     when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
     when(message.getEmbeds()).thenReturn(List.of(messageEmbed));

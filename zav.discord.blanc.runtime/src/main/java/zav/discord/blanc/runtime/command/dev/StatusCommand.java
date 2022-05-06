@@ -113,7 +113,7 @@ public class StatusCommand extends AbstractCommand {
     // Global Uptime
     messageEmbed.addField("Global Memory", getGlobalMemory(), false);
     
-    channel.sendMessageEmbeds(messageEmbed.build()).complete();
+    event.replyEmbeds(messageEmbed.build()).complete();
   }
   
   private String getFrequencies() {

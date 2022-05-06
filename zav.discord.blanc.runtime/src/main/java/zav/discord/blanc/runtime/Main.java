@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +71,7 @@ public class Main {
   }
   
   private static void setUp() throws IOException {
-    LOGGER.info("Set up commands.");
+    LOGGER.info("Initialize Commands");
     CommandResolver.init();
     
     LOGGER.info("Read Credentials.");
@@ -102,12 +105,22 @@ public class Main {
   private static void initJda() throws Exception {
     LOGGER.info("Initialize JDA shards");
     Client client = injector.getInstance(Client.class);
-  
+    List<CommandData> commands = CommandResolver.getCommands();
+    
     for (JDA shard : client.getShards()) {
       initJobs(shard);
+      initCommands(shard, commands);
     }
 
     initJobs();
+  }
+  
+  private static void initCommands(JDA shard, List<CommandData> commands) {
+    for (CommandData cmd : commands) {
+      LOGGER.info("Registering {} for shard {}", cmd.getName(), shard);
+    }
+    
+    shard.updateCommands().addCommands(commands).complete();
   }
   
   private static void initJobs() {

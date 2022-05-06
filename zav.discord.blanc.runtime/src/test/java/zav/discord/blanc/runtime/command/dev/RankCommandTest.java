@@ -18,61 +18,38 @@ package zav.discord.blanc.runtime.command.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static zav.test.io.JsonUtils.read;
 
 import java.util.List;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.jupiter.api.BeforeEach;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Check whether ranks can be granted and removed.
  */
-@ExtendWith(MockitoExtension.class)
 public class RankCommandTest extends AbstractDevCommandTest {
-  private UserTable userTable;
-  private UserEntity userEntity;
-  
-  private @Mock MessageAction action;
-  
-  @Override
-  @BeforeEach
-  public void setUp() throws Exception {
-    super.setUp();
-    
-    userEntity = read("User.json", UserEntity.class);
-    userTable = injector.getInstance(UserTable.class);
-  }
-  
-  @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:dev.rank root", RankCommand.class);
-  }
+  private @Mock OptionMapping arg;
   
   @Test
   public void testGrantRank() throws Exception {
-    userEntity.setRanks(List.of(Rank.ROOT.name()));
-    userTable.put(userEntity);
+    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name())));
     
-    when(author.getIdLong()).thenReturn(userEntity.getId());
-    when(author.getName()).thenReturn(userEntity.getName());
-    when(author.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(textChannel.sendMessageFormat(any(), any(), any())).thenReturn(action);
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getName()).thenReturn(userEntity.getName());
+    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
+    when(event.replyFormat(any(), any(), any())).thenReturn(reply);
+    when(event.getOption("rank")).thenReturn(arg);
+    when(arg.getAsString()).thenReturn(Rank.DEVELOPER.name());
     
-    run("b:dev.rank developer");
+    run(RankCommand.class);
     
     // Has the database been updated?
     UserEntity response = super.get(userTable, userEntity.getId());
-    assertThat(response.getRanks()).contains(Rank.DEVELOPER.name());
+    assertThat(response.getRanks()).containsExactly(Rank.ROOT.name(), Rank.DEVELOPER.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());
     assertThat(response.getName()).isEqualTo(userEntity.getName());
@@ -80,19 +57,20 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testRemoveRank() throws Exception {
-    userEntity.setRanks(List.of(Rank.ROOT.name()));
-    userTable.put(userEntity);
+    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name(), Rank.DEVELOPER.name())));
   
-    when(author.getIdLong()).thenReturn(userEntity.getId());
-    when(author.getName()).thenReturn(userEntity.getName());
-    when(author.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(textChannel.sendMessageFormat(any(), any(), any())).thenReturn(action);
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getName()).thenReturn(userEntity.getName());
+    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
+    when(event.replyFormat(any(), any(), any())).thenReturn(reply);
+    when(event.getOption("rank")).thenReturn(arg);
+    when(arg.getAsString()).thenReturn(Rank.DEVELOPER.name());
   
-    run("b:dev.rank root");
+    run(RankCommand.class);
   
     // Has the database been updated?
-    UserEntity response = super.get(userTable, userEntity.getId());
-    assertThat(response.getRanks()).isEmpty();
+    UserEntity response = get(userTable, userEntity.getId());
+    assertThat(response.getRanks()).containsExactly(Rank.ROOT.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());
     assertThat(response.getName()).isEqualTo(userEntity.getName());
@@ -100,15 +78,18 @@ public class RankCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testInsufficientRank() throws Exception {
-    userTable.put(userEntity);
+    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.DEVELOPER.name())));
+  
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(event.replyFormat(any(), any())).thenReturn(reply);
+    when(event.getOption("rank")).thenReturn(arg);
+    when(arg.getAsString()).thenReturn(Rank.ROOT.name());
     
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
-    
-    run("b:dev.rank root");
+    run(RankCommand.class);
     
     // Database should not have been updated
-    UserEntity response = super.get(userTable, userEntity.getId());
-    assertThat(response.getRanks()).isEqualTo(userEntity.getRanks());
+    UserEntity response = get(userTable, userEntity.getId());
+    assertThat(response.getRanks()).containsExactly(Rank.DEVELOPER.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());
     assertThat(response.getName()).isEqualTo(userEntity.getName());

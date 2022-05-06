@@ -16,10 +16,11 @@
 
 package zav.discord.blanc.runtime.command;
 
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import static zav.test.io.JsonUtils.read;
+
+import java.sql.SQLException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 
@@ -27,7 +28,6 @@ import zav.discord.blanc.db.UserTable;
  * Abstract base class for all developer commands.
  */
 public abstract class AbstractDevCommandTest extends AbstractCommandTest {
-  
   protected UserTable userTable;
   protected UserEntity userEntity;
   
@@ -35,11 +35,8 @@ public abstract class AbstractDevCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
+    userEntity = read("User.json", UserEntity.class);
     userTable = injector.getInstance(UserTable.class);
-    userEntity = new UserEntity()
-          .withDiscriminator(StringUtils.EMPTY)
-          .withId(OWNER_ID)
-          .withName(StringUtils.EMPTY)
-          .withRanks(List.of(Rank.ROOT.name()));
+    userTable.put(userEntity);
   }
 }

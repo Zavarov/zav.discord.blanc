@@ -19,9 +19,12 @@ package zav.discord.blanc.runtime.command.dev;
 import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import java.sql.SQLException;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
-import zav.discord.blanc.api.Argument;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.databind.UserEntity;
@@ -31,14 +34,6 @@ import zav.discord.blanc.db.UserTable;
  * This command assigns and removes the Reddit rank.
  */
 public class RankCommand extends AbstractCommand {
-  @Argument(index = 0)
-  @SuppressWarnings({"UnusedDeclaration"})
-  private Rank rank;
-  
-  @Argument(index = 1, useDefault = true)
-  @SuppressWarnings({"UnusedDeclaration"})
-  private User user;
-  
   @Inject
   private UserTable userTable;
   
@@ -46,12 +41,17 @@ public class RankCommand extends AbstractCommand {
   private String rankName;
   private String userName;
   
+  private Rank rank;
+  private User user;
+  
   public RankCommand() {
     super(Rank.DEVELOPER);
   }
   
   @Override
   public void postConstruct() {
+    rank = Rank.valueOf(Objects.requireNonNull(event.getOption("rank")).getAsString().toUpperCase(Locale.ENGLISH));
+    user = Optional.ofNullable(event.getOption("user")).map(OptionMapping::getAsUser).orElse(author);
     userEntity = getOrCreate(userTable, user);
     rankName = rank.name();
     userName = userEntity.getName();
@@ -64,14 +64,14 @@ public class RankCommand extends AbstractCommand {
       // Does the user have the rank? => add
       if (userEntity.getRanks().contains(rankName)) {
         userEntity.getRanks().remove(rankName);
-        channel.sendMessageFormat(i18n.getString("remove_rank"), rankName, userName).complete();
+        event.replyFormat(i18n.getString("remove_rank"), rankName, userName).complete();
       } else {
         userEntity.getRanks().add(rankName);
-        channel.sendMessageFormat(i18n.getString("add_rank"), rankName, userName).complete();
+        event.replyFormat(i18n.getString("add_rank"), rankName, userName).complete();
       }
       userTable.put(userEntity);
     } else {
-      channel.sendMessageFormat(i18n.getString("insufficient_rank"), rankName).complete();
+      event.replyFormat(i18n.getString("insufficient_rank"), rankName).complete();
     }
   }
 }

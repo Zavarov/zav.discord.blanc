@@ -16,33 +16,31 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Check whether all threads are terminated.
  */
-@ExtendWith(MockitoExtension.class)
 public class KillCommandTest  extends AbstractDevCommandTest {
   
   @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:dev.kill", KillCommand.class);
-  }
-  
-  @Test
   public void testShutdown() throws Exception {
-    when(client.getShards()).thenReturn(List.of(shard));
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(event.reply(anyString())).thenReturn(reply);
+    when(reply.setEphemeral(anyBoolean())).thenReturn(reply);
+    when(client.getShards()).thenReturn(List.of(jda));
     
-    run("b:dev.kill");
+    run(KillCommand.class);
     
-    verify(shard, times(1)).shutdown();
+    verify(jda, times(1)).shutdown();
+    verify(executorService, times(1)).shutdown();
   }
 }

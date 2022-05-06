@@ -20,40 +20,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.jupiter.api.BeforeEach;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.runtime.command.AbstractCommandTest;
-import zav.test.io.JsonUtils;
+import zav.discord.blanc.runtime.command.AbstractGuildCommandTest;
 
 /**
  * Checks whether it is possible to blacklist/whitelist regular expressions.
  */
-@ExtendWith(MockitoExtension.class)
-public class BlacklistCommandTest extends AbstractCommandTest {
-  private @Mock MessageAction action;
-
-  private GuildEntity guildEntity;
-  private GuildTable guildTable;
-  
-  @Override
-  @BeforeEach
-  public void setUp() throws Exception {
-    super.setUp();
-    
-    guildTable = injector.getInstance(GuildTable.class);
-    guildEntity = JsonUtils.read("Guild.json", GuildEntity.class);
-  }
-  
-  @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:mod.blacklist bar", BlacklistCommand.class);
-  }
+public class BlacklistCommandTest extends AbstractGuildCommandTest {
+  private @Mock OptionMapping arg;
   
   /**
    * Tests whether the expression has been blacklisted.
@@ -62,11 +39,13 @@ public class BlacklistCommandTest extends AbstractCommandTest {
   public void testAddRegEx() throws Exception {
     when(guild.getName()).thenReturn(guildEntity.getName());
     when(guild.getIdLong()).thenReturn(guildEntity.getId());
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
+    when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
+    when(event.getOption(anyString())).thenReturn(arg);
+    when(arg.getAsString()).thenReturn("test");
     
     guildTable.put(guildEntity);
     
-    run("b:mod.blacklist test");
+    run(BlacklistCommand.class);
     
     // Has the database been updated?
     GuildEntity response = get(guildTable, guildEntity.getId());
@@ -84,11 +63,13 @@ public class BlacklistCommandTest extends AbstractCommandTest {
   public void testRemoveRegEx() throws Exception {
     when(guild.getName()).thenReturn(guildEntity.getName());
     when(guild.getIdLong()).thenReturn(guildEntity.getId());
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
+    when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
+    when(event.getOption(anyString())).thenReturn(arg);
+    when(arg.getAsString()).thenReturn("foo");
     
     guildTable.put(guildEntity);
-    
-    run("b:mod.blacklist foo");
+  
+    run(BlacklistCommand.class);
   
     // Has the database been updated?
     GuildEntity response = get(guildTable, guildEntity.getId());

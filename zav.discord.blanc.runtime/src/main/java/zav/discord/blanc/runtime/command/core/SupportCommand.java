@@ -34,6 +34,6 @@ public class SupportCommand extends AbstractCommand {
   
   @Override
   public void run() {
-    channel.sendMessageFormat(i18n.getString("server_invitation"), link).complete();
+    event.replyFormat(i18n.getString("server_invitation"), link).complete();
   }
 }

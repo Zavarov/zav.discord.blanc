@@ -23,11 +23,10 @@ import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
 import com.google.common.cache.Cache;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.commons.lang3.Validate;
-import zav.discord.blanc.api.Argument;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
@@ -37,10 +36,6 @@ import zav.discord.blanc.db.GuildTable;
  * application.
  */
 public class BlacklistCommand extends AbstractGuildCommand {
-  @Argument(index = 0)
-  @SuppressWarnings({"UnusedDeclaration"})
-  private String regex;
-  
   @Inject
   private GuildTable db;
   
@@ -49,6 +44,7 @@ public class BlacklistCommand extends AbstractGuildCommand {
   private Cache<Long, Pattern> cache;
   
   private GuildEntity guildEntity;
+  private String regex;
   
   public BlacklistCommand() {
     super(MESSAGE_MANAGE);
@@ -56,20 +52,20 @@ public class BlacklistCommand extends AbstractGuildCommand {
   
   @Override
   public void postConstruct() {
-    Validate.notBlank(regex);
+    regex = Objects.requireNonNull(event.getOption("regex")).getAsString();
     guildEntity = getOrCreate(db, guild);
   }
   
   @Override
   public void run() throws SQLException {
     if (guildEntity.getBlacklist().remove(regex)) {
-      channel.sendMessageFormat(i18n.getString("remove_blacklist"), regex).complete();
+      event.replyFormat(i18n.getString("remove_blacklist"), regex).complete();
     } else {
       //Check if the regex is valid
       Pattern.compile(regex);
   
       guildEntity.getBlacklist().add(regex);
-      channel.sendMessageFormat(i18n.getString("add_blacklist"), regex).complete();
+      event.replyFormat(i18n.getString("add_blacklist"), regex).complete();
     }
   
     // Update database

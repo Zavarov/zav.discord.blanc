@@ -22,9 +22,9 @@ import static zav.discord.blanc.api.Rank.getEffectiveRanks;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
@@ -44,7 +44,7 @@ public abstract class AbstractCommand implements Command {
   @Inject
   protected User author;
   @Inject
-  protected Message message;
+  protected SlashCommandEvent event;
   @Inject
   private UserTable db;
   

@@ -24,21 +24,13 @@ public final class Constants {
   private Constants() {}
   
   /**
-   * A list of command parameters.
+   * The shard-level injector.
    */
-  public static final String PARAMS = "params";
+  public static final String SHARD = "shard";
   /**
-   * Additional command flags. Flags are prefix with {@code -f}.
+   * The client-level injector.
    */
-  public static final String FLAGS = "flags";
-  /**
-   * The prefix that triggered this command.
-   */
-  public static final String PREFIX = "prefix";
-  /**
-   * A command name.
-   */
-  public static final String NAME = "name";
+  public static final String CLIENT = "client";
   /**
    * An interactive message.
    */

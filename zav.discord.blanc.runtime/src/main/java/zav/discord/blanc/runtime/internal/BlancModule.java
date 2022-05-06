@@ -29,9 +29,7 @@ import com.google.inject.AbstractModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import zav.discord.blanc.api.Parser;
 import zav.discord.blanc.databind.io.CredentialsEntity;
-import zav.discord.blanc.mc.MontiCoreCommandParser;
 
 /**
  * Root module of the application.
@@ -72,7 +70,6 @@ public class BlancModule extends AbstractModule {
     bind(String.class).annotatedWith(named(DISCORD_TOKEN)).toInstance(discordToken);
     bind(Long.class).annotatedWith(named(OWNER)).toInstance(owner);
     
-    bind(Parser.class).to(MontiCoreCommandParser.class);
     bind(ExecutorService.class).toInstance(QUEUE);
     bind(ScheduledExecutorService.class).toInstance(QUEUE);
   }

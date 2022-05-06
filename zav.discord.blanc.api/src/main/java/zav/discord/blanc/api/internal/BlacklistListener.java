@@ -34,7 +34,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
@@ -48,20 +47,27 @@ import zav.discord.blanc.db.GuildTable;
  * a guild. Upon match, this message will then be deleted, assuming that the program has the
  * required permission to do so.
  */
-@NonNullByDefault
 public class BlacklistListener extends ListenerAdapter {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
   
-  @Inject
-  @Named(PATTERN)
   private Cache<Long, Pattern> patternCache;
-  
-  @Inject
   private GuildTable db;
   
   /*package*/ BlacklistListener() {
     // Create instance with Guice
+  }
+  
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setPatternCache(@Named(PATTERN) Cache<Long, Pattern> patternCache) {
+    this.patternCache = patternCache;
+  }
+  
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setDatabase(GuildTable db) {
+    this.db = db;
   }
   
   @Override

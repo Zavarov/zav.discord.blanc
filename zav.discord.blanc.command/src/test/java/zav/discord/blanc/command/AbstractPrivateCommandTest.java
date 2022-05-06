@@ -28,21 +28,17 @@ import com.google.inject.Injector;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Optional;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.commons.lang3.StringUtils;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.command.internal.IntermediateCommandModule;
-import zav.discord.blanc.command.internal.PrivateCommandModule;
+import zav.discord.blanc.api.guice.PrivateCommandModule;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -59,22 +55,13 @@ public class AbstractPrivateCommandTest {
    */
   @BeforeEach
   public void setUp() throws SQLException {
-    Message message = mock(Message.class);
-    when(message.getJDA()).thenReturn(mock(JDA.class));
-    when(message.getChannel()).thenReturn(mock(MessageChannel.class));
-    when(message.getAuthor()).thenReturn(mock(User.class));
-    when(message.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
+    SlashCommandEvent event = mock(SlashCommandEvent.class);
+    when(event.getJDA()).thenReturn(mock(JDA.class));
+    when(event.getChannel()).thenReturn(mock(MessageChannel.class));
+    when(event.getUser()).thenReturn(mock(User.class));
+    when(event.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
     
-    IntermediateCommand command = mock(IntermediateCommand.class);
-    when(command.getParameters()).thenReturn(Collections.emptyList());
-    when(command.getFlags()).thenReturn(Collections.emptyList());
-    when(command.getName()).thenReturn(StringUtils.EMPTY);
-    when(command.getPrefix()).thenReturn(Optional.empty());
-    
-    injector = Guice.createInjector(
-          new PrivateCommandModule(message),
-          new IntermediateCommandModule(command)
-    );
+    injector = Guice.createInjector(new PrivateCommandModule(event));
   
     db = injector.getInstance(UserTable.class);
   

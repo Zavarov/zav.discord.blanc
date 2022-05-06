@@ -20,12 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static zav.discord.blanc.api.Constants.CLIENT;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import static zav.test.io.JsonUtils.read;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.name.Names;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;

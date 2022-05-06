@@ -21,11 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
@@ -33,26 +29,19 @@ import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 /**
  * Check whether developer can request and relinquish super-user privileges.
  */
-@ExtendWith(MockitoExtension.class)
 public class FailsafeCommandTest extends AbstractDevCommandTest {
-  private @Mock MessageAction action;
-  
-  @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:dev.failsafe", FailsafeCommand.class);
-  }
   
   @Test
   public void testBecomeRoot() throws Exception {
-    userEntity.setRanks(List.of(Rank.DEVELOPER.name()));
-    userTable.put(userEntity);
+    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.DEVELOPER.name())));
   
-    when(author.getIdLong()).thenReturn(OWNER_ID);
-    when(author.getName()).thenReturn(userEntity.getName());
-    when(author.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getName()).thenReturn(userEntity.getName());
+    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
+    when(user.getAsMention()).thenReturn(userEntity.getName());
+    when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
     
-    run("b:dev.failsafe");
+    run(FailsafeCommand.class);
   
     // Has the user become a root?
     UserEntity response = get(userTable, userEntity.getId());
@@ -65,15 +54,15 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testBecomeDeveloper() throws Exception {
-    userEntity.setRanks(List.of(Rank.ROOT.name()));
-    userTable.put(userEntity);
+    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name())));
   
-    when(author.getIdLong()).thenReturn(OWNER_ID);
-    when(author.getName()).thenReturn(userEntity.getName());
-    when(author.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getName()).thenReturn(userEntity.getName());
+    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
+    when(user.getAsMention()).thenReturn(userEntity.getName());
+    when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
   
-    run("b:dev.failsafe");
+    run(FailsafeCommand.class);
   
     // Has the user become a developer?
     UserEntity response = get(userTable, userEntity.getId());

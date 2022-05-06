@@ -20,13 +20,11 @@ import java.util.List;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Implementation of site.
  */
-@NonNullByDefault
 public class Site {
   private final List<Page> pages;
   private final User owner;
@@ -48,19 +46,23 @@ public class Site {
    * @param owner The user for which this site was created.
    * @return A new site instance over the argument.
    */
+  @Contract(pure = true)
   public static Site create(List<Page> pages, User owner) {
     Validate.validIndex(pages, 0);
     return new Site(List.copyOf(pages), owner);
   }
   
+  @Contract(mutates = "this")
   public void moveLeft() {
     currentPage.index = Math.floorMod(currentPage.index - 1, currentPage.entries.size());
   }
   
+  @Contract(mutates = "this")
   public void moveRight() {
     currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
   }
   
+  @Contract(pure = true)
   public MessageEmbed getCurrentPage() {
     return currentPage.entries.get(currentPage.index);
   }
@@ -75,6 +77,7 @@ public class Site {
    *
    * @param label The name of the newly selected page.
    */
+  @Contract(mutates = "this")
   public void changeSelection(String label) {
     currentPage = pages.stream()
           .filter(page -> page.label.equals(label))
@@ -103,6 +106,7 @@ public class Site {
      * @param entries All entries of this page.
      * @return A new page instance.
      */
+    @Contract(pure = true)
     public static Page create(String label, List<MessageEmbed> entries) {
       // Page needs at least one entry
       Validate.validIndex(entries, 0);

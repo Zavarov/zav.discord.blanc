@@ -85,38 +85,5 @@
                 </license>
             </licenses>
         </dependency>
-        <dependency>
-            <groupId>de.monticore</groupId>
-            <artifactId>monticore-runtime</artifactId>
-            <licenses>
-                <license>
-                    <name>BSD-3-Clause</name>
-                    <url>https://raw.githubusercontent.com/MontiCore/monticore/dev/00.org/Licenses/LICENSE-MONTICORE-3-LEVEL.md</url>
-                    <distribution>repo</distribution>
-                </license>
-            </licenses>
-        </dependency>
-        <dependency>
-            <groupId>de.se_rwth.commons</groupId>
-            <artifactId>se-commons-logging</artifactId>
-            <licenses>
-                <license>
-                    <name>BSD-3-Clause</name>
-                    <url>https://raw.githubusercontent.com/MontiCore/monticore/dev/00.org/Licenses/LICENSE-MONTICORE-3-LEVEL.md</url>
-                    <distribution>repo</distribution>
-                </license>
-            </licenses>
-        </dependency>
-        <dependency>
-            <groupId>de.se_rwth.commons</groupId>
-            <artifactId>se-commons-utilities</artifactId>
-            <licenses>
-                <license>
-                    <name>BSD-3-Clause</name>
-                    <url>https://raw.githubusercontent.com/MontiCore/monticore/dev/00.org/Licenses/LICENSE-MONTICORE-3-LEVEL.md</url>
-                    <distribution>repo</distribution>
-                </license>
-            </licenses>
-        </dependency>
     </dependencies>
 </licenseSummary>

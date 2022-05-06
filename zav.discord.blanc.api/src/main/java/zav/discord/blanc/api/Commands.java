@@ -19,7 +19,6 @@ package zav.discord.blanc.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Contract;
  * Each command is identified by a distinct key. New commands can be registers via
  * {@link Commands#bind(String, Class)} and retrieved via {@link Commands#get(String)}.
  */
-@NonNullByDefault
 public final class Commands {
   private static final Map<String, Class<? extends Command>> commands = new HashMap<>();
   

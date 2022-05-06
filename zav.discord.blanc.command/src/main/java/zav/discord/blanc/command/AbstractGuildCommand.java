@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
@@ -40,8 +39,6 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   protected TextChannel channel;
   @Inject
   protected Member author;
-  @Inject
-  protected Message message;
   @Inject
   private UserTable db;
   

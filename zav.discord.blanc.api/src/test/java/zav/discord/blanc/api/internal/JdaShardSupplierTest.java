@@ -26,12 +26,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
+import static zav.discord.blanc.api.Constants.CLIENT;
 import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
 import static zav.discord.blanc.api.Constants.SHARD_COUNT;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,7 +48,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
-import zav.discord.blanc.api.Parser;
 
 /**
  * Test case for initializing the JDA instances for all requested shards.
@@ -63,7 +65,6 @@ public class JdaShardSupplierTest {
    *                        Should never happen.
    */
   @BeforeEach
-  @SuppressWarnings("all") // Suppress unused return type of JDABuilder.create(...)
   public void setUp() throws LoginException {
     JDABuilder builder = spy(JDABuilder.create(getIntents(ALL_INTENTS)));
     doReturn(mock(JDA.class)).when(builder).build();
@@ -104,11 +105,9 @@ public class JdaShardSupplierTest {
     protected void configure() {
       bind(ExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
       bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
-      
+
       bind(Long.class).annotatedWith(Names.named(SHARD_COUNT)).toInstance(2L);
       bind(String.class).annotatedWith(Names.named(DISCORD_TOKEN)).toInstance("token");
-      
-      bind(Parser.class).toInstance(mock(Parser.class));
     }
   }
 }

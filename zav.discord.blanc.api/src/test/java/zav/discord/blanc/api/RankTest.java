@@ -17,54 +17,33 @@
 package zav.discord.blanc.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static zav.test.io.JsonUtils.read;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.User;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Test class for checking user ranks.
  */
+@ExtendWith(MockitoExtension.class)
 public class RankTest {
-  UserTable userTable;
-  UserEntity userEntity;
-  User user;
-  
-  /**
-   * Initializes all member variables.
-   */
-  @BeforeEach
-  public void setUp() {
-    Injector injector = Guice.createInjector();
-    userTable = injector.getInstance(UserTable.class);
-    userEntity = read("User.json", UserEntity.class);
-    user = mock(User.class);
-  }
-  
-  @AfterEach
-  public void tearDown() throws Exception {
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
-  }
+  @Mock UserEntity userEntity;
+  @Mock UserTable userTable;
+  @Mock User user;
   
   /**
    * Parameter source for {@link #testGetEffectiveRanks(String, Set)}.
@@ -88,21 +67,21 @@ public class RankTest {
   }
   
   @Test
-  public void testGetDefaultRanks() throws IOException {
+  public void testGetDefaultRanks() throws SQLException {
     assertThat(Rank.getEffectiveRanks(userTable, user))
           .containsExactly(Rank.USER);
     
-    Files.delete(SqlQuery.ENTITY_DB_PATH);
-    
+    when(userTable.get(anyLong())).thenThrow(SQLException.class);
+
+    // Also return the default during an database error
     assertThat(Rank.getEffectiveRanks(userTable, user))
           .containsExactly(Rank.USER);
   }
   
   @Test
   public void testGetEffectivePersistedRanks() throws SQLException {
-    when(user.getIdLong()).thenReturn(userEntity.getId());
-    
-    userTable.put(userEntity);
+    when(userTable.get(anyLong())).thenReturn(List.of(userEntity));
+    when(userEntity.getRanks()).thenReturn(List.of("DEVELOPER"));
     
     assertThat(Rank.getEffectiveRanks(userTable, user))
           .containsExactlyInAnyOrder(Rank.USER, Rank.DEVELOPER);

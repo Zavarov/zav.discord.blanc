@@ -114,6 +114,7 @@ public class FailsafeCommand extends AbstractCommand {
     }
   
     userTable.put(entity);
-    channel.sendMessageFormat(response, author.getName()).complete();
+    
+    event.replyFormat(response, author.getAsMention()).complete();
   }
 }

@@ -17,39 +17,32 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Check whether the command repeats the given argument.
  */
-@ExtendWith(MockitoExtension.class)
 public class SayCommandTest extends AbstractDevCommandTest {
-  private @Mock MessageAction action;
-  
-  @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:dev.say \"Hallo Welt\"", SayCommand.class);
-  }
+  private @Mock OptionMapping arg;
   
   @Test
   public void testSend() throws Exception {
-    when(textChannel.sendMessage(any(CharSequence.class))).thenReturn(action);
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    when(event.reply(captor.capture())).thenReturn(reply);
+    when(event.getOption(anyString())).thenReturn(arg);
+    when(arg.getAsString()).thenReturn("Hello World");
+    when(user.getIdLong()).thenReturn(userEntity.getId());
     
-    run("b:dev.say \"Hallo Welt\"");
+    run(SayCommand.class);
     
-    ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
-    verify(textChannel, times(1)).sendMessage(stringCaptor.capture());
-    assertThat(stringCaptor.getValue()).isEqualTo("Hallo Welt");
+    assertThat(captor.getValue()).isEqualTo("Hello World");
   }
+  
 }

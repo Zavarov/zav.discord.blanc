@@ -22,33 +22,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
 
 /**
  * Check whether the bot status is properly displayed.
  */
-@ExtendWith(MockitoExtension.class)
 public class StatusCommandTest extends AbstractDevCommandTest {
-  private @Mock MessageAction action;
   
   @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:dev.status", StatusCommand.class);
-  }
-  
-  @Test
-  public void testSend() throws Exception {
-    when(textChannel.sendMessageEmbeds(any(MessageEmbed.class))).thenReturn(action);
+  public void testSendStatus() throws Exception {
+    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     
-    run("b:dev.status");
+    run(StatusCommand.class);
     
-    ArgumentCaptor<MessageEmbed> msgCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
-    verify(textChannel, times(1)).sendMessageEmbeds(msgCaptor.capture());
+    verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
   }
 }

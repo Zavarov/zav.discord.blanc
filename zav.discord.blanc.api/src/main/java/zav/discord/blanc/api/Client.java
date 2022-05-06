@@ -21,7 +21,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.internal.JdaShardSupplier;
 
@@ -29,7 +28,6 @@ import zav.discord.blanc.api.internal.JdaShardSupplier;
  * The application instance over all shards.
  */
 @Singleton
-@NonNullByDefault
 public class Client {
   private final List<JDA> shards = new ArrayList<>();
   

@@ -23,14 +23,12 @@ import com.google.common.cache.Cache;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Button;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Site;
@@ -39,30 +37,35 @@ import zav.discord.blanc.api.Site;
  * The listener for notifying the message components of a command whenever the author interacts with
  * it.
  */
-@NonNullByDefault
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SiteComponentListener.class);
   
-  @Inject
-  @Named(SITE)
-  private Cache<Message, Site> cache;
+  private Cache<Long, Site> siteCache;
   
   /*package*/ SiteComponentListener() {
     // Create instance with Guice
   }
   
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setSiteCache(@Named(SITE) Cache<Long, Site> siteCache) {
+    this.siteCache = siteCache;
+  }
+  
   @Override
-  public void onButtonClick(@NonNull ButtonClickEvent event) {
-    @Nullable Site site = cache.getIfPresent(event.getMessage());
+  @Contract(mutates = "this")
+  public void onButtonClick(ButtonClickEvent event) {
+    @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
     
     // Unknown message -> ignore
     if (site == null) {
+      event.reply("Invalid Message").setEphemeral(true).queue();
       return;
     }
     
     // Invalid user -> reject
     if (!site.getOwner().equals(event.getUser())) {
-      event.getInteraction().deferReply().complete();
+      event.reply("Invalid User").setEphemeral(true).queue();
       return;
     }
     
@@ -70,6 +73,7 @@ public class SiteComponentListener extends ListenerAdapter {
     
     // Null for ephemeral messages
     if (button == null) {
+      event.reply("Ephemeral Message").setEphemeral(true).queue();
       return;
     }
     
@@ -77,23 +81,18 @@ public class SiteComponentListener extends ListenerAdapter {
     
     // Null if absent
     if (id == null) {
+      event.reply("Unknown button").setEphemeral(true).queue();
       return;
     }
     
     switch (id) {
       case "left":
         site.moveLeft();
-        event.getInteraction()
-              .deferEdit()
-              .setEmbeds(site.getCurrentPage())
-              .complete();
+        event.getInteraction().replyEmbeds(site.getCurrentPage()).queue();
         break;
       case "right":
         site.moveRight();
-        event.getInteraction()
-              .deferEdit()
-              .setEmbeds(site.getCurrentPage())
-              .complete();
+        event.getInteraction().replyEmbeds(site.getCurrentPage()).queue();
         break;
       default:
         LOGGER.error("unknown id '{}'.", id);
@@ -101,17 +100,19 @@ public class SiteComponentListener extends ListenerAdapter {
   }
   
   @Override
-  public void onSelectionMenu(@NonNull SelectionMenuEvent event) {
-    @Nullable Site site = cache.getIfPresent(event.getMessage());
+  @Contract(mutates = "this")
+  public void onSelectionMenu(SelectionMenuEvent event) {
+    @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
   
     // Unknown message -> ignore
     if (site == null) {
+      event.reply("Invalid Message").setEphemeral(true).queue();
       return;
     }
   
     // Invalid user -> reject
     if (!site.getOwner().equals(event.getUser())) {
-      event.getInteraction().deferReply().complete();
+      event.reply("Invalid user").setEphemeral(true).queue();
       return;
     }
     
@@ -119,13 +120,11 @@ public class SiteComponentListener extends ListenerAdapter {
     
     // Only a single entry can be selected.
     if (values.size() != 1) {
+      event.reply("Only one entry can be selected").setEphemeral(true).queue();
       return;
     }
     
     site.changeSelection(values.get(0));
-    event.getInteraction()
-          .deferEdit()
-          .setEmbeds(site.getCurrentPage())
-          .complete();
+    event.replyEmbeds(site.getCurrentPage()).complete();
   }
 }

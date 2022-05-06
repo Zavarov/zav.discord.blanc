@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import zav.discord.blanc.api.Argument;
+import java.util.Objects;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 
@@ -24,8 +24,6 @@ import zav.discord.blanc.command.AbstractCommand;
  * This command makes the bot repeat a specified message.
  */
 public class SayCommand extends AbstractCommand {
-  @Argument(index = 0)
-  @SuppressWarnings({"UnusedDeclaration"})
   private String content;
     
   public SayCommand() {
@@ -33,7 +31,12 @@ public class SayCommand extends AbstractCommand {
   }
   
   @Override
+  public void postConstruct() {
+    content = Objects.requireNonNull(event.getOption("content")).getAsString();
+  }
+  
+  @Override
   public void run() {
-    channel.sendMessage(content).complete();
+    event.reply(content).complete();
   }
 }

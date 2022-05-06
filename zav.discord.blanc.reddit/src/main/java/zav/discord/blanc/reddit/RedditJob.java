@@ -16,9 +16,9 @@
 
 package zav.discord.blanc.reddit;
 
-import com.google.inject.Inject;
 import java.sql.SQLException;
 import java.util.List;
+import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;

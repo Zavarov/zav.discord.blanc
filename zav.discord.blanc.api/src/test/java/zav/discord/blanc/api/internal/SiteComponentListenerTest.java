@@ -18,12 +18,16 @@ package zav.discord.blanc.api.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.cache.Cache;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
@@ -35,7 +39,6 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonInteraction;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenuInteraction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.UpdateInteractionAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +50,7 @@ import zav.discord.blanc.api.Site;
  * Checks whether site interactions are processed correctly.
  */
 @ExtendWith(MockitoExtension.class)
-public class SiteComponentListenerTest extends AbstractListenerTest {
+public class SiteComponentListenerTest {
   SiteComponentListener listener;
   ButtonClickEvent clickEvent;
   SelectionMenuEvent selectionEvent;
@@ -65,8 +68,8 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
   @Mock Message message;
   @Mock Button button;
   @Mock ReplyAction replyAction;
-  @Mock UpdateInteractionAction updateAction;
   @Mock MessageEmbed mainPage;
+  @Mock Cache<Long, Site> siteCache;
   
   /**
    * Initialize a site and fictitious Button and SelectionMenu interactions which are used to
@@ -74,21 +77,23 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
    */
   @BeforeEach
   public void setUp() throws Exception {
-    super.setUp();
     page = Site.Page.create("mainPage", List.of(mainPage));
     site = spy(Site.create(List.of(page), user));
     
     clickEvent = new ButtonClickEvent(jda, responseNumber, buttonInteraction);
     selectionEvent = new SelectionMenuEvent(jda, responseNumber, selectionInteraction);
-    siteCache.put(message, site);
   
-    listener = injector.getInstance(SiteComponentListener.class);
+    listener = new SiteComponentListener();
+    listener.setSiteCache(siteCache);
   }
   
   @Test
   public void testIgnoreClickOnUnknownMessage() {
     // Interaction on unknown message
     when(buttonInteraction.getMessage()).thenReturn(mock(Message.class));
+    when(buttonInteraction.deferReply()).thenReturn(replyAction);
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
     
     listener.onButtonClick(clickEvent);
   
@@ -102,6 +107,10 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     // Null for ephemeral message
     when(buttonInteraction.getButton()).thenReturn(null);
+    when(buttonInteraction.deferReply()).thenReturn(replyAction);
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
     
     listener.onButtonClick(clickEvent);
   
@@ -114,6 +123,10 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.getMessage()).thenReturn(message);
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
+    when(buttonInteraction.deferReply()).thenReturn(replyAction);
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
     // Null for unknown button ids
     when(button.getId()).thenReturn(null);
     
@@ -129,8 +142,8 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(left);
-    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
-    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
+    when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
   
     listener.onButtonClick(clickEvent);
   
@@ -144,8 +157,8 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(right);
-    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
-    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
+    when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
   
     listener.onButtonClick(clickEvent);
   
@@ -159,6 +172,7 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(EMPTY);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
   
     listener.onButtonClick(clickEvent);
   
@@ -170,6 +184,9 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
   public void testSelectOnUnknownMessage() {
     // Interaction on unknown message
     when(selectionEvent.getMessage()).thenReturn(mock(Message.class));
+    when(selectionEvent.deferReply()).thenReturn(replyAction);
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
   
     listener.onSelectionMenu(selectionEvent);
   
@@ -183,6 +200,10 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(selectionInteraction.getUser()).thenReturn(user);
     // Interaction with two selected items
     when(selectionInteraction.getValues()).thenReturn(List.of(EMPTY, EMPTY));
+    when(selectionInteraction.deferReply()).thenReturn(replyAction);
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
   
     listener.onSelectionMenu(selectionEvent);
   
@@ -195,8 +216,9 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(selectionInteraction.getMessage()).thenReturn(message);
     when(selectionInteraction.getUser()).thenReturn(user);
     when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
-    when(selectionInteraction.deferEdit()).thenReturn(updateAction);
-    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
+    when(selectionInteraction.deferReply()).thenReturn(replyAction);
+    when(replyAction.addEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
     
     listener.onSelectionMenu(selectionEvent);
   
@@ -209,10 +231,13 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     // Only the owner can interact with this site.
     when(buttonInteraction.getUser()).thenReturn(mock(User.class));
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
     
     listener.onButtonClick(clickEvent);
   
-    verify(replyAction, times(1)).complete();
+    verify(replyAction, times(1)).queue();
   }
   
   @Test
@@ -221,9 +246,12 @@ public class SiteComponentListenerTest extends AbstractListenerTest {
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     // Only the owner can interact with this site.
     when(selectionInteraction.getUser()).thenReturn(mock(User.class));
+    when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
+    when(replyAction.setContent(anyString())).thenReturn(replyAction);
+    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
     
     listener.onSelectionMenu(selectionEvent);
   
-    verify(replyAction, times(1)).complete();
+    verify(replyAction, times(1)).queue();
   }
 }

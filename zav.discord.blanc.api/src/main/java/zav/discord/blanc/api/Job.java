@@ -17,7 +17,6 @@
 package zav.discord.blanc.api;
 
 import java.util.concurrent.Callable;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This interface should be implemented by any class that should be executed by an asynchronous
@@ -27,7 +26,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @see Runnable
  * @see Callable
  */
-@NonNullByDefault
 public interface Job {
   void run() throws Exception;
 }

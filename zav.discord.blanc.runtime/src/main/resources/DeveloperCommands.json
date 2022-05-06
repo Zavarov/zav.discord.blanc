@@ -1,0 +1,52 @@
+{
+  "default_permission" : true,
+  "name" : "dev",
+  "description" : "All developer-level commands.",
+  "options" : [
+    {
+      "name" : "failsafe",
+      "options" : [ ],
+      "description" : "Enabled/Disables super-user privileges for the author.",
+      "type" : 1
+    },
+    {
+      "name" : "kill",
+      "options" : [ ],
+      "description" : "Terminates the bot.",
+      "type" : 1
+    },
+    {
+      "name" : "rank",
+      "options" : [ {
+        "name" : "rank",
+        "description" : "Example: 'developer', 'reddit' ",
+        "type" : 3,
+        "required" : true
+      }, {
+        "name" : "user",
+        "description" : "The user granted the role. Defaults to author.",
+        "type" : 6,
+        "required" : false
+      } ],
+      "description" : "Add/Remove ranks to the specified user. Some commands require ranks.",
+      "type" : 1
+    },
+    {
+      "name" : "say",
+      "options" : [ {
+        "name" : "content",
+        "description" : "Example: 'Hello World'",
+        "type" : 3,
+        "required" : true
+      } ],
+      "description" : "Repeats the given string.",
+      "type" : 1
+    },
+    {
+      "name" : "status",
+      "options" : [ ],
+      "description" : "Returns the status of the hardware, hosting the bot.",
+      "type" : 1
+    }
+  ]
+}

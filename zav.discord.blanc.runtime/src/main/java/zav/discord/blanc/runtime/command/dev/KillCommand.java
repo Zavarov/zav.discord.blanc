@@ -19,6 +19,7 @@ package zav.discord.blanc.runtime.command.dev;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.MessageBuilder;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Rank;
@@ -42,6 +43,8 @@ public class KillCommand extends AbstractCommand {
   
   @Override
   public void run() {
+    event.reply("Goodbye~").setEphemeral(true).complete();
+
     executorService.shutdown();
     for (JDA shard : client.getShards()) {
       shard.shutdown();

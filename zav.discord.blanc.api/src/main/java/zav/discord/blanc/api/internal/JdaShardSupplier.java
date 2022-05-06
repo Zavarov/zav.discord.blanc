@@ -27,17 +27,16 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.guice.ShardModule;
 
 /**
  * Utility class for initializing Discord shards.
  */
-@NonNullByDefault
 public class JdaShardSupplier implements Iterator<JDA> {
   /**
    * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
@@ -51,27 +50,35 @@ public class JdaShardSupplier implements Iterator<JDA> {
   private static final Set<GatewayIntent> intents = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
         GatewayIntent.DIRECT_MESSAGE_REACTIONS,
-        GatewayIntent.GUILD_MEMBERS,
-        GatewayIntent.GUILD_PRESENCES,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MESSAGE_REACTIONS
   );
   
-  @Inject
-  @Named(DISCORD_TOKEN)
+  private Injector clientInjector;
   private String token;
-  
-  @Inject
-  @Named(SHARD_COUNT)
   private long shardCount;
-  
-  @Inject
-  private Injector injector;
-  
   private int index = 0;
   
   /*package*/ JdaShardSupplier() {
     // Create instance with Guice
+  }
+  
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setToken(@Named(DISCORD_TOKEN) String token) {
+    this.token = token;
+  }
+  
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setShardCount(@Named(SHARD_COUNT) long shardCount) {
+    this.shardCount = shardCount;
+  }
+  
+  @Inject
+  @Contract(mutates = "this")
+  /*package*/ void setClientInjector(Injector clientInjector) {
+    this.clientInjector = clientInjector;
   }
   
   @Override
@@ -81,6 +88,7 @@ public class JdaShardSupplier implements Iterator<JDA> {
   }
   
   @Override
+  @Contract(mutates = "this")
   public JDA next() {
     try {
       rateLimiter.acquire();
@@ -89,21 +97,35 @@ public class JdaShardSupplier implements Iterator<JDA> {
             .setToken(token)
             .useSharding(index++, (int) shardCount)
             .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
             .build();
       
       jda.awaitReady();
   
-      Injector shardInjector = injector.createChildInjector(new ShardModule());
-  
-      jda.addEventListener(shardInjector.getInstance(BlacklistListener.class));
-      jda.addEventListener(shardInjector.getInstance(GuildCommandListener.class));
-      jda.addEventListener(shardInjector.getInstance(PrivateCommandListener.class));
-      jda.addEventListener(shardInjector.getInstance(SiteComponentListener.class));
+      Injector shardInjector = clientInjector.createChildInjector(new ShardModule());
+      
+      jda.addEventListener(createBlacklistListener(shardInjector));
+      jda.addEventListener(createSiteComponentListener(shardInjector));
+      jda.addEventListener(createSlashCommandListener(shardInjector));
       
       return jda;
     } catch (Exception e)  {
       throw new RuntimeException(e);
     }
+  }
+  
+  private EventListener createBlacklistListener(Injector shardInjector) {
+    return shardInjector.getInstance(BlacklistListener.class);
+  }
+  
+  private EventListener createSiteComponentListener(Injector shardInjector) {
+    return shardInjector.getInstance(SiteComponentListener.class);
+  }
+  
+  private EventListener createSlashCommandListener(Injector shardInjector) {
+    SlashCommandListener result = shardInjector.getInstance(SlashCommandListener.class);
+    // shardInjector.getInstance(...) injects the clientInjector...
+    // See https://github.com/google/guice/issues/629
+    result.setShardInjector(shardInjector);
+    return result;
   }
 }

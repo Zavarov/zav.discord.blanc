@@ -16,36 +16,27 @@
 
 package zav.discord.blanc.runtime.command.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
 import zav.discord.blanc.runtime.command.AbstractCommandTest;
 
 /**
  * Checks whether the invitation link is contained in the message response.
  */
-@ExtendWith(MockitoExtension.class)
-public class SupportCommandTest  extends AbstractCommandTest {
-  private @Mock MessageAction action;
-  
-  @Test
-  public void testCommandIsOfCorrectType() {
-    check("b:support", SupportCommand.class);
-  }
+public class SupportCommandTest extends AbstractCommandTest {
   
   @Test
   public void testSendSupportLink() throws Exception {
-    when(textChannel.sendMessageFormat(anyString(), anyString())).thenReturn(action);
+    ArgumentCaptor<String> response = ArgumentCaptor.forClass(String.class);
+  
+    when(event.replyFormat(anyString(), response.capture())).thenReturn(reply);
     
-    run("b:support");
+    run(SupportCommand.class);
     
-    verify(textChannel, times(1)).sendMessageFormat(anyString(), anyString());
+    assertThat(response.getValue()).isEqualTo(SUPPORT_SERVER);
   }
 }

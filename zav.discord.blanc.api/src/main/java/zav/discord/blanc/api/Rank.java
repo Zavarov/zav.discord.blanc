@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ import zav.discord.blanc.db.UserTable;
  * Ranks are used to limit, what types of commands a user can use. For example, a normal user
  * shouldn't be able to use developer commands.
  */
-@NonNullByDefault
 public enum Rank {
   REDDIT,
   USER,

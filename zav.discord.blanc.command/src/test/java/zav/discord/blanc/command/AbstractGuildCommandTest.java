@@ -27,18 +27,15 @@ import com.google.inject.Injector;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Optional;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.commons.lang3.StringUtils;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,8 +44,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.command.internal.GuildCommandModule;
-import zav.discord.blanc.command.internal.IntermediateCommandModule;
+import zav.discord.blanc.api.guice.GuildCommandModule;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -69,24 +65,15 @@ public class AbstractGuildCommandTest {
    */
   @BeforeEach
   public void setUp() throws SQLException {
-    Message message = mock(Message.class);
-    when(message.getJDA()).thenReturn(mock(JDA.class));
-    when(message.getChannel()).thenReturn(mock(MessageChannel.class));
-    when(message.getAuthor()).thenReturn(user);
-    when(message.getGuild()).thenReturn(mock(Guild.class));
-    when(message.getTextChannel()).thenReturn(mock(TextChannel.class));
-    when(message.getMember()).thenReturn(member);
-  
-    IntermediateCommand command = mock(IntermediateCommand.class);
-    when(command.getParameters()).thenReturn(Collections.emptyList());
-    when(command.getFlags()).thenReturn(Collections.emptyList());
-    when(command.getName()).thenReturn(StringUtils.EMPTY);
-    when(command.getPrefix()).thenReturn(Optional.empty());
+    SlashCommandEvent event = mock(SlashCommandEvent.class);
+    when(event.getJDA()).thenReturn(mock(JDA.class));
+    when(event.getChannel()).thenReturn(mock(MessageChannel.class));
+    when(event.getUser()).thenReturn(user);
+    when(event.getGuild()).thenReturn(mock(Guild.class));
+    when(event.getTextChannel()).thenReturn(mock(TextChannel.class));
+    when(event.getMember()).thenReturn(member);
     
-    injector = Guice.createInjector(
-          new GuildCommandModule(message),
-          new IntermediateCommandModule(command)
-    );
+    injector = Guice.createInjector(new GuildCommandModule(event));
     
     db = injector.getInstance(UserTable.class);
   

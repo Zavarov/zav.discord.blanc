@@ -16,26 +16,52 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import zav.discord.blanc.api.Argument;
+import java.util.TreeMap;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import zav.discord.blanc.command.AbstractCommand;
 
 /**
  * This command can solve simple mathematical expressions.
  */
 public class MathCommand extends AbstractCommand {
-  @Argument(index = 0)
-  @SuppressWarnings({"UnusedDeclaration"})
-  private BigDecimal value;
+  private static class InstanceHolder {
+    
+    private static Map<String, Object> CTX = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private static Map<String, Object> NS = new HashMap<>();
+    
+    private static final JexlEngine JEXL = new JexlBuilder()
+          .cache(512)
+          .strict(true)
+          .silent(false)
+          .namespaces(NS)
+          .create();
+    
+    static {
+      // Use Math as default namespace. e.g. sin(5) instead of math:sin(5)
+      NS.put(null, Math.class);
+      // Define mathematical constants
+      CTX.put("e", Math.E);
+      CTX.put("pi", Math.PI);
+    }
+  }
+  
+  private String value;
   
   @Override
   public void postConstruct() {
-    Objects.requireNonNull(value, i18n.getString("invalid_expression"));
+    value = Objects.requireNonNull(event.getOption("value")).getAsString();
   }
   
   @Override
   public void run() {
-    channel.sendMessage(value.toPlainString()).complete();
+    JexlExpression expression = InstanceHolder.JEXL.createExpression(value);
+    Object result = expression.evaluate(new MapContext(InstanceHolder.CTX));
+    event.reply(result.toString()).complete();
   }
 }

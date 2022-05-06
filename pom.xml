@@ -34,7 +34,6 @@
         <module>zav.discord.blanc.command</module>
         <module>zav.discord.blanc.db</module>
         <module>zav.discord.blanc.databind</module>
-        <module>zav.discord.blanc.mc</module>
         <module>zav.discord.blanc.reddit</module>
         <module>zav.discord.blanc.runtime</module>
     </modules>
@@ -48,19 +47,13 @@
         <jda.version>4.4.0_352</jda.version>
         <lang3.version>3.12.0</lang3.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <math.version>1.0.1</math.version>
         <sqlite.version>3.36.0.3</sqlite.version>
         <jrc.version>0.4.2</jrc.version>
         <oshi.version>6.1.6</oshi.version>
         <jna.version>5.11.0</jna.version>
         <guava.version>31.1-jre</guava.version>
         <okhttp.version>4.9.3</okhttp.version>
-
-        <!-- .. MontiCore .......................................................................................... -->
-
-        <monticore.version>6.7.0</monticore.version>
-        <monticore.generator.version>7.0.0</monticore.generator.version>
-        <grammars.classifier>grammars</grammars.classifier>
+        <jexl.version>3.2.1</jexl.version>
 
         <!-- .. Test ............................................................................................... -->
         <zav.test.version>1.0.0</zav.test.version>

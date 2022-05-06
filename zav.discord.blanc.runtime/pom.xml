@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>zav.discord.blanc</groupId>
-            <artifactId>blanc-mc</artifactId>
+            <artifactId>blanc-command</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -47,6 +47,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>${jexl.version}</version>
         </dependency>
     </dependencies>
 
