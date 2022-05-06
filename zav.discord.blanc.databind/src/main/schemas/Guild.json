@@ -9,10 +9,6 @@
       "description" : "Human-readable name of the guild.",
       "type" : "string"
     },
-    "prefix" : {
-      "description" : "Guild-specific command prefix.",
-      "type" : "string"
-    },
     "blacklist" : {
       "description" : "Collection of banned words.",
       "type" : "array",
