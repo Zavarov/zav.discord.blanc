@@ -63,7 +63,7 @@
                     <generateBuilders>true</generateBuilders>
                     <includeAllPropertiesConstructor>true</includeAllPropertiesConstructor>
                     <includeConstructors>true</includeConstructors>
-                    <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                    <includeHashcodeAndEquals>true</includeHashcodeAndEquals>
                     <usePrimitives>true</usePrimitives>
                     <useOptionalForGetters>true</useOptionalForGetters>
                 </configuration>
