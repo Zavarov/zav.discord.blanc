@@ -14,19 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command;
+package zav.discord.blanc.command.test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static zav.test.io.JsonUtils.read;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -36,18 +32,15 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.api.guice.GuildCommandModule;
-import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.sql.SqlQuery;
+import zav.discord.blanc.command.InsufficientPermissionException;
+import zav.discord.blanc.command.InsufficientRankException;
 
 /**
  * Checks whether guild commands fail if a user with insufficient rank or permission tries to
@@ -55,16 +48,15 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 @ExtendWith(MockitoExtension.class)
 public class AbstractGuildCommandTest {
-  protected Injector injector;
-  protected UserTable db;
-  protected @Mock Member member;
-  protected @Mock User user;
+  Injector injector;
+  @Mock Member member;
+  @Mock User user;
   
   /**
    * Initializes the injector used for instantiating guild commands.
    */
   @BeforeEach
-  public void setUp() throws SQLException {
+  public void setUp() {
     SlashCommandEvent event = mock(SlashCommandEvent.class);
     when(event.getJDA()).thenReturn(mock(JDA.class));
     when(event.getChannel()).thenReturn(mock(MessageChannel.class));
@@ -74,72 +66,32 @@ public class AbstractGuildCommandTest {
     when(event.getMember()).thenReturn(member);
     
     injector = Guice.createInjector(new GuildCommandModule(event));
-    
-    db = injector.getInstance(UserTable.class);
-  
-    UserEntity user = read("User.json", UserEntity.class);
-    db.put(user);
-  
-  
-  }
-  
-  @AfterEach
-  public void tearDown() throws IOException {
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
   }
   
   @Test
   public void testValidate() throws Exception {
-    Command guildCommand = injector.getInstance(GuildCommand.class);
+    Command command = injector.getInstance(GuildCommand.class);
   
     when(member.getPermissions(any())).thenReturn(EnumSet.allOf(Permission.class));
     when(member.getUser()).thenReturn(user);
     
-    guildCommand.validate();
+    command.validate();
   }
   
   @Test
   public void testValidateWithInsufficientRank() {
-    Command guildCommand = injector.getInstance(DeveloperCommand.class);
+    Command command = injector.getInstance(DeveloperCommand.class);
     
-    assertThatThrownBy(guildCommand::validate)
-          .isInstanceOf(InsufficientRankException.class);
+    assertThrows(InsufficientRankException.class, command::validate);
   }
   
   @Test
   public void testValidateWithInsufficientPermission() {
-    Command guildCommand = injector.getInstance(ModeratorCommand.class);
+    Command command = injector.getInstance(ModeratorCommand.class);
   
     when(member.getPermissions(any())).thenReturn(EnumSet.noneOf(Permission.class));
     when(member.getUser()).thenReturn(user);
-    
-    assertThatThrownBy(guildCommand::validate)
-          .isInstanceOf(InsufficientPermissionException.class);
-  }
   
-  private static class GuildCommand extends AbstractGuildCommand {
-    @Override
-    public void run() {}
-  }
-  
-  private static class ModeratorCommand extends AbstractGuildCommand {
-    
-    public ModeratorCommand() {
-      super(Permission.ADMINISTRATOR);
-    }
-    
-    @Override
-    public void run() {}
-  }
-  
-  private static class DeveloperCommand extends AbstractGuildCommand {
-    
-    public DeveloperCommand() {
-      super(Rank.ROOT);
-    }
-  
-    @Override
-    public void run() {}
+    assertThrows(InsufficientPermissionException.class, command::validate);
   }
 }

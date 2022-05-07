@@ -14,21 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command;
+package zav.discord.blanc.command.test;
 
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.PrivateChannel;
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.command.AbstractPrivateCommand;
 
 /**
- * Base class for all private commands.<br>
+ * A command that can only be executed within a {@link PrivateChannel}.
  */
-@NonNullByDefault
-public abstract class AbstractPrivateCommand extends AbstractCommand {
-  @Inject
-  protected PrivateChannel channel;
-  
-  protected AbstractPrivateCommand() {
-    super();
-  }
+public class PrivateCommand extends AbstractPrivateCommand {
+  @Override
+  public void run() {}
 }

@@ -48,10 +48,6 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
     this(Rank.USER, permissions);
   }
   
-  protected AbstractGuildCommand(Rank rank) {
-    this(rank, new Permission[0]);
-  }
-  
   protected AbstractGuildCommand(Rank rank, Permission... permissions) {
     super(rank);
     this.permissions = Set.of(permissions);

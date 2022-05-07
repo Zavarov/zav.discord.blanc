@@ -14,21 +14,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command;
+package zav.discord.blanc.command.test;
 
-import javax.inject.Inject;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import net.dv8tion.jda.api.Permission;
+import zav.discord.blanc.command.AbstractGuildCommand;
 
 /**
- * Base class for all private commands.<br>
+ * A command that con only be executed within a guild administrator.
  */
-@NonNullByDefault
-public abstract class AbstractPrivateCommand extends AbstractCommand {
-  @Inject
-  protected PrivateChannel channel;
+public class ModeratorCommand extends AbstractGuildCommand {
   
-  protected AbstractPrivateCommand() {
-    super();
+  public ModeratorCommand() {
+    super(Permission.ADMINISTRATOR);
   }
+  
+  @Override
+  public void run() {}
 }
