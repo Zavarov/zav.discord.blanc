@@ -4,8 +4,5 @@
 **/.flattened-pom.xml
 
 **/src/main/resources/*.json
-Guild.db
-TextChannel.db
-User.db
-WebHook.db
-/**/META-INF/MANIFEST.MF
+**/Entity.db
+**/META-INF/MANIFEST.MF
