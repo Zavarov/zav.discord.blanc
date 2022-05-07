@@ -17,7 +17,6 @@
 package zav.discord.blanc.db.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static zav.test.io.JsonUtils.read;
@@ -54,8 +53,7 @@ public class WebhookTableTest extends AbstractTableTest {
   public void setUp() throws Exception {
     super.setUp();
   
-    db = new WebhookTable();
-    db.setSqlQuery(query);
+    db = new WebhookTable(query);
     db.postConstruct();
     
     entity = read("Webhook.json", WebhookEntity.class);

@@ -18,8 +18,8 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.User;
 import zav.discord.blanc.databind.UserEntity;
@@ -31,16 +31,19 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 @Singleton
 public class UserTable extends AbstractTable<UserEntity> {
-
+  
+  @Inject
+  public UserTable(SqlQuery sql) {
+    super(sql);
+  }
+  
   @Override
   protected void create() throws SQLException {
-    Objects.requireNonNull(sql);
     sql.update("user/CreateUserTable.sql");
   }
   
   @Override
   public int put(UserEntity user) throws SQLException {
-    Objects.requireNonNull(sql);
     return sql.update("user/InsertUser.sql", (stmt) -> {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
@@ -51,7 +54,6 @@ public class UserTable extends AbstractTable<UserEntity> {
   }
   
   public int delete(User user) throws SQLException {
-    Objects.requireNonNull(sql);
     return sql.update("user/DeleteUser.sql", user.getIdLong());
   }
   
@@ -64,7 +66,6 @@ public class UserTable extends AbstractTable<UserEntity> {
    * @throws SQLException If a database error occurred.
    */
   public Optional<UserEntity> get(User user) throws SQLException {
-    Objects.requireNonNull(sql);
     List<SqlObject> result = sql.query("user/SelectUser.sql", user.getIdLong());
   
     return result.stream()

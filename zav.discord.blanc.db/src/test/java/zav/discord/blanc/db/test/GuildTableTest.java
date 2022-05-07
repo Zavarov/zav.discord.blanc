@@ -49,8 +49,7 @@ public class GuildTableTest extends AbstractTableTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    db = new GuildTable();
-    db.setSqlQuery(query);
+    db = new GuildTable(query);
     db.postConstruct();
   
     entity = read("Guild.json", GuildEntity.class);

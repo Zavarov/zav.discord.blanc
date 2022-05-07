@@ -49,8 +49,7 @@ public class UserTableTest extends AbstractTableTest {
   public void setUp() throws Exception {
     super.setUp();
   
-    db = new UserTable();
-    db.setSqlQuery(query);
+    db = new UserTable(query);
     db.postConstruct();
     
     entity = read("User.json", UserEntity.class);

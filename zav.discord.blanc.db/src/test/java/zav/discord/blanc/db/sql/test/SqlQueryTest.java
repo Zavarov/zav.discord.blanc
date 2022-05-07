@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.db.sql.test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
 import java.io.IOException;
@@ -57,19 +57,16 @@ public class SqlQueryTest {
   
   @Test
   public void testUnknownStatement() {
-    assertThatThrownBy(() -> query.query("unknown.sql"))
-          .isInstanceOf(IllegalArgumentException.class);
+    assertThrows(IllegalArgumentException.class, () -> query.query("unknown.sql"));
   }
   
   @Test
   public void testDeserializeInvalidObject() {
-    assertThatThrownBy(() -> SqlQuery.deserialize(new Object()))
-          .isInstanceOf(IllegalArgumentException.class);
+    assertThrows(IllegalArgumentException.class, () -> SqlQuery.deserialize(new Object()));
   }
   
   @Test
   public void testMarshallInvalidObject() {
-    assertThatThrownBy(() -> SqlQuery.marshal(new Object()))
-          .isInstanceOf(IllegalArgumentException.class);
+    assertThrows(IllegalArgumentException.class, () -> SqlQuery.marshal(new Object()));
   }
 }

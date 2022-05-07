@@ -18,9 +18,9 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -34,16 +34,19 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 @Singleton
 public class WebhookTable extends AbstractTable<WebhookEntity> {
-
+  
+  @Inject
+  public WebhookTable(SqlQuery sql) {
+    super(sql);
+  }
+  
   @Override
   protected void create() throws SQLException {
-    Objects.requireNonNull(sql);
     sql.update("webhook/CreateWebhookTable.sql");
   }
   
   @Override
   public int put(WebhookEntity entity) throws SQLException {
-    Objects.requireNonNull(sql);
     return sql.update("webhook/InsertWebhook.sql", (stmt) -> {
       stmt.setLong(1, entity.getGuildId());
       stmt.setLong(2, entity.getChannelId());
@@ -56,7 +59,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
   }
   
   public int delete(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
     return sql.update("webhook/DeleteGuildWebhook.sql", guild.getIdLong());
   }
   
@@ -69,8 +71,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(TextChannel textChannel) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = textChannel.getGuild().getIdLong();
     long channelId = textChannel.getIdLong();
     
@@ -85,8 +85,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(Webhook webhook) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = webhook.getGuild().getIdLong();
     long channelId = webhook.getChannel().getIdLong();
     long id = webhook.getIdLong();
@@ -103,7 +101,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
     List<SqlObject> result = sql.query("webhook/SelectGuildWebhook.sql", guild.getIdLong());
   
     return result.stream()
@@ -122,8 +119,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(TextChannel textChannel) throws SQLException {
-    Objects.requireNonNull(sql);
-  
     long guildId = textChannel.getGuild().getIdLong();
     long id = textChannel.getIdLong();
     
@@ -144,8 +139,6 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(Webhook webhook) throws SQLException {
-    Objects.requireNonNull(sql);
-  
     long guildId = webhook.getGuild().getIdLong();
     long channelId = webhook.getChannel().getIdLong();
     long id = webhook.getIdLong();

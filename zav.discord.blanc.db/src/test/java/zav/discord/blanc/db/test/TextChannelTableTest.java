@@ -53,8 +53,7 @@ public class TextChannelTableTest extends AbstractTableTest {
   public void setUp() throws Exception {
     super.setUp();
   
-    db = new TextChannelTable();
-    db.setSqlQuery(query);
+    db = new TextChannelTable(query);
     db.postConstruct();
     
     entity = read("TextChannel.json", TextChannelEntity.class);

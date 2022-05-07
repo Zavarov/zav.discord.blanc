@@ -31,11 +31,10 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * @param <T> The type of entity that is stored in this database table.
  */
 public abstract class AbstractTable<T> implements Table<T> {
-  @Nullable
-  protected SqlQuery sql;
+  protected final SqlQuery sql;
   
   @Inject
-  public void setSqlQuery(SqlQuery sql) {
+  public AbstractTable(SqlQuery sql) {
     this.sql = sql;
   }
   

@@ -18,8 +18,8 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import zav.discord.blanc.databind.GuildEntity;
@@ -32,16 +32,18 @@ import zav.discord.blanc.db.sql.SqlQuery;
 @Singleton
 public class GuildTable extends AbstractTable<GuildEntity> {
   
+  @Inject
+  public GuildTable(SqlQuery sql) {
+    super(sql);
+  }
+  
   @Override
   protected void create() throws SQLException {
-    Objects.requireNonNull(sql);
     sql.update("guild/CreateGuildTable.sql");
   }
   
   @Override
   public int put(GuildEntity entity) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     return sql.update("guild/InsertGuild.sql", (stmt) -> {
       stmt.setLong(1, entity.getId());
       stmt.setString(2, entity.getName());
@@ -58,8 +60,6 @@ public class GuildTable extends AbstractTable<GuildEntity> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     return sql.update("guild/DeleteGuild.sql", guild.getIdLong());
   }
   
@@ -72,7 +72,6 @@ public class GuildTable extends AbstractTable<GuildEntity> {
    * @throws SQLException If a database error occurred.
    */
   public Optional<GuildEntity> get(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
     List<SqlObject> result = sql.query("guild/SelectGuild.sql", guild.getIdLong());
   
     return result.stream()

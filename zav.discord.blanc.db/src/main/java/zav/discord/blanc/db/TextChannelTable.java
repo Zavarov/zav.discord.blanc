@@ -18,9 +18,9 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -37,15 +37,18 @@ import zav.discord.blanc.db.sql.SqlQuery;
 @Deprecated
 public class TextChannelTable extends AbstractTable<TextChannelEntity> {
   
+  @Inject
+  public TextChannelTable(SqlQuery sql) {
+    super(sql);
+  }
+  
   @Override
   protected void create() throws SQLException {
-    Objects.requireNonNull(sql);
     sql.update("textchannel/CreateTextChannelTable.sql");
   }
   
   @Override
   public int put(TextChannelEntity entity) throws SQLException {
-    Objects.requireNonNull(sql);
     return sql.update("textchannel/InsertTextChannel.sql", (stmt) -> {
       stmt.setLong(1, entity.getGuildId());
       stmt.setLong(2, entity.getId());
@@ -63,8 +66,6 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(TextChannel textChannel) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = textChannel.getGuild().getIdLong();
     long textChannelId = textChannel.getIdLong();
     
@@ -79,8 +80,6 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = guild.getIdLong();
     
     return sql.update("textchannel/DeleteAllGuildTextChannel.sql", guildId);
@@ -95,8 +94,6 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
    * @throws SQLException If a database error occurred.
    */
   public List<TextChannelEntity> get(Guild guild) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = guild.getIdLong();
     
     List<SqlObject> result = sql.query("textchannel/SelectAllGuildTextChannel.sql", guildId);
@@ -116,8 +113,6 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
    * @throws SQLException If a database error occurred.
    */
   public Optional<TextChannelEntity> get(TextChannel textChannel) throws SQLException {
-    Objects.requireNonNull(sql);
-    
     long guildId = textChannel.getGuild().getIdLong();
     long channelId = textChannel.getIdLong();
     
