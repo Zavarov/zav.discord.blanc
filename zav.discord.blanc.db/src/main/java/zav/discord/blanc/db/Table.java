@@ -54,4 +54,6 @@ public interface Table<T, U> {
    * @throws SQLException If a database error occurred.
    */
   Optional<T> get(U object) throws SQLException;
+  
+  boolean contains(U object) throws SQLException;
 }

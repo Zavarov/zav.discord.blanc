@@ -53,5 +53,10 @@ public abstract class AbstractTable<T, U> implements Table<T, U> {
     create();
   }
   
+  @Override
+  public boolean contains(U object) throws SQLException {
+    return get(object).isPresent();
+  }
+  
   protected abstract void create() throws SQLException;
 }
