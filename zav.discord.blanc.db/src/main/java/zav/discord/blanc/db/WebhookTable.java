@@ -87,6 +87,23 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
     return sql.update("db/webhook/Delete.sql", guildId, channelId, id);
   }
   
+  public int retain(Guild guild) throws SQLException {
+    int result = 0;
+    
+    for (TextChannel textChannel : guild.getTextChannels()) {
+      result += retain(guild, textChannel);
+    }
+    
+    return result;
+  }
+  
+  private int retain(Guild guild, TextChannel textChannel) throws SQLException {
+    String guildId = guild.getId();
+    String channelId = textChannel.getId();
+    String ids = transform(textChannel.retrieveWebhooks().complete());
+    return sql.update("db/webhook/Retain.sql", guildId, channelId, ids);
+  }
+  
   /**
    * Retrieves all Webhook entities of the provided {@link Guild}.
    *
@@ -137,6 +154,13 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
           .map(WebhookTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, WebhookEntity.class))
           .findFirst();
+  }
+  
+  private static String transform(Collection<Webhook> webhooks) {
+    return webhooks.stream()
+          .map(Webhook::getId)
+          .reduce((u, v) -> u + "," + v)
+          .orElseThrow();
   }
   
   private static SqlObject transform(SqlObject obj) {

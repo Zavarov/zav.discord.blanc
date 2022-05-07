@@ -80,6 +80,12 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
     return sql.update("db/textchannel/DeleteGuild.sql", guildId);
   }
   
+  public int retain(Guild guild) throws SQLException {
+    String guildId = guild.getId();
+    String ids = transform(guild.getTextChannels());
+    return sql.update("db/textchannel/Retain.sql", guildId, ids);
+  }
+  
   /**
    * Retrieves all text channel entities of the provided {@link Guild}.
    *
