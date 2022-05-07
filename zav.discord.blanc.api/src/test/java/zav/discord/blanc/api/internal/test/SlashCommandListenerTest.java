@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api.internal.test;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -35,6 +37,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
@@ -131,8 +136,9 @@ public class SlashCommandListenerTest {
    *
    * @throws Exception When an error occurred during command execution.
    */
-  @Test
-  public void testExecuteGuildCommandWithError() throws Exception {
+  @ParameterizedTest
+  @MethodSource("exceptionProvider")
+  public void testExecuteGuildCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
     when(event.getName()).thenReturn(name);
     when(event.isFromGuild()).thenReturn(true);
@@ -141,7 +147,7 @@ public class SlashCommandListenerTest {
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
     when(injector.getInstance(Command.class)).thenReturn(command);
     
-    doThrow(new Exception("message", new Exception())).when(command).run();
+    doThrow(new Exception(message, cause)).when(command).run();
     
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
@@ -185,8 +191,9 @@ public class SlashCommandListenerTest {
    *
    * @throws Exception When an error occurred during command execution.
    */
-  @Test
-  public void testExecutePrivateCommandWithError() throws Exception {
+  @ParameterizedTest
+  @MethodSource("exceptionProvider")
+  public void testExecutePrivateCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
     when(event.getName()).thenReturn(name);
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
@@ -194,7 +201,7 @@ public class SlashCommandListenerTest {
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
     when(injector.getInstance(Command.class)).thenReturn(command);
     
-    doThrow(new Exception("message", new Exception())).when(command).run();
+    doThrow(new Exception(message, cause)).when(command).run();
     
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
@@ -205,5 +212,14 @@ public class SlashCommandListenerTest {
     listener.onSlashCommand(event);
   
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
+  }
+  
+  static Stream<Arguments> exceptionProvider() {
+    return Stream.of(
+          arguments("message", new Exception()),
+          arguments(null, new Exception()),
+          arguments("message", null),
+          arguments(null, null)
+    );
   }
 }
