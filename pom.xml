@@ -24,7 +24,7 @@
     <parent>
         <groupId>zav.parent</groupId>
         <artifactId>project</artifactId>
-        <version>1.0.0</version>
+        <version>3.0.1</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -54,6 +54,7 @@
         <guava.version>31.1-jre</guava.version>
         <okhttp.version>4.9.3</okhttp.version>
         <jexl.version>3.2.1</jexl.version>
+        <okio.version>3.1.0</okio.version>
 
         <!-- .. Test ............................................................................................... -->
         <zav.test.version>1.0.0</zav.test.version>
@@ -129,6 +130,7 @@
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.inject</groupId>
@@ -155,6 +157,7 @@
             <dependency>
                 <groupId>net.dv8tion</groupId>
                 <artifactId>JDA</artifactId>
+                <version>${jda.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.code.findbugs</groupId>
@@ -183,53 +186,10 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>de.monticore</groupId>
-                <artifactId>monticore-generator</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>de.monticore</groupId>
-                <artifactId>monticore-grammar</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.inject</groupId>
-                        <artifactId>javax.inject</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>jsr305</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.checkerframework</groupId>
-                        <artifactId>checker-qual</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.errorprone</groupId>
-                        <artifactId>error_prone_annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.j2objc</groupId>
-                        <artifactId>j2objc-annotations</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>com.squareup.okio</groupId>
                 <artifactId>okio</artifactId>
+                <version>${okio.version}</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-stdlib</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-stdlib-common</artifactId>
@@ -263,6 +223,10 @@
             <name>GitHub Zavarov Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/zavarov/zav.discord.blanc</url>
         </repository>
+        <site>
+            <id>${project.artifactId}-site</id>
+            <url>${project.baseUri}</url>
+        </site>
     </distributionManagement>
 
     <!-- == DEFAULT BUILD SETTINGS =========================================== -->
@@ -279,6 +243,17 @@
         <pluginManagement>
             <plugins>
                 <!-- Licenses -->
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <configuration>
+                        <instructions>
+                            <Include-Resource>{maven-resources},${project.build.directory}/generated-metadata</Include-Resource>
+                        </instructions>
+                        <manifestLocation>${project.build.outputDirectory}/META-INF</manifestLocation>
+                        <niceManifest>true</niceManifest>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
@@ -301,7 +276,7 @@
                                         <directory>${project.build.directory}/generated-resources</directory>
                                     </resource>
                                 </resources>
-                                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                <outputDirectory>${project.build.directory}/generated-metadata/META-INF</outputDirectory>
                             </configuration>
                         </execution>
                     </executions>
