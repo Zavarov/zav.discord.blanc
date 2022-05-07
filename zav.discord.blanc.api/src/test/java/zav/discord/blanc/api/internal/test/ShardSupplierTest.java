@@ -61,12 +61,9 @@ public class ShardSupplierTest {
   MockedConstruction<TimedSemaphore> rateLimiter;
   
   @Mock Injector injector;
-  @Mock
-  BlacklistListener blacklistListener;
-  @Mock
-  SiteComponentListener siteComponentListener;
-  @Mock
-  SlashCommandListener slashCommandListener;
+  @Mock BlacklistListener blacklistListener;
+  @Mock SiteComponentListener siteComponentListener;
+  @Mock SlashCommandListener slashCommandListener;
   
   /**
    * Create a mock of the JDA builder used for creating shard instances.
