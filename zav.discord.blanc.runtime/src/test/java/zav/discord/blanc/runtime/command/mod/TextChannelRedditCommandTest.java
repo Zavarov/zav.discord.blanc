@@ -50,7 +50,7 @@ public class TextChannelRedditCommandTest extends AbstractGuildCommandTest {
     verify(subredditObservable, times(0)).addListener(anyString(), any(TextChannel.class));
   
     // The database shouldn't have been modified
-    channelEntity = get(channelTable, channelEntity.getGuildId(), channelEntity.getId());
+    channelEntity = get(channelTable, textChannel);
     assertThat(channelEntity.getSubreddits()).containsExactly("redditdev", "announcements");
   }
   
@@ -71,7 +71,7 @@ public class TextChannelRedditCommandTest extends AbstractGuildCommandTest {
     verify(subredditObservable, times(1)).removeListener(anyString(), any(TextChannel.class));
   
     // Has the database been updated?
-    channelEntity = get(channelTable, channelEntity.getGuildId(), channelEntity.getId());
+    channelEntity = get(channelTable, textChannel);
     assertThat(channelEntity.getSubreddits()).containsExactly("announcements");
   }
 }

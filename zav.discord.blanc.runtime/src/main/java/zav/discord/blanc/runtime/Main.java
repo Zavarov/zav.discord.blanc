@@ -29,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.apache.commons.lang3.StringUtils;
@@ -63,11 +64,11 @@ public class Main {
   public static void main(String[] args) throws Exception {
     setUp();
     
-    initDb();
-    
     initReddit();
     
     initJda();
+  
+    initDb();
   }
   
   private static void setUp() throws IOException {
@@ -85,16 +86,23 @@ public class Main {
     LOGGER.info("Initialize databases");
     long ownerId = injector.getInstance(Key.get(Long.class, Names.named("owner")));
     UserTable db = injector.getInstance(UserTable.class);
+    Client client = injector.getInstance(Client.class);
     
-    if (!db.contains(ownerId)) {
+    User owner = client.getShards().get(0).retrieveUserById(ownerId).complete();
+    
+    if (owner == null) {
+      LOGGER.error("User with id {} doesn't exist.", ownerId);
+    }
+    
+    if (!db.contains(owner)) {
       LOGGER.info("Owner with id {} not contained in database. Create new root user...", ownerId);
-      UserEntity owner = new UserEntity()
+      UserEntity entity = new UserEntity()
             .withId(ownerId)
             .withDiscriminator(StringUtils.EMPTY)
             .withName(StringUtils.EMPTY)
             .withRanks(List.of(Rank.ROOT.name()));
       
-      db.put(owner);
+      db.put(entity);
     }
   }
   

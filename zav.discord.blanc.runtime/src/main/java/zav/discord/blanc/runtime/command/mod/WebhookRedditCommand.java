@@ -22,16 +22,16 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Webhook;
-import zav.discord.blanc.databind.WebHookEntity;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.databind.WebhookEntity;
+import zav.discord.blanc.db.WebhookTable;
 
 public class WebhookRedditCommand extends AbstractRedditCommand {
   private static final String WEBHOOK = "Reddit";
   
   @Inject
-  private WebHookTable webhookTable;
+  private WebhookTable webhookTable;
   
-  private WebHookEntity webhookEntity;
+  private WebhookEntity webhookEntity;
   private Webhook webhook;
   
   @Override

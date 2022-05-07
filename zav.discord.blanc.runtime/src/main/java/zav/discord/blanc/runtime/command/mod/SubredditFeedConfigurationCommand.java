@@ -30,14 +30,14 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.WebhookTable;
 
 public class SubredditFeedConfigurationCommand extends AbstractConfigurationCommand {
   
   @Inject
-  private WebHookTable hookDb;
+  private WebhookTable hookDb;
   
   @Inject
   private TextChannelTable textDb;
@@ -48,7 +48,7 @@ public class SubredditFeedConfigurationCommand extends AbstractConfigurationComm
     Multimap<String, String> subreddits = HashMultimap.create();
     
     // Get all subreddit feeds
-    for (WebHookEntity entity : hookDb.get(guildData.getId())) {
+    for (WebhookEntity entity : hookDb.get(guild)) {
       for (String subredditName : entity.getSubreddits()) {
         TextChannel textChannel = guild.getTextChannelById(entity.getChannelId());
         // Channel may have been deleted
@@ -58,7 +58,7 @@ public class SubredditFeedConfigurationCommand extends AbstractConfigurationComm
       }
     }
     
-    for (TextChannelEntity entity : textDb.get(guildData.getId())) {
+    for (TextChannelEntity entity : textDb.get(guild)) {
       for (String subredditName : entity.getSubreddits()) {
         TextChannel textChannel = guild.getTextChannelById(entity.getId());
         // Channel may have been deleted

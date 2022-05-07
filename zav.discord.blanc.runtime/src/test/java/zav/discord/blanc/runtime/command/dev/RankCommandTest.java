@@ -48,7 +48,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
     run(RankCommand.class);
     
     // Has the database been updated?
-    UserEntity response = super.get(userTable, userEntity.getId());
+    UserEntity response = super.get(userTable, user);
     assertThat(response.getRanks()).containsExactly(Rank.ROOT.name(), Rank.DEVELOPER.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());
@@ -69,7 +69,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
     run(RankCommand.class);
   
     // Has the database been updated?
-    UserEntity response = get(userTable, userEntity.getId());
+    UserEntity response = get(userTable, user);
     assertThat(response.getRanks()).containsExactly(Rank.ROOT.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());
@@ -88,7 +88,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
     run(RankCommand.class);
     
     // Database should not have been updated
-    UserEntity response = get(userTable, userEntity.getId());
+    UserEntity response = get(userTable, user);
     assertThat(response.getRanks()).containsExactly(Rank.DEVELOPER.name());
     assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
     assertThat(response.getId()).isEqualTo(userEntity.getId());

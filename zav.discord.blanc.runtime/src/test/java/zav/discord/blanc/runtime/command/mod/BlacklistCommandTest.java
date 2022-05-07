@@ -48,11 +48,10 @@ public class BlacklistCommandTest extends AbstractGuildCommandTest {
     run(BlacklistCommand.class);
     
     // Has the database been updated?
-    GuildEntity response = get(guildTable, guildEntity.getId());
+    GuildEntity response = get(guildTable, guild);
     
     assertThat(response.getId()).isEqualTo(guildEntity.getId());
     assertThat(response.getName()).isEqualTo(guildEntity.getName());
-    assertThat(response.getPrefix()).isEqualTo(guildEntity.getPrefix());
     assertThat(response.getBlacklist()).containsExactly("foo", "bar", "test");
   }
   
@@ -72,11 +71,10 @@ public class BlacklistCommandTest extends AbstractGuildCommandTest {
     run(BlacklistCommand.class);
   
     // Has the database been updated?
-    GuildEntity response = get(guildTable, guildEntity.getId());
+    GuildEntity response = get(guildTable, guild);
   
     assertThat(response.getId()).isEqualTo(guildEntity.getId());
     assertThat(response.getName()).isEqualTo(guildEntity.getName());
-    assertThat(response.getPrefix()).isEqualTo(guildEntity.getPrefix());
     assertThat(response.getBlacklist()).containsExactly("bar");
   }
 }

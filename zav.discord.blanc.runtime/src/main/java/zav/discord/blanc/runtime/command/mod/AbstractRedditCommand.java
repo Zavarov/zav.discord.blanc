@@ -19,18 +19,12 @@ package zav.discord.blanc.runtime.command.mod;
 import static net.dv8tion.jda.api.Permission.MANAGE_CHANNEL;
 import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
-import java.sql.SQLException;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.command.AbstractGuildCommand;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebHookEntity;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.reddit.SubredditObservable;
 
 /**

@@ -51,7 +51,7 @@ public class RankCommand extends AbstractCommand {
   @Override
   public void postConstruct() {
     rank = Rank.valueOf(Objects.requireNonNull(event.getOption("rank")).getAsString().toUpperCase(Locale.ENGLISH));
-    user = Optional.ofNullable(event.getOption("user")).map(OptionMapping::getAsUser).orElse(author);
+    user = Optional.ofNullable(event.getOption("db/user")).map(OptionMapping::getAsUser).orElse(author);
     userEntity = getOrCreate(userTable, user);
     rankName = rank.name();
     userName = userEntity.getName();

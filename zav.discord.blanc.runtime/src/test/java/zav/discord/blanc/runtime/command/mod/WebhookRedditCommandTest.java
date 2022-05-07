@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.runtime.command.AbstractGuildCommandTest;
 
 /**
@@ -78,7 +78,7 @@ public class WebhookRedditCommandTest extends AbstractGuildCommandTest {
     verify(subredditObservable, times(1)).addListener(anyString(), any(Webhook.class));
   
     // Has the database been updated?
-    webhookEntity = get(webhookTable, guildId, channelId, id);
+    webhookEntity = get(webhookTable, webhook);
     assertThat(webhookEntity.getSubreddits()).containsExactly("redditdev", "announcements", "gamindustri");
   }
   
@@ -104,7 +104,7 @@ public class WebhookRedditCommandTest extends AbstractGuildCommandTest {
     verify(subredditObservable, times(1)).removeListener(anyString(), any(Webhook.class));
   
     // Has the database been updated?
-    WebHookEntity response = get(webhookTable, guildId, channelId, id);
+    WebhookEntity response = get(webhookTable, webhook);
     assertThat(response.getSubreddits()).containsExactly("announcements");
     when(arg.getAsString()).thenReturn("announcements");
   
@@ -114,7 +114,7 @@ public class WebhookRedditCommandTest extends AbstractGuildCommandTest {
     assertThat(subredditObservable.removeListener("Announcements", webhook)).isFalse();
   
     // Has the database been updated?
-    response = get(webhookTable, guildId, channelId, id);
+    response = get(webhookTable, webhook);
     assertThat(response.getSubreddits()).isEmpty();
     
     // Check that the webhook has been deleted when no more subreddits are registered.

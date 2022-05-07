@@ -36,10 +36,10 @@ import org.mockito.Mock;
 import zav.discord.blanc.api.guice.GuildCommandModule;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.WebhookTable;
 
 public abstract class AbstractGuildCommandTest extends AbstractTest {
   protected @Mock JDA jda;
@@ -53,8 +53,8 @@ public abstract class AbstractGuildCommandTest extends AbstractTest {
   protected GuildEntity guildEntity;
   protected GuildTable guildTable;
   
-  protected WebHookEntity webhookEntity;
-  protected WebHookTable webhookTable;
+  protected WebhookEntity webhookEntity;
+  protected WebhookTable webhookTable;
   
   protected TextChannelEntity channelEntity;
   protected TextChannelTable channelTable;
@@ -76,8 +76,8 @@ public abstract class AbstractGuildCommandTest extends AbstractTest {
     guildEntity = read("Guild.json", GuildEntity.class);
     guildTable = injector.getInstance(GuildTable.class);
     guildTable.put(guildEntity);
-    webhookEntity = read("WebHook.json", WebHookEntity.class);
-    webhookTable = injector.getInstance(WebHookTable.class);
+    webhookEntity = read("Webhook.json", WebhookEntity.class);
+    webhookTable = injector.getInstance(WebhookTable.class);
     webhookTable.put(webhookEntity);
     channelEntity = read("TextChannel.json", TextChannelEntity.class);
     channelTable = injector.getInstance(TextChannelTable.class);

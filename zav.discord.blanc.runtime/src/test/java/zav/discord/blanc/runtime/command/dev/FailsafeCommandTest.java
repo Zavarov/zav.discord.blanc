@@ -44,7 +44,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     run(FailsafeCommand.class);
   
     // Has the user become a root?
-    UserEntity response = get(userTable, userEntity.getId());
+    UserEntity response = get(userTable, user);
     
     assertThat(response.getId()).isEqualTo(userEntity.getId());
     assertThat(response.getName()).isEqualTo(userEntity.getName());
@@ -65,7 +65,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
     run(FailsafeCommand.class);
   
     // Has the user become a developer?
-    UserEntity response = get(userTable, userEntity.getId());
+    UserEntity response = get(userTable, user);
   
     assertThat(response.getId()).isEqualTo(userEntity.getId());
     assertThat(response.getName()).isEqualTo(userEntity.getName());

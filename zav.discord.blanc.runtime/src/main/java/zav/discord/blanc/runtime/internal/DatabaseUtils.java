@@ -18,14 +18,13 @@ package zav.discord.blanc.runtime.internal;
 
 import com.google.common.collect.Lists;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
-import org.apache.commons.lang3.Validate;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +32,11 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.databind.WebHookEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.UserTable;
-import zav.discord.blanc.db.WebHookTable;
+import zav.discord.blanc.db.WebhookTable;
 
 /**
  * Utility class for serializing JDA entities.
@@ -55,20 +54,15 @@ public final class DatabaseUtils {
    */
   public static GuildEntity getOrCreate(GuildTable db, Guild guild) {
     try {
-      long guildId = guild.getIdLong();
+      Optional<GuildEntity> response = db.get(guild);
       
-      List<GuildEntity> responses = db.get(guildId);
-  
-      Validate.validState(responses.size() <= 1);
-      
-      if (responses.isEmpty()) {
+      if (response.isEmpty()) {
         return new GuildEntity()
               .withId(guild.getIdLong())
               .withName(guild.getName());
       } else {
         // Guild name may have changed since the db entry was last updated
-        return responses.get(0)
-              .withName(guild.getName());
+        return response.get().withName(guild.getName());
       }
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
@@ -83,27 +77,21 @@ public final class DatabaseUtils {
    * @param db The text channel database.
    * @param textChannel A JDA text channel.
    * @return An entity object corresponding to the text channel.
-   * @deprecated Deprecated in favor of {@link #getOrCreate(WebHookTable, Webhook)}.
+   * @deprecated Deprecated in favor of {@link #getOrCreate(WebhookTable, Webhook)}.
    */
   @Deprecated
   public static TextChannelEntity getOrCreate(TextChannelTable db, TextChannel textChannel) {
     try {
-      long guildId = textChannel.getGuild().getIdLong();
-      long channelId = textChannel.getIdLong();
+      Optional<TextChannelEntity> response = db.get(textChannel);
       
-      List<TextChannelEntity> responses = db.get(guildId, channelId);
-  
-      Validate.validState(responses.size() <= 1);
-      
-      if (responses.isEmpty()) {
+      if (response.isEmpty()) {
         return new TextChannelEntity()
               .withId(textChannel.getIdLong())
-              .withGuildId(guildId)
+              .withGuildId(textChannel.getGuild().getIdLong())
               .withName(textChannel.getName());
       } else {
         // Channel name may have changed since the db entry was last updated
-        return responses.get(0)
-              .withName(textChannel.getName());
+        return response.get().withName(textChannel.getName());
       }
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
@@ -121,24 +109,18 @@ public final class DatabaseUtils {
    */
   public static UserEntity getOrCreate(UserTable db, User user) {
     try {
-      long userId = user.getIdLong();
-  
-      List<UserEntity> responses = db.get(userId);
-  
-      Validate.validState(responses.size() <= 1);
+      Optional<UserEntity> response = db.get(user);
       
-      if (responses.isEmpty()) {
+      if (response.isEmpty()) {
         return new UserEntity()
-              .withId(userId)
+              .withId(user.getIdLong())
               .withName(user.getName())
               .withDiscriminator(user.getDiscriminator())
               .withRanks(Lists.newArrayList(Rank.USER.name()));
         
       } else {
         // Username may have changed since the db entry was last updated
-        return responses.get(0)
-              .withName(user.getName())
-              .withDiscriminator(user.getDiscriminator());
+        return response.get().withName(user.getName()).withDiscriminator(user.getDiscriminator());
       }
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
@@ -154,31 +136,24 @@ public final class DatabaseUtils {
    * @param webhook A JDA web hook.
    * @return An entity object corresponding to the web hook.
    */
-  public static WebHookEntity getOrCreate(WebHookTable db, Webhook webhook) {
+  public static WebhookEntity getOrCreate(WebhookTable db, Webhook webhook) {
     try {
-      long guildId = webhook.getGuild().getIdLong();
-      long channelId = webhook.getChannel().getIdLong();
-      long webhookId = webhook.getIdLong();
+      Optional<WebhookEntity> response = db.get(webhook);
       
-      List<WebHookEntity> responses = db.get(guildId, channelId, webhookId);
-  
-      Validate.validState(responses.size() <= 1);
-      
-      if (responses.isEmpty()) {
+      if (response.isEmpty()) {
         @Nullable User owner = webhook.getOwnerAsUser();
         SelfUser selfUser = webhook.getJDA().getSelfUser();
         boolean isOwner = webhook.getOwnerAsUser() != null && Objects.equals(selfUser, owner);
   
-        return new WebHookEntity()
-              .withId(webhookId)
-              .withGuildId(guildId)
-              .withChannelId(channelId)
+        return new WebhookEntity()
+              .withId(webhook.getIdLong())
+              .withGuildId(webhook.getGuild().getIdLong())
+              .withChannelId(webhook.getChannel().getIdLong())
               .withName(webhook.getName())
               .withOwner(isOwner);
       } else {
         // Webhook name may have changed since the db entry was last updated
-        return responses.get(0)
-              .withName(webhook.getName());
+        return response.get().withName(webhook.getName());
       }
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);

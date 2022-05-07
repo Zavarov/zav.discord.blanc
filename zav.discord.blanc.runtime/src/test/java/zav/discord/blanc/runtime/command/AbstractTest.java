@@ -75,13 +75,11 @@ public abstract class AbstractTest {
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
   }
   
-  protected <T> T get(Table<T> db, Object... keys) throws SQLException {
-    List<T> response = db.get(keys);
-    assertThat(response).hasSize(1);
-    return response.get(0);
+  protected <T, U> T get(Table<T, U> db, U object) throws SQLException {
+    return db.get(object).orElseThrow();
   }
   
-  protected <T> void update(Table<T> db, T entity, Consumer<T> consumer) throws SQLException {
+  protected <T, U> void update(Table<T, U> db, T entity, Consumer<T> consumer) throws SQLException {
     consumer.accept(entity);
     db.put(entity);
   }
