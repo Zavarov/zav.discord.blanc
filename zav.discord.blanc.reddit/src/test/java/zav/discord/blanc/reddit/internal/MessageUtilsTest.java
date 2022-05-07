@@ -16,7 +16,10 @@
 
 package zav.discord.blanc.reddit.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.awt.Color;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -48,53 +51,53 @@ public class MessageUtilsTest {
   public void testEmbedColor() {
     // Over18 -> true && Spoiler -> true
     MessageEmbed embed = getMessageEmbed();
-    assertThat(embed.getColor()).isEqualTo(Color.RED);
+    assertEquals(embed.getColor(), Color.RED);
     
     // Over18 -> false && Spoiler -> true
     link.setOver18(false);
     embed = getMessageEmbed();
-    assertThat(embed.getColor()).isEqualTo(Color.BLACK);
+    assertEquals(embed.getColor(), Color.BLACK);
   
     // Over18 -> false && Spoiler -> false
     link.setSpoiler(false);
     embed = getMessageEmbed();
-    assertThat(embed.getColor()).isNotEqualTo(Color.RED);
-    assertThat(embed.getColor()).isNotEqualTo(Color.BLACK);
+    assertNotEquals(embed.getColor(), Color.RED);
+    assertNotEquals(embed.getColor(), Color.BLACK);
   }
   
   @Test
   public void testTimeStamp() {
     MessageEmbed embed = getMessageEmbed();
-    assertThat(embed.getTimestamp()).isNull();
+    assertNull(embed.getTimestamp());
     
     link.setCreatedUtc(0.0);
     embed = getMessageEmbed();
-    assertThat(embed.getTimestamp()).isNotNull();
+    assertNotNull(embed.getTimestamp());
   }
   
   @Test
   public void testThumbnail() {
     // Over18 -> true && Spoiler -> true
     MessageEmbed embed = getMessageEmbed();
-    assertThat(embed.getThumbnail()).isNull();
+    assertNull(embed.getThumbnail());
   
     // Over18 -> false && Spoiler -> true
     link.setOver18(false);
     embed = getMessageEmbed();
-    assertThat(embed.getThumbnail()).isNull();
+    assertNull(embed.getThumbnail());
   
     // Over18 -> false && Spoiler -> false
     link.setSpoiler(false);
     embed = getMessageEmbed();
-    assertThat(embed.getThumbnail()).isNotNull();
+    assertNotNull(embed.getThumbnail());
     
     link.setThumbnail(null);
     embed = getMessageEmbed();
-    assertThat(embed.getThumbnail()).isNull();
+    assertNull(embed.getThumbnail());
   
     link.setThumbnail("xxx");
     embed = getMessageEmbed();
-    assertThat(embed.getThumbnail()).isNull();
+    assertNull(embed.getThumbnail());
   }
   
   private MessageEmbed getMessageEmbed() {

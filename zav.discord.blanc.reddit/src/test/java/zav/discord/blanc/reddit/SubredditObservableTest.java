@@ -16,14 +16,12 @@
 
 package zav.discord.blanc.reddit;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static zav.discord.blanc.api.Constants.CLIENT;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
+import com.google.inject.Module;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +29,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.jrc.client.Client;
 import zav.jrc.http.RestRequest;
-import zav.jrc.listener.requester.LinkRequester;
+import zav.jrc.listener.observer.SubredditObserver;
 
 /**
  * Checks whether listeners are unique.
@@ -41,20 +38,12 @@ import zav.jrc.listener.requester.LinkRequester;
 @ExtendWith(MockitoExtension.class)
 public class SubredditObservableTest {
   
-  final long textChannel1Id = 11111L;
-  final long textChannel2Id = 22222L;
-  final long webhook1Id = 33333L;
-  final long webhook2Id = 44444L;
-  
-  @Mock LinkRequester requester;
-  @Mock Client client;
-  @Mock TextChannel textChannel1;
-  @Mock TextChannel textChannel2;
-  @Mock Webhook webhook1;
-  @Mock Webhook webhook2;
+  @Mock TextChannel textChannel;
+  @Mock Webhook webhook;
+  @Mock Injector injector;
+  @Mock SubredditObserver observer;
   
   SubredditObservable observable;
-  Injector injector;
   
   /**
    * Initializes an observable with one text channel and webhook registered.
@@ -62,60 +51,39 @@ public class SubredditObservableTest {
   @BeforeEach
   public void setUp() {
     new RestRequest.Builder();
-    injector = Guice.createInjector(new TestModule());
-    observable = injector.getInstance(SubredditObservable.class);
-    //observable = spy(new SubredditObservable());
-    // observable.setInjector(injector);
-    observable.addListener("subreddit", textChannel1);
-    observable.addListener("subreddit", webhook1);
+    
+    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
+    when(injector.getInstance(SubredditObserver.class)).thenReturn(observer);
+    
+    observable = new SubredditObservable();
+    observable.setInjector(injector);
   }
   
   @Test
   public void testAddTextChannelListener() {
-    when(textChannel1.getIdLong()).thenReturn(textChannel1Id);
-    when(textChannel2.getIdLong()).thenReturn(textChannel2Id);
-    
-    assertThat(observable.addListener("subreddit", textChannel1)).isFalse();
-    assertThat(observable.addListener("SUBREDDIT", textChannel1)).isFalse();
-    assertThat(observable.addListener("XXXXXXXXX", textChannel1)).isTrue();
-    assertThat(observable.addListener("subreddit", textChannel2)).isTrue();
+    observable.addListener("subreddit", textChannel);
+  
+    verify(observer).addListener(any(TextChannelSubredditListener.class));
   }
   
   @Test
   public void testAddWebhookListener() {
-    when(webhook1.getIdLong()).thenReturn(webhook1Id);
-    when(webhook2.getIdLong()).thenReturn(webhook2Id);
-    
-    assertThat(observable.addListener("subreddit", webhook1)).isFalse();
-    assertThat(observable.addListener("SUBREDDIT", webhook1)).isFalse();
-    assertThat(observable.addListener("XXXXXXXXX", webhook1)).isTrue();
-    assertThat(observable.addListener("subreddit", webhook2)).isTrue();
+    observable.addListener("subreddit", webhook);
+  
+    verify(observer).addListener(any(WebhookSubredditListener.class));
   }
   
   @Test
   public void testRemoveTextChannelListener() {
-    when(textChannel1.getIdLong()).thenReturn(textChannel1Id);
-    
-    assertThat(observable.removeListener("SUBREDDIT", textChannel1)).isTrue();
-    assertThat(observable.removeListener("subreddit", textChannel1)).isFalse();
-    assertThat(observable.removeListener("XXXXXXXXX", textChannel1)).isFalse();
-    assertThat(observable.removeListener("SUBREDDIT", textChannel2)).isFalse();
+    observable.removeListener("subreddit", textChannel);
+  
+    verify(observer).removeListener(any(TextChannelSubredditListener.class));
   }
   
   @Test
   public void testRemoveWebhookListener() {
-    when(webhook1.getIdLong()).thenReturn(webhook1Id);
+    observable.removeListener("subreddit", webhook);
   
-    assertThat(observable.removeListener("SUBREDDIT", webhook1)).isTrue();
-    assertThat(observable.removeListener("subreddit", webhook1)).isFalse();
-    assertThat(observable.removeListener("XXXXXXXXX", webhook1)).isFalse();
-    assertThat(observable.removeListener("subreddit", webhook2)).isFalse();
-  }
-  
-  private class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(Client.class).toInstance(client);
-    }
+    verify(observer).removeListener(any(WebhookSubredditListener.class));
   }
 }

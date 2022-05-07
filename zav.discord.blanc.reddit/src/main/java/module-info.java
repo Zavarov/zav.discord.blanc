@@ -14,7 +14,8 @@ open module zav.discord.blanc.reddit {
   requires zav.jcr.listener;
   requires zav.jrc.client;
   
-  requires transitive java.desktop;
+  requires java.desktop;
+  requires java.sql;
   
   exports zav.discord.blanc.reddit;
 }

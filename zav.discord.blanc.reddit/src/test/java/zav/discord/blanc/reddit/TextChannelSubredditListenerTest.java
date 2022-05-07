@@ -16,7 +16,8 @@
 
 package zav.discord.blanc.reddit;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -70,8 +71,8 @@ public class TextChannelSubredditListenerTest {
   public void testEquality() {
     Set<TextChannelSubredditListener> set = new HashSet<>();
     
-    assertThat(set.add(listener)).isTrue();
-    assertThat(set.add(listener)).isFalse();
-    assertThat(set.add(mock(TextChannelSubredditListener.class))).isTrue();
+    assertTrue(set.add(listener));
+    assertFalse(set.add(listener));
+    assertTrue(set.add(mock(TextChannelSubredditListener.class)));
   }
 }

@@ -22,10 +22,12 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.jrc.client.FailedRequestException;
@@ -42,11 +44,11 @@ import zav.jrc.listener.observer.SubredditObserver;
 public final class SubredditObservable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
   private final Map<String, SubredditObserver> observers = new ConcurrentHashMap<>();
-  @Inject
-  private Injector injector;
+  private @Nullable Injector injector;
   
-  /*package*/ SubredditObservable() {
-    // Instantiated with Guice
+  @Inject
+  public void setInjector(Injector injector) {
+    this.injector = injector;
   }
   
   /**
@@ -132,7 +134,9 @@ public final class SubredditObservable {
   }
   
   private SubredditObserver getObserver(String subredditName) {
-    return injector.createChildInjector(new ObserverModule(subredditName)).getInstance(SubredditObserver.class);
+    Objects.requireNonNull(injector);
+    Injector subredditInjector = injector.createChildInjector(new ObserverModule(subredditName));
+    return subredditInjector.getInstance(SubredditObserver.class);
   }
   
   private static class ObserverModule extends AbstractModule {

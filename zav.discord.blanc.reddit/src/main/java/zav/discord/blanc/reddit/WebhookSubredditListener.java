@@ -28,20 +28,20 @@ import zav.jrc.listener.event.LinkEvent;
  * This listener notifies a webhook, whenever a new submission has been received from a subreddit.
  */
 public final class WebhookSubredditListener implements SubredditListener {
-  private final Webhook hook;
+  private final Webhook webhook;
 
-  public WebhookSubredditListener(Webhook hook) {
-    this.hook = hook;
+  public WebhookSubredditListener(Webhook webhook) {
+    this.webhook = webhook;
   }
   
   @Override
   public void notify(LinkEvent linkEvent) {
-    hook.getChannel().sendMessage(forLink(linkEvent.getSource())).complete();
+    webhook.getChannel().sendMessage(forLink(linkEvent.getSource())).complete();
   }
   
   @Override
   public int hashCode() {
-    return Objects.hashCode(hook.getIdLong());
+    return Objects.hashCode(webhook.getIdLong());
   }
   
   @Override
@@ -52,6 +52,6 @@ public final class WebhookSubredditListener implements SubredditListener {
   
     WebhookSubredditListener other = (WebhookSubredditListener) obj;
     
-    return this.hook.getIdLong() == other.hook.getIdLong();
+    return this.webhook.getIdLong() == other.webhook.getIdLong();
   }
 }
