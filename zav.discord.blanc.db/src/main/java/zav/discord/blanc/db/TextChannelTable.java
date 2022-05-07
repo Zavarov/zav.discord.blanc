@@ -17,6 +17,7 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  */
 @Singleton
 @Deprecated
-public class TextChannelTable extends AbstractTable<TextChannelEntity> {
+public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChannel> {
   
   @Inject
   public TextChannelTable(SqlQuery sql) {
@@ -44,12 +45,12 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
   
   @Override
   protected void create() throws SQLException {
-    sql.update("textchannel/CreateTextChannelTable.sql");
+    sql.update("db/textchannel/Create.sql");
   }
   
   @Override
   public int put(TextChannelEntity entity) throws SQLException {
-    return sql.update("textchannel/InsertTextChannel.sql", (stmt) -> {
+    return sql.update("db/textchannel/Insert.sql", (stmt) -> {
       stmt.setLong(1, entity.getGuildId());
       stmt.setLong(2, entity.getId());
       stmt.setString(3, entity.getName());
@@ -58,18 +59,12 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
     });
   }
   
-  /**
-   * Removes the {@link TextChannel} from the database.
-   *
-   * @param textChannel The {@link TextChannel} instance that is removed from the database.
-   * @return The number of modified rows.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public int delete(TextChannel textChannel) throws SQLException {
     long guildId = textChannel.getGuild().getIdLong();
     long textChannelId = textChannel.getIdLong();
     
-    return sql.update("textchannel/DeleteTextChannel.sql", guildId, textChannelId);
+    return sql.update("db/textchannel/Delete.sql", guildId, textChannelId);
   }
   
   /**
@@ -82,7 +77,7 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
   public int delete(Guild guild) throws SQLException {
     long guildId = guild.getIdLong();
     
-    return sql.update("textchannel/DeleteAllGuildTextChannel.sql", guildId);
+    return sql.update("db/textchannel/DeleteGuild.sql", guildId);
   }
   
   /**
@@ -96,7 +91,7 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
   public List<TextChannelEntity> get(Guild guild) throws SQLException {
     long guildId = guild.getIdLong();
     
-    List<SqlObject> result = sql.query("textchannel/SelectAllGuildTextChannel.sql", guildId);
+    List<SqlObject> result = sql.query("db/textchannel/SelectGuild.sql", guildId);
 
     return result.stream()
           .map(TextChannelTable::transform)
@@ -104,24 +99,24 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity> {
           .collect(Collectors.toUnmodifiableList());
   }
   
-  /**
-   * Retrieves the entity associated with the provided {@link TextChannel}.
-   *
-   * @param textChannel The {@link TextChannel} instance that is retrieved from the database.
-   * @return The entity associated with the {@link TextChannel} or {@link Optional#empty()} if no
-   *     matching entity exists in the database.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public Optional<TextChannelEntity> get(TextChannel textChannel) throws SQLException {
     long guildId = textChannel.getGuild().getIdLong();
     long channelId = textChannel.getIdLong();
     
-    List<SqlObject> result = sql.query("textchannel/SelectTextChannel.sql", guildId, channelId);
+    List<SqlObject> result = sql.query("db/textchannel/Select.sql", guildId, channelId);
 
     return result.stream()
           .map(TextChannelTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, TextChannelEntity.class))
           .findFirst();
+  }
+  
+  private static String transform(Collection<TextChannel> textChannels) {
+    return textChannels.stream()
+          .map(TextChannel::getId)
+          .reduce((u, v) -> u + "," + v)
+          .orElseThrow();
   }
   
   private static SqlObject transform(SqlObject obj) {

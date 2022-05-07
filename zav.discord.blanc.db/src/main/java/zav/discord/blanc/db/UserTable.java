@@ -17,6 +17,7 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code User} database.
  */
 @Singleton
-public class UserTable extends AbstractTable<UserEntity> {
+public class UserTable extends AbstractTable<UserEntity, User> {
   
   @Inject
   public UserTable(SqlQuery sql) {
@@ -39,12 +40,12 @@ public class UserTable extends AbstractTable<UserEntity> {
   
   @Override
   protected void create() throws SQLException {
-    sql.update("user/CreateUserTable.sql");
+    sql.update("db/user/Create.sql");
   }
   
   @Override
   public int put(UserEntity user) throws SQLException {
-    return sql.update("user/InsertUser.sql", (stmt) -> {
+    return sql.update("db/user/Insert.sql", (stmt) -> {
       stmt.setLong(1, user.getId());
       stmt.setString(2, user.getName());
       stmt.setString(3, user.getDiscriminator());
@@ -53,20 +54,14 @@ public class UserTable extends AbstractTable<UserEntity> {
     });
   }
   
+  @Override
   public int delete(User user) throws SQLException {
-    return sql.update("user/DeleteUser.sql", user.getIdLong());
+    return sql.update("db/user/Delete.sql", user.getIdLong());
   }
   
-  /**
-   * Retrieves the entity associated with the provided {@link User}.
-   *
-   * @param user The {@link User} instance that is retrieved from the database.
-   * @return The entity associated with the {@link User} or {@link Optional#empty()} if no matching
-   *     entity exists in the database.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public Optional<UserEntity> get(User user) throws SQLException {
-    List<SqlObject> result = sql.query("user/SelectUser.sql", user.getIdLong());
+    List<SqlObject> result = sql.query("db/user/Select.sql", user.getIdLong());
   
     return result.stream()
           .map(UserTable::transform)

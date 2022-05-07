@@ -21,7 +21,6 @@ import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import javax.inject.Inject;
-import org.eclipse.jdt.annotation.Nullable;
 import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
@@ -29,8 +28,9 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * This class is responsible for initializing the database and the entity table.
  *
  * @param <T> The type of entity that is stored in this database table.
+ * @param <U> The Java object corresponding to the entity.
  */
-public abstract class AbstractTable<T> implements Table<T> {
+public abstract class AbstractTable<T, U> implements Table<T, U> {
   protected final SqlQuery sql;
   
   @Inject

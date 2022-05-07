@@ -17,13 +17,16 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Base class for all SQL database tables.
  *
  * @param <T> The type of entity that is stored in this database table.
+ * @param <U> The Java object corresponding to the entity.
  */
-public interface Table<T> {
+public interface Table<T, U> {
   /**
    * Stores the specified entity in the database table.
    *
@@ -32,4 +35,23 @@ public interface Table<T> {
    * @throws SQLException If a database error occurred.
    */
   int put(T entity) throws SQLException;
+  
+  /**
+   * Removes the entity associated with the provided object from the database.
+   *
+   * @param object The realization of the entity that is removed from the database.
+   * @return The number of modified rows.
+   * @throws SQLException If a database error occurred.
+   */
+  int delete(U object) throws SQLException;
+  
+  /**
+   * Retrieves the entity associated with the provided object.
+   *
+   * @param object The realization of the entity that is retrieved from the database.
+   * @return The entity associated with the object or {@link Optional#empty()} if no matching
+   *     entity exists in the database.
+   * @throws SQLException If a database error occurred.
+   */
+  Optional<T> get(U object) throws SQLException;
 }

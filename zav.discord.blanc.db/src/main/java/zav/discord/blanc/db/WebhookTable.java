@@ -17,6 +17,7 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code Webhook} database.
  */
 @Singleton
-public class WebhookTable extends AbstractTable<WebhookEntity> {
+public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
   
   @Inject
   public WebhookTable(SqlQuery sql) {
@@ -42,12 +43,12 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
   
   @Override
   protected void create() throws SQLException {
-    sql.update("webhook/CreateWebhookTable.sql");
+    sql.update("db/webhook/Create.sql");
   }
   
   @Override
   public int put(WebhookEntity entity) throws SQLException {
-    return sql.update("webhook/InsertWebhook.sql", (stmt) -> {
+    return sql.update("db/webhook/Insert.sql", (stmt) -> {
       stmt.setLong(1, entity.getGuildId());
       stmt.setLong(2, entity.getChannelId());
       stmt.setLong(3, entity.getId());
@@ -59,7 +60,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
   }
   
   public int delete(Guild guild) throws SQLException {
-    return sql.update("webhook/DeleteGuildWebhook.sql", guild.getIdLong());
+    return sql.update("db/webhook/DeleteGuild.sql", guild.getIdLong());
   }
   
   /**
@@ -74,22 +75,16 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
     long guildId = textChannel.getGuild().getIdLong();
     long channelId = textChannel.getIdLong();
     
-    return sql.update("webhook/DeleteChannelWebhook.sql", guildId, channelId);
+    return sql.update("db/webhook/DeleteChannel.sql", guildId, channelId);
   }
   
-  /**
-   * Removes the {@link Webhook} from the database.
-   *
-   * @param webhook The {@link Webhook} instance that is removed from the database.
-   * @return The number of modified rows.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public int delete(Webhook webhook) throws SQLException {
     long guildId = webhook.getGuild().getIdLong();
     long channelId = webhook.getChannel().getIdLong();
     long id = webhook.getIdLong();
     
-    return sql.update("webhook/DeleteWebhook.sql", guildId, channelId, id);
+    return sql.update("db/webhook/Delete.sql", guildId, channelId, id);
   }
   
   /**
@@ -101,7 +96,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(Guild guild) throws SQLException {
-    List<SqlObject> result = sql.query("webhook/SelectGuildWebhook.sql", guild.getIdLong());
+    List<SqlObject> result = sql.query("db/webhook/SelectGuild.sql", guild.getIdLong());
   
     return result.stream()
           .map(WebhookTable::transform)
@@ -122,7 +117,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
     long guildId = textChannel.getGuild().getIdLong();
     long id = textChannel.getIdLong();
     
-    List<SqlObject> result = sql.query("webhook/SelectChannelWebhook.sql", guildId, id);
+    List<SqlObject> result = sql.query("db/webhook/SelectChannel.sql", guildId, id);
     
     return result.stream()
           .map(WebhookTable::transform)
@@ -130,25 +125,18 @@ public class WebhookTable extends AbstractTable<WebhookEntity> {
           .collect(Collectors.toUnmodifiableList());
   }
   
-  /**
-   * Retrieves the entity associated with the provided {@link Webhook}.
-   *
-   * @param webhook The {@link Webhook} instance that is retrieved from the database.
-   * @return The entity associated with the {@link Webhook} or {@link Optional#empty()} if no
-   *     matching entity exists in the database.
-   * @throws SQLException If a database error occurred.
-   */
-  public List<WebhookEntity> get(Webhook webhook) throws SQLException {
+  @Override
+  public Optional<WebhookEntity> get(Webhook webhook) throws SQLException {
     long guildId = webhook.getGuild().getIdLong();
     long channelId = webhook.getChannel().getIdLong();
     long id = webhook.getIdLong();
     
-    List<SqlObject> result = sql.query("webhook/SelectWebhook.sql", guildId, channelId, id);
+    List<SqlObject> result = sql.query("db/webhook/Select.sql", guildId, channelId, id);
     
     return result.stream()
           .map(WebhookTable::transform)
           .map(entity -> SqlQuery.unmarshal(entity, WebhookEntity.class))
-          .collect(Collectors.toUnmodifiableList());
+          .findFirst();
   }
   
   private static SqlObject transform(SqlObject obj) {

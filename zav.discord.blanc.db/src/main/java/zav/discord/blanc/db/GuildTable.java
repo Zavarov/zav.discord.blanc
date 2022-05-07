@@ -17,6 +17,7 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ import zav.discord.blanc.db.sql.SqlQuery;
  * Utility class for communicating with the {@code Guild} database.
  */
 @Singleton
-public class GuildTable extends AbstractTable<GuildEntity> {
+public class GuildTable extends AbstractTable<GuildEntity, Guild> {
   
   @Inject
   public GuildTable(SqlQuery sql) {
@@ -39,12 +40,12 @@ public class GuildTable extends AbstractTable<GuildEntity> {
   
   @Override
   protected void create() throws SQLException {
-    sql.update("guild/CreateGuildTable.sql");
+    sql.update("db/guild/Create.sql");
   }
   
   @Override
   public int put(GuildEntity entity) throws SQLException {
-    return sql.update("guild/InsertGuild.sql", (stmt) -> {
+    return sql.update("db/guild/Insert.sql", (stmt) -> {
       stmt.setLong(1, entity.getId());
       stmt.setString(2, entity.getName());
       // Serialize List<String> to String
@@ -52,27 +53,14 @@ public class GuildTable extends AbstractTable<GuildEntity> {
     });
   }
   
-  /**
-   * Removes the {@link Guild} from the database.
-   *
-   * @param guild The {@link Guild} instance that is removed from the database.
-   * @return The number of modified rows.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public int delete(Guild guild) throws SQLException {
-    return sql.update("guild/DeleteGuild.sql", guild.getIdLong());
+    return sql.update("db/guild/Delete.sql", guild.getIdLong());
   }
   
-  /**
-   * Retrieves the entity associated with the provided {@link Guild}.
-   *
-   * @param guild The {@link Guild} instance that is retrieved from the database.
-   * @return The entity associated with the {@link Guild} or {@link Optional#empty()} if no matching
-   *     entity exists in the database.
-   * @throws SQLException If a database error occurred.
-   */
+  @Override
   public Optional<GuildEntity> get(Guild guild) throws SQLException {
-    List<SqlObject> result = sql.query("guild/SelectGuild.sql", guild.getIdLong());
+    List<SqlObject> result = sql.query("db/guild/Select.sql", guild.getIdLong());
   
     return result.stream()
           .map(GuildTable::transform)
