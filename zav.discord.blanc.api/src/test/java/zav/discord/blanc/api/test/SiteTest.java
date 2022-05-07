@@ -14,9 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.api.Site;
 
 /**
  * Test class for interactive messages.
@@ -64,34 +65,34 @@ public class SiteTest {
   public void testMoveLeft() {
     // Roll over
     site.moveLeft();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(2));
+    assertEquals(site.getCurrentPage(), entries1.get(2));
     site.moveLeft();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(1));
+    assertEquals(site.getCurrentPage(), entries1.get(1));
     site.moveLeft();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
+    assertEquals(site.getCurrentPage(), entries1.get(0));
   }
   
   @Test
   public void testMoveRight() {
     site.moveRight();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(1));
+    assertEquals(site.getCurrentPage(), entries1.get(1));
     site.moveRight();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(2));
+    assertEquals(site.getCurrentPage(), entries1.get(2));
     // Roll over
     site.moveRight();
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
+    assertEquals(site.getCurrentPage(), entries1.get(0));
   }
   
   @Test
   public void testChangeSelection() {
     site.changeSelection("page1");
-    assertThat(site.getCurrentPage()).isEqualTo(entries1.get(0));
+    assertEquals(site.getCurrentPage(), entries1.get(0));
     site.changeSelection("page2");
-    assertThat(site.getCurrentPage()).isEqualTo(entries2.get(0));
+    assertEquals(site.getCurrentPage(), entries2.get(0));
   }
   
   @Test
   public void testGetOwner() {
-    assertThat(site.getOwner()).isEqualTo(owner);
+    assertEquals(site.getOwner(), owner);
   }
 }

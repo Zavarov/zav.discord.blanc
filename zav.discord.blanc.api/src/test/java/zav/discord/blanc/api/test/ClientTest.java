@@ -14,9 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -26,7 +26,8 @@ import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.internal.JdaShardSupplier;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.internal.ShardSupplier;
 
 /**
  * Test class for the shards over which the client is split.
@@ -44,7 +45,7 @@ public class ClientTest {
     
     Iterator<JDA> it = shards.iterator();
     
-    JdaShardSupplier supplier = mock(JdaShardSupplier.class);
+    ShardSupplier supplier = mock(ShardSupplier.class);
     doAnswer(invocation -> {
       it.forEachRemaining(invocation.getArgument(0));
       return null;
@@ -54,18 +55,24 @@ public class ClientTest {
     client.postConstruct(supplier);
   }
   
+  /**
+   * Use Case: The client should return all shards.
+   */
   @Test
   public void testGetShards() {
-    assertThat(client.getShards()).isEqualTo(shards);
+    assertEquals(client.getShards(), shards);
   }
   
+  /**
+   * Use Case: The correct shard for each guild should be returned.
+   */
   @Test
   public void testGetShard() {
-    assertThat(client.getShard(1 << 20)).isEqualTo(shards.get(0));
-    assertThat(client.getShard(1 << 21)).isEqualTo(shards.get(0));
-    assertThat(client.getShard(1 << 22)).isEqualTo(shards.get(1));
-    assertThat(client.getShard(1 << 23)).isEqualTo(shards.get(0));
-    assertThat(client.getShard(1 << 24)).isEqualTo(shards.get(0));
-    assertThat(client.getShard(1 << 24 | 1 << 22)).isEqualTo(shards.get(1));
+    assertEquals(client.getShard(1 << 20), shards.get(0));
+    assertEquals(client.getShard(1 << 21), shards.get(0));
+    assertEquals(client.getShard(1 << 22), shards.get(1));
+    assertEquals(client.getShard(1 << 23), shards.get(0));
+    assertEquals(client.getShard(1 << 24), shards.get(0));
+    assertEquals(client.getShard(1 << 24 | 1 << 22), shards.get(1));
   }
 }

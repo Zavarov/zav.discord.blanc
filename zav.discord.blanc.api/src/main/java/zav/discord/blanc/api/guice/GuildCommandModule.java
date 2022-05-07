@@ -17,6 +17,7 @@
 package zav.discord.blanc.api.guice;
 
 import com.google.inject.AbstractModule;
+import java.util.Objects;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -40,6 +41,9 @@ public class GuildCommandModule extends AbstractModule {
   @Override
   @Contract(mutates = "this")
   protected void configure() {
+    Objects.requireNonNull(event.getGuild());
+    Objects.requireNonNull(event.getMember());
+
     // General
     bind(JDA.class).toInstance(event.getJDA());
     bind(MessageChannel.class).toInstance(event.getChannel());

@@ -14,9 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -35,14 +37,14 @@ public class CommandsTest {
   
   @Test
   public void testBind() {
-    assertThat(Commands.bind("command", Command.class)).isTrue();
+    assertTrue(Commands.bind("command", Command.class));
     // Duplicate
-    assertThat(Commands.bind("command", Command.class)).isFalse();
+    assertFalse(Commands.bind("command", Command.class));
   }
   
   @Test
   public void testGet() {
-    assertThat(Commands.bind("command", Command.class)).isTrue();
+    assertTrue(Commands.bind("command", Command.class));
     assertThat(Commands.get("command")).contains(Command.class);
     
     Commands.clear();

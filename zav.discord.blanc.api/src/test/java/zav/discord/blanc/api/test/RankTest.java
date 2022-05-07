@@ -14,15 +14,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.User;
@@ -33,6 +36,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
 
@@ -63,7 +67,7 @@ public class RankTest {
   @ParameterizedTest
   @MethodSource
   public void testGetEffectiveRanks(String name, Set<Rank> effectiveRanks) {
-    assertThat(Rank.getEffectiveRanks(List.of(name))).isEqualTo(effectiveRanks);
+    assertEquals(Rank.getEffectiveRanks(List.of(name)), effectiveRanks);
   }
   
   @Test
@@ -71,7 +75,7 @@ public class RankTest {
     assertThat(Rank.getEffectiveRanks(userTable, user))
           .containsExactly(Rank.USER);
     
-    when(userTable.get(anyLong())).thenThrow(SQLException.class);
+    when(userTable.get(any(User.class))).thenThrow(SQLException.class);
 
     // Also return the default during an database error
     assertThat(Rank.getEffectiveRanks(userTable, user))
@@ -80,7 +84,7 @@ public class RankTest {
   
   @Test
   public void testGetEffectivePersistedRanks() throws SQLException {
-    when(userTable.get(anyLong())).thenReturn(List.of(userEntity));
+    when(userTable.get(any(User.class))).thenReturn(Optional.of(userEntity));
     when(userEntity.getRanks()).thenReturn(List.of("DEVELOPER"));
     
     assertThat(Rank.getEffectiveRanks(userTable, user))

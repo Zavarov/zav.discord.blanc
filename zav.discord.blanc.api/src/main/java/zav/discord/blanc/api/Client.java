@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.internal.JdaShardSupplier;
+import zav.discord.blanc.api.internal.ShardSupplier;
 
 /**
  * The application instance over all shards.
@@ -31,13 +31,9 @@ import zav.discord.blanc.api.internal.JdaShardSupplier;
 public class Client {
   private final List<JDA> shards = new ArrayList<>();
   
-  /*package*/ Client() {
-    // Create instance with Guice
-  }
-  
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void postConstruct(JdaShardSupplier supplier) {
+  public void postConstruct(ShardSupplier supplier) {
     supplier.forEachRemaining(shards::add);
   }
   

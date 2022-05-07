@@ -16,16 +16,11 @@
 
 package zav.discord.blanc.api.internal;
 
-import static net.dv8tion.jda.api.entities.MessageEmbed.VALUE_MAX_LENGTH;
-import static org.apache.commons.lang3.StringUtils.LF;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.join;
-import static org.apache.commons.lang3.StringUtils.truncate;
-
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
@@ -33,7 +28,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Command;
@@ -41,31 +38,32 @@ import zav.discord.blanc.api.Commands;
 import zav.discord.blanc.api.guice.GuildCommandModule;
 import zav.discord.blanc.api.guice.PrivateCommandModule;
 
+/**
+ * This class is responsible for handling and executing all user-commands.
+ */
 public class SlashCommandListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandListener.class);
   
-  private Injector shardInjector;
-  private ScheduledExecutorService commandQueue;
-  
-  /*package*/ SlashCommandListener() {
-    // Create instance with Guice
-  }
+  private @Nullable Injector shardInjector;
+  private @Nullable ScheduledExecutorService commandQueue;
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setShardInjector(Injector shardInjector) {
+  public void setShardInjector(Injector shardInjector) {
     this.shardInjector = shardInjector;
   }
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setCommandQueue(ScheduledExecutorService commandQueue) {
+  public void setCommandQueue(ScheduledExecutorService commandQueue) {
     this.commandQueue = commandQueue;
   }
   
   @Override
   @Contract(mutates = "this")
   public void onSlashCommand(SlashCommandEvent event) {
+    Objects.requireNonNull(shardInjector);
+    
     // Only respond to a command made by a real person
     if (event.getUser().isBot()) {
       LOGGER.warn("Command {} was triggered by a bot. Ignore...", event.getName());
@@ -79,7 +77,13 @@ public class SlashCommandListener extends ListenerAdapter {
       return;
     }
   
-    Module module = event.isFromGuild() ? new GuildCommandModule(event) : new PrivateCommandModule(event);
+    Module module;
+    
+    if (event.isFromGuild()) {
+      module = new GuildCommandModule(event);
+    } else {
+      module = new PrivateCommandModule(event);
+    }
 
     Command cmd = shardInjector.createChildInjector(module).getInstance(clazz);
     
@@ -97,8 +101,16 @@ public class SlashCommandListener extends ListenerAdapter {
     return String.join(".", parts);
   }
   
+  /**
+   * Schedules the command to be executed by the {@link #commandQueue} asynchronously.
+   *
+   * @param event The slash event to which errors are reported to.
+   * @param command The command to be executed.
+   */
   @Contract(mutates = "this, param2")
-  /*package*/ void submit(SlashCommandEvent event, Command command) {
+  public void submit(SlashCommandEvent event, Command command) {
+    Objects.requireNonNull(commandQueue);
+    
     commandQueue.submit(() -> {
       try {
         LOGGER.info("Execute {}.", command.getClass());
@@ -118,7 +130,7 @@ public class SlashCommandListener extends ListenerAdapter {
     
     errorBuilder.setTitle(e.getClass().getSimpleName());
     
-    if (isNotBlank(e.getMessage())) {
+    if (StringUtils.isNotBlank(e.getMessage())) {
       errorBuilder.addField("Message", e.getMessage(), false);
     }
     
@@ -126,8 +138,10 @@ public class SlashCommandListener extends ListenerAdapter {
       errorBuilder.addField("Cause", e.getCause().toString(), false);
     }
     
-    String stackTrace = join(e.getStackTrace(), LF);
-    errorBuilder.addField("StackTrace", truncate(stackTrace, VALUE_MAX_LENGTH), false);
+    String stackTrace;
+    stackTrace = StringUtils.join(e.getStackTrace(), StringUtils.LF);
+    stackTrace = StringUtils.truncate(stackTrace, MessageEmbed.VALUE_MAX_LENGTH);
+    errorBuilder.addField("StackTrace", stackTrace, false);
     
     return errorBuilder.build();
   }

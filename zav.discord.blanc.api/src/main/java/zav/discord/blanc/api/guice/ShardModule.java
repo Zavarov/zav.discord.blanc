@@ -26,6 +26,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.time.Duration;
 import java.util.regex.Pattern;
+import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Site;
 
@@ -39,7 +40,7 @@ public class ShardModule extends AbstractModule {
         .maximumSize(MAX_CACHE_SIZE)
         .build();
   
-  private static final Cache<Long, Pattern> PATTERN_CACHE = CacheBuilder.newBuilder()
+  private static final Cache<Guild, Pattern> PATTERN_CACHE = CacheBuilder.newBuilder()
         .expireAfterAccess(Duration.ofHours(1))
         .maximumSize(MAX_CACHE_SIZE)
         .build();
@@ -51,7 +52,7 @@ public class ShardModule extends AbstractModule {
           .annotatedWith(Names.named(SITE))
           .toInstance(SITE_CACHE);
     
-    bind(new TypeLiteral<Cache<Long, Pattern>>(){})
+    bind(new TypeLiteral<Cache<Guild, Pattern>>(){})
           .annotatedWith(Names.named(PATTERN))
           .toInstance(PATTERN_CACHE);
   }

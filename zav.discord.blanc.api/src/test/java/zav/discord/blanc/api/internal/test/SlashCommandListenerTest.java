@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.internal.test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -39,7 +39,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Commands;
+import zav.discord.blanc.api.internal.SlashCommandListener;
 
+/**
+ * Test Case for checking whether commands are executed when triggered via slash commands.
+ */
 @ExtendWith(MockitoExtension.class)
 public class SlashCommandListenerTest {
   static final String name = "name";
@@ -53,8 +57,11 @@ public class SlashCommandListenerTest {
   
   SlashCommandListener listener;
   
+  /**
+   * Initializes the slash command listener and registers a single command with name {@link #name}.
+   */
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     listener = new SlashCommandListener();
     listener.setCommandQueue(queue);
     listener.setShardInjector(injector);

@@ -31,13 +31,14 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.guice.ShardModule;
 
 /**
  * Utility class for initializing Discord shards.
  */
-public class JdaShardSupplier implements Iterator<JDA> {
+public class ShardSupplier implements Iterator<JDA> {
   /**
    * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
    * We use an additional second as buffer, bringing the time up to 6 seconds.
@@ -54,30 +55,26 @@ public class JdaShardSupplier implements Iterator<JDA> {
         GatewayIntent.GUILD_MESSAGE_REACTIONS
   );
   
-  private Injector clientInjector;
-  private String token;
+  private @Nullable Injector clientInjector;
+  private @Nullable String token;
   private long shardCount;
   private int index = 0;
   
-  /*package*/ JdaShardSupplier() {
-    // Create instance with Guice
-  }
-  
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setToken(@Named(DISCORD_TOKEN) String token) {
+  public void setToken(@Named(DISCORD_TOKEN) String token) {
     this.token = token;
   }
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setShardCount(@Named(SHARD_COUNT) long shardCount) {
+  public void setShardCount(@Named(SHARD_COUNT) long shardCount) {
     this.shardCount = shardCount;
   }
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setClientInjector(Injector clientInjector) {
+  public void setClientInjector(Injector clientInjector) {
     this.clientInjector = clientInjector;
   }
   
@@ -103,6 +100,7 @@ public class JdaShardSupplier implements Iterator<JDA> {
   
       Injector shardInjector = clientInjector.createChildInjector(new ShardModule());
       
+      jda.addEventListener(createGuildListener(shardInjector));
       jda.addEventListener(createBlacklistListener(shardInjector));
       jda.addEventListener(createSiteComponentListener(shardInjector));
       jda.addEventListener(createSlashCommandListener(shardInjector));
@@ -111,6 +109,10 @@ public class JdaShardSupplier implements Iterator<JDA> {
     } catch (Exception e)  {
       throw new RuntimeException(e);
     }
+  }
+  
+  private EventListener createGuildListener(Injector shardInjector) {
+    return shardInjector.getInstance(GuildListener.class);
   }
   
   private EventListener createBlacklistListener(Injector shardInjector) {

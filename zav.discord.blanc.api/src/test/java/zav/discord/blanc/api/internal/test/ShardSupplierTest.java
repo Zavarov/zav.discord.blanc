@@ -14,31 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.internal.test;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.ALL_INTENTS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.getIntents;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
-import static zav.discord.blanc.api.Constants.CLIENT;
-import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
-import static zav.discord.blanc.api.Constants.SHARD_COUNT;
+import static org.mockito.Mockito.when;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.inject.Module;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -46,17 +40,33 @@ import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.internal.BlacklistListener;
+import zav.discord.blanc.api.internal.ShardSupplier;
+import zav.discord.blanc.api.internal.SiteComponentListener;
+import zav.discord.blanc.api.internal.SlashCommandListener;
 
 /**
  * Test case for initializing the JDA instances for all requested shards.
  */
-public class JdaShardSupplierTest {
-  JdaShardSupplier supplier;
+@ExtendWith(MockitoExtension.class)
+public class ShardSupplierTest {
+  ShardSupplier supplier;
 
   MockedStatic<JDABuilder> jdaBuilder;
   MockedConstruction<TimedSemaphore> rateLimiter;
+  
+  @Mock Injector injector;
+  @Mock
+  BlacklistListener blacklistListener;
+  @Mock
+  SiteComponentListener siteComponentListener;
+  @Mock
+  SlashCommandListener slashCommandListener;
   
   /**
    * Create a mock of the JDA builder used for creating shard instances.
@@ -74,8 +84,15 @@ public class JdaShardSupplierTest {
     jdaBuilder = mockStatic(JDABuilder.class);
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
-    Injector injector = Guice.createInjector(new TestModule());
-    supplier = injector.getInstance(JdaShardSupplier.class);
+    supplier = new ShardSupplier();
+    supplier.setToken("token");
+    supplier.setShardCount(2L);
+    supplier.setClientInjector(injector);
+    
+    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
+    when(injector.getInstance(BlacklistListener.class)).thenReturn(blacklistListener);
+    when(injector.getInstance(SiteComponentListener.class)).thenReturn(siteComponentListener);
+    when(injector.getInstance(SlashCommandListener.class)).thenReturn(slashCommandListener);
   }
   
   @AfterEach
@@ -84,30 +101,25 @@ public class JdaShardSupplierTest {
     rateLimiter.close();
   }
   
+  /**
+   * Use Case: Only create as name JDA instances as there are shards.
+   */
   @Test
   public void testHasNext() {
-    assertThat(supplier.hasNext()).isTrue();
+    assertTrue(supplier.hasNext());
     supplier.next();
-    assertThat(supplier.hasNext()).isTrue();
+    assertTrue(supplier.hasNext());
     supplier.next();
-    assertThat(supplier.hasNext()).isFalse();
+    assertFalse(supplier.hasNext());
   }
   
+  /**
+   * Use Case: Create a JDA instance for each shard.
+   */
   @Test
   public void testNext() {
-    assertThat(supplier.next()).isNotNull();
-    assertThat(supplier.next()).isNotNull();
-    assertThatThrownBy(() -> supplier.next()).isInstanceOf(Exception.class);
-  }
-  
-  private static class TestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(ExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
-      bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
-
-      bind(Long.class).annotatedWith(Names.named(SHARD_COUNT)).toInstance(2L);
-      bind(String.class).annotatedWith(Names.named(DISCORD_TOKEN)).toInstance("token");
-    }
+    assertNotNull(supplier.next());
+    assertNotNull(supplier.next());
+    assertThrows(Exception.class, () -> supplier.next());
   }
 }

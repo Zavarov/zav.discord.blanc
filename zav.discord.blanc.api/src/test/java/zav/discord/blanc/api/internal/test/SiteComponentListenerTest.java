@@ -14,13 +14,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.internal.test;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
+import zav.discord.blanc.api.internal.SiteComponentListener;
 
 /**
  * Checks whether site interactions are processed correctly.
@@ -87,6 +89,9 @@ public class SiteComponentListenerTest {
     listener.setSiteCache(siteCache);
   }
   
+  /**
+   * Use Case: Only respond to messages that correspond to a site.
+   */
   @Test
   public void testIgnoreClickOnUnknownMessage() {
     // Interaction on unknown message
@@ -101,16 +106,18 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: Ephemeral messages don't have buttons.
+   */
   @Test
   public void testIgnoreClickOnEphemeralMessage() {
     when(buttonInteraction.getMessage()).thenReturn(message);
     when(buttonInteraction.getUser()).thenReturn(user);
-    // Null for ephemeral message
     when(buttonInteraction.getButton()).thenReturn(null);
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
     
     listener.onButtonClick(clickEvent);
   
@@ -118,16 +125,19 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: Only handle present buttons.
+   */
   @Test
-  public void testIgnoreClickOnUnknownId() {
+  public void testIgnoreClickOnAbsentButton() {
     when(buttonInteraction.getMessage()).thenReturn(message);
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
-    // Null for unknown button ids
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    // Null for absent buttons
     when(button.getId()).thenReturn(null);
     
     listener.onButtonClick(clickEvent);
@@ -136,6 +146,9 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: The author can flip to the previous page.
+   */
   @Test
   public void testClickLeft() {
     when(buttonInteraction.getMessage()).thenReturn(message);
@@ -143,7 +156,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(left);
     when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
   
     listener.onButtonClick(clickEvent);
   
@@ -151,6 +164,9 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: The author can flip to the next page.
+   */
   @Test
   public void testClickRight() {
     when(buttonInteraction.getMessage()).thenReturn(message);
@@ -158,7 +174,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(right);
     when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
   
     listener.onButtonClick(clickEvent);
   
@@ -166,13 +182,16 @@ public class SiteComponentListenerTest {
     verify(site, times(1)).moveRight();
   }
   
+  /**
+   * Use Case: Only handle buttons that have been created by this application.
+   */
   @Test
-  public void testClickInvalidId() {
+  public void testClickInvalidButtonId() {
     when(buttonInteraction.getMessage()).thenReturn(message);
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(EMPTY);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
   
     listener.onButtonClick(clickEvent);
   
@@ -180,6 +199,9 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: Only handle to sites created by this application.
+   */
   @Test
   public void testSelectOnUnknownMessage() {
     // Interaction on unknown message
@@ -194,16 +216,18 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: Only a single entry can be selected.
+   */
   @Test
   public void testSelectOnMultipleEntries() {
     when(selectionInteraction.getMessage()).thenReturn(message);
     when(selectionInteraction.getUser()).thenReturn(user);
-    // Interaction with two selected items
     when(selectionInteraction.getValues()).thenReturn(List.of(EMPTY, EMPTY));
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
   
     listener.onSelectionMenu(selectionEvent);
   
@@ -211,6 +235,9 @@ public class SiteComponentListenerTest {
     verify(site, times(0)).moveRight();
   }
   
+  /**
+   * Use Case: The author can change select pages.
+   */
   @Test
   public void testChangeSelection() {
     when(selectionInteraction.getMessage()).thenReturn(message);
@@ -218,37 +245,41 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.addEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
     
     listener.onSelectionMenu(selectionEvent);
   
     verify(site, times(1)).changeSelection(any());
   }
   
+  /**
+   * Use Case: Only the author can flip pages.
+   */
   @Test
   public void testIgnoreButtonByUnknownUser() {
     when(buttonInteraction.getMessage()).thenReturn(message);
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
-    // Only the owner can interact with this site.
     when(buttonInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
     
     listener.onButtonClick(clickEvent);
   
     verify(replyAction, times(1)).queue();
   }
   
+  /**
+   * Use Case: Only the author can select pages.
+   */
   @Test
   public void testIgnoreSelectionByUnknownUser() {
     when(selectionInteraction.getMessage()).thenReturn(message);
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
-    // Only the owner can interact with this site.
     when(selectionInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    when(siteCache.getIfPresent(anyLong())).thenReturn(site);
+    doReturn(site).when(siteCache).getIfPresent(anyLong());
     
     listener.onSelectionMenu(selectionEvent);
   

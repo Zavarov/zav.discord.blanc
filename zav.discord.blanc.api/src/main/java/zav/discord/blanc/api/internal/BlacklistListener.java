@@ -22,6 +22,7 @@ import static zav.discord.blanc.api.Constants.PATTERN;
 import com.google.common.cache.Cache;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,7 +34,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
-import org.apache.commons.lang3.Validate;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
@@ -51,22 +51,18 @@ public class BlacklistListener extends ListenerAdapter {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
   
-  private Cache<Long, Pattern> patternCache;
-  private GuildTable db;
-  
-  /*package*/ BlacklistListener() {
-    // Create instance with Guice
-  }
+  private @Nullable Cache<Guild, Pattern> patternCache;
+  private @Nullable GuildTable db;
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setPatternCache(@Named(PATTERN) Cache<Long, Pattern> patternCache) {
+  public void setPatternCache(@Named(PATTERN) Cache<Guild, Pattern> patternCache) {
     this.patternCache = patternCache;
   }
   
   @Inject
   @Contract(mutates = "this")
-  /*package*/ void setDatabase(GuildTable db) {
+  public void setDatabase(GuildTable db) {
     this.db = db;
   }
   
@@ -82,7 +78,7 @@ public class BlacklistListener extends ListenerAdapter {
       return;
     }
     
-    @Nullable Pattern pattern = getPattern(event.getGuild().getIdLong());
+    @Nullable Pattern pattern = getPattern(event.getGuild());
     
     // No blacklist -> abort
     if (pattern == null) {
@@ -97,8 +93,10 @@ public class BlacklistListener extends ListenerAdapter {
     }
   }
   
-  private @Nullable Pattern getPattern(long guildId) {
-    @Nullable Pattern pattern = patternCache.getIfPresent(guildId);
+  private @Nullable Pattern getPattern(Guild guild) {
+    Objects.requireNonNull(patternCache);
+    
+    @Nullable Pattern pattern = patternCache.getIfPresent(guild);
     
     // Pattern has been cached
     if (pattern != null) {
@@ -107,12 +105,7 @@ public class BlacklistListener extends ListenerAdapter {
     
     // Fetch pattern from database if it has already been garbage-collected.
     try {
-      List<GuildEntity> responses = db.get(guildId);
-  
-      // Each guild should have at most one database entry
-      Validate.validState(responses.size() <= 1);
-      
-      return responses.size() == 0 ? null : getPattern(responses.get(0));
+      return db.get(guild).map(this::getPattern).orElse(null);
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
       return null;

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.guice;
+package zav.discord.blanc.api.guice.test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

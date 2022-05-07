@@ -21,12 +21,10 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,18 +80,16 @@ public enum Rank {
    * Returns all ranks that are owned by the given user. If the user is not in the database or if
    * an SQL error occurred, {@link Rank#USER} is returned.
    *
-   * @param userTable The user database.
+   * @param db The user database.
    * @param user A Discord user.
    * @return A list of effective ranks.
    */
   @Contract(pure = true)
-  public static Set<Rank> getEffectiveRanks(UserTable userTable, User user) {
+  public static Set<Rank> getEffectiveRanks(UserTable db, User user) {
     try {
-      List<UserEntity> responses = userTable.get(user.getIdLong());
-    
-      Validate.validState(responses.size() <= 1);
-    
-      return responses.isEmpty() ? Set.of(USER) : getEffectiveRanks(responses.get(0).getRanks());
+      return db.get(user).map(UserEntity::getRanks)
+            .map(Rank::getEffectiveRanks)
+            .orElse(Set.of(USER));
     } catch (SQLException e) {
       LOGGER.warn(e.getMessage(), e);
       return Set.of(Rank.USER);
