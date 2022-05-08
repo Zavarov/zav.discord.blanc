@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.guice.test;
+package zav.discord.blanc.api.guice;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,23 +22,24 @@ import static org.mockito.Mockito.when;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.guice.PrivateCommandModule;
 
 /**
- * Checks whether the injector is able to create (private) commands.
+ * Checks whether the injector is able to create (guild) commands.
  */
-public class PrivateCommandModuleTest {
+public class GuildCommandModuleTest {
   Injector injector;
   
   /**
-   * Initializes an injector with a private command module.
+   * Initializes an injector with a guild command module.
    */
   @BeforeEach
   public void setUp() {
@@ -46,9 +47,11 @@ public class PrivateCommandModuleTest {
     when(event.getJDA()).thenReturn(mock(JDA.class));
     when(event.getChannel()).thenReturn(mock(MessageChannel.class));
     when(event.getUser()).thenReturn(mock(User.class));
-    when(event.getPrivateChannel()).thenReturn(mock(PrivateChannel.class));
-    
-    injector = Guice.createInjector(new PrivateCommandModule(event));
+    when(event.getGuild()).thenReturn(mock(Guild.class));
+    when(event.getTextChannel()).thenReturn(mock(TextChannel.class));
+    when(event.getMember()).thenReturn(mock(Member.class));
+  
+    injector = Guice.createInjector(new GuildCommandModule(event));
   }
   
   @Test
@@ -59,7 +62,7 @@ public class PrivateCommandModuleTest {
   private static class TestCommand implements Command {
     @Override
     public void run() {}
-    
+  
     @Override
     public void validate() {}
   }

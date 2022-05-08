@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.test;
+package zav.discord.blanc.api.internal;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,7 +46,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
-import zav.discord.blanc.api.internal.SiteComponentListener;
 
 /**
  * Checks whether site interactions are processed correctly.

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.test;
+package zav.discord.blanc.api.internal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -48,7 +48,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.internal.BlacklistListener;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.sql.SqlQuery;

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.test;
+package zav.discord.blanc.api.internal;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +44,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Commands;
-import zav.discord.blanc.api.internal.SlashCommandListener;
 
 /**
  * Test Case for checking whether commands are executed when triggered via slash commands.

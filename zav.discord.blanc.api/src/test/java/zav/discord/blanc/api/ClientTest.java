@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.test;
+package zav.discord.blanc.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +26,6 @@ import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.internal.ShardSupplier;
 
 /**

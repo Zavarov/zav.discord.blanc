@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal.test;
+package zav.discord.blanc.api.internal;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.ALL_INTENTS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.getIntents;
@@ -45,10 +45,6 @@ import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.internal.BlacklistListener;
-import zav.discord.blanc.api.internal.ShardSupplier;
-import zav.discord.blanc.api.internal.SiteComponentListener;
-import zav.discord.blanc.api.internal.SlashCommandListener;
 
 /**
  * Test case for initializing the JDA instances for all requested shards.
