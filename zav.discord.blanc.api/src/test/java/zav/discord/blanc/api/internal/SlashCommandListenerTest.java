@@ -136,7 +136,7 @@ public class SlashCommandListenerTest {
    * @throws Exception When an error occurred during command execution.
    */
   @ParameterizedTest
-  @MethodSource("exceptionProvider")
+  @MethodSource("contentProvider")
   public void testExecuteGuildCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
     when(event.getName()).thenReturn(name);
@@ -191,7 +191,7 @@ public class SlashCommandListenerTest {
    * @throws Exception When an error occurred during command execution.
    */
   @ParameterizedTest
-  @MethodSource("exceptionProvider")
+  @MethodSource("contentProvider")
   public void testExecutePrivateCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
     when(event.getName()).thenReturn(name);
@@ -213,7 +213,7 @@ public class SlashCommandListenerTest {
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
   }
   
-  static Stream<Arguments> exceptionProvider() {
+  static Stream<Arguments> contentProvider() {
     return Stream.of(
           arguments("message", new Exception()),
           arguments(null, new Exception()),
