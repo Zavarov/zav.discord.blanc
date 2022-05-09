@@ -51,7 +51,7 @@ public class GuildListener extends ListenerAdapter {
   }
   
   @Inject
-  public void setGuildTable(GuildTable guildTable) {
+  public void setDatabase(GuildTable guildTable) {
     this.guildTable = guildTable;
   }
   
@@ -60,9 +60,9 @@ public class GuildListener extends ListenerAdapter {
     try {
       Objects.requireNonNull(textChannelTable);
       Objects.requireNonNull(webhookTable);
-      
-      textChannelTable.delete(event.getChannel());
+  
       webhookTable.delete(event.getChannel());
+      textChannelTable.delete(event.getChannel());
       
       LOGGER.info("Delete all database entries associated with {}.", event.getChannel().getName());
     } catch (SQLException e) {
@@ -77,9 +77,9 @@ public class GuildListener extends ListenerAdapter {
       Objects.requireNonNull(webhookTable);
       Objects.requireNonNull(guildTable);
   
-      textChannelTable.delete(event.getGuild());
-      webhookTable.delete(event.getGuild());
       guildTable.delete(event.getGuild());
+      webhookTable.delete(event.getGuild());
+      textChannelTable.delete(event.getGuild());
       
       LOGGER.info("Delete all database entries associated with {}.", event.getGuild().getName());
     } catch (SQLException e) {

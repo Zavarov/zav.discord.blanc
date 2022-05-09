@@ -45,6 +45,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -67,7 +69,6 @@ public class BlacklistListenerTest {
   @Mock AuditableRestAction<Void> restAction;
   @Mock MessageEmbed messageEmbed;
   @Mock MessageEmbed.Field field;
-  @Mock MessageEmbed.Footer footer;
   @Mock User author;
   @Mock Guild guild;
   @Mock TextChannel textChannel;
@@ -229,10 +230,11 @@ public class BlacklistListenerTest {
    *
    * @throws SQLException When a database error occurred.
    */
-  @Test
-  public void testDeleteByTextContent() throws SQLException {
+  @ParameterizedTest
+  @ValueSource(strings = {"banana", "pizza"})
+  public void testDeleteMessage(String content) throws SQLException {
     when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
+    when(guildEntity.getBlacklist()).thenReturn(List.of("banana", "pizza"));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
@@ -241,169 +243,10 @@ public class BlacklistListenerTest {
     when(jda.getSelfUser()).thenReturn(selfUser);
     when(message.delete()).thenReturn(restAction);
     // Banned word
-    when(message.getContentRaw()).thenReturn("banana");
+    when(message.getContentRaw()).thenReturn(content);
   
     listener.onGuildMessageReceived(event);
     
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their title should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByEmbedTitle() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    // Banned word
-    when(messageEmbed.getTitle()).thenReturn("banana");
-  
-    listener.onGuildMessageReceived(event);
-  
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their URL should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByEmbedUrl() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    // Banned word
-    when(messageEmbed.getUrl()).thenReturn("www.banana.com");
-  
-    listener.onGuildMessageReceived(event);
-  
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their description should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByEmbedDescription() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    // Banned word
-    when(messageEmbed.getDescription()).thenReturn("banana");
-  
-    listener.onGuildMessageReceived(event);
-  
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their field names should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByEmbedFieldName() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    when(messageEmbed.getFields()).thenReturn(List.of(field));
-    // Banned word
-    when(field.getName()).thenReturn("banana");
-  
-    listener.onGuildMessageReceived(event);
-  
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their field values should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByEmbedFieldValue() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    when(messageEmbed.getFields()).thenReturn(List.of(field));
-    // Banned word
-    when(field.getValue()).thenReturn("banana");
-    
-    listener.onGuildMessageReceived(event);
-    
-    verify(message, times(1)).delete();
-  }
-  
-  /**
-   * Use Case: Embedded messages with banned expressions in their footer should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testDeleteByFooterText() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    when(messageEmbed.getFooter()).thenReturn(footer);
-    // Banned word
-    when(footer.getText()).thenReturn("banana");
-  
-    listener.onGuildMessageReceived(event);
-  
     verify(message, times(1)).delete();
   }
 }

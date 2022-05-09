@@ -57,6 +57,7 @@ public class ShardSupplierTest {
   MockedConstruction<TimedSemaphore> rateLimiter;
   
   @Mock Injector injector;
+  @Mock GuildListener guildListener;
   @Mock BlacklistListener blacklistListener;
   @Mock SiteComponentListener siteComponentListener;
   @Mock SlashCommandListener slashCommandListener;
@@ -83,6 +84,7 @@ public class ShardSupplierTest {
     supplier.setClientInjector(injector);
     
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
+    when(injector.getInstance(GuildListener.class)).thenReturn(guildListener);
     when(injector.getInstance(BlacklistListener.class)).thenReturn(blacklistListener);
     when(injector.getInstance(SiteComponentListener.class)).thenReturn(siteComponentListener);
     when(injector.getInstance(SlashCommandListener.class)).thenReturn(slashCommandListener);

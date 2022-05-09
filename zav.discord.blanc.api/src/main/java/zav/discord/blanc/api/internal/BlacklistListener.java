@@ -141,7 +141,7 @@ public class BlacklistListener extends ListenerAdapter {
   /**
    * Utility class to check whether a message has to be deleted.
    */
-  private static class MessageChecker {
+  /*package*/ interface MessageChecker {
     /**
      * Checks whether the message contains a forbidden expression.<br>
      * Both the raw content of the message and all message embeds are validated.
@@ -150,7 +150,7 @@ public class BlacklistListener extends ListenerAdapter {
      * @param pattern The pattern against which the content is validated.
      * @return {@code true}, if the message contains a forbidden expression.
      */
-    public static boolean shouldDelete(Message message, Pattern pattern) {
+    static boolean shouldDelete(Message message, Pattern pattern) {
       boolean shouldDelete = checkContent(message.getContentRaw(), pattern);
       
       if (shouldDelete) {
@@ -169,8 +169,8 @@ public class BlacklistListener extends ListenerAdapter {
      * @param pattern The pattern against which the content is validated.
      * @return {@code true}, if the message contains a forbidden expression.
      */
-    private static boolean checkContent(String content, Pattern pattern) {
-      return pattern.matcher(content).find();
+    private static boolean checkContent(@Nullable String content, Pattern pattern) {
+      return content != null && pattern.matcher(content).find();
     }
   
     /**
@@ -248,7 +248,13 @@ public class BlacklistListener extends ListenerAdapter {
      * @return {@code true}, if the field contains a forbidden expression.
      */
     private static boolean checkFooter(MessageEmbed.Footer footer, Pattern pattern) {
-      return footer.getText() != null && pattern.matcher(footer.getText()).find();
+      if (footer.getText() != null && pattern.matcher(footer.getText()).find()) {
+        return true;
+      } else if (footer.getIconUrl() != null && pattern.matcher(footer.getIconUrl()).find()) {
+        return true;
+      } else {
+        return footer.getProxyIconUrl() != null && pattern.matcher(footer.getProxyIconUrl()).find();
+      }
     }
   }
 }
