@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -38,13 +39,8 @@ import zav.discord.blanc.api.guice.ShardModule;
 /**
  * Utility class for initializing Discord shards.
  */
+@Singleton
 public class ShardSupplier implements Iterator<JDA> {
-  /**
-   * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
-   * We use an additional second as buffer, bringing the time up to 6 seconds.
-   */
-  private static final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
-  
   /**
    * A set of all intents that are required for this bot to work.
    */
@@ -55,6 +51,11 @@ public class ShardSupplier implements Iterator<JDA> {
         GatewayIntent.GUILD_MESSAGE_REACTIONS
   );
   
+  /**
+   * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
+   * We use an additional second as buffer, bringing the time up to 6 seconds.
+   */
+  private final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
   private @Nullable Injector clientInjector;
   private @Nullable String token;
   private long shardCount;
