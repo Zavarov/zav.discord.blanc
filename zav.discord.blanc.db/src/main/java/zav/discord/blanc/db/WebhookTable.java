@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.apache.commons.lang3.StringUtils;
@@ -91,14 +92,22 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
   public int retain(Guild guild) throws SQLException {
     int result = 0;
     
+    result += retainTextChannels(guild);
+    
     for (TextChannel textChannel : guild.getTextChannels()) {
-      result += retain(guild, textChannel);
+      result += retainWebhooks(guild, textChannel);
     }
     
     return result;
   }
   
-  private int retain(Guild guild, TextChannel textChannel) throws SQLException {
+  private int retainTextChannels(Guild guild) throws SQLException {
+    String guildId = guild.getId();
+    String ids = transform(guild.getTextChannels());
+    return sql.update("db/webhook/RetainChannel.sql", guildId, ids);
+  }
+  
+  private int retainWebhooks(Guild guild, TextChannel textChannel) throws SQLException {
     String guildId = guild.getId();
     String channelId = textChannel.getId();
     String ids = transform(textChannel.retrieveWebhooks().complete());
