@@ -13,21 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@NonNullByDefault
+package zav.discord.blanc.command;
 
-package zav.discord.blanc.command.test;
-
-import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.command.AbstractCommand;
-
-/**
- * A command that can only be executed by users with the {@link Rank#ROOT} rank.
- */
-public class DeveloperCommand extends AbstractCommand {
-  
-  public DeveloperCommand() {
-    super(Rank.ROOT);
-  }
-  
-  @Override
-  public void run() {}
-}
+import org.eclipse.jdt.annotation.NonNullByDefault;

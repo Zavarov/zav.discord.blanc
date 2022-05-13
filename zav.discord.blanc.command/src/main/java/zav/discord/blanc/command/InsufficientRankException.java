@@ -16,8 +16,8 @@
 
 package zav.discord.blanc.command;
 
+import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Rank;
 
 /**
@@ -26,13 +26,12 @@ import zav.discord.blanc.api.Rank;
  *
  * @see Rank
  */
-@NonNullByDefault
 public class InsufficientRankException extends Exception {
-  public InsufficientRankException(Rank... ranks) {
+  public InsufficientRankException(Collection<Rank> ranks) {
     super(getMessage(ranks));
   }
   
-  private static String getMessage(Rank... ranks) {
+  private static String getMessage(Collection<Rank> ranks) {
     return "You require the following rank(s) to execute this command: "
           + StringUtils.join(ranks, ",");
   }

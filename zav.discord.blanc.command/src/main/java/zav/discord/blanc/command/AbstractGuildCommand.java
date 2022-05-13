@@ -16,31 +16,22 @@
 
 package zav.discord.blanc.command;
 
+import java.util.Objects;
 import java.util.Set;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.command.internal.PermissionValidator;
 
 /**
  * Base class for all guild commands.<br>
  * Guild commands may require additional Guild-specific permissions in order to be executed.
  */
-@NonNullByDefault
 public abstract class AbstractGuildCommand extends AbstractCommand {
-  @Inject
-  protected Guild guild;
-  @Inject
-  protected TextChannel channel;
-  @Inject
-  protected Member author;
-  @Inject
-  private UserTable db;
+  
+  private @Nullable PermissionValidator validator;
   
   private final Set<Permission> permissions;
   
@@ -53,17 +44,17 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
     this.permissions = Set.of(permissions);
   }
   
+  @Inject
+  /*package*/ void setValidator(PermissionValidator validator) {
+    this.validator = validator;
+  }
+  
   @Override
   @Contract(pure = true)
   public void validate() throws Exception {
+    Objects.requireNonNull(validator);
     super.validate();
-    
-    boolean isRoot = Rank.getEffectiveRanks(db, author.getUser()).contains(Rank.ROOT);
-    boolean hasRank = author.getPermissions(channel).containsAll(permissions);
-    
-    // Does the user have the required permissions?
-    if (!isRoot && ! hasRank) {
-      throw new InsufficientPermissionException();
-    }
+    // Has the user the required guild permissions
+    validator.validate(permissions);
   }
 }

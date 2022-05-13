@@ -13,21 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@NonNullByDefault
+package zav.discord.blanc.command.internal;
 
-package zav.discord.blanc.command.test;
-
-import net.dv8tion.jda.api.Permission;
-import zav.discord.blanc.command.AbstractGuildCommand;
-
-/**
- * A command that con only be executed within a guild administrator.
- */
-public class ModeratorCommand extends AbstractGuildCommand {
-  
-  public ModeratorCommand() {
-    super(Permission.ADMINISTRATOR);
-  }
-  
-  @Override
-  public void run() {}
-}
+import org.eclipse.jdt.annotation.NonNullByDefault;

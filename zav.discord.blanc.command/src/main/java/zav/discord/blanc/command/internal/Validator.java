@@ -14,15 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.command.test;
+package zav.discord.blanc.command.internal;
 
-import net.dv8tion.jda.api.entities.Guild;
-import zav.discord.blanc.command.AbstractGuildCommand;
+import java.util.Collection;
 
-/**
- * A command that con only be executed within a {@link Guild}.
- */
-public class GuildCommand extends AbstractGuildCommand {
-  @Override
-  public void run() {}
+public interface Validator<T> {
+  void validate(Collection<T> args) throws Exception;
 }

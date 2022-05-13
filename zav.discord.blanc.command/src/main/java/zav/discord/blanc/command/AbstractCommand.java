@@ -17,38 +17,25 @@
 package zav.discord.blanc.command;
 
 import static zav.discord.blanc.api.Rank.USER;
-import static zav.discord.blanc.api.Rank.getEffectiveRanks;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.command.internal.RankValidator;
 
 /**
  * Abstract base class for all commands.<br>
  * Commands can be either executed in a guild or private channel.
  */
-@NonNullByDefault
 public abstract class AbstractCommand implements Command {
-  @Inject
-  protected JDA shard;
-  @Inject
-  protected MessageChannel channel;
-  @Inject
-  protected User author;
-  @Inject
-  protected SlashCommandEvent event;
-  @Inject
-  private UserTable db;
-  
   protected final ResourceBundle i18n;
+  
+  private @Nullable RankValidator validator;
   
   private final Rank requiredRank;
   
@@ -61,12 +48,16 @@ public abstract class AbstractCommand implements Command {
     this(USER);
   }
   
+  @Inject
+  /*package*/ void setValidator(RankValidator validator) {
+    this.validator = validator;
+  }
+  
   @Override
   @Contract(pure = true)
   public void validate() throws Exception {
+    Objects.requireNonNull(validator);
     // Does the user have the required rank?
-    if (!getEffectiveRanks(db, author).contains(requiredRank)) {
-      throw new InsufficientRankException(requiredRank);
-    }
+    validator.validate(List.of(requiredRank));
   }
 }
