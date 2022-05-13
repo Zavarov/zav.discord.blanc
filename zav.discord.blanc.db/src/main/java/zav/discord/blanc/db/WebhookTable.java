@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.sql.SqlObject;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -60,7 +61,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
   }
   
   public int delete(Guild guild) throws SQLException {
-    return sql.update("db/webhook/DeleteGuild.sql", guild.getIdLong());
+    return sql.update("db/webhook/DeleteGuild.sql", guild.getId());
   }
   
   /**
@@ -72,17 +73,17 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
    * @throws SQLException If a database error occurred.
    */
   public int delete(TextChannel textChannel) throws SQLException {
-    long guildId = textChannel.getGuild().getIdLong();
-    long channelId = textChannel.getIdLong();
+    String guildId = textChannel.getGuild().getId();
+    String channelId = textChannel.getId();
     
     return sql.update("db/webhook/DeleteChannel.sql", guildId, channelId);
   }
   
   @Override
   public int delete(Webhook webhook) throws SQLException {
-    long guildId = webhook.getGuild().getIdLong();
-    long channelId = webhook.getChannel().getIdLong();
-    long id = webhook.getIdLong();
+    String guildId = webhook.getGuild().getId();
+    String channelId = webhook.getChannel().getId();
+    String id = webhook.getId();
     
     return sql.update("db/webhook/Delete.sql", guildId, channelId, id);
   }
@@ -113,7 +114,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(Guild guild) throws SQLException {
-    List<SqlObject> result = sql.query("db/webhook/SelectGuild.sql", guild.getIdLong());
+    List<SqlObject> result = sql.query("db/webhook/SelectGuild.sql", guild.getId());
   
     return result.stream()
           .map(WebhookTable::transform)
@@ -131,8 +132,8 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
    * @throws SQLException If a database error occurred.
    */
   public List<WebhookEntity> get(TextChannel textChannel) throws SQLException {
-    long guildId = textChannel.getGuild().getIdLong();
-    long id = textChannel.getIdLong();
+    String guildId = textChannel.getGuild().getId();
+    String id = textChannel.getId();
     
     List<SqlObject> result = sql.query("db/webhook/SelectChannel.sql", guildId, id);
     
@@ -144,9 +145,9 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
   
   @Override
   public Optional<WebhookEntity> get(Webhook webhook) throws SQLException {
-    long guildId = webhook.getGuild().getIdLong();
-    long channelId = webhook.getChannel().getIdLong();
-    long id = webhook.getIdLong();
+    String guildId = webhook.getGuild().getId();
+    String channelId = webhook.getChannel().getId();
+    String id = webhook.getId();
     
     List<SqlObject> result = sql.query("db/webhook/Select.sql", guildId, channelId, id);
     
@@ -156,11 +157,11 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
           .findFirst();
   }
   
-  private static String transform(Collection<Webhook> webhooks) {
-    return webhooks.stream()
-          .map(Webhook::getId)
+  private static String transform(Collection<? extends ISnowflake> source) {
+    return source.stream()
+          .map(ISnowflake::getId)
           .reduce((u, v) -> u + "," + v)
-          .orElseThrow();
+          .orElse(StringUtils.EMPTY);
   }
   
   private static SqlObject transform(SqlObject obj) {

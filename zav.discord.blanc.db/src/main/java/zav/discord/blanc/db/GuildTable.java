@@ -55,12 +55,12 @@ public class GuildTable extends AbstractTable<GuildEntity, Guild> {
   
   @Override
   public int delete(Guild guild) throws SQLException {
-    return sql.update("db/guild/Delete.sql", guild.getIdLong());
+    return sql.update("db/guild/Delete.sql", guild.getId());
   }
   
   @Override
   public Optional<GuildEntity> get(Guild guild) throws SQLException {
-    List<SqlObject> result = sql.query("db/guild/Select.sql", guild.getIdLong());
+    List<SqlObject> result = sql.query("db/guild/Select.sql", guild.getId());
   
     return result.stream()
           .map(GuildTable::transform)

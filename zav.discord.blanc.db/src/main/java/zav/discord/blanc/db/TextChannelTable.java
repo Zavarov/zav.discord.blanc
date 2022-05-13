@@ -61,8 +61,8 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
   
   @Override
   public int delete(TextChannel textChannel) throws SQLException {
-    long guildId = textChannel.getGuild().getIdLong();
-    long textChannelId = textChannel.getIdLong();
+    String guildId = textChannel.getGuild().getId();
+    String textChannelId = textChannel.getId();
     
     return sql.update("db/textchannel/Delete.sql", guildId, textChannelId);
   }
@@ -75,7 +75,7 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
    * @throws SQLException If a database error occurred.
    */
   public int delete(Guild guild) throws SQLException {
-    long guildId = guild.getIdLong();
+    String guildId = guild.getId();
     
     return sql.update("db/textchannel/DeleteGuild.sql", guildId);
   }
@@ -95,7 +95,7 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
    * @throws SQLException If a database error occurred.
    */
   public List<TextChannelEntity> get(Guild guild) throws SQLException {
-    long guildId = guild.getIdLong();
+    String guildId = guild.getId();
     
     List<SqlObject> result = sql.query("db/textchannel/SelectGuild.sql", guildId);
 
@@ -107,8 +107,8 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
   
   @Override
   public Optional<TextChannelEntity> get(TextChannel textChannel) throws SQLException {
-    long guildId = textChannel.getGuild().getIdLong();
-    long channelId = textChannel.getIdLong();
+    String guildId = textChannel.getGuild().getId();
+    String channelId = textChannel.getId();
     
     List<SqlObject> result = sql.query("db/textchannel/Select.sql", guildId, channelId);
 

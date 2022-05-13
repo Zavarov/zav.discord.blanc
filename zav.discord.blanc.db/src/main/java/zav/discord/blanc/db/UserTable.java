@@ -56,12 +56,12 @@ public class UserTable extends AbstractTable<UserEntity, User> {
   
   @Override
   public int delete(User user) throws SQLException {
-    return sql.update("db/user/Delete.sql", user.getIdLong());
+    return sql.update("db/user/Delete.sql", user.getId());
   }
   
   @Override
   public Optional<UserEntity> get(User user) throws SQLException {
-    List<SqlObject> result = sql.query("db/user/Select.sql", user.getIdLong());
+    List<SqlObject> result = sql.query("db/user/Select.sql", user.getId());
   
     return result.stream()
           .map(UserTable::transform)
