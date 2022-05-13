@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.db.sql.SqlObject;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -118,11 +120,11 @@ public class TextChannelTable extends AbstractTable<TextChannelEntity, TextChann
           .findFirst();
   }
   
-  private static String transform(Collection<TextChannel> textChannels) {
-    return textChannels.stream()
-          .map(TextChannel::getId)
+  private static String transform(Collection<? extends ISnowflake> entities) {
+    return entities.stream()
+          .map(ISnowflake::getId)
           .reduce((u, v) -> u + "," + v)
-          .orElseThrow();
+          .orElse(StringUtils.EMPTY);
   }
   
   private static SqlObject transform(SqlObject obj) {
