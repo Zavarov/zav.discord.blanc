@@ -17,7 +17,6 @@
 package zav.discord.blanc.db;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
