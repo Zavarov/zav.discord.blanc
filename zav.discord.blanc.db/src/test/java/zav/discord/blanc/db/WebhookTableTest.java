@@ -14,22 +14,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db.test;
+package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import static zav.test.io.JsonUtils.read;
 
 import java.sql.SQLException;
+import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.db.WebhookTable;
 
 /**
  * Test case for the Webhook database.<br>
@@ -40,6 +45,7 @@ public class WebhookTableTest extends AbstractTableTest {
   WebhookTable db;
   WebhookEntity entity;
   
+  @Mock RestAction<List<Webhook>> action;
   @Mock Webhook webhook;
   @Mock TextChannel textChannel;
   @Mock Guild guild;
@@ -61,11 +67,11 @@ public class WebhookTableTest extends AbstractTableTest {
   
   @Test
   public void testPut() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getChannelId());
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
     when(webhook.getGuild()).thenReturn(guild);
     when(webhook.getChannel()).thenReturn(textChannel);
-    when(webhook.getIdLong()).thenReturn(entity.getId());
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
   
     assertEquals(db.put(entity), 1);
     assertThat(db.get(webhook)).map(WebhookEntity::getName).contains(entity.getName());
@@ -78,8 +84,8 @@ public class WebhookTableTest extends AbstractTableTest {
   
   @Test
   public void testDeleteGuild() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-  
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    
     assertEquals(db.put(entity), 1);
     assertEquals(db.delete(guild), 1);
     assertEquals(db.delete(guild), 0);
@@ -87,8 +93,8 @@ public class WebhookTableTest extends AbstractTableTest {
   
   @Test
   public void testDeleteTextChannel() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getChannelId());
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
     when(textChannel.getGuild()).thenReturn(guild);
   
     assertEquals(db.put(entity), 1);
@@ -98,11 +104,11 @@ public class WebhookTableTest extends AbstractTableTest {
   
   @Test
   public void testDeleteWebhook() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getChannelId());
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
     when(webhook.getGuild()).thenReturn(guild);
     when(webhook.getChannel()).thenReturn(textChannel);
-    when(webhook.getIdLong()).thenReturn(entity.getId());
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
   
     assertEquals(db.put(entity), 1);
     assertEquals(db.delete(webhook), 1);
@@ -111,36 +117,88 @@ public class WebhookTableTest extends AbstractTableTest {
   
   @Test
   public void testGetGuild() throws SQLException {
-    db.put(entity);
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     
     assertThat(db.get(guild)).isEmpty();
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
+    db.put(entity);
     assertThat(db.get(guild)).contains(entity);
   }
   
   @Test
   public void testGetTextChannel() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(textChannel.getGuild()).thenReturn(guild);
     
     db.put(entity);
     
     assertThat(db.get(textChannel)).isEmpty();
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getChannelId());
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
     assertThat(db.get(textChannel)).contains(entity);
   }
   
   @Test
   public void testGetWebhook() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(webhook.getGuild()).thenReturn(guild);
     when(webhook.getChannel()).thenReturn(textChannel);
   
     db.put(entity);
   
     assertThat(db.get(webhook)).isEmpty();
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getChannelId());
-    when(webhook.getIdLong()).thenReturn(entity.getId());
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
     assertThat(db.get(webhook)).contains(entity);
+  }
+  
+  @Test
+  public void testContains() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(webhook.getGuild()).thenReturn(guild);
+    when(webhook.getChannel()).thenReturn(textChannel);
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
+    
+    assertFalse(db.contains(webhook));
+    
+    db.put(entity);
+    
+    assertTrue(db.contains(webhook));
+  }
+  
+  @Test
+  public void testRetain() throws SQLException {
+    when(webhook.getGuild()).thenReturn(guild);
+    when(webhook.getChannel()).thenReturn(textChannel);
+    when(webhook.getId()).thenReturn(Long.toString(entity.getId()));
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(textChannel.retrieveWebhooks()).thenReturn(action);
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
+    when(action.complete()).thenReturn(List.of(webhook));
+    
+    db.put(entity);
+    
+    db.retain(guild);
+    assertTrue(db.contains(webhook));
+  
+    when(action.complete()).thenReturn(List.of(webhook, mock(Webhook.class)));
+    db.retain(guild);
+    assertTrue(db.contains(webhook));
+  
+    when(guild.getTextChannels()).thenReturn(List.of());
+    db.retain(guild);
+    assertFalse(db.contains(webhook));
+  }
+  
+  @Test
+  @Override
+  public void testPostConstruct() throws Exception {
+    long lastModified = ENTITY_DB_PATH.toFile().lastModified();
+    
+    db.postConstruct();
+    
+    // Database should not be overwritten
+    assertEquals(ENTITY_DB_PATH.toFile().lastModified(), lastModified);
   }
 }

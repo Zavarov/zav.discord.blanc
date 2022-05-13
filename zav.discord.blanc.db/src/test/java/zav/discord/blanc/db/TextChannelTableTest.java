@@ -14,23 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db.test;
+package zav.discord.blanc.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import static zav.test.io.JsonUtils.read;
 
 import java.sql.SQLException;
+import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.db.TextChannelTable;
 
 /**
  * Test case for the TextChannel database.<br>
@@ -61,10 +63,9 @@ public class TextChannelTableTest extends AbstractTableTest {
   
   @Test
   public void testPut() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getId());
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(textChannel.getGuild()).thenReturn(guild);
-  
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getId()));
   
     assertEquals(db.put(entity), 1);
     assertThat(db.get(textChannel)).map(TextChannelEntity::getName).contains(entity.getName());
@@ -77,8 +78,8 @@ public class TextChannelTableTest extends AbstractTableTest {
   
   @Test
   public void testDeleteGuild() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-  
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    
     assertEquals(db.put(entity), 1);
     assertEquals(db.delete(guild), 1);
     assertEquals(db.delete(guild), 0);
@@ -86,9 +87,9 @@ public class TextChannelTableTest extends AbstractTableTest {
   
   @Test
   public void testDeleteTextChannel() throws SQLException {
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getId());
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(textChannel.getGuild()).thenReturn(guild);
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getId()));
   
     assertEquals(db.put(entity), 1);
     assertEquals(db.delete(textChannel), 1);
@@ -97,22 +98,64 @@ public class TextChannelTableTest extends AbstractTableTest {
   
   @Test
   public void testGetGuild() throws SQLException {
-    db.put(entity);
-  
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    
     assertThat(db.get(guild)).isEmpty();
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
+    db.put(entity);
     assertThat(db.get(guild)).contains(entity);
   }
   
   @Test
   public void testGetTextChannel() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(textChannel.getGuild()).thenReturn(guild);
-    
-    db.put(entity);
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getId()));
   
     assertThat(db.get(textChannel)).isEmpty();
-    when(guild.getIdLong()).thenReturn(entity.getGuildId());
-    when(textChannel.getIdLong()).thenReturn(entity.getId());
+    db.put(entity);
     assertThat(db.get(textChannel)).contains(entity);
+  }
+  
+  @Test
+  public void testContains() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(textChannel.getGuild()).thenReturn(guild);
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getId()));
+    
+    assertFalse(db.contains(textChannel));
+    db.put(entity);
+    assertTrue(db.contains(textChannel));
+  }
+  
+  @Test
+  public void testRetain() throws SQLException {
+    when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
+    when(textChannel.getGuild()).thenReturn(guild);
+    when(textChannel.getId()).thenReturn(Long.toString(entity.getId()));
+  
+    db.put(entity);
+    
+    db.retain(guild);
+    assertTrue(db.contains(textChannel));
+  
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel, mock(TextChannel.class)));
+    db.retain(guild);
+    assertTrue(db.contains(textChannel));
+  
+    when(guild.getTextChannels()).thenReturn(List.of());
+    db.retain(guild);
+    assertFalse(db.contains(textChannel));
+  }
+  
+  @Test
+  @Override
+  public void testPostConstruct() throws Exception {
+    long lastModified = ENTITY_DB_PATH.toFile().lastModified();
+    
+    db.postConstruct();
+    
+    // Database should not be overwritten
+    assertEquals(ENTITY_DB_PATH.toFile().lastModified(), lastModified);
   }
 }

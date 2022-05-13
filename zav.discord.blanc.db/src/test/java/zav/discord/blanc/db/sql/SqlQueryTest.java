@@ -14,47 +14,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.db.test;
+package zav.discord.blanc.db.sql;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.db.sql.SqlQuery;
+import org.junit.jupiter.api.Test;
 
 /**
- * Base class for all test suites.<br>
- * Initializes all databases.
+ * Checks whether invalid queries throw the correct exceptions.
  */
-@ExtendWith(MockitoExtension.class)
-public abstract class AbstractTableTest {
-  protected SqlQuery query;
+public class SqlQueryTest {
+  
+  SqlQuery query;
   
   /**
-   * Deserializes Discord instances.
+   * Initializes an SQL query over an empty database.
    *
-   * @throws Exception If the database couldn't be initialized.
+   * @throws IOException If the database couldn't be created.
    */
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() throws IOException {
     Files.deleteIfExists(ENTITY_DB_PATH);
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
     
     query = new SqlQuery();
+  
+    Files.createDirectories(ENTITY_DB_PATH.getParent());
+    Files.createFile(ENTITY_DB_PATH);
   }
   
-  /**
-   * Delete all database files.
-   *
-   * @throws IOException If one of the databases couldn't be deleted.
-   */
   @AfterEach
-  public void cleanUp() throws IOException {
+  public void tearDown() throws IOException {
     Files.deleteIfExists(ENTITY_DB_PATH);
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
+  }
+  
+  @Test
+  public void testUnknownStatement() {
+    assertThrows(IllegalArgumentException.class, () -> query.query("unknown.sql"));
+  }
+  
+  @Test
+  public void testDeserializeInvalidObject() {
+    assertThrows(IllegalArgumentException.class, () -> SqlQuery.deserialize(new Object()));
+  }
+  
+  @Test
+  public void testMarshallInvalidObject() {
+    assertThrows(IllegalArgumentException.class, () -> SqlQuery.marshal(new Object()));
   }
 }
