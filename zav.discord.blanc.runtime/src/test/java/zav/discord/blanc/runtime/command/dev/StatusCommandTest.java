@@ -32,7 +32,7 @@ public class StatusCommandTest extends AbstractDevCommandTest {
   
   @Test
   public void testSendStatus() throws Exception {
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     
     run(StatusCommand.class);

@@ -27,6 +27,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.db.GuildTable;
@@ -42,6 +44,12 @@ public class BlacklistCommand extends AbstractGuildCommand {
   @Inject
   @Named(PATTERN)
   private Cache<Long, Pattern> cache;
+  
+  @Inject
+  private SlashCommandEvent event;
+  
+  @Inject
+  private Guild guild;
   
   private GuildEntity guildEntity;
   private String regex;

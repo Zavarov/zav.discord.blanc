@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
@@ -36,6 +37,12 @@ import zav.discord.blanc.db.UserTable;
 public class RankCommand extends AbstractCommand {
   @Inject
   private UserTable userTable;
+  
+  @Inject
+  private SlashCommandEvent event;
+  
+  @Inject
+  private User author;
   
   private UserEntity userEntity;
   private String rankName;

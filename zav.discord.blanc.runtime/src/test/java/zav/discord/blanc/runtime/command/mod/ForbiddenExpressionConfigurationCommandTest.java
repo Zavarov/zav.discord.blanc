@@ -41,7 +41,7 @@ public class ForbiddenExpressionConfigurationCommandTest extends AbstractGuildCo
   @Test
   public void testRun() throws Exception {
     update(guildTable, guildEntity, e -> {});
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
+    when(guild.getId()).thenReturn(Long.toString(guildEntity.getId()));
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     
     doAnswer(answer -> {

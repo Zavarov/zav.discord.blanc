@@ -27,6 +27,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildEntity;
@@ -41,7 +44,16 @@ public abstract class AbstractConfigurationCommand extends AbstractGuildCommand 
   protected Cache<Long, Site> cache;
   
   @Inject
-  protected GuildTable guildDb;
+  protected GuildTable db;
+  
+  @Inject
+  protected SlashCommandEvent event;
+  
+  @Inject
+  protected Guild guild;
+  
+  @Inject
+  protected User author;
   
   protected GuildEntity guildData;
   
@@ -51,7 +63,7 @@ public abstract class AbstractConfigurationCommand extends AbstractGuildCommand 
   
   @Override
   public void postConstruct() {
-    guildData = getOrCreate(guildDb, guild);
+    guildData = getOrCreate(db, guild);
   }
   
   @Override
@@ -62,7 +74,7 @@ public abstract class AbstractConfigurationCommand extends AbstractGuildCommand 
       event.reply("No entries").complete();
     } else {
       // Build site
-      Site site = Site.create(pages, author.getUser());
+      Site site = Site.create(pages, author);
       
       // Send response
       event.replyEmbeds(site.getCurrentPage()).queue(success -> cache.put(success.retrieveOriginal().complete().getIdLong(), site));

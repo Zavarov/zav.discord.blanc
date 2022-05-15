@@ -17,6 +17,8 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import java.util.Objects;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 
@@ -24,6 +26,10 @@ import zav.discord.blanc.command.AbstractCommand;
  * This command makes the bot repeat a specified message.
  */
 public class SayCommand extends AbstractCommand {
+  
+  @Inject
+  private SlashCommandEvent event;
+  
   private String content;
     
   public SayCommand() {

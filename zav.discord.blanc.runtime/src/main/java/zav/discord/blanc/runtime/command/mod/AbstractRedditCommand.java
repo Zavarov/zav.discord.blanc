@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Objects;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.reddit.SubredditObservable;
@@ -34,6 +35,12 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   @Inject
   protected SubredditObservable observable;
   
+  @Inject
+  protected SlashCommandEvent event;
+  
+  @Inject
+  protected TextChannel textChannel;
+  
   protected String subreddit;
   protected TextChannel target;
   
@@ -44,6 +51,6 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   @Override
   public void postConstruct() {
     subreddit = Objects.requireNonNull(event.getOption("subreddit")).getAsString().toLowerCase(Locale.ENGLISH);
-    target = (TextChannel) (event.getOption("channel") == null ? channel : event.getOption("channel").getAsGuildChannel());
+    target = (TextChannel) (event.getOption("channel") == null ? textChannel : event.getOption("channel").getAsGuildChannel());
   }
 }

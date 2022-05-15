@@ -43,30 +43,30 @@ public class WebhookRedditCommandTest extends AbstractGuildCommandTest {
   private @Mock Webhook webhook;
   private @Mock OptionMapping arg;
   
-  private long guildId;
-  private long channelId;
-  private long id;
+  private String guildId;
+  private String channelId;
+  private String id;
   
   @Override
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
     
-    guildId = webhookEntity.getGuildId();
-    channelId = webhookEntity.getChannelId();
-    id = webhookEntity.getId();
+    guildId = Long.toString(webhookEntity.getGuildId());
+    channelId = Long.toString(webhookEntity.getChannelId());
+    id = Long.toString(webhookEntity.getId());
   }
   
   @Test
   public void testAddSubreddit() throws Exception {
     when(webhooks.complete()).thenReturn(List.of(webhook));
-    when(guild.getIdLong()).thenReturn(guildId);
-    when(textChannel.getIdLong()).thenReturn(channelId);
+    when(guild.getId()).thenReturn(guildId);
+    when(textChannel.getId()).thenReturn(channelId);
     when(textChannel.getAsMention()).thenReturn(channelEntity.getName());
     when(textChannel.retrieveWebhooks()).thenReturn(webhooks);
     when(webhook.getGuild()).thenReturn(guild);
     when(webhook.getChannel()).thenReturn(textChannel);
-    when(webhook.getIdLong()).thenReturn(id);
+    when(webhook.getId()).thenReturn(id);
     when(webhook.getName()).thenReturn(webhookEntity.getName());
     when(event.getOption("subreddit")).thenReturn(arg);
     when(event.replyFormat(anyString(), anyString(), anyString())).thenReturn(reply);
@@ -85,13 +85,13 @@ public class WebhookRedditCommandTest extends AbstractGuildCommandTest {
   @Test
   public void testRemoveSubreddit() throws Exception {
     when(webhooks.complete()).thenReturn(List.of(webhook));
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
-    when(textChannel.getIdLong()).thenReturn(channelEntity.getId());
+    when(guild.getId()).thenReturn(guildId);
+    when(textChannel.getId()).thenReturn(channelId);
     when(textChannel.getAsMention()).thenReturn(channelEntity.getName());
     when(textChannel.retrieveWebhooks()).thenReturn(webhooks);
     when(webhook.getGuild()).thenReturn(guild);
     when(webhook.getChannel()).thenReturn(textChannel);
-    when(webhook.getIdLong()).thenReturn(id);
+    when(webhook.getId()).thenReturn(id);
     when(webhook.getName()).thenReturn(webhookEntity.getName());
     when(webhook.delete()).thenReturn(delete);
     when(event.getOption("subreddit")).thenReturn(arg);

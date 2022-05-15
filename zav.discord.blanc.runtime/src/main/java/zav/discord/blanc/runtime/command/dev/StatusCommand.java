@@ -21,7 +21,9 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.time.Duration;
 import java.util.List;
+import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -61,6 +63,9 @@ public class StatusCommand extends AbstractCommand {
   private String systemLoad;
   private String cpuTemperature;
   private String cpuVoltage;
+  
+  @Inject
+  private SlashCommandEvent event;
   
   public StatusCommand() {
     super(Rank.DEVELOPER);

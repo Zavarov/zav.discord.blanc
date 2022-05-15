@@ -38,7 +38,7 @@ public class SayCommandTest extends AbstractDevCommandTest {
     when(event.reply(captor.capture())).thenReturn(reply);
     when(event.getOption(anyString())).thenReturn(arg);
     when(arg.getAsString()).thenReturn("Hello World");
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     
     run(SayCommand.class);
     

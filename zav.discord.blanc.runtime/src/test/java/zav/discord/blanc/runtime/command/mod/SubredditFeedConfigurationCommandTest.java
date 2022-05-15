@@ -39,7 +39,7 @@ public class SubredditFeedConfigurationCommandTest extends AbstractGuildCommandT
   @Test
   public void testRun() throws Exception {
     update(webhookTable, webhookEntity, e -> {});
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
+    when(guild.getId()).thenReturn(Long.toString(guildEntity.getId()));
     when(guild.getTextChannelById(anyLong())).thenReturn(textChannel);
     when(textChannel.getAsMention()).thenReturn(channelEntity.getName());
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);

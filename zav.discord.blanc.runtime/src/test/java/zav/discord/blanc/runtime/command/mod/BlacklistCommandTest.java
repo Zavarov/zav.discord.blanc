@@ -38,7 +38,7 @@ public class BlacklistCommandTest extends AbstractGuildCommandTest {
   @Test
   public void testAddRegEx() throws Exception {
     when(guild.getName()).thenReturn(guildEntity.getName());
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
+    when(guild.getId()).thenReturn(Long.toString(guildEntity.getId()));
     when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
     when(event.getOption(anyString())).thenReturn(arg);
     when(arg.getAsString()).thenReturn("test");
@@ -61,7 +61,7 @@ public class BlacklistCommandTest extends AbstractGuildCommandTest {
   @Test
   public void testRemoveRegEx() throws Exception {
     when(guild.getName()).thenReturn(guildEntity.getName());
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
+    when(guild.getId()).thenReturn(Long.toString(guildEntity.getId()));
     when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
     when(event.getOption(anyString())).thenReturn(arg);
     when(arg.getAsString()).thenReturn("foo");

@@ -35,7 +35,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
   public void testBecomeRoot() throws Exception {
     update(userTable, userEntity, e -> e.setRanks(List.of(Rank.DEVELOPER.name())));
   
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(user.getName()).thenReturn(userEntity.getName());
     when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
     when(user.getAsMention()).thenReturn(userEntity.getName());
@@ -56,7 +56,7 @@ public class FailsafeCommandTest extends AbstractDevCommandTest {
   public void testBecomeDeveloper() throws Exception {
     update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name())));
   
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(user.getName()).thenReturn(userEntity.getName());
     when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
     when(user.getAsMention()).thenReturn(userEntity.getName());

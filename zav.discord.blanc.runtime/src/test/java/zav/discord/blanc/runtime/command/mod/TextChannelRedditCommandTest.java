@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import zav.discord.blanc.runtime.command.AbstractGuildCommandTest;
@@ -35,10 +36,22 @@ import zav.discord.blanc.runtime.command.AbstractGuildCommandTest;
 public class TextChannelRedditCommandTest extends AbstractGuildCommandTest {
   private @Mock OptionMapping arg;
   
+  private String guildId;
+  private String id;
+  
+  @Override
+  @BeforeEach
+  public void setUp() throws Exception {
+    super.setUp();
+    
+    guildId = Long.toString(channelEntity.getGuildId());
+    id = Long.toString(channelEntity.getId());
+  }
+  
   @Test
   public void testAddSubreddit() throws Exception {
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
-    when(textChannel.getIdLong()).thenReturn(channelEntity.getId());
+    when(guild.getId()).thenReturn(guildId);
+    when(textChannel.getId()).thenReturn(id);
     when(textChannel.getGuild()).thenReturn(guild);
     when(event.getOption("subreddit")).thenReturn(arg);
     when(event.reply(anyString())).thenReturn(reply);
@@ -56,8 +69,8 @@ public class TextChannelRedditCommandTest extends AbstractGuildCommandTest {
   
   @Test
   public void testRemoveSubreddit() throws Exception {
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
-    when(textChannel.getIdLong()).thenReturn(channelEntity.getId());
+    when(guild.getId()).thenReturn(guildId);
+    when(textChannel.getId()).thenReturn(id);
     when(textChannel.getName()).thenReturn(channelEntity.getName());
     when(textChannel.getAsMention()).thenReturn(channelEntity.getName());
     when(textChannel.getGuild()).thenReturn(guild);

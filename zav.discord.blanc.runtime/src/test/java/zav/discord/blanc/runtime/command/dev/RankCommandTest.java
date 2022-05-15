@@ -37,8 +37,8 @@ public class RankCommandTest extends AbstractDevCommandTest {
   @Test
   public void testGrantRank() throws Exception {
     update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name())));
-    
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+  
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(user.getName()).thenReturn(userEntity.getName());
     when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
     when(event.replyFormat(any(), any(), any())).thenReturn(reply);
@@ -59,7 +59,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
   public void testRemoveRank() throws Exception {
     update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name(), Rank.DEVELOPER.name())));
   
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(user.getName()).thenReturn(userEntity.getName());
     when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
     when(event.replyFormat(any(), any(), any())).thenReturn(reply);
@@ -80,7 +80,7 @@ public class RankCommandTest extends AbstractDevCommandTest {
   public void testInsufficientRank() throws Exception {
     update(userTable, userEntity, e -> e.setRanks(List.of(Rank.DEVELOPER.name())));
   
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(event.replyFormat(any(), any())).thenReturn(reply);
     when(event.getOption("rank")).thenReturn(arg);
     when(arg.getAsString()).thenReturn(Rank.ROOT.name());

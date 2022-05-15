@@ -33,7 +33,7 @@ public class KillCommandTest  extends AbstractDevCommandTest {
   
   @Test
   public void testShutdown() throws Exception {
-    when(user.getIdLong()).thenReturn(userEntity.getId());
+    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
     when(event.reply(anyString())).thenReturn(reply);
     when(reply.setEphemeral(anyBoolean())).thenReturn(reply);
     when(client.getShards()).thenReturn(List.of(jda));

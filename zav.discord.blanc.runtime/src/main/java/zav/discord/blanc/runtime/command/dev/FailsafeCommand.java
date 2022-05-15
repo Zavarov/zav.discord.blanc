@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.inject.Inject;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.db.UserTable;
@@ -79,6 +81,12 @@ public class FailsafeCommand extends AbstractCommand {
   
   @Inject
   private UserTable userTable;
+  
+  @Inject
+  private SlashCommandEvent event;
+  
+  @Inject
+  private User author;
   
   private UserEntity entity;
   

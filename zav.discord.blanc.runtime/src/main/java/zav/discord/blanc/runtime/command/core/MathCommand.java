@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import javax.inject.Inject;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
@@ -31,9 +33,8 @@ import zav.discord.blanc.command.AbstractCommand;
  */
 public class MathCommand extends AbstractCommand {
   private static class InstanceHolder {
-    
-    private static Map<String, Object> CTX = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private static Map<String, Object> NS = new HashMap<>();
+    private static final Map<String, Object> CTX = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private static final Map<String, Object> NS = new HashMap<>();
     
     private static final JexlEngine JEXL = new JexlBuilder()
           .cache(512)
@@ -50,6 +51,9 @@ public class MathCommand extends AbstractCommand {
       CTX.put("pi", Math.PI);
     }
   }
+  
+  @Inject
+  private SlashCommandEvent event;
   
   private String value;
   
