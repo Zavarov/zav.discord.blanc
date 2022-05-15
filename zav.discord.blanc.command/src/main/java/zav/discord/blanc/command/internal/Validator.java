@@ -18,6 +18,17 @@ package zav.discord.blanc.command.internal;
 
 import java.util.Collection;
 
+/**
+ * This interface is used in combination with commands in order to ensure that only users with
+ * sufficient authorization are able to execute them.<br>
+ * <pre>
+ * Example:
+ *   - Discord Permissions (Administrator, Manage Messages, ...)
+ *   - Ranks (Root, Developer, ...)
+ * </pre>
+ *
+ * @param <T> The type of authorization.
+ */
 public interface Validator<T> {
   void validate(Collection<T> args) throws Exception;
 }

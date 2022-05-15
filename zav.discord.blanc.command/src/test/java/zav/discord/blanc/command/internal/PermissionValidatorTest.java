@@ -38,6 +38,9 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.db.UserTable;
 
+/**
+ * Checks if the correct exception is thrown when called by a user with insufficient permissions.
+ */
 @ExtendWith(MockitoExtension.class)
 public class PermissionValidatorTest {
   @Mock UserTable db;
@@ -49,6 +52,9 @@ public class PermissionValidatorTest {
   MockedStatic<Rank> mocked;
   Set<Permission> permissions;
   
+  /**
+   * Initializes the permission validator. By default, every user has administrative permissions.
+   */
   @BeforeEach
   public void setUp() {
     validator = new PermissionValidator();
@@ -67,6 +73,11 @@ public class PermissionValidatorTest {
     mocked.close();
   }
   
+  /**
+   * Use Case: Super-users should bypass any and all validations.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
   @Test
   public void testValidateAsRoot() throws Exception {
     mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Set.of(Rank.ROOT));
@@ -75,6 +86,11 @@ public class PermissionValidatorTest {
     validator.validate(permissions);
   }
   
+  /**
+   * Use Case: Users with the required permissions should pass the validation check.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
   @Test
   public void testValidate() throws Exception {
     mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Collections.emptySet());
@@ -83,6 +99,9 @@ public class PermissionValidatorTest {
     validator.validate(permissions);
   }
   
+  /**
+   * Use Case: Users with insufficient permissions should trigger an exception.
+   */
   @Test
   public void testValidateWithInsufficientPermissions() {
     mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Collections.emptySet());

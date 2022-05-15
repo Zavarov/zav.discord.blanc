@@ -27,6 +27,10 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientRankException;
 import zav.discord.blanc.db.UserTable;
 
+/**
+ * This class checks whether the user executing the command has the required rank for execution.
+ * An {@link InsufficientRankException} is thrown, if not.
+ */
 public class RankValidator implements Validator<Rank> {
   private @Nullable UserTable db;
   private @Nullable User author;

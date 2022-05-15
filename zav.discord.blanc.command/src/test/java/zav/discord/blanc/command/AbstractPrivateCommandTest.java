@@ -36,12 +36,21 @@ public class AbstractPrivateCommandTest {
   @Mock RankValidator validator;
   AbstractPrivateCommand command;
   
+  /**
+   * Initializes a private guild command with the mocked rank validator.
+   */
   @BeforeEach
   public void setUp() {
     command = new PrivateCommand();
     command.setValidator(validator);
   }
   
+  /**
+   * Use Case: Execute developer. This command should only be available to users with the required
+   * authorization.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
   @Test
   public void testValidate() throws Exception {
     // Everything ok

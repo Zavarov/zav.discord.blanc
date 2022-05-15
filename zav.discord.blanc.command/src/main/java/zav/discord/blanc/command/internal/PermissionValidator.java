@@ -27,6 +27,10 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.db.UserTable;
 
+/**
+ * This class checks whether the user executing the command has the required permissions for
+ * execution. An {@link InsufficientPermissionException} is thrown, if not.
+ */
 public class PermissionValidator implements Validator<Permission> {
   private @Nullable UserTable db;
   private @Nullable Member author;

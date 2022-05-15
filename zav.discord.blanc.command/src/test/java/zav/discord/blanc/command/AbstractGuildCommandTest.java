@@ -39,6 +39,9 @@ public class AbstractGuildCommandTest {
   @Mock RankValidator rankValidator;
   AbstractGuildCommand command;
   
+  /**
+   * Initializes a dummy guild command with the mocked permission and rank validator.
+   */
   @BeforeEach
   public void setUp() {
     command = new GuildCommand();
@@ -46,6 +49,12 @@ public class AbstractGuildCommandTest {
     command.setValidator(rankValidator);
   }
   
+  /**
+   * Use Case: Execute developer or moderator commands. This command should only be available to
+   * users with the required authorization.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
   @Test
   public void testValidate() throws Exception {
     // Everything ok

@@ -33,6 +33,9 @@ import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientRankException;
 import zav.discord.blanc.db.UserTable;
 
+/**
+ * Checks if the correct exception is thrown when called by a user with insufficient permissions.
+ */
 @ExtendWith(MockitoExtension.class)
 public class RankValidatorTest {
   @Mock UserTable db;
@@ -42,6 +45,10 @@ public class RankValidatorTest {
   MockedStatic<Rank> mocked;
   Set<Rank> ranks;
   
+  
+  /**
+   * Initializes the permission validator. By default, every user is root.
+   */
   @BeforeEach
   public void setUp() {
     validator = new RankValidator();
@@ -58,6 +65,11 @@ public class RankValidatorTest {
     mocked.close();
   }
   
+  /**
+   * Use Case: Users with the required rank should pass the validation check.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
   @Test
   public void testValidate() throws Exception {
     mocked.when(() -> Rank.getEffectiveRanks(db, author)).thenReturn(Set.of(Rank.ROOT));
@@ -65,6 +77,9 @@ public class RankValidatorTest {
     validator.validate(ranks);
   }
   
+  /**
+   * Use Case: Users with insufficient rank should trigger an exception.
+   */
   @Test
   public void testValidateWithInsufficientRanks() {
     mocked.when(() -> Rank.getEffectiveRanks(db, author)).thenReturn(Collections.emptySet());
