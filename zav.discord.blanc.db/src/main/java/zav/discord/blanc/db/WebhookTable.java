@@ -18,6 +18,7 @@ package zav.discord.blanc.db;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,7 +111,7 @@ public class WebhookTable extends AbstractTable<WebhookEntity, Webhook> {
   private int retainWebhooks(Guild guild, TextChannel textChannel) throws SQLException {
     String guildId = guild.getId();
     String channelId = textChannel.getId();
-    String ids = transform(textChannel.retrieveWebhooks().complete());
+    String ids = transform(textChannel.canTalk() ? textChannel.retrieveWebhooks().complete() : Collections.emptyList());
     return sql.update("db/webhook/Retain.sql", guildId, channelId, ids);
   }
   

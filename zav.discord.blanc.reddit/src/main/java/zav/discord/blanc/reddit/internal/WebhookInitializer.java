@@ -53,7 +53,9 @@ public class WebhookInitializer {
   
   private void loadWebhooks(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
-      loadWebhooks(textChannel);
+      if (textChannel.canTalk()) {
+        loadWebhooks(textChannel);
+      }
     }
   }
   
