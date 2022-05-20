@@ -94,7 +94,7 @@ public class ShardSupplier implements Iterator<JDA> {
       JDA jda = JDABuilder.create(intents)
             .setToken(token)
             .useSharding(index++, (int) shardCount)
-            .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
+            .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
             .build();
       
       jda.awaitReady();
