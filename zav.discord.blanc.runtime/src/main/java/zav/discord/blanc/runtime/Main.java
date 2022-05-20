@@ -134,12 +134,12 @@ public class Main {
   private static void initJobs() {
     ScheduledExecutorService executor = injector.getInstance(ScheduledExecutorService.class);
     Runnable job = injector.getInstance(RedditJob.class);
-    executor.schedule(job, 1, TimeUnit.MINUTES);
+    executor.scheduleAtFixedRate(job, 1, 1, TimeUnit.MINUTES);
   }
   
   private static void initJobs(JDA shard) throws Exception {
     ScheduledExecutorService executor = injector.getInstance(ScheduledExecutorService.class);
     Runnable job = new PresenceJob(shard.getPresence());
-    executor.schedule(job, 1, TimeUnit.HOURS);
+    executor.scheduleAtFixedRate(job, 0, 1, TimeUnit.HOURS);
   }
 }
