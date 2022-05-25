@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.api.internal;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,71 +29,80 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.db.GuildTable;
 import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebhookTable;
 
 /**
- * Test class to check whether all entries to guilds and text channels are deleted from the database
- * once they are deleted or no longer accessible.
+ * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
+ * channel is deleted.
  */
 @ExtendWith(MockitoExtension.class)
-public class GuildListenerTest {
+public class TextChannelTableListenerTest {
   
-  GuildListener listener;
+  TextChannelTableListener listener;
   
-  @Mock WebhookTable webhookTable;
-  @Mock TextChannelTable textChannelTable;
-  @Mock GuildTable guildTable;
+  @Mock TextChannelTable db;
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
   @Mock TextChannelDeleteEvent deleteEvent;
   
-  /**
-   * Initialize the {@link GuildListener} instance and assign all database tables.
-   */
   @BeforeEach
   public void setUp() {
-    listener = new GuildListener();
-    listener.setDatabase(webhookTable);
-    listener.setDatabase(textChannelTable);
-    listener.setDatabase(guildTable);
+    listener = new TextChannelTableListener(db);
   }
   
+  /**
+   * Use Case: When leaving a guild, all entries should be deleted from the database.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @Test
   public void testOnGuildLeave() throws SQLException {
     when(leaveEvent.getGuild()).thenReturn(guild);
     listener.onGuildLeave(leaveEvent);
-    verify(guildTable).delete(guild);
-    verify(webhookTable).delete(guild);
-    verify(textChannelTable).delete(guild);
+    verify(db).delete(guild);
   }
   
+  /**
+   * Use Case: When leaving a guild, while the database is unavailable, nothing should happen. The
+   * entries are kept in the database and have to be cleaned by either restarting the bot or by
+   * joining and leaving the guild again.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @Test
   public void testErrorOnGuildLeave() throws SQLException {
     when(leaveEvent.getGuild()).thenReturn(guild);
-    when(guildTable.delete(guild)).thenThrow(SQLException.class);
+    when(db.delete(guild)).thenThrow(SQLException.class);
     listener.onGuildLeave(leaveEvent);
-    verify(guildTable).delete(guild);
-    verify(webhookTable, times(0)).delete(guild);
-    verify(textChannelTable, times(0)).delete(guild);
+    verify(db).delete(guild);
   }
   
+  /**
+   * Use Case: When a text channel is deleted, all corresponding entries should be deleted from the
+   * database.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @Test
   public void testOnTextChannelDelete() throws SQLException {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
     listener.onTextChannelDelete(deleteEvent);
-    verify(webhookTable).delete(textChannel);
-    verify(textChannelTable).delete(textChannel);
+    verify(db).delete(textChannel);
   }
   
+  /**
+   * Use Case: When leaving a text channel, while the database is unavailable, nothing should
+   * happen. The entries are kept in the database and have to be cleaned by either restarting the
+   * bot or by joining and leaving the guild again.
+   *
+   * @throws SQLException If a database error occurred.
+   */
   @Test
   public void testErrorOnTextChannelDelete() throws SQLException {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(webhookTable.delete(textChannel)).thenThrow(SQLException.class);
+    when(db.delete(textChannel)).thenThrow(SQLException.class);
     listener.onTextChannelDelete(deleteEvent);
-    verify(webhookTable).delete(textChannel);
-    verify(textChannelTable, times(0)).delete(textChannel);
+    verify(db).delete(textChannel);
   }
 }

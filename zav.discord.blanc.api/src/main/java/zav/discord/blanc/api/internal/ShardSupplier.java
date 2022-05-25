@@ -52,6 +52,17 @@ public class ShardSupplier implements Iterator<JDA> {
   );
   
   /**
+   * A set of all flags which are explicitly disabled.
+   */
+  private static final Set<CacheFlag> disabledFlags = Set.of(
+        CacheFlag.VOICE_STATE,
+        CacheFlag.EMOTE,
+        CacheFlag.ACTIVITY,
+        CacheFlag.CLIENT_STATUS,
+        CacheFlag.ONLINE_STATUS
+  );
+  
+  /**
    * The minimum amount of time between connecting multiple JDA instances is 5 seconds.<br>
    * We use an additional second as buffer, bringing the time up to 6 seconds.
    */
@@ -94,7 +105,7 @@ public class ShardSupplier implements Iterator<JDA> {
       JDA jda = JDABuilder.create(intents)
             .setToken(token)
             .useSharding(index++, (int) shardCount)
-            .disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOTE, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
+            .disableCache(disabledFlags)
             .build();
       
       jda.awaitReady();
@@ -112,8 +123,12 @@ public class ShardSupplier implements Iterator<JDA> {
     }
   }
   
-  private EventListener createGuildListener(Injector shardInjector) {
-    return shardInjector.getInstance(GuildListener.class);
+  private Object[] createGuildListener(Injector shardInjector) {
+    return new EventListener[] {
+          shardInjector.getInstance(GuildTableListener.class),
+          shardInjector.getInstance(WebhookTableListener.class),
+          shardInjector.getInstance(TextChannelTableListener.class)
+    };
   }
   
   private EventListener createBlacklistListener(Injector shardInjector) {
