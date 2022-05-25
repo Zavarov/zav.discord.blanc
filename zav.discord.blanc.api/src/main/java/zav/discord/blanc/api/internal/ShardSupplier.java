@@ -22,6 +22,7 @@ import static zav.discord.blanc.api.Constants.SHARD_COUNT;
 import com.google.inject.Injector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,7 +33,6 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.guice.ShardModule;
 
@@ -67,27 +67,16 @@ public class ShardSupplier implements Iterator<JDA> {
    * We use an additional second as buffer, bringing the time up to 6 seconds.
    */
   private final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
-  private @Nullable Injector clientInjector;
-  private @Nullable String token;
-  private long shardCount;
+  private final Injector clientInjector;
+  private final String token;
+  private final long shardCount;
   private int index = 0;
   
   @Inject
-  @Contract(mutates = "this")
-  public void setToken(@Named(DISCORD_TOKEN) String token) {
+  public ShardSupplier(Injector injector, @Named(DISCORD_TOKEN) String token, @Named(SHARD_COUNT) long shardCount) {
+    this.clientInjector = injector;
     this.token = token;
-  }
-  
-  @Inject
-  @Contract(mutates = "this")
-  public void setShardCount(@Named(SHARD_COUNT) long shardCount) {
     this.shardCount = shardCount;
-  }
-  
-  @Inject
-  @Contract(mutates = "this")
-  public void setClientInjector(Injector clientInjector) {
-    this.clientInjector = clientInjector;
   }
   
   @Override
@@ -140,10 +129,7 @@ public class ShardSupplier implements Iterator<JDA> {
   }
   
   private EventListener createSlashCommandListener(Injector shardInjector) {
-    SlashCommandListener result = shardInjector.getInstance(SlashCommandListener.class);
-    // shardInjector.getInstance(...) injects the clientInjector...
-    // See https://github.com/google/guice/issues/629
-    result.setShardInjector(shardInjector);
-    return result;
+    ScheduledExecutorService queue = shardInjector.getInstance(ScheduledExecutorService.class);
+    return new SlashCommandListener(queue, shardInjector);
   }
 }

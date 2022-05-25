@@ -84,8 +84,7 @@ public class SiteComponentListenerTest {
     clickEvent = new ButtonClickEvent(jda, responseNumber, buttonInteraction);
     selectionEvent = new SelectionMenuEvent(jda, responseNumber, selectionInteraction);
   
-    listener = new SiteComponentListener();
-    listener.setSiteCache(siteCache);
+    listener = new SiteComponentListener(siteCache);
   }
   
   /**

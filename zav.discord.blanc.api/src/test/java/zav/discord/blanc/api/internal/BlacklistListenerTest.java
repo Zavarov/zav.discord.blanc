@@ -84,9 +84,7 @@ public class BlacklistListenerTest {
     permissions = mockStatic(PermissionUtil.class);
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
     
-    listener = new BlacklistListener();
-    listener.setDatabase(db);
-    listener.setPatternCache(patternCache);
+    listener = new BlacklistListener(patternCache, db);
   }
   
   /**

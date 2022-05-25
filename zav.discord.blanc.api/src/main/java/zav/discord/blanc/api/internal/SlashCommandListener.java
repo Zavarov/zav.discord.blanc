@@ -20,7 +20,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
@@ -30,7 +29,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Command;
@@ -44,26 +42,18 @@ import zav.discord.blanc.api.guice.PrivateCommandModule;
 public class SlashCommandListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandListener.class);
   
-  private @Nullable Injector shardInjector;
-  private @Nullable ScheduledExecutorService commandQueue;
+  private final Injector shardInjector;
+  private final ScheduledExecutorService commandQueue;
   
   @Inject
-  @Contract(mutates = "this")
-  public void setShardInjector(Injector shardInjector) {
-    this.shardInjector = shardInjector;
-  }
-  
-  @Inject
-  @Contract(mutates = "this")
-  public void setCommandQueue(ScheduledExecutorService commandQueue) {
+  public SlashCommandListener(ScheduledExecutorService commandQueue, Injector shardInjector) {
     this.commandQueue = commandQueue;
+    this.shardInjector = shardInjector;
   }
   
   @Override
   @Contract(mutates = "this")
   public void onSlashCommand(SlashCommandEvent event) {
-    Objects.requireNonNull(shardInjector);
-    
     // Only respond to a command made by a real person
     if (event.getUser().isBot()) {
       LOGGER.warn("Command {} was triggered by a bot. Ignore...", event.getName());
@@ -109,8 +99,6 @@ public class SlashCommandListener extends ListenerAdapter {
    */
   @Contract(mutates = "this, param2")
   public void submit(SlashCommandEvent event, Command command) {
-    Objects.requireNonNull(commandQueue);
-    
     commandQueue.submit(() -> {
       try {
         LOGGER.info("Execute {}.", command.getClass());

@@ -23,7 +23,6 @@ import com.google.common.cache.Cache;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -53,18 +52,12 @@ public class BlacklistListener extends ListenerAdapter {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
   
-  private @Nullable Cache<Guild, Pattern> patternCache;
-  private @Nullable GuildTable db;
+  private final Cache<Guild, Pattern> patternCache;
+  private final GuildTable db;
   
   @Inject
-  @Contract(mutates = "this")
-  public void setPatternCache(@Named(PATTERN) Cache<Guild, Pattern> patternCache) {
+  public BlacklistListener(@Named(PATTERN) Cache<Guild, Pattern> patternCache, GuildTable db) {
     this.patternCache = patternCache;
-  }
-  
-  @Inject
-  @Contract(mutates = "this")
-  public void setDatabase(GuildTable db) {
     this.db = db;
   }
   
@@ -96,8 +89,6 @@ public class BlacklistListener extends ListenerAdapter {
   }
   
   private @Nullable Pattern getPattern(Guild guild) {
-    Objects.requireNonNull(patternCache);
-    
     @Nullable Pattern pattern = patternCache.getIfPresent(guild);
     
     // Pattern has been cached

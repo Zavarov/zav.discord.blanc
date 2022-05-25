@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -62,7 +63,7 @@ public class ShardSupplierTest {
   @Mock WebhookTableListener webhookListener;
   @Mock BlacklistListener blacklistListener;
   @Mock SiteComponentListener siteComponentListener;
-  @Mock SlashCommandListener slashCommandListener;
+  @Mock ScheduledExecutorService queue;
   
   /**
    * Create a mock of the JDA builder used for creating shard instances.
@@ -80,18 +81,16 @@ public class ShardSupplierTest {
     jdaBuilder = mockStatic(JDABuilder.class);
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
-    supplier = new ShardSupplier();
-    supplier.setToken("token");
-    supplier.setShardCount(2L);
-    supplier.setClientInjector(injector);
+    supplier = new ShardSupplier(injector, "token", 2L);
     
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
+    when(injector.getInstance(ScheduledExecutorService.class)).thenReturn(queue);
+    when(injector.getInstance(GuildTableListener.class)).thenReturn(guildListener);
     when(injector.getInstance(GuildTableListener.class)).thenReturn(guildListener);
     when(injector.getInstance(WebhookTableListener.class)).thenReturn(webhookListener);
     when(injector.getInstance(TextChannelTableListener.class)).thenReturn(channelListener);
     when(injector.getInstance(BlacklistListener.class)).thenReturn(blacklistListener);
     when(injector.getInstance(SiteComponentListener.class)).thenReturn(siteComponentListener);
-    when(injector.getInstance(SlashCommandListener.class)).thenReturn(slashCommandListener);
   }
   
   @AfterEach

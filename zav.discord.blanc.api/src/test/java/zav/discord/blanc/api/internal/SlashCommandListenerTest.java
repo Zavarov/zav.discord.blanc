@@ -66,9 +66,7 @@ public class SlashCommandListenerTest {
    */
   @BeforeEach
   public void setUp() {
-    listener = new SlashCommandListener();
-    listener.setCommandQueue(queue);
-    listener.setShardInjector(injector);
+    listener = new SlashCommandListener(queue, injector);
     
     Commands.bind(name, Command.class);
   }

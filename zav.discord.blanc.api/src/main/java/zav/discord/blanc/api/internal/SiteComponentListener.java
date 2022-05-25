@@ -22,7 +22,6 @@ import static zav.discord.blanc.api.Constants.SITE;
 import com.google.common.cache.Cache;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
-import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -43,19 +42,16 @@ import zav.discord.blanc.api.Site;
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SiteComponentListener.class);
   
-  private @Nullable Cache<Long, Site> siteCache;
+  private final Cache<Long, Site> siteCache;
   
   @Inject
-  @Contract(mutates = "this")
-  public void setSiteCache(@Named(SITE) Cache<Long, Site> siteCache) {
+  public SiteComponentListener(@Named(SITE) Cache<Long, Site> siteCache) {
     this.siteCache = siteCache;
   }
   
   @Override
   @Contract(mutates = "this")
   public void onButtonClick(ButtonClickEvent event) {
-    Objects.requireNonNull(siteCache);
-    
     @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
     
     // Unknown message -> ignore
@@ -103,8 +99,6 @@ public class SiteComponentListener extends ListenerAdapter {
   @Override
   @Contract(mutates = "this")
   public void onSelectionMenu(SelectionMenuEvent event) {
-    Objects.requireNonNull(siteCache);
-    
     @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
   
     // Unknown message -> ignore
