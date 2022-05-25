@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api.internal;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
@@ -28,6 +29,7 @@ import zav.discord.blanc.db.GuildTable;
  * This listener removes the corresponding entries from the guild table, whenever a text channel
  * is deleted or the bot is kicked from a guild.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class GuildTableListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(GuildTableListener.class);
   private final GuildTable db;

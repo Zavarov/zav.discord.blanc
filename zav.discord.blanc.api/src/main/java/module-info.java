@@ -1,6 +1,7 @@
 open module zav.discord.blanc.api {
   requires static org.eclipse.jdt.annotation;
   requires static org.jetbrains.annotations;
+  requires static com.github.spotbugs.annotations;
   
   requires com.google.common;
   requires com.google.guice;

@@ -20,6 +20,7 @@ package zav.discord.blanc.api.internal;
 import static zav.discord.blanc.api.Constants.SITE;
 
 import com.google.common.cache.Cache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
@@ -38,6 +39,7 @@ import zav.discord.blanc.api.Site;
  * The listener for notifying the message components of a command whenever the author interacts with
  * it.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SiteComponentListener.class);
   

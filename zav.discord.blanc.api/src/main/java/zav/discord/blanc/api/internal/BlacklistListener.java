@@ -20,6 +20,7 @@ import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 import static zav.discord.blanc.api.Constants.PATTERN;
 
 import com.google.common.cache.Cache;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,7 @@ import zav.discord.blanc.db.GuildTable;
  * a guild. Upon match, this message will then be deleted, assuming that the program has the
  * required permission to do so.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class BlacklistListener extends ListenerAdapter {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
