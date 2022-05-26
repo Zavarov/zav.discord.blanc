@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import zav.discord.blanc.db.sql.SqlQuery;
@@ -50,12 +51,8 @@ public abstract class AbstractTable<T, U> implements Table<T, U> {
   public void postConstruct() throws ExecutionException {
     try {
       if (!Files.exists(ENTITY_DB_PATH)) {
-        Path parent = ENTITY_DB_PATH.getParent();
-  
-        if (parent != null) {
-          Files.createDirectories(parent);
-        }
-        
+        Path parent = Objects.requireNonNull(ENTITY_DB_PATH.getParent());
+        Files.createDirectories(parent);
         Files.createFile(ENTITY_DB_PATH);
       }
       
