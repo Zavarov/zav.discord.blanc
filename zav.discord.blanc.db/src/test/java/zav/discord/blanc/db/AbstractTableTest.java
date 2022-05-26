@@ -58,6 +58,4 @@ public abstract class AbstractTableTest {
     Files.deleteIfExists(ENTITY_DB_PATH);
     Files.deleteIfExists(ENTITY_DB_PATH.getParent());
   }
-  
-  public abstract void testPostConstruct() throws Exception;
 }

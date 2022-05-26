@@ -99,7 +99,6 @@ public class GuildTableTest extends AbstractTableTest {
   }
   
   @Test
-  @Override
   public void testPostConstruct() throws Exception {
     long lastModified = ENTITY_DB_PATH.toFile().lastModified();
     
