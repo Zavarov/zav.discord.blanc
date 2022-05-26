@@ -26,7 +26,6 @@ import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.api.internal.ShardSupplier;
 
 /**
  * Test class for the shards over which the client is split.

@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.internal.ShardSupplier;
 
 /**
  * The application instance over all shards.

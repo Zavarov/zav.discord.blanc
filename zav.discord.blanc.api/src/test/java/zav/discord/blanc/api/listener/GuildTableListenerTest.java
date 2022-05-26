@@ -14,41 +14,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.listener;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.GuildTable;
 
 /**
- * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
- * channel is deleted.
+ * Checks whether the guild database is cleared whenever the bot leaves a guild.
  */
 @ExtendWith(MockitoExtension.class)
-public class TextChannelTableListenerTest {
+public class GuildTableListenerTest {
   
-  TextChannelTableListener listener;
+  GuildTableListener listener;
   
-  @Mock TextChannelTable db;
-  @Mock TextChannel textChannel;
+  @Mock GuildTable db;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
-  @Mock TextChannelDeleteEvent deleteEvent;
   
   @BeforeEach
   public void setUp() {
-    listener = new TextChannelTableListener(db);
+    listener = new GuildTableListener(db);
   }
   
   /**
@@ -76,33 +71,5 @@ public class TextChannelTableListenerTest {
     when(db.delete(guild)).thenThrow(SQLException.class);
     listener.onGuildLeave(leaveEvent);
     verify(db).delete(guild);
-  }
-  
-  /**
-   * Use Case: When a text channel is deleted, all corresponding entries should be deleted from the
-   * database.
-   *
-   * @throws SQLException If a database error occurred.
-   */
-  @Test
-  public void testOnTextChannelDelete() throws SQLException {
-    when(deleteEvent.getChannel()).thenReturn(textChannel);
-    listener.onTextChannelDelete(deleteEvent);
-    verify(db).delete(textChannel);
-  }
-  
-  /**
-   * Use Case: When leaving a text channel, while the database is unavailable, nothing should
-   * happen. The entries are kept in the database and have to be cleaned by either restarting the
-   * bot or by joining and leaving the guild again.
-   *
-   * @throws SQLException If a database error occurred.
-   */
-  @Test
-  public void testErrorOnTextChannelDelete() throws SQLException {
-    when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(db.delete(textChannel)).thenThrow(SQLException.class);
-    listener.onTextChannelDelete(deleteEvent);
-    verify(db).delete(textChannel);
   }
 }

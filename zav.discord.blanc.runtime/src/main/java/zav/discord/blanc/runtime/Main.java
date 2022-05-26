@@ -30,13 +30,19 @@ import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Rank;
+import zav.discord.blanc.api.guice.ShardModule;
+import zav.discord.blanc.api.listener.BlacklistListener;
+import zav.discord.blanc.api.listener.GuildTableListener;
+import zav.discord.blanc.api.listener.SiteComponentListener;
+import zav.discord.blanc.api.listener.SlashCommandListener;
+import zav.discord.blanc.api.listener.TextChannelTableListener;
+import zav.discord.blanc.api.listener.WebhookTableListener;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.databind.io.CredentialsEntity;
 import zav.discord.blanc.db.UserTable;
@@ -118,6 +124,7 @@ public class Main {
     for (JDA shard : client.getShards()) {
       initJobs(shard);
       initCommands(shard, commands);
+      initListeners(shard);
     }
 
     initJobs();
@@ -141,5 +148,18 @@ public class Main {
     ScheduledExecutorService executor = injector.getInstance(ScheduledExecutorService.class);
     Runnable job = new PresenceJob(shard.getPresence());
     executor.scheduleAtFixedRate(job, 0, 1, TimeUnit.HOURS);
+  }
+  
+  private static void initListeners(JDA jda) {
+    Injector shardInjector = injector.createChildInjector(new ShardModule());
+    ScheduledExecutorService queue = shardInjector.getInstance(ScheduledExecutorService.class);
+  
+    // Constructor has to be called explicitly. Otherwise, Guice picks the wrong injector
+    jda.addEventListener(new SlashCommandListener(queue, shardInjector));
+    jda.addEventListener(shardInjector.getInstance(GuildTableListener.class));
+    jda.addEventListener(shardInjector.getInstance(WebhookTableListener.class));
+    jda.addEventListener(shardInjector.getInstance(TextChannelTableListener.class));
+    jda.addEventListener(shardInjector.getInstance(BlacklistListener.class));
+    jda.addEventListener(shardInjector.getInstance(SiteComponentListener.class));
   }
 }

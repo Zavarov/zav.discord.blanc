@@ -14,27 +14,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api;
 
 import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
 import static zav.discord.blanc.api.Constants.SHARD_COUNT;
 
-import com.google.inject.Injector;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.guice.ShardModule;
 
 /**
  * Utility class for initializing Discord shards.
@@ -67,14 +63,12 @@ public class ShardSupplier implements Iterator<JDA> {
    * We use an additional second as buffer, bringing the time up to 6 seconds.
    */
   private final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
-  private final Injector clientInjector;
   private final String token;
   private final long shardCount;
   private int index = 0;
   
   @Inject
-  public ShardSupplier(Injector injector, @Named(DISCORD_TOKEN) String token, @Named(SHARD_COUNT) long shardCount) {
-    this.clientInjector = injector;
+  public ShardSupplier(@Named(DISCORD_TOKEN) String token, @Named(SHARD_COUNT) long shardCount) {
     this.token = token;
     this.shardCount = shardCount;
   }
@@ -98,38 +92,9 @@ public class ShardSupplier implements Iterator<JDA> {
             .build();
       
       jda.awaitReady();
-  
-      Injector shardInjector = clientInjector.createChildInjector(new ShardModule());
-      
-      jda.addEventListener(createGuildListener(shardInjector));
-      jda.addEventListener(createBlacklistListener(shardInjector));
-      jda.addEventListener(createSiteComponentListener(shardInjector));
-      jda.addEventListener(createSlashCommandListener(shardInjector));
-      
       return jda;
     } catch (Exception e)  {
       throw new RuntimeException(e);
     }
-  }
-  
-  private Object[] createGuildListener(Injector shardInjector) {
-    return new EventListener[] {
-          shardInjector.getInstance(GuildTableListener.class),
-          shardInjector.getInstance(WebhookTableListener.class),
-          shardInjector.getInstance(TextChannelTableListener.class)
-    };
-  }
-  
-  private EventListener createBlacklistListener(Injector shardInjector) {
-    return shardInjector.getInstance(BlacklistListener.class);
-  }
-  
-  private EventListener createSiteComponentListener(Injector shardInjector) {
-    return shardInjector.getInstance(SiteComponentListener.class);
-  }
-  
-  private EventListener createSlashCommandListener(Injector shardInjector) {
-    ScheduledExecutorService queue = shardInjector.getInstance(ScheduledExecutorService.class);
-    return new SlashCommandListener(queue, shardInjector);
   }
 }

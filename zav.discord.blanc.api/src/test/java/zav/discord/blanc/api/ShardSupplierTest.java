@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.ALL_INTENTS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.getIntents;
@@ -22,18 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import java.util.concurrent.ScheduledExecutorService;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -42,7 +37,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,14 +50,6 @@ public class ShardSupplierTest {
 
   MockedStatic<JDABuilder> jdaBuilder;
   MockedConstruction<TimedSemaphore> rateLimiter;
-  
-  @Mock Injector injector;
-  @Mock GuildTableListener guildListener;
-  @Mock TextChannelTableListener channelListener;
-  @Mock WebhookTableListener webhookListener;
-  @Mock BlacklistListener blacklistListener;
-  @Mock SiteComponentListener siteComponentListener;
-  @Mock ScheduledExecutorService queue;
   
   /**
    * Create a mock of the JDA builder used for creating shard instances.
@@ -81,16 +67,7 @@ public class ShardSupplierTest {
     jdaBuilder = mockStatic(JDABuilder.class);
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
-    supplier = new ShardSupplier(injector, "token", 2L);
-    
-    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
-    when(injector.getInstance(ScheduledExecutorService.class)).thenReturn(queue);
-    when(injector.getInstance(GuildTableListener.class)).thenReturn(guildListener);
-    when(injector.getInstance(GuildTableListener.class)).thenReturn(guildListener);
-    when(injector.getInstance(WebhookTableListener.class)).thenReturn(webhookListener);
-    when(injector.getInstance(TextChannelTableListener.class)).thenReturn(channelListener);
-    when(injector.getInstance(BlacklistListener.class)).thenReturn(blacklistListener);
-    when(injector.getInstance(SiteComponentListener.class)).thenReturn(siteComponentListener);
+    supplier = new ShardSupplier("token", 2L);
   }
   
   @AfterEach

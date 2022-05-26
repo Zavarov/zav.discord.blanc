@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.listener;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
@@ -24,19 +24,19 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebhookTable;
 
 /**
- * This listener removes the corresponding entries from the text channel table, whenever a text
- * channel is deleted or the bot is kicked from a guild.
+ * This listener removes the corresponding entries from the webhook table, whenever a text channel
+ * is deleted or the bot is kicked from a guild.
  */
 @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
-public class TextChannelTableListener extends ListenerAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelTableListener.class);
-  private final TextChannelTable db;
+public class WebhookTableListener extends ListenerAdapter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebhookTableListener.class);
+  private final WebhookTable db;
   
   @Inject
-  public TextChannelTableListener(TextChannelTable db) {
+  public WebhookTableListener(WebhookTable db) {
     this.db = db;
   }
   

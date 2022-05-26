@@ -17,5 +17,5 @@ open module zav.discord.blanc.api {
   
   exports zav.discord.blanc.api;
   exports zav.discord.blanc.api.guice;
-  exports zav.discord.blanc.api.internal;
+  exports zav.discord.blanc.api.listener;
 }

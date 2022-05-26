@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.listener;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,18 +29,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.db.WebhookTable;
+import zav.discord.blanc.db.TextChannelTable;
 
 /**
- * Checks whether the webhook database is updated whenever the bot leaves a guild or a text channel
- * is deleted.
+ * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
+ * channel is deleted.
  */
 @ExtendWith(MockitoExtension.class)
-public class WebhookTableListenerTest {
+public class TextChannelTableListenerTest {
   
-  WebhookTableListener listener;
+  TextChannelTableListener listener;
   
-  @Mock WebhookTable db;
+  @Mock TextChannelTable db;
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
@@ -48,7 +48,7 @@ public class WebhookTableListenerTest {
   
   @BeforeEach
   public void setUp() {
-    listener = new WebhookTableListener(db);
+    listener = new TextChannelTableListener(db);
   }
   
   /**

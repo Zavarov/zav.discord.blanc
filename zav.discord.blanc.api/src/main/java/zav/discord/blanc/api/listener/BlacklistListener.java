@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.internal;
+package zav.discord.blanc.api.listener;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 import static zav.discord.blanc.api.Constants.PATTERN;
