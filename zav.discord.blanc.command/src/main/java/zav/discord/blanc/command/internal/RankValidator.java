@@ -46,7 +46,7 @@ public class RankValidator implements Validator<Rank> {
   }
   
   @Override
-  public void validate(Collection<Rank> args) throws Exception {
+  public void validate(Collection<Rank> args) throws InsufficientRankException {
     Objects.requireNonNull(db);
     Objects.requireNonNull(author);
     

@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.Callable;
 
 /**
@@ -26,6 +27,7 @@ import java.util.concurrent.Callable;
  * @see Runnable
  * @see Callable
  */
+@SuppressFBWarnings(value = "THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION")
 public interface Job {
   void run() throws Exception;
 }

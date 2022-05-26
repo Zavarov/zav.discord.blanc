@@ -21,6 +21,7 @@ import static zav.discord.blanc.api.Rank.USER;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +56,7 @@ public abstract class AbstractCommand implements Command {
   
   @Override
   @Contract(pure = true)
-  public void validate() throws Exception {
+  public void validate() throws ExecutionException {
     Objects.requireNonNull(validator);
     // Does the user have the required rank?
     validator.validate(List.of(requiredRank));

@@ -52,7 +52,7 @@ public class PermissionValidator implements Validator<Permission> {
   }
   
   @Override
-  public void validate(Collection<Permission> args) throws Exception {
+  public void validate(Collection<Permission> args) throws InsufficientPermissionException {
     Objects.requireNonNull(db);
     Objects.requireNonNull(author);
     Objects.requireNonNull(textChannel);

@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.command;
 
+import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.Permission;
 
 /**
@@ -24,5 +25,5 @@ import net.dv8tion.jda.api.Permission;
  *
  * @see Permission
  */
-public class InsufficientPermissionException extends Exception {
+public class InsufficientPermissionException extends ExecutionException {
 }

@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.api;
 
+import java.util.concurrent.ExecutionException;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -27,5 +28,5 @@ public interface Command extends Job {
   default void postConstruct() {}
   
   @Contract(pure = true)
-  void validate() throws Exception;
+  void validate() throws ExecutionException;
 }

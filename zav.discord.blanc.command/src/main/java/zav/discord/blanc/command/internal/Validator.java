@@ -17,6 +17,7 @@
 package zav.discord.blanc.command.internal;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This interface is used in combination with commands in order to ensure that only users with
@@ -30,5 +31,5 @@ import java.util.Collection;
  * @param <T> The type of authorization.
  */
 public interface Validator<T> {
-  void validate(Collection<T> args) throws Exception;
+  void validate(Collection<T> args) throws ExecutionException;
 }

@@ -18,6 +18,7 @@ package zav.discord.blanc.command;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import org.jetbrains.annotations.Contract;
@@ -51,7 +52,7 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   
   @Override
   @Contract(pure = true)
-  public void validate() throws Exception {
+  public void validate() throws ExecutionException {
     Objects.requireNonNull(validator);
     super.validate();
     // Has the user the required guild permissions

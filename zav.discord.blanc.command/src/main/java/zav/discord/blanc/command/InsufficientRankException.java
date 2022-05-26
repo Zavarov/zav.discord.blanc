@@ -17,6 +17,7 @@
 package zav.discord.blanc.command;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.api.Rank;
 
@@ -26,7 +27,7 @@ import zav.discord.blanc.api.Rank;
  *
  * @see Rank
  */
-public class InsufficientRankException extends Exception {
+public class InsufficientRankException extends ExecutionException {
   public InsufficientRankException(Collection<Rank> ranks) {
     super(getMessage(ranks));
   }
