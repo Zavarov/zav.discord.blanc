@@ -175,9 +175,15 @@ public class WebhookTableTest extends AbstractTableTest {
     when(guild.getId()).thenReturn(Long.toString(entity.getGuildId()));
     when(textChannel.retrieveWebhooks()).thenReturn(action);
     when(textChannel.getId()).thenReturn(Long.toString(entity.getChannelId()));
-    when(textChannel.canTalk()).thenReturn(true);
     when(action.complete()).thenReturn(List.of(webhook));
-    
+  
+    when(textChannel.canTalk()).thenReturn(false);
+    db.put(entity);
+  
+    db.retain(guild);
+    assertFalse(db.contains(webhook));
+  
+    when(textChannel.canTalk()).thenReturn(true);
     db.put(entity);
     
     db.retain(guild);
