@@ -94,7 +94,7 @@ public class ShardSupplier implements Iterator<JDA> {
       jda.awaitReady();
       return jda;
     } catch (Exception e)  {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 }
