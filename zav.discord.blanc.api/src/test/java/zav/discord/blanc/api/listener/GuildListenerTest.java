@@ -33,9 +33,9 @@ import zav.discord.blanc.db.GuildTable;
  * Checks whether the guild database is cleared whenever the bot leaves a guild.
  */
 @ExtendWith(MockitoExtension.class)
-public class GuildTableListenerTest {
+public class GuildListenerTest {
   
-  GuildTableListener listener;
+  GuildListener listener;
   
   @Mock GuildTable db;
   @Mock Guild guild;
@@ -43,7 +43,7 @@ public class GuildTableListenerTest {
   
   @BeforeEach
   public void setUp() {
-    listener = new GuildTableListener(db);
+    listener = new GuildListener(db);
   }
   
   /**

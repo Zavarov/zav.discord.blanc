@@ -30,17 +30,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebhookTable;
 
 /**
  * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
  * channel is deleted.
  */
 @ExtendWith(MockitoExtension.class)
-public class TextChannelTableListenerTest {
+public class TextChannelListenerTest {
   
-  TextChannelTableListener listener;
+  TextChannelListener listener;
   
-  @Mock TextChannelTable db;
+  @Mock
+  WebhookTable db;
+  @Mock TextChannelTable db1;
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
@@ -48,7 +51,7 @@ public class TextChannelTableListenerTest {
   
   @BeforeEach
   public void setUp() {
-    listener = new TextChannelTableListener(db);
+    listener = new TextChannelListener(db, db1);
   }
   
   /**
@@ -61,6 +64,7 @@ public class TextChannelTableListenerTest {
     when(leaveEvent.getGuild()).thenReturn(guild);
     listener.onGuildLeave(leaveEvent);
     verify(db).delete(guild);
+    verify(db1).delete(guild);
   }
   
   /**
@@ -73,9 +77,10 @@ public class TextChannelTableListenerTest {
   @Test
   public void testErrorOnGuildLeave() throws SQLException {
     when(leaveEvent.getGuild()).thenReturn(guild);
-    when(db.delete(guild)).thenThrow(SQLException.class);
+    when(db1.delete(guild)).thenThrow(SQLException.class);
     listener.onGuildLeave(leaveEvent);
     verify(db).delete(guild);
+    verify(db1).delete(guild);
   }
   
   /**
@@ -89,6 +94,7 @@ public class TextChannelTableListenerTest {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
     listener.onTextChannelDelete(deleteEvent);
     verify(db).delete(textChannel);
+    verify(db1).delete(textChannel);
   }
   
   /**
@@ -101,8 +107,9 @@ public class TextChannelTableListenerTest {
   @Test
   public void testErrorOnTextChannelDelete() throws SQLException {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(db.delete(textChannel)).thenThrow(SQLException.class);
+    when(db1.delete(textChannel)).thenThrow(SQLException.class);
     listener.onTextChannelDelete(deleteEvent);
     verify(db).delete(textChannel);
+    verify(db1).delete(textChannel);
   }
 }

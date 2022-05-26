@@ -38,11 +38,10 @@ import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.api.guice.ShardModule;
 import zav.discord.blanc.api.listener.BlacklistListener;
-import zav.discord.blanc.api.listener.GuildTableListener;
+import zav.discord.blanc.api.listener.GuildListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
-import zav.discord.blanc.api.listener.TextChannelTableListener;
-import zav.discord.blanc.api.listener.WebhookTableListener;
+import zav.discord.blanc.api.listener.TextChannelListener;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.databind.io.CredentialsEntity;
 import zav.discord.blanc.db.UserTable;
@@ -156,9 +155,8 @@ public class Main {
   
     // Constructor has to be called explicitly. Otherwise, Guice picks the wrong injector
     jda.addEventListener(new SlashCommandListener(queue, shardInjector));
-    jda.addEventListener(shardInjector.getInstance(GuildTableListener.class));
-    jda.addEventListener(shardInjector.getInstance(WebhookTableListener.class));
-    jda.addEventListener(shardInjector.getInstance(TextChannelTableListener.class));
+    jda.addEventListener(shardInjector.getInstance(GuildListener.class));
+    jda.addEventListener(shardInjector.getInstance(TextChannelListener.class));
     jda.addEventListener(shardInjector.getInstance(BlacklistListener.class));
     jda.addEventListener(shardInjector.getInstance(SiteComponentListener.class));
   }

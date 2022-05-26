@@ -25,25 +25,29 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.db.WebhookTable;
 
 /**
  * This listener removes the corresponding entries from the text channel table, whenever a text
  * channel is deleted or the bot is kicked from a guild.
  */
 @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
-public class TextChannelTableListener extends ListenerAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelTableListener.class);
-  private final TextChannelTable db;
+public class TextChannelListener extends ListenerAdapter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelListener.class);
+  private final WebhookTable db;
+  private final TextChannelTable db1;
   
   @Inject
-  public TextChannelTableListener(TextChannelTable db) {
+  public TextChannelListener(WebhookTable db, TextChannelTable db1) {
     this.db = db;
+    this.db1 = db1;
   }
   
   @Override
   public void onTextChannelDelete(TextChannelDeleteEvent event) {
     try {
       db.delete(event.getChannel());
+      db1.delete(event.getChannel());
       LOGGER.info("Delete all database entries associated with {}.", event.getChannel());
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);
@@ -54,6 +58,7 @@ public class TextChannelTableListener extends ListenerAdapter {
   public void onGuildLeave(GuildLeaveEvent event) {
     try {
       db.delete(event.getGuild());
+      db1.delete(event.getGuild());
       LOGGER.info("Delete all database entries associated with {}.", event.getGuild());
     } catch (SQLException e) {
       LOGGER.error(e.getMessage(), e);

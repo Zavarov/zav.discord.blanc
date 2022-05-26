@@ -30,12 +30,12 @@ import zav.discord.blanc.db.GuildTable;
  * is deleted or the bot is kicked from a guild.
  */
 @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
-public class GuildTableListener extends ListenerAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GuildTableListener.class);
+public class GuildListener extends ListenerAdapter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GuildListener.class);
   private final GuildTable db;
   
   @Inject
-  public GuildTableListener(GuildTable db) {
+  public GuildListener(GuildTable db) {
     this.db = db;
   }
   
