@@ -1,4 +1,5 @@
 open module zav.discord.blanc.command {
+  requires static com.github.spotbugs.annotations;
   requires static org.eclipse.jdt.annotation;
   requires static org.jetbrains.annotations;
   

@@ -57,10 +57,7 @@ public class PermissionValidatorTest {
    */
   @BeforeEach
   public void setUp() {
-    validator = new PermissionValidator();
-    validator.setDatabase(db);
-    validator.setAuthor(author);
-    validator.setTextChannel(textChannel);
+    validator = new PermissionValidator(db, author, textChannel);
     
     permissions = EnumSet.of(Permission.ADMINISTRATOR);
     
@@ -105,7 +102,7 @@ public class PermissionValidatorTest {
   @Test
   public void testValidateWithInsufficientPermissions() {
     mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Collections.emptySet());
-    when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));;
+    when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
   
     assertThrows(InsufficientPermissionException.class, () -> validator.validate(permissions));
   }

@@ -51,9 +51,7 @@ public class RankValidatorTest {
    */
   @BeforeEach
   public void setUp() {
-    validator = new RankValidator();
-    validator.setDatabase(db);
-    validator.setAuthor(author);
+    validator = new RankValidator(db, author);
     
     ranks = Set.of(Rank.ROOT);
     

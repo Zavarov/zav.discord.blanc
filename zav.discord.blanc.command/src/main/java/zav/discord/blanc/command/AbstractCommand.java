@@ -19,12 +19,10 @@ package zav.discord.blanc.command;
 import static zav.discord.blanc.api.Rank.USER;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.RankValidator;
@@ -36,7 +34,8 @@ import zav.discord.blanc.command.internal.RankValidator;
 public abstract class AbstractCommand implements Command {
   protected final ResourceBundle i18n;
   
-  private @Nullable RankValidator validator;
+  @Inject
+  /*package*/ RankValidator rankValidator;
   
   private final Rank requiredRank;
   
@@ -49,16 +48,10 @@ public abstract class AbstractCommand implements Command {
     this(USER);
   }
   
-  @Inject
-  /*package*/ void setValidator(RankValidator validator) {
-    this.validator = validator;
-  }
-  
   @Override
   @Contract(pure = true)
   public void validate() throws ExecutionException {
-    Objects.requireNonNull(validator);
     // Does the user have the required rank?
-    validator.validate(List.of(requiredRank));
+    rankValidator.validate(List.of(requiredRank));
   }
 }

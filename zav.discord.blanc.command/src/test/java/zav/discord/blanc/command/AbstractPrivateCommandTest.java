@@ -33,7 +33,7 @@ import zav.discord.blanc.command.internal.RankValidator;
 @ExtendWith(MockitoExtension.class)
 public class AbstractPrivateCommandTest {
   
-  @Mock RankValidator validator;
+  @Mock RankValidator rankValidator;
   AbstractPrivateCommand command;
   
   /**
@@ -42,7 +42,7 @@ public class AbstractPrivateCommandTest {
   @BeforeEach
   public void setUp() {
     command = new PrivateCommand();
-    command.setValidator(validator);
+    command.rankValidator = rankValidator;
   }
   
   /**
@@ -57,7 +57,7 @@ public class AbstractPrivateCommandTest {
     command.validate();
     
     // Not enough ranks
-    doThrow(InsufficientRankException.class).when(validator).validate(any());
+    doThrow(InsufficientRankException.class).when(rankValidator).validate(any());
     assertThrows(InsufficientRankException.class, () -> command.validate());
   }
   

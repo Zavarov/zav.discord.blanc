@@ -16,13 +16,11 @@
 
 package zav.discord.blanc.command;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.internal.PermissionValidator;
 
@@ -32,7 +30,8 @@ import zav.discord.blanc.command.internal.PermissionValidator;
  */
 public abstract class AbstractGuildCommand extends AbstractCommand {
   
-  private @Nullable PermissionValidator validator;
+  @Inject
+  /*package*/ PermissionValidator permissionValidator;
   
   private final Set<Permission> permissions;
   
@@ -45,17 +44,11 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
     this.permissions = Set.of(permissions);
   }
   
-  @Inject
-  /*package*/ void setValidator(PermissionValidator validator) {
-    this.validator = validator;
-  }
-  
   @Override
   @Contract(pure = true)
   public void validate() throws ExecutionException {
-    Objects.requireNonNull(validator);
     super.validate();
     // Has the user the required guild permissions
-    validator.validate(permissions);
+    permissionValidator.validate(permissions);
   }
 }

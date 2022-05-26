@@ -18,11 +18,10 @@ package zav.discord.blanc.command.internal;
 
 import static zav.discord.blanc.api.Rank.getEffectiveRanks;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
-import java.util.Objects;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
-import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientRankException;
 import zav.discord.blanc.db.UserTable;
@@ -31,25 +30,25 @@ import zav.discord.blanc.db.UserTable;
  * This class checks whether the user executing the command has the required rank for execution.
  * An {@link InsufficientRankException} is thrown, if not.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class RankValidator implements Validator<Rank> {
-  private @Nullable UserTable db;
-  private @Nullable User author;
+  private final UserTable db;
+  private final User author;
   
+  /**
+   * Initializes the rank validator for a single command.
+   *
+   * @param db The database containing all registered user ranks.
+   * @param author The user who executed the command.
+   */
   @Inject
-  /*package*/ void setDatabase(UserTable db) {
+  public RankValidator(UserTable db, User author) {
     this.db = db;
-  }
-  
-  @Inject
-  /*package*/ void setAuthor(User author) {
     this.author = author;
   }
   
   @Override
   public void validate(Collection<Rank> args) throws InsufficientRankException {
-    Objects.requireNonNull(db);
-    Objects.requireNonNull(author);
-    
     if (!getEffectiveRanks(db, author).containsAll(args)) {
       throw new InsufficientRankException(args);
     }

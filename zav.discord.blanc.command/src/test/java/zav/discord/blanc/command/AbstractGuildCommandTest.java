@@ -45,8 +45,8 @@ public class AbstractGuildCommandTest {
   @BeforeEach
   public void setUp() {
     command = new GuildCommand();
-    command.setValidator(permissionValidator);
-    command.setValidator(rankValidator);
+    command.permissionValidator = permissionValidator;
+    command.rankValidator = rankValidator;
   }
   
   /**

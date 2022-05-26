@@ -16,13 +16,12 @@
 
 package zav.discord.blanc.command.internal;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
-import java.util.Objects;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.jetbrains.annotations.Nullable;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.db.UserTable;
@@ -31,37 +30,33 @@ import zav.discord.blanc.db.UserTable;
  * This class checks whether the user executing the command has the required permissions for
  * execution. An {@link InsufficientPermissionException} is thrown, if not.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class PermissionValidator implements Validator<Permission> {
-  private @Nullable UserTable db;
-  private @Nullable Member author;
-  private @Nullable TextChannel textChannel;
+  private final UserTable db;
+  private final Member author;
+  private final TextChannel textChannel;
   
+  /**
+   * Initializes the permission validator for a single command.
+   *
+   * @param db The database containing all registered user ranks.
+   * @param author The user who executed the command.
+   * @param textChannel The channel the command was executed in.
+   */
   @Inject
-  /*package*/ void setDatabase(UserTable db) {
+  public PermissionValidator(UserTable db, Member author, TextChannel textChannel) {
     this.db = db;
-  }
-  
-  @Inject
-  /*package*/ void setAuthor(Member author) {
     this.author = author;
-  }
-  
-  @Inject
-  /*package*/ void setTextChannel(TextChannel textChannel) {
     this.textChannel = textChannel;
   }
   
   @Override
   public void validate(Collection<Permission> args) throws InsufficientPermissionException {
-    Objects.requireNonNull(db);
-    Objects.requireNonNull(author);
-    Objects.requireNonNull(textChannel);
-    
     boolean isRoot = Rank.getEffectiveRanks(db, author.getUser()).contains(Rank.ROOT);
-    boolean hasRank = author.getPermissions(textChannel).containsAll(args);
+    boolean hasPermission = author.getPermissions(textChannel).containsAll(args);
   
     // Does the user have the required permissions?
-    if (!isRoot && !hasRank) {
+    if (!isRoot && !hasPermission) {
       throw new InsufficientPermissionException();
     }
   }
