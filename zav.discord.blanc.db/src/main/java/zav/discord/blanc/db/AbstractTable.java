@@ -50,7 +50,12 @@ public abstract class AbstractTable<T, U> implements Table<T, U> {
   public void postConstruct() throws ExecutionException {
     try {
       if (!Files.exists(ENTITY_DB_PATH)) {
-        Files.createDirectories(ENTITY_DB_PATH.getParent());
+        Path parent = ENTITY_DB_PATH.getParent();
+  
+        if (parent != null) {
+          Files.createDirectories(parent);
+        }
+        
         Files.createFile(ENTITY_DB_PATH);
       }
       
