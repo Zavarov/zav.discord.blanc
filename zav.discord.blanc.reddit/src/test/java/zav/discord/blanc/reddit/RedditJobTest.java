@@ -17,18 +17,27 @@
 package zav.discord.blanc.reddit;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
+import java.util.List;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.WebhookTable;
 
@@ -38,13 +47,18 @@ import zav.discord.blanc.db.WebhookTable;
 @ExtendWith(MockitoExtension.class)
 public class RedditJobTest {
   
-  protected @Mock Client client;
-  protected @Mock SubredditObservable observable;
-  protected @Mock TextChannelTable textDb;
-  protected @Mock WebhookTable hookDb;
+  @Mock Client client;
+  @Mock JDA jda;
+  @Mock Guild guild;
+  @Mock TextChannel textChannel;
+  @Mock SubredditObservable observable;
+  @Mock TextChannelTable textDb;
+  @Mock TextChannelInitializer textInitializer;
+  @Mock WebhookTable hookDb;
+  @Mock WebhookInitializer hookInitializer;
   
-  protected Injector injector;
-  protected RedditJob job;
+  Injector injector;
+  RedditJob job;
   
   /**
    * Creates a database for text channels and webhooks and fills it with dummy values.
@@ -55,6 +69,24 @@ public class RedditJobTest {
   public void setUp() throws SQLException {
     injector = Guice.createInjector(new TestModule());
     job = injector.getInstance(RedditJob.class);
+  }
+  
+  @Test
+  public void testPostConstruct() throws SQLException {
+    when(client.getShards()).thenReturn(List.of(jda));
+    when(jda.getGuilds()).thenReturn(List.of(guild));
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
+    
+    job.postConstruct(client, textInitializer);
+    job.postConstruct(client, hookInitializer);
+   
+    // User can't talk in the channel
+    verify(hookInitializer, times(0)).load(any());
+    verify(textInitializer).load(any());
+  
+    when(textChannel.canTalk()).thenReturn(true);
+    job.postConstruct(client, hookInitializer);
+    verify(hookInitializer).load(any());
   }
   
   @Test
