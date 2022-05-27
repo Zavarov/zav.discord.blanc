@@ -19,17 +19,22 @@ package zav.discord.blanc.db;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static zav.discord.blanc.db.sql.SqlQuery.ENTITY_DB_PATH;
 import static zav.test.io.JsonUtils.read;
 
 import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Test case for the User database.<br>
@@ -105,5 +110,11 @@ public class UserTableTest extends AbstractTableTest {
     
     // Database should not be overwritten
     assertEquals(ENTITY_DB_PATH.toFile().lastModified(), lastModified);
+  
+    SqlQuery query = mock(SqlQuery.class);
+    when(query.update(anyString())).thenThrow(SQLException.class);
+  
+    db = new UserTable(query);
+    assertThrows(ExecutionException.class, () -> db.postConstruct());
   }
 }
