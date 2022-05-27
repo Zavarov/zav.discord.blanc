@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.jrc.http.RestRequest;
 import zav.jrc.listener.observer.SubredditObserver;
 
 /**
@@ -50,8 +49,6 @@ public class SubredditObservableTest {
    */
   @BeforeEach
   public void setUp() {
-    new RestRequest.Builder();
-    
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
     when(injector.getInstance(SubredditObserver.class)).thenReturn(observer);
     

@@ -1,7 +1,6 @@
 open module zav.discord.blanc.reddit {
   requires static org.eclipse.jdt.annotation;
   requires static com.github.spotbugs.annotations;
-  requires static zav.jrc.http;
   
   requires com.google.guice;
   requires org.apache.commons.lang3;
