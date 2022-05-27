@@ -38,8 +38,12 @@ public class RedditJob implements Runnable {
   @Inject
   private WebhookInitializer webhookInitializer;
   
+  private final SubredditObservable observable;
+  
   @Inject
-  private SubredditObservable observable;
+  public RedditJob(SubredditObservable observable) {
+    this.observable = observable;
+  }
   
   /**
    * Creates listener for all text channel and webhooks that have been stored in the database.<br>
@@ -53,8 +57,8 @@ public class RedditJob implements Runnable {
   public void postConstruct(Client client) throws SQLException {
     for (JDA shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {
-        textChannelInitializer.init(guild);
-        webhookInitializer.init(guild);
+        textChannelInitializer.load(guild);
+        webhookInitializer.load(guild);
       }
     }
   }

@@ -33,27 +33,31 @@ import zav.discord.blanc.reddit.SubredditObservable;
 public class WebhookInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebhookInitializer.class);
   
-  @Inject
-  private WebhookTable db;
+  private final WebhookTable db;
+  
+  private final SubredditObservable observable;
   
   @Inject
-  private SubredditObservable observable;
+  public WebhookInitializer(WebhookTable db, SubredditObservable observable) {
+    this.db = db;
+    this.observable = observable;
+  }
   
-  public void init(Guild guild) throws SQLException {
+  public void load(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
       if (textChannel.canTalk()) {
-        loadWebhooks(textChannel);
+        load(textChannel);
       }
     }
   }
   
-  private void loadWebhooks(TextChannel textChannel) throws SQLException {
+  private void load(TextChannel textChannel) throws SQLException {
     for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
-      loadWebhooks(webhook);
+      load(webhook);
     }
   }
   
-  private void loadWebhooks(Webhook webhook) throws SQLException {
+  private void load(Webhook webhook) throws SQLException {
     db.get(webhook).ifPresent(entity -> {
       for (String subreddit : entity.getSubreddits()) {
         LOGGER.info("Add subreddit '{}' to webhook '{}'.", subreddit, entity.getName());

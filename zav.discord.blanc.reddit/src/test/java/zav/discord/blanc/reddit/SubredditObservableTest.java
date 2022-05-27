@@ -55,8 +55,7 @@ public class SubredditObservableTest {
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
     when(injector.getInstance(SubredditObserver.class)).thenReturn(observer);
     
-    observable = new SubredditObservable();
-    observable.setInjector(injector);
+    observable = new SubredditObservable(injector);
   }
   
   @Test

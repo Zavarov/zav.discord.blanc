@@ -42,13 +42,13 @@ public class TextChannelInitializer {
     this.observable = observable;
   }
   
-  public void init(Guild guild) throws SQLException {
+  public void load(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
-      loadTextChannels(textChannel);
+      load(textChannel);
     }
   }
   
-  private void loadTextChannels(TextChannel textChannel) throws SQLException {
+  private void load(TextChannel textChannel) throws SQLException {
     db.get(textChannel).ifPresent(entity -> {
       for (String subreddit : entity.getSubreddits()) {
         observable.addListener(subreddit, textChannel);
