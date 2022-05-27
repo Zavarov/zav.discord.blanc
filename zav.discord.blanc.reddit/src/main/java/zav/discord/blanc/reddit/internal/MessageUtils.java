@@ -16,20 +16,19 @@
 
 package zav.discord.blanc.reddit.internal;
 
-import static net.dv8tion.jda.api.EmbedBuilder.URL_PATTERN;
 import static net.dv8tion.jda.api.entities.MessageEmbed.DESCRIPTION_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.TITLE_MAX_LENGTH;
 import static net.dv8tion.jda.api.entities.MessageEmbed.URL_MAX_LENGTH;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.truncate;
 
 import java.awt.Color;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,30 +51,26 @@ public final class MessageUtils {
    * @return A JDA message embed displaying the relevant link information.
    */
   public static Message forLink(LinkEntity link) {
-    String qualifiedTitle =
-          (link.getLinkFlairText() != null ? "[" + link.getLinkFlairText() + "]" : EMPTY)
-          + (link.getOver18() ? "[NSFW] " : EMPTY)
-          + (link.getSpoiler() ? "[Spoiler] " : EMPTY)
-          + link.getTitle();
-    qualifiedTitle = truncate(qualifiedTitle, TITLE_MAX_LENGTH);
-    
-    @Nullable String permalink = "https://www.reddit.com" + link.getPermalink();
-    permalink = (permalink.length() < URL_MAX_LENGTH) ? permalink : null;
+    return new MessageBuilder()
+          .setContent(getPlainMessage(link))
+          .setEmbeds(getRichMessage(link))
+          .build();
+  }
   
-    @Nullable String url = link.getUrl();
-    url = (url != null && url.length() < URL_MAX_LENGTH) ? url : null;
-    
-    @Nullable String thumbnail = link.getThumbnail();
-    thumbnail = (thumbnail != null && thumbnail.length() < URL_MAX_LENGTH) ? thumbnail : null;
-    
-    @Nullable String description = link.getSelftext();
-    description = truncate(description, DESCRIPTION_MAX_LENGTH);
+  private static String getPlainMessage(LinkEntity link) {
+    return String.format(
+          "New submission from u/%s in `r/%s`:%n%n<%s>",
+          link.getAuthor(),
+          link.getName(),
+          getShortLink(link)
+    );
+  }
   
+  private static MessageEmbed getRichMessage(LinkEntity link) {
     EmbedBuilder builder = new EmbedBuilder();
-    
-    builder.setTitle(qualifiedTitle, permalink);
-    builder.setAuthor("source", url);
-    
+  
+    builder.setTitle(getQualifiedTitle(link), getPermalink(link));
+    builder.setAuthor("source", getUrl(link));
     builder.addField("Author", link.getAuthor(), false);
   
     if (link.getCreatedUtc() != null) {
@@ -88,28 +83,68 @@ public final class MessageUtils {
       builder.setColor(Color.BLACK);
     } else {
       builder.setColor(new Color(Objects.hashCode(link.getLinkFlairText())));
-      builder.setDescription(description);
+      builder.setDescription(getDescription(link));
+    
+      getThumbnail(link).ifPresent(thumbnail -> {
+        if (EmbedBuilder.URL_PATTERN.matcher(thumbnail).matches()) {
+          builder.setThumbnail(thumbnail);
+        } else {
+          LOGGER.debug("Thumbnail '{}' is not a valid URL.", thumbnail);
+        }
+      });
+    }
+    
+    return builder.build();
+  }
   
-      if (thumbnail != null && URL_PATTERN.matcher(thumbnail).matches()) {
-        builder.setThumbnail(thumbnail);
-      } else if (thumbnail != null) {
-        LOGGER.debug("Thumbnail '{}' is not a valid URL.", thumbnail);
-      }
+  private static String getQualifiedTitle(LinkEntity link) {
+    StringBuilder builder = new StringBuilder();
+    
+    if (link.getLinkFlairText() != null) {
+      builder.append("[");
+      builder.append(link.getLinkFlairText());
+      builder.append("] ");
+    }
+    
+    if (link.getOver18()) {
+      builder.append("[NSFW] ");
     }
   
-    String shortlink = "https://redd.it/" + link.getId();
-    String content = String.format(
-          "New submission from u/%s in `r/%s`:%n%n<%s>",
-          link.getAuthor(),
-          link.getName(),
-          shortlink
-    );
-    MessageEmbed embed = builder.build();
+    if (link.getOver18()) {
+      builder.append("[Spoiler] ");
+    }
+    
+    builder.append(link.getTitle());
+    
+    return StringUtils.truncate(builder.toString(), TITLE_MAX_LENGTH);
+  }
   
-    MessageBuilder messageBuilder = new MessageBuilder();
-    messageBuilder.setEmbeds(embed);
-    messageBuilder.setContent(content);
+  private static @Nullable String getPermalink(LinkEntity link) {
+    @Nullable String permalink = "https://www.reddit.com" + link.getPermalink();
+    return permalink.length() < URL_MAX_LENGTH ? permalink : null;
+  }
   
-    return messageBuilder.build();
+  private static @Nullable String getUrl(LinkEntity link) {
+    @Nullable String url = link.getUrl();
+    return url != null && url.length() < URL_MAX_LENGTH ? url : null;
+  }
+  
+  private static Optional<String> getThumbnail(LinkEntity link) {
+    @Nullable String thumbnail = link.getThumbnail();
+    
+    if (thumbnail == null || thumbnail.length() >= URL_MAX_LENGTH) {
+      return Optional.empty();
+    }
+    
+    return Optional.of(thumbnail);
+  }
+  
+  private static @Nullable String getDescription(LinkEntity link) {
+    @Nullable String description = link.getSelftext();
+    return StringUtils.truncate(description, DESCRIPTION_MAX_LENGTH);
+  }
+  
+  private static String getShortLink(LinkEntity link) {
+    return "https://redd.it/" + link.getId();
   }
 }
