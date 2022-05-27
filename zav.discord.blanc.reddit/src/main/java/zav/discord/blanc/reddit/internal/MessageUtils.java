@@ -97,7 +97,7 @@ public final class MessageUtils {
   
     String shortlink = "https://redd.it/" + link.getId();
     String content = String.format(
-          "New submission from u/%s in `r/%s`:\n\n<%s>",
+          "New submission from u/%s in `r/%s`:%n%n<%s>",
           link.getAuthor(),
           link.getName(),
           shortlink
