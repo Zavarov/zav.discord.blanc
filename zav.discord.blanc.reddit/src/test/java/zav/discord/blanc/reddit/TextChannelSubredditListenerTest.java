@@ -16,16 +16,14 @@
 
 package zav.discord.blanc.reddit;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
-import java.util.Set;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -69,10 +67,13 @@ public class TextChannelSubredditListenerTest {
   
   @Test
   public void testEquality() {
-    Set<TextChannelSubredditListener> set = new HashSet<>();
+    // Default is 0, so it would match the mocked text channel
+    when(textChannel.getIdLong()).thenReturn(Long.MAX_VALUE);
     
-    assertTrue(set.add(listener));
-    assertFalse(set.add(listener));
-    assertTrue(set.add(mock(TextChannelSubredditListener.class)));
+    assertEquals(listener, listener);
+    assertEquals(listener, new TextChannelSubredditListener(textChannel));
+    assertNotEquals(listener, new Object());
+    assertNotEquals(listener, new TextChannelSubredditListener(mock(TextChannel.class)));
+    assertNotEquals(listener.hashCode(), mock(TextChannelSubredditListener.class).hashCode());
   }
 }

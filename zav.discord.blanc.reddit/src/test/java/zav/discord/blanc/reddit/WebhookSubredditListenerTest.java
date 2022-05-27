@@ -16,16 +16,14 @@
 
 package zav.discord.blanc.reddit;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
-import java.util.Set;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
@@ -73,10 +71,13 @@ public class WebhookSubredditListenerTest {
   
   @Test
   public void testEquality() {
-    Set<WebhookSubredditListener> set = new HashSet<>();
-    
-    assertTrue(set.add(listener));
-    assertFalse(set.add(listener));
-    assertTrue(set.add(mock(WebhookSubredditListener.class)));
+    // Default is 0, so it would match the mocked webhook
+    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+  
+    assertEquals(listener, listener);
+    assertEquals(listener, new WebhookSubredditListener(webhook));
+    assertNotEquals(listener, new Object());
+    assertNotEquals(listener, new WebhookSubredditListener(mock(Webhook.class)));
+    assertNotEquals(listener.hashCode(), mock(WebhookSubredditListener.class).hashCode());
   }
 }
