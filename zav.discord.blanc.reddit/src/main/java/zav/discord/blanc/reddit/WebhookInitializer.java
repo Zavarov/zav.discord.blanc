@@ -14,17 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.reddit.internal;
+package zav.discord.blanc.reddit;
 
 import java.sql.SQLException;
 import javax.inject.Inject;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.db.WebhookTable;
-import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
  * Utility class for initializing all subreddit feeds that have been mapped to a
@@ -43,15 +41,7 @@ public class WebhookInitializer {
     this.observable = observable;
   }
   
-  public void load(Guild guild) throws SQLException {
-    for (TextChannel textChannel : guild.getTextChannels()) {
-      if (textChannel.canTalk()) {
-        load(textChannel);
-      }
-    }
-  }
-  
-  private void load(TextChannel textChannel) throws SQLException {
+  public void load(TextChannel textChannel) throws SQLException {
     for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
       load(webhook);
     }

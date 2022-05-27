@@ -20,24 +20,16 @@ import java.sql.SQLException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
-import zav.discord.blanc.reddit.internal.TextChannelInitializer;
-import zav.discord.blanc.reddit.internal.WebhookInitializer;
 
 /**
  * Executable class for updating all registered Subreddit feeds.
  */
 public class RedditJob implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(RedditJob.class);
-  
-  @Inject
-  private TextChannelInitializer textChannelInitializer;
-  
-  @Inject
-  private WebhookInitializer webhookInitializer;
-  
   private final SubredditObservable observable;
   
   @Inject
@@ -46,19 +38,41 @@ public class RedditJob implements Runnable {
   }
   
   /**
-   * Creates listener for all text channel and webhooks that have been stored in the database.<br>
+   * Creates listener for all text channel that have been stored in the database.<br>
    * If a text channel/webhook no longer exists, they will be automatically removed from the
    * database.
    *
    * @param client The application client over all shards.
-   * @throws SQLException If an SQL request to the database failed.
+   * @param initializer The initializer function for all text channel listeners.
+   * @throws SQLException If a database error occurred.
    */
   @Inject
-  public void postConstruct(Client client) throws SQLException {
+  public void postConstruct(Client client, TextChannelInitializer initializer) throws SQLException {
     for (JDA shard : client.getShards()) {
       for (Guild guild : shard.getGuilds()) {
-        textChannelInitializer.load(guild);
-        webhookInitializer.load(guild);
+        initializer.load(guild);
+      }
+    }
+  }
+  
+  /**
+   * Creates listener for all webhooks that have been stored in the database.<br>
+   * If a text channel/webhook no longer exists, they will be automatically removed from the
+   * database.
+   *
+   * @param client The application client over all shards.
+   * @param initializer The initializer function for all webhook listeners.
+   * @throws SQLException If a database error occurred.
+   */
+  @Inject
+  public void postConstruct(Client client, WebhookInitializer initializer) throws SQLException {
+    for (JDA shard : client.getShards()) {
+      for (Guild guild : shard.getGuilds()) {
+        for (TextChannel textChannel : guild.getTextChannels()) {
+          if (textChannel.canTalk()) {
+            initializer.load(textChannel);
+          }
+        }
       }
     }
   }

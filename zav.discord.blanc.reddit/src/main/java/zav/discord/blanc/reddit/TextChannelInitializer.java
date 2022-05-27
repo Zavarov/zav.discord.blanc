@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.reddit.internal;
+package zav.discord.blanc.reddit;
 
 import java.sql.SQLException;
 import javax.inject.Inject;
@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
  * Utility class for initializing all subreddit feeds that have been mapped to a
