@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.reddit;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,6 +29,7 @@ import zav.discord.blanc.db.TextChannelTable;
  * Utility class for initializing all subreddit feeds that have been mapped to a
  * {@link TextChannel}.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class TextChannelInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelInitializer.class);
   

@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.reddit;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
@@ -28,6 +29,7 @@ import zav.discord.blanc.api.Client;
 /**
  * Executable class for updating all registered Subreddit feeds.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class RedditJob implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(RedditJob.class);
   private final SubredditObservable observable;

@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.reddit;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.SQLException;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -28,6 +29,7 @@ import zav.discord.blanc.db.WebhookTable;
  * Utility class for initializing all subreddit feeds that have been mapped to a
  * {@link Webhook}.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public class WebhookInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebhookInitializer.class);
   

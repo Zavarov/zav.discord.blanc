@@ -18,6 +18,7 @@ package zav.discord.blanc.reddit;
 
 import static zav.discord.blanc.reddit.internal.MessageUtils.forLink;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.eclipse.jdt.annotation.Nullable;
@@ -27,6 +28,7 @@ import zav.jrc.listener.event.LinkEvent;
 /**
  * This listener notifies a webhook, whenever a new submission has been received from a subreddit.
  */
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
 public final class WebhookSubredditListener implements SubredditListener {
   private final Webhook webhook;
 
