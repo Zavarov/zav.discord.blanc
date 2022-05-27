@@ -40,18 +40,6 @@ public class WebhookInitializer {
   private SubredditObservable observable;
   
   public void init(Guild guild) throws SQLException {
-    deleteUnusedWebhooks(guild);
-    loadWebhooks(guild);
-  }
-  
-  private void deleteUnusedWebhooks(Guild guild) throws SQLException {
-    // Remove all deleted webhooks or webhooks belonging to deleted channels
-    int count = db.retain(guild);
-    
-    LOGGER.info("{} webhook(s) have been deleted from the database.", count);
-  }
-  
-  private void loadWebhooks(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
       if (textChannel.canTalk()) {
         loadWebhooks(textChannel);

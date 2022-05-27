@@ -32,24 +32,17 @@ import zav.discord.blanc.reddit.SubredditObservable;
 public class TextChannelInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelInitializer.class);
   
-  @Inject
-  private TextChannelTable db;
+  private final TextChannelTable db;
+  
+  private final SubredditObservable observable;
   
   @Inject
-  private SubredditObservable observable;
+  public TextChannelInitializer(TextChannelTable db, SubredditObservable observable) {
+    this.db = db;
+    this.observable = observable;
+  }
   
   public void init(Guild guild) throws SQLException {
-    deleteUnusedTextChannels(guild);
-    loadTextChannels(guild);
-  }
-  
-  private void deleteUnusedTextChannels(Guild guild) throws SQLException {
-    int count = db.retain(guild);
-    
-    LOGGER.info("{} text channel(s) have been deleted from the database.", count);
-  }
-  
-  private void loadTextChannels(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
       loadTextChannels(textChannel);
     }

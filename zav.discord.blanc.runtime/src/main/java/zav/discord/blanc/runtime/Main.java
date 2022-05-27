@@ -49,6 +49,7 @@ import zav.discord.blanc.reddit.RedditJob;
 import zav.discord.blanc.runtime.internal.BlancModule;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.RedditUtils;
+import zav.discord.blanc.runtime.job.CleanupDatabaseJob;
 import zav.discord.blanc.runtime.job.PresenceJob;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.client.guice.UserlessClientModule;
@@ -145,8 +146,12 @@ public class Main {
   
   private static void initJobs(JDA shard) throws Exception {
     ScheduledExecutorService executor = injector.getInstance(ScheduledExecutorService.class);
-    Runnable job = new PresenceJob(shard.getPresence());
-    executor.scheduleAtFixedRate(job, 0, 1, TimeUnit.HOURS);
+    
+    Runnable presenceJob = new PresenceJob(shard.getPresence());
+    executor.scheduleAtFixedRate(presenceJob, 0, 1, TimeUnit.HOURS);
+    
+    Runnable cleanupJob = injector.getInstance(CleanupDatabaseJob.class);
+    executor.scheduleAtFixedRate(cleanupJob, 1, 1, TimeUnit.HOURS);
   }
   
   private static void initListeners(JDA jda) {
