@@ -41,6 +41,6 @@ public class CommandTest {
     public void validate() {}
   
     @Override
-    public void run() throws Exception {}
+    public void run() {}
   }
 }

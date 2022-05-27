@@ -80,7 +80,7 @@ public class BlacklistListenerTest {
    * Initializes a fictitious GuildMessageReceivedEvent.
    */
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     permissions = mockStatic(PermissionUtil.class);
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
     

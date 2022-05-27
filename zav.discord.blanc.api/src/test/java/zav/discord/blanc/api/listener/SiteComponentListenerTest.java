@@ -77,7 +77,7 @@ public class SiteComponentListenerTest {
    * modify the page.
    */
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     page = Site.Page.create("mainPage", List.of(mainPage));
     site = spy(Site.create(List.of(page), user));
     
