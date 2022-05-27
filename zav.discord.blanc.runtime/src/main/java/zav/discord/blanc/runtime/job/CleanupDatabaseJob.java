@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.db.TextChannelTable;
 import zav.discord.blanc.db.WebhookTable;
-import zav.discord.blanc.reddit.internal.TextChannelInitializer;
 
 /**
  * This job is used to periodically remove all Reddit feeds from the database which can no longer be
@@ -33,7 +32,7 @@ import zav.discord.blanc.reddit.internal.TextChannelInitializer;
  * anymore.
  */
 public class CleanupDatabaseJob implements Runnable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelInitializer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CleanupDatabaseJob.class);
   
   @Inject
   private TextChannelTable textChannelTable;
