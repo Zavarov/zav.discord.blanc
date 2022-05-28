@@ -79,27 +79,27 @@ public class FailsafeCommand extends AbstractCommand {
       "You will regret your resistance, %s."
   };
   
+  private final UserTable db;
+  private final SlashCommandEvent event;
+  private final User author;
+  private final UserEntity entity;
+  private final List<String> ranks;
+  
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   * @param db The database table containing all user ranks.
+   * @param author The user triggering this command.
+   */
   @Inject
-  private UserTable userTable;
-  
-  @Inject
-  private SlashCommandEvent event;
-  
-  @Inject
-  private User author;
-  
-  private UserEntity entity;
-  
-  private List<String> ranks;
-  
-  public FailsafeCommand() {
+  public FailsafeCommand(SlashCommandEvent event, UserTable db, User author) {
     super(DEVELOPER);
-  }
-  
-  @Override
-  public void postConstruct() {
-    entity = getOrCreate(userTable, author);
-    ranks = entity.getRanks();
+    this.event = event;
+    this.db = db;
+    this.author = author;
+    this.entity = getOrCreate(db, author);
+    this.ranks = entity.getRanks();
   }
   
   /**
@@ -121,7 +121,7 @@ public class FailsafeCommand extends AbstractCommand {
       response = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
     }
   
-    userTable.put(entity);
+    db.put(entity);
     
     event.replyFormat(response, author.getAsMention()).complete();
   }

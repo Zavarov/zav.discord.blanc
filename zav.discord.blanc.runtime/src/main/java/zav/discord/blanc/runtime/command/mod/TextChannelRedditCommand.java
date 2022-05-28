@@ -25,10 +25,18 @@ import zav.discord.blanc.db.TextChannelTable;
 
 @Deprecated
 public class TextChannelRedditCommand extends AbstractRedditCommand {
-  @Inject
-  private TextChannelTable db;
+  private final String removeSubreddit;
+  private final String addSubreddit;
+  private final TextChannelTable db;
   
   private TextChannelEntity entity;
+  
+  @Inject
+  public TextChannelRedditCommand(TextChannelTable db) {
+    this.db = db;
+    this.removeSubreddit = i18n.getString("remove_subreddit");
+    this.addSubreddit = i18n.getString("add_subreddit_deprecated");
+  }
   
   @Override
   public void postConstruct() {
@@ -48,9 +56,9 @@ public class TextChannelRedditCommand extends AbstractRedditCommand {
       //Update the persistence file
       db.put(entity);
       
-      event.replyFormat(i18n.getString("remove_subreddit"), subreddit, target.getAsMention()).complete();
+      event.replyFormat(removeSubreddit, subreddit, target.getAsMention()).complete();
     } else {
-      event.reply(i18n.getString("add_subreddit_deprecated")).complete();
+      event.reply(addSubreddit).complete();
     }
   }
 }

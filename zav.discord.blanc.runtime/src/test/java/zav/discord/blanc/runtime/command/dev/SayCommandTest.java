@@ -17,30 +17,35 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Check whether the command repeats the given argument.
  */
-public class SayCommandTest extends AbstractDevCommandTest {
-  private @Mock OptionMapping arg;
+@ExtendWith(MockitoExtension.class)
+public class SayCommandTest {
+  @Mock OptionMapping content;
+  @Mock SlashCommandEvent event;
+  @Mock ReplyAction reply;
+  SayCommand command;
   
   @Test
-  public void testSend() throws Exception {
+  public void testSend() {
     ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
     when(event.reply(captor.capture())).thenReturn(reply);
-    when(event.getOption(anyString())).thenReturn(arg);
-    when(arg.getAsString()).thenReturn("Hello World");
-    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
+    when(content.getAsString()).thenReturn("Hello World");
     
-    run(SayCommand.class);
+    command = new SayCommand(event, content);
+    command.run();
     
     assertThat(captor.getValue()).isEqualTo("Hello World");
   }

@@ -21,21 +21,21 @@ import static zav.discord.blanc.api.Constants.INVITE_SUPPORT_SERVER;
 import javax.inject.Inject;
 import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.command.AbstractCommand;
 
 /**
  * This command prints an invitation link to the support server.
  */
-@NonNullByDefault
 public class SupportCommand extends AbstractCommand {
   
-  @Inject
-  private SlashCommandEvent event;
+  private final SlashCommandEvent event;
+  private final String link;
   
   @Inject
-  @Named(INVITE_SUPPORT_SERVER)
-  private String link;
+  public SupportCommand(SlashCommandEvent event, @Named(INVITE_SUPPORT_SERVER) String link) {
+    this.event = event;
+    this.link = link;
+  }
   
   @Override
   public void run() {

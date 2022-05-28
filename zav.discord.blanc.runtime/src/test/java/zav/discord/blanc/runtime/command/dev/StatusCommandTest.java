@@ -22,20 +22,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.Test;
-import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Check whether the bot status is properly displayed.
  */
-public class StatusCommandTest extends AbstractDevCommandTest {
+@ExtendWith(MockitoExtension.class)
+public class StatusCommandTest {
+  
+  @Mock SlashCommandEvent event;
+  @Mock ReplyAction reply;
+  StatusCommand command;
   
   @Test
-  public void testSendStatus() throws Exception {
-    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
+  public void testSendStatus() {
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     
-    run(StatusCommand.class);
+    command = new StatusCommand(event);
+    command.postConstruct();
+    command.run();
     
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
   }

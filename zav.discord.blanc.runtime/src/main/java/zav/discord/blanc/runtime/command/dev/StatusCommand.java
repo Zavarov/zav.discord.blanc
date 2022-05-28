@@ -47,6 +47,7 @@ public class StatusCommand extends AbstractCommand {
   private final EmbedBuilder messageEmbed = new EmbedBuilder();
   private final SystemInfo systemInfo = new SystemInfo();
   private final HardwareAbstractionLayer hardware = systemInfo.getHardware();
+  private final SlashCommandEvent event;
   
   private OperatingSystem os;
   private OSProcess process;
@@ -64,11 +65,15 @@ public class StatusCommand extends AbstractCommand {
   private String cpuTemperature;
   private String cpuVoltage;
   
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   */
   @Inject
-  private SlashCommandEvent event;
-  
-  public StatusCommand() {
+  public StatusCommand(SlashCommandEvent event) {
     super(Rank.DEVELOPER);
+    this.event = event;
   }
   
   @Override

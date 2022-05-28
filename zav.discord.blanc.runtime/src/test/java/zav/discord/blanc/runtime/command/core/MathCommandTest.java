@@ -22,23 +22,25 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.assertj.core.data.Percentage;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import zav.discord.blanc.runtime.command.AbstractCommandTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Checks whether the correct answer is returned for a given arithmetic expression.
  */
-public class MathCommandTest extends AbstractCommandTest {
+@ExtendWith(MockitoExtension.class)
+public class MathCommandTest {
   private static final Percentage offset = Percentage.withPercentage(1e-15);
-  
-  private @Mock OptionMapping arg;
   
   static List<Pair<String, ? extends Number>> getArguments() {
     return List.of(
@@ -110,6 +112,11 @@ public class MathCommandTest extends AbstractCommandTest {
     );
   }
   
+  @Mock SlashCommandEvent event;
+  @Mock OptionMapping value;
+  @Mock ReplyAction reply;
+  MathCommand command;
+  
   /**
    * Calculates the numerical value and compares it to the expected value.<br>
    * Arguments are provided via {@link #getArguments()}.
@@ -118,26 +125,32 @@ public class MathCommandTest extends AbstractCommandTest {
    */
   @ParameterizedTest
   @MethodSource("getArguments")
-  public void testExpression(Pair<String, ? extends Number> argument) throws Exception {
+  public void testExpression(Pair<String, ? extends Number> argument) {
     ArgumentCaptor<String> response = ArgumentCaptor.forClass(String.class);
 
-    when(arg.getAsString()).thenReturn(argument.getKey());
-    when(event.getOption("value")).thenReturn(arg);
+    when(value.getAsString()).thenReturn(argument.getKey());
     when(event.reply(response.capture())).thenReturn(reply);
-    
-    run(MathCommand.class);
+  
+    command = new MathCommand(event, value);
+    command.run();
     
     String content = response.getValue();
     double expected = argument.getValue().doubleValue();
     assertThat(parseDouble(content)).isCloseTo(expected, offset);
   }
-
+  
+  /**
+   * Use Case: Invalid expressions should throw an exception.
+   *
+   * @param argument The invalid arithmetic expression that is handled.
+   */
   @ParameterizedTest
   @MethodSource("getInvalidArguments")
   public void testExpression(String argument) {
-    when(arg.getAsString()).thenReturn(argument);
-    when(event.getOption("value")).thenReturn(arg);
+    when(value.getAsString()).thenReturn(argument);
+    
+    command = new MathCommand(event, value);
   
-    assertThatThrownBy(() -> run(MathCommand.class)).isInstanceOf(JexlException.class);
+    assertThatThrownBy(command::run).isInstanceOf(JexlException.class);
   }
 }

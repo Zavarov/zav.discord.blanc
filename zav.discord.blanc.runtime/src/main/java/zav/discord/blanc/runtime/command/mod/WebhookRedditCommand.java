@@ -16,23 +16,29 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
-
 import java.sql.SQLException;
 import java.util.List;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.db.WebhookTable;
+import zav.discord.blanc.runtime.internal.DatabaseUtils;
 
 public class WebhookRedditCommand extends AbstractRedditCommand {
   private static final String WEBHOOK = "Reddit";
+  private final String removeSubreddit;
+  private final String addSubreddit;
+  private final WebhookTable db;
+  
+  private WebhookEntity entity;
+  private Webhook webhook;
   
   @Inject
-  private WebhookTable webhookTable;
-  
-  private WebhookEntity webhookEntity;
-  private Webhook webhook;
+  public WebhookRedditCommand(WebhookTable db) {
+    this.db = db;
+    this.removeSubreddit = i18n.getString("remove_subreddit");
+    this.addSubreddit = i18n.getString("add_subreddit");
+  }
   
   @Override
   public void postConstruct() {
@@ -45,34 +51,34 @@ public class WebhookRedditCommand extends AbstractRedditCommand {
           .findFirst()
           .orElseGet(() -> target.createWebhook(WEBHOOK).complete());
     
-    webhookEntity = getOrCreate(webhookTable, webhook);
+    entity = DatabaseUtils.getOrCreate(db, webhook);
   }
   
   @Override
   public void run() throws SQLException {
     // Update view
-    if (webhookEntity.getSubreddits().contains(subreddit)) {
+    if (entity.getSubreddits().contains(subreddit)) {
       // Remove subreddit from database
-      webhookEntity.getSubreddits().remove(subreddit);
+      entity.getSubreddits().remove(subreddit);
       
       // Remove subreddit from the Reddit job
       observable.removeListener(subreddit, webhook);
       
       // Delete webhook if it's no longer needed
-      if (webhookEntity.getSubreddits().isEmpty() && webhookEntity.isOwner()) {
+      if (entity.getSubreddits().isEmpty() && entity.isOwner()) {
         webhook.delete().complete();
       }
       
-      event.replyFormat(i18n.getString("remove_subreddit"), subreddit, target.getAsMention()).complete();
+      event.replyFormat(removeSubreddit, subreddit, target.getAsMention()).complete();
     } else {
       // Add subreddit to database
-      webhookEntity.getSubreddits().add(subreddit);
+      entity.getSubreddits().add(subreddit);
       observable.addListener(subreddit, webhook);
       
-      event.replyFormat(i18n.getString("add_subreddit"), subreddit, target.getAsMention()).complete();
+      event.replyFormat(addSubreddit, subreddit, target.getAsMention()).complete();
     }
     
     //Update the persistence file
-    webhookTable.put(webhookEntity);
+    db.put(entity);
   }
 }

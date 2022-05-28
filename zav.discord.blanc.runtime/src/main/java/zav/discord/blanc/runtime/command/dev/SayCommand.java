@@ -16,9 +16,10 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import java.util.Objects;
 import javax.inject.Inject;
+import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
 
@@ -27,18 +28,20 @@ import zav.discord.blanc.command.AbstractCommand;
  */
 public class SayCommand extends AbstractCommand {
   
+  private final SlashCommandEvent event;
+  private final String content;
+  
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   * @param content The message that should be repeated.
+   */
   @Inject
-  private SlashCommandEvent event;
-  
-  private String content;
-    
-  public SayCommand() {
+  public SayCommand(SlashCommandEvent event, @Named("content")OptionMapping content) {
     super(Rank.DEVELOPER);
-  }
-  
-  @Override
-  public void postConstruct() {
-    content = Objects.requireNonNull(event.getOption("content")).getAsString();
+    this.event = event;
+    this.content = content.getAsString();
   }
   
   @Override

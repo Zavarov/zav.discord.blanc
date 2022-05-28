@@ -18,10 +18,11 @@ package zav.discord.blanc.runtime.command.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import javax.inject.Inject;
+import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
@@ -52,14 +53,13 @@ public class MathCommand extends AbstractCommand {
     }
   }
   
+  private final SlashCommandEvent event;
+  private final String value;
+ 
   @Inject
-  private SlashCommandEvent event;
-  
-  private String value;
-  
-  @Override
-  public void postConstruct() {
-    value = Objects.requireNonNull(event.getOption("value")).getAsString();
+  public MathCommand(SlashCommandEvent event, @Named("value")OptionMapping value) {
+    this.event = event;
+    this.value = value.getAsString();
   }
   
   @Override

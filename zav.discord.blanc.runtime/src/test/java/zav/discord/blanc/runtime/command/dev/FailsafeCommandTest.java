@@ -20,57 +20,70 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.Optional;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.runtime.command.AbstractDevCommandTest;
+import zav.discord.blanc.db.UserTable;
+import zav.test.io.JsonUtils;
 
 /**
  * Check whether developer can request and relinquish super-user privileges.
  */
-public class FailsafeCommandTest extends AbstractDevCommandTest {
+@ExtendWith(MockitoExtension.class)
+public class FailsafeCommandTest {
+  
+  @Mock SlashCommandEvent event;
+  @Mock ReplyAction reply;
+  @Mock UserTable db;
+  @Mock User user;
+  
+  UserEntity entity;
+  FailsafeCommand command;
+  
+  @BeforeEach
+  public void setUp() {
+    entity = JsonUtils.read("User.json", UserEntity.class);
+  }
+  
   
   @Test
   public void testBecomeRoot() throws Exception {
-    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.DEVELOPER.name())));
+    when(db.get(user)).thenReturn(Optional.of(entity));
+    entity.setRanks(Lists.newArrayList(Rank.DEVELOPER.name()));
   
-    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
-    when(user.getName()).thenReturn(userEntity.getName());
-    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(user.getAsMention()).thenReturn(userEntity.getName());
+    when(user.getName()).thenReturn(entity.getName());
+    when(user.getDiscriminator()).thenReturn(entity.getDiscriminator());
+    when(user.getAsMention()).thenReturn(entity.getName());
     when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
     
-    run(FailsafeCommand.class);
-  
-    // Has the user become a root?
-    UserEntity response = get(userTable, user);
+    command = new FailsafeCommand(event, db, user);
+    command.run();
     
-    assertThat(response.getId()).isEqualTo(userEntity.getId());
-    assertThat(response.getName()).isEqualTo(userEntity.getName());
-    assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
-    assertThat(response.getRanks()).contains(Rank.ROOT.name());
+    assertThat(entity.getRanks()).contains(Rank.ROOT.name());
   }
   
   @Test
   public void testBecomeDeveloper() throws Exception {
-    update(userTable, userEntity, e -> e.setRanks(List.of(Rank.ROOT.name())));
+    when(db.get(user)).thenReturn(Optional.of(entity));
+    entity.setRanks(Lists.newArrayList(Rank.ROOT.name()));
   
-    when(user.getId()).thenReturn(Long.toString(userEntity.getId()));
-    when(user.getName()).thenReturn(userEntity.getName());
-    when(user.getDiscriminator()).thenReturn(userEntity.getDiscriminator());
-    when(user.getAsMention()).thenReturn(userEntity.getName());
+    when(user.getName()).thenReturn(entity.getName());
+    when(user.getDiscriminator()).thenReturn(entity.getDiscriminator());
+    when(user.getAsMention()).thenReturn(entity.getName());
     when(event.replyFormat(anyString(), anyString())).thenReturn(reply);
   
-    run(FailsafeCommand.class);
+    command = new FailsafeCommand(event, db, user);
+    command.run();
   
-    // Has the user become a developer?
-    UserEntity response = get(userTable, user);
-  
-    assertThat(response.getId()).isEqualTo(userEntity.getId());
-    assertThat(response.getName()).isEqualTo(userEntity.getName());
-    assertThat(response.getDiscriminator()).isEqualTo(userEntity.getDiscriminator());
-    assertThat(response.getRanks()).contains(Rank.DEVELOPER.name());
-  
+    assertThat(entity.getRanks()).contains(Rank.DEVELOPER.name());
   }
 }
