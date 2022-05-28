@@ -43,6 +43,12 @@ public class WebhookInitializer {
     this.observable = observable;
   }
   
+  /**
+   * Initialize the listeners for all registered subreddits per webhook.
+   *
+   * @param textChannel One of the text channels visible to the bot.
+   * @throws SQLException If a database error occurred.
+   */
   public void load(TextChannel textChannel) throws SQLException {
     for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
       load(webhook);

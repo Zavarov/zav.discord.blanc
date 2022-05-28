@@ -46,6 +46,12 @@ public class TextChannelInitializer {
     this.observable = observable;
   }
   
+  /**
+   * Initialize the listeners for all registered subreddits per text channel.
+   *
+   * @param guild One of the guilds visible to the bot.
+   * @throws SQLException If a database error occurred.
+   */
   public void load(Guild guild) throws SQLException {
     for (TextChannel textChannel : guild.getTextChannels()) {
       load(textChannel);
