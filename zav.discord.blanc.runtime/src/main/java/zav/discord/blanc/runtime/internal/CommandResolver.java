@@ -28,7 +28,6 @@ import zav.discord.blanc.runtime.command.core.MathCommand;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
 import zav.discord.blanc.runtime.command.dev.KillCommand;
-import zav.discord.blanc.runtime.command.dev.RankCommand;
 import zav.discord.blanc.runtime.command.dev.SayCommand;
 import zav.discord.blanc.runtime.command.dev.StatusCommand;
 import zav.discord.blanc.runtime.command.mod.BlacklistCommand;
@@ -56,7 +55,6 @@ public class CommandResolver {
   
     Commands.bind("dev.failsafe", FailsafeCommand.class);
     Commands.bind("dev.kill", KillCommand.class);
-    Commands.bind("dev.rank", RankCommand.class);
     Commands.bind("dev.say", SayCommand.class);
     Commands.bind("dev.status", StatusCommand.class);
   }

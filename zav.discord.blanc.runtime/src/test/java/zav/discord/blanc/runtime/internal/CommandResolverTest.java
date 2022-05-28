@@ -35,7 +35,7 @@ public class CommandResolverTest {
     assertThat(commands.get(0).getName()).isEqualTo("math");
     assertThat(commands.get(1).getName()).isEqualTo("support");
     assertThat(commands.get(2).getName()).isEqualTo("dev");
-    assertThat(commands.get(2).getSubcommands()).hasSize(5);
+    assertThat(commands.get(2).getSubcommands()).hasSize(4);
     assertThat(commands.get(3).getName()).isEqualTo("mod");
     assertThat(commands.get(3).getSubcommands()).hasSize(1);
     assertThat(commands.get(3).getSubcommandGroups()).hasSize(2);
