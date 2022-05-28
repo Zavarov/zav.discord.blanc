@@ -17,11 +17,13 @@
 package zav.discord.blanc.api.guice;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -46,5 +48,10 @@ public class PrivateCommandModule extends AbstractModule {
     
     // Private channel specific
     bind(PrivateChannel.class).toInstance(event.getPrivateChannel());
+  
+    // Command Arguments
+    for (OptionMapping arg : event.getOptions()) {
+      bind(OptionMapping.class).annotatedWith(Names.named(arg.getName())).toInstance(arg);
+    }
   }
 }

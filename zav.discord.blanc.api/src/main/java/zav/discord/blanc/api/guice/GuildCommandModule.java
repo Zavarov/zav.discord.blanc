@@ -17,7 +17,9 @@
 package zav.discord.blanc.api.guice;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import java.util.Objects;
+import javax.inject.Named;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,6 +27,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -54,5 +58,10 @@ public class GuildCommandModule extends AbstractModule {
     bind(Guild.class).toInstance(event.getGuild());
     bind(TextChannel.class).toInstance(event.getTextChannel());
     bind(Member.class).toInstance(event.getMember());
+    
+    // Command Arguments
+    for (OptionMapping arg : event.getOptions()) {
+      bind(OptionMapping.class).annotatedWith(Names.named(arg.getName())).toInstance(arg);
+    }
   }
 }
