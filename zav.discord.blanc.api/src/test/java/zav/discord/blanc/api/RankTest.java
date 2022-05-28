@@ -55,7 +55,6 @@ public class RankTest {
   @SuppressWarnings("unused") // used via @MethodSource
   public static Stream<Arguments> testGetEffectiveRanks() {
     return Stream.of(
-          Arguments.of("reddit", EnumSet.of(Rank.USER, Rank.REDDIT)),
           Arguments.of("user", EnumSet.of(Rank.USER)),
           Arguments.of("developer", EnumSet.of(Rank.USER, Rank.DEVELOPER)),
           Arguments.of("root", EnumSet.allOf(Rank.class))

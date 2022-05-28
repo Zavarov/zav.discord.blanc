@@ -37,7 +37,6 @@ import zav.discord.blanc.db.UserTable;
  * shouldn't be able to use developer commands.
  */
 public enum Rank {
-  REDDIT,
   USER,
   DEVELOPER,
   ROOT;
@@ -46,7 +45,6 @@ public enum Rank {
   private static final Logger LOGGER = LoggerFactory.getLogger(Rank.class);
   
   static {
-    effectiveRanks.put(Rank.REDDIT, EnumSet.of(Rank.REDDIT, Rank.USER));
     effectiveRanks.put(Rank.DEVELOPER, EnumSet.of(Rank.DEVELOPER, Rank.USER));
     effectiveRanks.put(Rank.ROOT, EnumSet.allOf(Rank.class));
   }
