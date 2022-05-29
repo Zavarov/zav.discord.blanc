@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +62,7 @@ public abstract class AbstractTest {
   protected @Mock SubredditObservable subredditObservable;
   protected Injector injector;
   protected Cache<Long, Site> siteCache;
-  protected Cache<Long, Pattern> patternCache;
+  protected Cache<Guild, Pattern> patternCache;
   
   @BeforeEach
   public void setUp() throws Exception {
@@ -89,7 +90,7 @@ public abstract class AbstractTest {
     
     cmd.postConstruct();
     cmd.validate();
-    cmd.run();;
+    cmd.run();
   }
   
   protected class TestModule extends AbstractModule {
@@ -107,7 +108,7 @@ public abstract class AbstractTest {
             .toInstance(siteCache);
   
   
-      bind(new TypeLiteral<Cache<Long, Pattern>>(){})
+      bind(new TypeLiteral<Cache<Guild, Pattern>>(){})
             .annotatedWith(Names.named(PATTERN))
             .toInstance(patternCache);
     }

@@ -43,7 +43,7 @@ public class BlacklistCommand extends AbstractGuildCommand {
   
   @Inject
   @Named(PATTERN)
-  private Cache<Long, Pattern> cache;
+  private Cache<Guild, Pattern> cache;
   
   @Inject
   private SlashCommandEvent event;
@@ -81,6 +81,6 @@ public class BlacklistCommand extends AbstractGuildCommand {
   
     // Update pattern
     String regex = guildEntity.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse(EMPTY);
-    cache.put(guild.getIdLong(), Pattern.compile(regex));
+    cache.put(guild, Pattern.compile(regex));
   }
 }
