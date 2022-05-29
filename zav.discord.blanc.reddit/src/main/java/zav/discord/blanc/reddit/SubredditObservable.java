@@ -16,6 +16,8 @@
 
 package zav.discord.blanc.reddit;
 
+import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.external.JDAWebhookClient;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -23,12 +25,14 @@ import com.google.inject.name.Names;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.jrc.client.FailedRequestException;
+import zav.jrc.endpoint.subreddit.Subreddit;
 import zav.jrc.listener.observer.SubredditObserver;
 
 /**
@@ -42,11 +46,13 @@ import zav.jrc.listener.observer.SubredditObserver;
 public final class SubredditObservable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
   private final Map<String, SubredditObserver> observers = new ConcurrentHashMap<>();
+  private final ScheduledExecutorService pool;
   private final Injector injector;
   
   @Inject
-  public SubredditObservable(Injector injector) {
+  public SubredditObservable(Injector injector, ScheduledExecutorService pool) {
     this.injector = injector;
+    this.pool = pool;
   }
   
   /**
@@ -59,6 +65,7 @@ public final class SubredditObservable {
    * @param textChannel The textChannel which is notified upon new submissions.
    * @return {@code true}, if a new listener was created.
    */
+  @Deprecated
   public boolean addListener(String subreddit, TextChannel textChannel) {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
     
@@ -80,7 +87,7 @@ public final class SubredditObservable {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
     
     return observers.computeIfAbsent(subreddit, this::getObserver)
-          .addListener(new WebhookSubredditListener(webhook));
+          .addListener(getListener(subreddit, webhook));
   }
   
   /**
@@ -96,7 +103,7 @@ public final class SubredditObservable {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
   
     return observers.computeIfAbsent(subreddit, this::getObserver)
-          .removeListener(new WebhookSubredditListener(webhook));
+          .removeListener(getListener(subreddit, webhook));
   }
   
   /**
@@ -129,6 +136,19 @@ public final class SubredditObservable {
         LOGGER.error(e.getMessage(), e);
       }
     }
+  }
+  
+  private WebhookSubredditListener getListener(String subredditName, Webhook webhook) {
+    Injector subredditInjector = injector.createChildInjector(new ObserverModule(subredditName));
+    
+    Subreddit subreddit = subredditInjector.getInstance(Subreddit.class);
+    
+    // client.close() should be ignored as the pool is shared across the entire application
+    JDAWebhookClient client = WebhookClientBuilder.fromJDA(webhook)
+          .setExecutorService(pool)
+          .buildJDA();
+    
+    return new WebhookSubredditListener(subreddit, client);
   }
   
   private SubredditObserver getObserver(String subredditName) {

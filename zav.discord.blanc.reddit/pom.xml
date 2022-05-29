@@ -35,9 +35,21 @@
         </dependency>
 
         <dependency>
+            <groupId>zav.jrc</groupId>
+            <artifactId>jrc-endpoint-subreddit</artifactId>
+            <version>${jrc.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>blanc-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>${discord-webhooks.version}</version>
         </dependency>
     </dependencies>
 

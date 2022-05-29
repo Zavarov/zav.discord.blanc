@@ -48,7 +48,7 @@
         <lang3.version>3.12.0</lang3.version>
         <slf4j.version>1.7.36</slf4j.version>
         <sqlite.version>3.36.0.3</sqlite.version>
-        <jrc.version>0.4.4</jrc.version>
+        <jrc.version>0.4.5</jrc.version>
         <oshi.version>6.1.6</oshi.version>
         <jna.version>5.11.0</jna.version>
         <guava.version>31.1-jre</guava.version>

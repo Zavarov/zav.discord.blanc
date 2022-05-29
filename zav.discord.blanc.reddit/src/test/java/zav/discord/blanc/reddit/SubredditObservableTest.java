@@ -17,13 +17,16 @@
 package zav.discord.blanc.reddit;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +40,7 @@ import zav.jrc.listener.observer.SubredditObserver;
 @ExtendWith(MockitoExtension.class)
 public class SubredditObservableTest {
   
+  @Mock ScheduledExecutorService pool;
   @Mock TextChannel textChannel;
   @Mock Webhook webhook;
   @Mock Injector injector;
@@ -52,7 +56,7 @@ public class SubredditObservableTest {
     when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
     when(injector.getInstance(SubredditObserver.class)).thenReturn(observer);
     
-    observable = new SubredditObservable(injector);
+    observable = new SubredditObservable(injector, pool);
   }
   
   @Test
@@ -64,6 +68,8 @@ public class SubredditObservableTest {
   
   @Test
   public void testAddWebhookListener() {
+    when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
+    
     observable.addListener("subreddit", webhook);
   
     verify(observer).addListener(any(WebhookSubredditListener.class));
@@ -78,6 +84,8 @@ public class SubredditObservableTest {
   
   @Test
   public void testRemoveWebhookListener() {
+    when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
+    
     observable.removeListener("subreddit", webhook);
   
     verify(observer).removeListener(any(WebhookSubredditListener.class));
