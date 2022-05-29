@@ -50,8 +50,11 @@ public class RedditJob implements Runnable {
    */
   @Inject
   public void postConstruct(Client client, TextChannelInitializer initializer) throws SQLException {
+    LOGGER.info("Initializing listeners for all registered text channels.");
     for (JDA shard : client.getShards()) {
+      LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
       for (Guild guild : shard.getGuilds()) {
+        LOGGER.info("Initializing listeners for guild {}.", guild.getName());
         initializer.load(guild);
       }
     }
@@ -68,8 +71,11 @@ public class RedditJob implements Runnable {
    */
   @Inject
   public void postConstruct(Client client, WebhookInitializer initializer) throws SQLException {
+    LOGGER.info("Initializing listeners for all registered webhooks.");
     for (JDA shard : client.getShards()) {
+      LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
       for (Guild guild : shard.getGuilds()) {
+        LOGGER.info("Initializing listeners for guild {}.", guild.getName());
         for (TextChannel textChannel : guild.getTextChannels()) {
           if (textChannel.canTalk()) {
             initializer.load(textChannel);
