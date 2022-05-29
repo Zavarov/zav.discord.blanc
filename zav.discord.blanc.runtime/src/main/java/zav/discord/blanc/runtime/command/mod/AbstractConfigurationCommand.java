@@ -77,7 +77,11 @@ public abstract class AbstractConfigurationCommand extends AbstractGuildCommand 
       Site site = Site.create(pages, author);
       
       // Send response
-      event.replyEmbeds(site.getCurrentPage()).queue(success -> cache.put(success.retrieveOriginal().complete().getIdLong(), site));
+      event.replyEmbeds(site.getCurrentPage()).queue(success ->
+          success.retrieveOriginal().queue(message ->
+                cache.put(message.getIdLong(), site)
+          )
+      );
     }
   }
   
