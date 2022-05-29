@@ -28,8 +28,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.databind.GuildEntity;
@@ -77,11 +79,11 @@ public abstract class AbstractConfigurationCommand extends AbstractGuildCommand 
       Site site = Site.create(pages, author);
       
       // Send response
-      event.replyEmbeds(site.getCurrentPage()).queue(success ->
-          success.retrieveOriginal().queue(message ->
-                cache.put(message.getIdLong(), site)
-          )
-      );
+      InteractionHook response = event.replyEmbeds(site.getCurrentPage()).complete();
+      
+      // Store message in cache
+      Message source = response.retrieveOriginal().complete();
+      cache.put(source.getIdLong(), site);
     }
   }
   

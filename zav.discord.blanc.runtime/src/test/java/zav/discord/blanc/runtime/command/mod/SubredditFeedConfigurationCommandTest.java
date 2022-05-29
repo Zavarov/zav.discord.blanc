@@ -19,11 +19,8 @@ package zav.discord.blanc.runtime.command.mod;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Consumer;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -35,6 +32,7 @@ import zav.discord.blanc.runtime.command.AbstractGuildCommandTest;
 public class SubredditFeedConfigurationCommandTest extends AbstractGuildCommandTest {
   private @Mock InteractionHook hook;
   private @Mock RestAction<Message> action;
+  private @Mock Message message;
   
   @Test
   public void testRun() throws Exception {
@@ -43,14 +41,9 @@ public class SubredditFeedConfigurationCommandTest extends AbstractGuildCommandT
     when(guild.getTextChannelById(anyLong())).thenReturn(textChannel);
     when(textChannel.getAsMention()).thenReturn(channelEntity.getName());
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-    
-    doAnswer(answer -> {
-      Consumer<InteractionHook> success = answer.getArgument(0);
-      when(hook.retrieveOriginal()).thenReturn(action);
-      when(action.complete()).thenReturn(mock(Message.class));
-      success.accept(hook);
-      return null;
-    }).when(reply).queue(any());
+    when(reply.complete()).thenReturn(hook);
+    when(hook.retrieveOriginal()).thenReturn(action);
+    when(action.complete()).thenReturn(message);
     
     run(SubredditFeedConfigurationCommand.class);
     
