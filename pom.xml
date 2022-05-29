@@ -58,6 +58,7 @@
         <kotlin.version>1.4.32</kotlin.version>
         <spotbugs.version>4.7.0</spotbugs.version>
         <discord-webhooks.version>0.8.0</discord-webhooks.version>
+        <text.version>1.9</text.version>
 
         <!-- .. Test ............................................................................................... -->
         <zav.test.version>1.0.0</zav.test.version>

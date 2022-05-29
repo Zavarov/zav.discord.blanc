@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,9 +119,14 @@ public final class MessageUtils {
       builder.append("[Spoiler] ");
     }
     
-    builder.append(link.getTitle());
+    builder.append(getTitle(link));
     
     return StringUtils.truncate(builder.toString(), TITLE_MAX_LENGTH);
+  }
+  
+  private static String getTitle(LinkEntity link) {
+    String title = link.getTitle();
+    return StringEscapeUtils.unescapeHtml4(title);
   }
   
   private static @Nullable String getPermalink(LinkEntity link) {
@@ -144,7 +150,7 @@ public final class MessageUtils {
   }
   
   private static @Nullable String getDescription(LinkEntity link) {
-    @Nullable String description = link.getSelftext();
+    @Nullable String description = StringEscapeUtils.unescapeHtml4(link.getSelftext());
     return StringUtils.truncate(description, DESCRIPTION_MAX_LENGTH);
   }
   
