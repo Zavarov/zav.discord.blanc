@@ -101,9 +101,13 @@ public final class MessageUtils {
     StringBuilder builder = new StringBuilder();
     
     if (link.getLinkFlairText() != null) {
-      builder.append("[");
+      if (!link.getLinkFlairText().startsWith("[")) {
+        builder.append("[");
+      }
       builder.append(link.getLinkFlairText());
-      builder.append("] ");
+      if (!link.getLinkFlairText().endsWith("]")) {
+        builder.append("] ");
+      }
     }
     
     if (link.getOver18()) {
