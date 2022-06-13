@@ -29,7 +29,7 @@ import zav.discord.blanc.db.TextChannelTable;
  * Utility class for initializing all subreddit feeds that have been mapped to a
  * {@link TextChannel}.
  *
- * @Deprecated Deprecated in favor of {@link WebhookInitializer}.
+ * @deprecated Deprecated in favor of {@link WebhookInitializer}.
  */
 @Deprecated
 @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
