@@ -1,0 +1,25 @@
+{
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "description" : "Unique 64bit long id of the channel.",
+      "type" : "integer"
+    },
+    "guildId" : {
+      "description" : "Unique 64bit long id of the guild related to this channel.",
+      "type" : "integer"
+    },
+    "name" : {
+      "description" : "Human-readable name of the channel.",
+      "type" : "string"
+    },
+    "subreddits" : {
+      "description" : "Names of subreddits associated with this channel.",
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required" : ["id", "guildId", "name", "subreddits"]
+}

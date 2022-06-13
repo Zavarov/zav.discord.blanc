@@ -1,1 +1,0 @@
-        checkRank(get$Author(), Rank.${ast.getName()});

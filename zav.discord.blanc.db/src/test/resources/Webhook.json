@@ -1,0 +1,8 @@
+{
+  "id" : 3000,
+  "guildId" : 1000,
+  "channelId" : 2000,
+  "name" : "Webhook",
+  "subreddits" : ["redditdev", "announcements"],
+  "owner" : true
+}

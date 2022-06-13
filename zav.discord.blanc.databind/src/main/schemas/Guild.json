@@ -1,0 +1,21 @@
+{
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "description" : "Unique 64bit long id of the guild.",
+      "type" : "integer"
+    },
+    "name" : {
+      "description" : "Human-readable name of the guild.",
+      "type" : "string"
+    },
+    "blacklist" : {
+      "description" : "Collection of banned words.",
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required" : ["id", "name", "blacklist"]
+}

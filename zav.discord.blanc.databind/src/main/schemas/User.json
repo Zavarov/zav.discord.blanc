@@ -1,0 +1,25 @@
+{
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "description" : "Unique 64bit long id of the user.",
+      "type" : "integer"
+    },
+    "name" : {
+      "description" : "Human-readable name of the user.",
+      "type" : "string"
+    },
+    "discriminator" : {
+      "description" : "Discriminator.",
+      "type" : "string"
+    },
+    "ranks" : {
+      "description" : "Program-specific user rank.",
+      "type" : "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required" : ["id", "name", "discriminator", "ranks"]
+}
