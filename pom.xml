@@ -55,7 +55,7 @@
         <okhttp.version>4.9.3</okhttp.version>
         <jexl.version>3.2.1</jexl.version>
         <okio.version>2.10.0</okio.version>
-        <kotlin.version>1.4.32</kotlin.version>
+        <kotlin.version>1.6.0</kotlin.version>
         <spotbugs.version>4.7.0</spotbugs.version>
         <discord-webhooks.version>0.8.0</discord-webhooks.version>
         <text.version>1.9</text.version>
