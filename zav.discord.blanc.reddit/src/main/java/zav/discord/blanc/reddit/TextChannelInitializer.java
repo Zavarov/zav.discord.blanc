@@ -17,13 +17,17 @@
 package zav.discord.blanc.reddit;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.db.TextChannelTable;
+import zav.discord.blanc.databind.TextChannelEntity;
 
 /**
  * Utility class for initializing all subreddit feeds that have been mapped to a
@@ -31,18 +35,25 @@ import zav.discord.blanc.db.TextChannelTable;
  *
  * @deprecated Deprecated in favor of {@link WebhookInitializer}.
  */
+@Singleton
 @Deprecated
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class TextChannelInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelInitializer.class);
   
-  private final TextChannelTable db;
-  
+  private final EntityManagerFactory factory;
   private final SubredditObservable observable;
   
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param factory The JPA persistence manager.
+   * @param observable The global subreddit observable.
+   */
   @Inject
-  public TextChannelInitializer(TextChannelTable db, SubredditObservable observable) {
-    this.db = db;
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public TextChannelInitializer(EntityManagerFactory factory, SubredditObservable observable) {
+    this.factory = factory;
     this.observable = observable;
   }
   
@@ -50,20 +61,26 @@ public class TextChannelInitializer {
    * Initialize the listeners for all registered subreddits per text channel.
    *
    * @param guild One of the guilds visible to the bot.
-   * @throws SQLException If a database error occurred.
    */
-  public void load(Guild guild) throws SQLException {
+  public void load(Guild guild) {
     for (TextChannel textChannel : guild.getTextChannels()) {
       load(textChannel);
     }
   }
-  
-  private void load(TextChannel textChannel) throws SQLException {
-    db.get(textChannel).ifPresent(entity -> {
-      for (String subreddit : entity.getSubreddits()) {
-        observable.addListener(subreddit, textChannel);
-        LOGGER.info("Add subreddit '{}' to textChannel '{}'.", subreddit, textChannel.getName());
+
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
+  private void load(TextChannel textChannel) {
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      long channelId = textChannel.getIdLong();
+      @Nullable
+      TextChannelEntity entity = entityManager.find(TextChannelEntity.class, channelId);
+    
+      if (entity != null) {
+        for (String subreddit : entity.getSubreddits()) {
+          observable.addListener(subreddit, textChannel);
+          LOGGER.info("Add subreddit '{}' to textChannel '{}'.", subreddit, textChannel.getName());
+        }
       }
-    });
+    }
   }
 }

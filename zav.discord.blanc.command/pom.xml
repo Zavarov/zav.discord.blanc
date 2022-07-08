@@ -28,10 +28,24 @@
     <packaging>bundle</packaging>
 
     <dependencies>
+        <!-- Reactor Dependencies -->
         <dependency>
             <groupId>zav.discord.blanc</groupId>
             <artifactId>blanc-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        
+        <!-- Compile Dependencies -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

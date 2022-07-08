@@ -18,6 +18,7 @@ package zav.discord.blanc.command.internal;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This interface is used in combination with commands in order to ensure that only users with
@@ -30,6 +31,13 @@ import java.util.concurrent.ExecutionException;
  *
  * @param <T> The type of authorization.
  */
+@NonNullByDefault
 public interface Validator<T> {
+  /**
+   * Checks whether the author has sufficient authorization to execute a command.
+   *
+   * @param args The arguments to be validated.
+   * @throws ExecutionException If the user lacks proper authorization.
+   */
   void validate(Collection<T> args) throws ExecutionException;
 }

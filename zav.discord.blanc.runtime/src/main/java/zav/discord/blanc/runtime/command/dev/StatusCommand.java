@@ -31,8 +31,9 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This command shows the status of the bot.
@@ -41,8 +42,8 @@ public class StatusCommand extends AbstractCommand {
   /**
    * A constant for MebiByte to make the used memory easier to read.
    */
-  protected static final int MEBI = 1 << 20;
-  protected static final double GIGA = 1e9;
+  private static final int MEBI = 1 << 20;
+  private static final double GIGA = 1e9;
   
   private final EmbedBuilder messageEmbed = new EmbedBuilder();
   private final SystemInfo systemInfo = new SystemInfo();
@@ -69,15 +70,13 @@ public class StatusCommand extends AbstractCommand {
    * Creates a new instance of this command.
    *
    * @param event The event triggering this command.
+   * @param manager The command-specific manager.
    */
   @Inject
-  public StatusCommand(SlashCommandEvent event) {
-    super(Rank.DEVELOPER);
+  public StatusCommand(SlashCommandEvent event, CommandManager manager) {
+    super(Rank.DEVELOPER, manager);
     this.event = event;
-  }
-  
-  @Override
-  public void postConstruct() {
+    
     os = systemInfo.getOperatingSystem();
     process = os.getProcess(os.getProcessId());
     runtime = ManagementFactory.getRuntimeMXBean();
@@ -133,7 +132,7 @@ public class StatusCommand extends AbstractCommand {
     for (int i = 0; i < Math.min(processors.size(), frequencies.length); ++i) {
       int processNumber = processors.get(i).getProcessorNumber();
       double frequency = frequencies[i] / GIGA;
-      String pattern = "`[%-2d] %.2f`\n";
+      String pattern = "`[%-2d] %.2f`%n";
       
       frequencyBuilder.append(String.format(pattern, processNumber, frequency));
     }
@@ -157,8 +156,8 @@ public class StatusCommand extends AbstractCommand {
     long free = memory.getAvailable() / MEBI;
     long used = process.getResidentSetSize() / MEBI;
     double ratio = (100.0 * used) / total;
-    String keys = "`Total | Used  | Free  | Ratio`\n";
-    String pattern = "%s\n`%-5d | %-5d | %-5d | %-4.1f%%`";
+    String keys = "`Total | Used  | Free  | Ratio`%n";
+    String pattern = "%s%n`%-5d | %-5d | %-5d | %-4.1f%%`";
     
     return String.format(pattern, keys, total, free, used, ratio);
   }

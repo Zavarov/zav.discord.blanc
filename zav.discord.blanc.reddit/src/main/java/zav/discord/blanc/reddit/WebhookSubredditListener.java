@@ -23,21 +23,19 @@ import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.text.StringEscapeUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zav.jrc.client.FailedRequestException;
 import zav.jrc.databind.LinkEntity;
 import zav.jrc.databind.SubredditEntity;
 import zav.jrc.endpoint.subreddit.Subreddit;
@@ -47,17 +45,19 @@ import zav.jrc.listener.event.LinkEvent;
 /**
  * This listener notifies a webhook, whenever a new submission has been received from a subreddit.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public final class WebhookSubredditListener implements SubredditListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebhookSubredditListener.class);
-  private static final Cache<String, SubredditEntity> CACHE;
   private final JDAWebhookClient client;
   private final Subreddit subreddit;
-  
-  static {
-    CACHE = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofHours(1)).build();
-  }
 
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param subreddit The subreddit managed by this listener.
+   * @param client The JDA client.
+   */
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public WebhookSubredditListener(Subreddit subreddit, JDAWebhookClient client) {
     this.subreddit = subreddit;
     this.client = client;
@@ -72,10 +72,11 @@ public final class WebhookSubredditListener implements SubredditListener {
     String subredditName;
     
     try {
-      SubredditEntity entity = CACHE.get(link.getSubreddit(), subreddit::getAbout);
+      SubredditEntity entity = subreddit.getAbout();
       avatarUrl = getAvatarUrl(entity);
       subredditName = "r/" + entity.getDisplayName();
-    } catch (ExecutionException e) {
+    } catch (FailedRequestException e) {
+      // Might be thrown when e.g. the subreddit is private or if Reddit is unavailable.
       LOGGER.error(e.getMessage(), e);
       avatarUrl = null;
       subredditName = "r/" + link.getSubreddit();
@@ -86,8 +87,13 @@ public final class WebhookSubredditListener implements SubredditListener {
           .setAvatarUrl(avatarUrl)
           .setUsername(subredditName)
           .build();
-    
-    client.send(message);
+
+    try {
+      client.send(message);
+    } catch (Exception e) {
+      // Failing to notify this channel shouldn't prevent notifications in other channels.
+      LOGGER.error(e.getMessage(), e);
+    }
   }
   
   private @Nullable String getAvatarUrl(SubredditEntity entity) {

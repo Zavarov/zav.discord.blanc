@@ -19,7 +19,6 @@ package zav.discord.blanc.api.listener;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -28,8 +27,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.cache.Cache;
 import java.util.List;
+import java.util.Optional;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -46,6 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
+import zav.discord.blanc.api.SiteCache;
 
 /**
  * Checks whether site interactions are processed correctly.
@@ -70,7 +70,7 @@ public class SiteComponentListenerTest {
   @Mock Button button;
   @Mock ReplyAction replyAction;
   @Mock MessageEmbed mainPage;
-  @Mock Cache<Long, Site> siteCache;
+  @Mock SiteCache siteCache;
   
   /**
    * Initialize a site and fictitious Button and SelectionMenu interactions which are used to
@@ -115,7 +115,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
     
     listener.onButtonClick(clickEvent);
   
@@ -134,7 +134,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
     // Null for absent buttons
     when(button.getId()).thenReturn(null);
     
@@ -154,7 +154,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(left);
     when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -172,7 +172,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(right);
     when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -189,7 +189,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(EMPTY);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -225,7 +225,7 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onSelectionMenu(selectionEvent);
   
@@ -243,7 +243,7 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.addEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
     
     listener.onSelectionMenu(selectionEvent);
   
@@ -260,7 +260,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
     
     listener.onButtonClick(clickEvent);
   
@@ -277,7 +277,7 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(site).when(siteCache).getIfPresent(anyLong());
+    doReturn(Optional.of(site)).when(siteCache).get(any());
     
     listener.onSelectionMenu(selectionEvent);
   

@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import zav.jrc.databind.LinkEntity;
  * Utility class for creating Discord messages displaying the relevant information about an entity
  * in a humanly readable format.
  */
+@NonNullByDefault
 public final class MessageUtils {
   
   private MessageUtils() {}

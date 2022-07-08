@@ -17,20 +17,31 @@
 package zav.discord.blanc.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import java.util.Iterator;
+import com.google.inject.Injector;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.Credentials;
+import zav.jrc.client.UserlessClient;
 
 /**
  * Test class for the shards over which the client is split.
  */
+@ExtendWith(MockitoExtension.class)
 public class ClientTest {
+  @Mock ShardSupplier supplier;
+  @Mock Credentials credentials;
+  @Mock Injector injector;
+  @Mock UserlessClient jrc;
   List<JDA> shards;
   Client client;
   
@@ -41,15 +52,12 @@ public class ClientTest {
   public void setUp() {
     shards = List.of(mock(JDA.class), mock(JDA.class));
     
-    Iterator<JDA> it = shards.iterator();
-    
-    ShardSupplier supplier = mock(ShardSupplier.class);
     doAnswer(invocation -> {
-      it.forEachRemaining(invocation.getArgument(0));
+      shards.iterator().forEachRemaining(invocation.getArgument(0));
       return null;
     }).when(supplier).forEachRemaining(any());
     
-    client = new Client();
+    client = new Client(credentials, jrc);
     client.postConstruct(supplier);
   }
   
@@ -72,5 +80,35 @@ public class ClientTest {
     assertEquals(client.getShard(1 << 23), shards.get(0));
     assertEquals(client.getShard(1 << 24), shards.get(0));
     assertEquals(client.getShard(1 << 24 | 1 << 22), shards.get(1));
+  }
+  
+  @Test
+  public void testGetCredentials() {
+    assertEquals(client.getCredentials(), credentials);
+  }
+  
+  @Test
+  public void testGetEventQueue() {
+    assertNotNull(client.getEventQueue());
+  }
+  
+  @Test
+  public void testGetPatternCache() {
+    assertNotNull(client.getPatternCache());
+  }
+  
+  @Test
+  public void testGetSiteCache() {
+    assertNotNull(client.getSiteCache());
+  }
+  
+  @Test
+  public void testGetSubredditObservable() {
+    assertNotNull(client.getSubredditObservable());
+  }
+  
+  @Test
+  public void testGetEntityManagerFactory() {
+    assertNotNull(client.getEntityManagerFactory());
   }
 }

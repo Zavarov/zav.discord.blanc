@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.reddit.internal;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,10 +54,13 @@ public class MessageUtilsTest {
   public void testPermalink() {
     MessageEmbed embed = getMessageEmbed();
     assertNotNull(embed.getUrl());
-    
+  }
+  
+  @Test
+  public void testPermalinkTooLong() {
     // Too long -> null
     link.setPermalink(StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getUrl());
   }
   
@@ -65,71 +69,120 @@ public class MessageUtilsTest {
     MessageEmbed embed = getMessageEmbed();
     assertNotNull(embed.getAuthor());
     assertNotNull(embed.getAuthor().getUrl());
-    
+  }
+  
+  @Test
+  public void testUrlTooLong() {
     // Too long -> null
     link.setUrl(StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNotNull(embed.getAuthor());
     assertNull(embed.getAuthor().getUrl());
   }
   
   @Test
-  public void testEmbedColor() {
+  public void testEmbedColorOver18() {
     // Over18 -> true && Spoiler -> true
     MessageEmbed embed = getMessageEmbed();
     assertEquals(embed.getColor(), Color.RED);
-    
+  }
+  
+  @Test
+  public void testEmbedColorSpoiler() {
     // Over18 -> false && Spoiler -> true
     link.setOver18(false);
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertEquals(embed.getColor(), Color.BLACK);
+  }
   
+  @Test
+  public void testEmbedColor() {
     // Over18 -> false && Spoiler -> false
+    link.setOver18(false);
     link.setSpoiler(false);
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNotEquals(embed.getColor(), Color.RED);
     assertNotEquals(embed.getColor(), Color.BLACK);
   }
   
   @Test
-  public void testTimeStamp() {
+  public void testMissingTimeStamp() {
     MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getTimestamp());
-    
+  }
+  
+  @Test
+  public void testTimeStamp() {
     link.setCreatedUtc(0.0);
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNotNull(embed.getTimestamp());
   }
   
   @Test
-  public void testThumbnail() {
+  public void testThumbnailOver18AndSpoiler() {
     // Over18 -> true && Spoiler -> true
     MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
+  }
   
+  @Test
+  public void testThumbnailSpoiler() {
     // Over18 -> false && Spoiler -> true
     link.setOver18(false);
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
+  }
   
+  @Test
+  public void testThumbnail() {
     // Over18 -> false && Spoiler -> false
+    link.setOver18(false);
     link.setSpoiler(false);
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNotNull(embed.getThumbnail());
-    
-    link.setThumbnail(null);
-    embed = getMessageEmbed();
-    assertNull(embed.getThumbnail());
+  }
   
+  @Test
+  public void testMissingThumbnail() {
+    link.setOver18(false);
+    link.setSpoiler(false);
+    link.setThumbnail(null);
+    MessageEmbed embed = getMessageEmbed();
+    assertNull(embed.getThumbnail());
+  }
+  
+  @Test
+  public void testThumbnailTooLong() {
+    link.setOver18(false);
+    link.setSpoiler(false);
     // Too long -> null
     link.setThumbnail("https://www.foo.bar/" + StringUtils.repeat("x", MessageEmbed.URL_MAX_LENGTH));
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
+  }
   
+  @Test
+  public void testInvalidThumbnail() {
     // Invalid URL -> null
+    link.setOver18(false);
+    link.setSpoiler(false);
     link.setThumbnail("xxx");
-    embed = getMessageEmbed();
+    MessageEmbed embed = getMessageEmbed();
     assertNull(embed.getThumbnail());
+  }
+  
+  @Test
+  public void testLinkFlairTest() {
+    MessageEmbed embed = getMessageEmbed();
+    assertThat(embed.getTitle()).startsWith("[flair]");
+  }
+  
+  @Test
+  public void testLinkFlairTestWithBrackets() {
+    // Brackets should be omitted when the already exist
+    link.setLinkFlairText("[flair]");
+    MessageEmbed embed = getMessageEmbed();
+    assertThat(embed.getTitle()).startsWith("[flair]");
   }
   
   private MessageEmbed getMessageEmbed() {

@@ -16,43 +16,44 @@
 
 package zav.discord.blanc.api.listener;
 
-
-import static zav.discord.blanc.api.Constants.SITE;
-
-import com.google.common.cache.Cache;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.Button;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Site;
+import zav.discord.blanc.api.SiteCache;
 
 /**
  * The listener for notifying the message components of a command whenever the author interacts with
  * it.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SiteComponentListener.class);
   
-  private final Cache<Long, Site> siteCache;
-  
-  @Inject
-  public SiteComponentListener(@Named(SITE) Cache<Long, Site> siteCache) {
+  private final SiteCache siteCache;
+
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param siteCache The global site cache.
+   */
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public SiteComponentListener(SiteCache siteCache) {
     this.siteCache = siteCache;
   }
   
   @Override
   @Contract(mutates = "this")
   public void onButtonClick(ButtonClickEvent event) {
-    @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
+    @Nullable Site site = siteCache.get(event.getMessage()).orElse(null);
     
     // Unknown message -> ignore
     if (site == null) {
@@ -99,7 +100,7 @@ public class SiteComponentListener extends ListenerAdapter {
   @Override
   @Contract(mutates = "this")
   public void onSelectionMenu(SelectionMenuEvent event) {
-    @Nullable Site site = siteCache.getIfPresent(event.getMessage().getIdLong());
+    @Nullable Site site = siteCache.get(event.getMessage()).orElse(null);
   
     // Unknown message -> ignore
     if (site == null) {

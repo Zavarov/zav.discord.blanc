@@ -21,7 +21,10 @@ import static zav.discord.blanc.reddit.internal.MessageUtils.forLink;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.jrc.listener.SubredditListener;
 import zav.jrc.listener.event.LinkEvent;
 
@@ -32,17 +35,29 @@ import zav.jrc.listener.event.LinkEvent;
  * @deprecated Deprecated in favor of the {@link WebhookSubredditListener}.
  */
 @Deprecated
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public final class TextChannelSubredditListener implements SubredditListener {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelSubredditListener.class);
   private final TextChannel channel;
   
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param channel The text-channel managed by this listener.
+   */
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public TextChannelSubredditListener(TextChannel channel) {
     this.channel = channel;
   }
   
   @Override
   public void notify(LinkEvent linkEvent) {
-    channel.sendMessage(forLink(linkEvent.getSource())).complete();
+    try {
+      channel.sendMessage(forLink(linkEvent.getSource())).complete();
+    } catch (Exception e) {
+      // Failing to notify this channel shouldn't prevent notifications in other channels.
+      LOGGER.error(e.getMessage(), e);
+    }
   }
   
   @Override

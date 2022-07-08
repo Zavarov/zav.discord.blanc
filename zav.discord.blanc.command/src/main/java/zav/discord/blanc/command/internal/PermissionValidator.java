@@ -17,42 +17,42 @@
 package zav.discord.blanc.command.internal;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.Collection;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import zav.discord.blanc.api.Rank;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.command.InsufficientPermissionException;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This class checks whether the user executing the command has the required permissions for
  * execution. An {@link InsufficientPermissionException} is thrown, if not.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class PermissionValidator implements Validator<Permission> {
-  private final UserTable db;
+  private final EntityManagerFactory factory;
   private final Member author;
   private final TextChannel textChannel;
   
   /**
    * Initializes the permission validator for a single command.
    *
-   * @param db The database containing all registered user ranks.
+   * @param factory The persistence context.
    * @param author The user who executed the command.
    * @param textChannel The channel the command was executed in.
    */
-  @Inject
-  public PermissionValidator(UserTable db, Member author, TextChannel textChannel) {
-    this.db = db;
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public PermissionValidator(EntityManagerFactory factory, Member author, TextChannel textChannel) {
+    this.factory = factory;
     this.author = author;
     this.textChannel = textChannel;
   }
   
   @Override
   public void validate(Collection<Permission> args) throws InsufficientPermissionException {
-    boolean isRoot = Rank.getEffectiveRanks(db, author.getUser()).contains(Rank.ROOT);
+    boolean isRoot = Rank.getEffectiveRanks(author.getUser(), factory).contains(Rank.ROOT);
     boolean hasPermission = author.getPermissions(textChannel).containsAll(args);
   
     // Does the user have the required permissions?

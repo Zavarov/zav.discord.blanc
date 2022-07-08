@@ -16,51 +16,82 @@
 
 package zav.discord.blanc.reddit;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.List;
-import java.util.Optional;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.requests.RestAction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.db.TextChannelTable;
 
 /**
  * Checks whether listeners are created for all valid registered text channels in the database.
  */
+@Deprecated
 @ExtendWith(MockitoExtension.class)
 public class TextChannelInitializerTest {
   
-  @Mock TextChannelTable db;
   @Mock SubredditObservable observable;
   @Mock Guild guild;
   @Mock TextChannel textChannel;
-  @Mock TextChannelEntity entity;
+  EntityManagerFactory factory;
+  EntityManager entityManager;
+  TextChannelEntity entity;
   TextChannelInitializer initializer;
   
+  static {
+    System.setProperty("org.jboss.logging.provider", "slf4j");
+  }
+  
+  /**
+   * Creates a new instance of the text channel initializer and loads the database with a single
+   * entity. The entity is registered to the subreddit {@code RedditDev}.
+   */
   @BeforeEach
   public void setUp() {
-    initializer = new TextChannelInitializer(db, observable);
+    factory = Persistence.createEntityManagerFactory("discord-entities");
+    initializer = new TextChannelInitializer(factory, observable);
+    entityManager = factory.createEntityManager();
+    entity = new TextChannelEntity();
+    entity.setSubreddits(List.of("RedditDev"));
+    
+    entityManager.getTransaction().begin();
+    entityManager.merge(entity);
+    entityManager.getTransaction().commit();
+  }
+  
+  @AfterEach
+  public void tearDown() {
+    entityManager.close();
   }
   
   @Test
-  public void testLoad() throws SQLException {
+  public void testLoad() {
     when(guild.getTextChannels()).thenReturn(List.of(textChannel));
-    when(db.get(textChannel)).thenReturn(Optional.of(entity));
-    when(entity.getSubreddits()).thenReturn(List.of("RedditDev"));
+    when(textChannel.getIdLong()).thenReturn(entity.getId());
     
     initializer.load(guild);
     
     verify(observable).addListener("RedditDev", textChannel);
+  }
+  
+  @Test
+  public void testLoadUnrelatedTextChannels() {
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
+    when(textChannel.getIdLong()).thenReturn(Long.MAX_VALUE);
+    
+    initializer.load(guild);
+    
+    verify(observable, times(0)).addListener("RedditDev", textChannel);
   }
 }

@@ -17,15 +17,9 @@
 package zav.discord.blanc.api.listener;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
-import static zav.discord.blanc.api.Constants.PATTERN;
 
-import com.google.common.cache.Cache;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -34,12 +28,11 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildTable;
+import zav.discord.blanc.api.PatternCache;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>
@@ -47,18 +40,20 @@ import zav.discord.blanc.db.GuildTable;
  * a guild. Upon match, this message will then be deleted, assuming that the program has the
  * required permission to do so.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class BlacklistListener extends ListenerAdapter {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(BlacklistListener.class);
   
-  private final Cache<Guild, Pattern> patternCache;
-  private final GuildTable db;
+  private final PatternCache patternCache;
   
-  @Inject
-  public BlacklistListener(@Named(PATTERN) Cache<Guild, Pattern> patternCache, GuildTable db) {
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param patternCache The global cache of all blacklisted patterns.
+   */
+  public BlacklistListener(PatternCache patternCache) {
     this.patternCache = patternCache;
-    this.db = db;
   }
   
   @Override
@@ -73,61 +68,22 @@ public class BlacklistListener extends ListenerAdapter {
       return;
     }
     
-    @Nullable Pattern pattern = getPattern(event.getGuild());
-    
-    // No blacklist -> abort
-    if (pattern == null) {
-      return;
-    }
-    
-    Message message = event.getMessage();
-    
-    if (MessageChecker.shouldDelete(message, pattern)) {
-      LOGGER.info("Deleting message with id '{}'", message.getId());
-      message.delete().complete();
-    }
-  }
+    // Only apply the check to guilds which have defined a blacklist
+    patternCache.get(event.getGuild()).ifPresent(pattern -> {
+      Message message = event.getMessage();
   
-  private @Nullable Pattern getPattern(Guild guild) {
-    @Nullable Pattern pattern = patternCache.getIfPresent(guild);
-    
-    // Pattern has been cached
-    if (pattern != null) {
-      return pattern;
-    }
-    
-    // Fetch pattern from database if it has already been garbage-collected.
-    try {
-      return db.get(guild).map(this::getPattern).orElse(null);
-    } catch (SQLException e) {
-      LOGGER.error(e.getMessage(), e);
-      return null;
-    }
-  }
-  
-  /**
-   * Each expression is concatenated using an {@code or}, meaning the pattern will match any String
-   * that matches at least one banned expression.<br>
-   * This method acts as a utility function to simplify the transformation of multiple Strings into
-   * a single pattern.
-   *
-   * @param guild The database entry of the guild which blacklist pattern is calculated.
-   * @return The pattern corresponding to all blacklisted expressions.
-   */
-  @Contract(pure = true)
-  private @Nullable Pattern getPattern(GuildEntity guild) {
-    @Nullable String regex = guild.getBlacklist().stream()
-          .reduce((u, v) -> u + "|" + v)
-          .orElse(null);
-    
-    return regex == null ? null : Pattern.compile(regex);
+      if (MessageChecker.shouldDelete(message, pattern)) {
+        LOGGER.info("Deleting message with id '{}'", message.getId());
+        message.delete().complete();
+      }
+    });
   }
 
-  private boolean isSelfUser(User author) {
+  /*package*/ boolean isSelfUser(User author) {
     return author.equals(author.getJDA().getSelfUser());
   }
 
-  private boolean hasRequiredPermissions(Guild guild, TextChannel channel) {
+  /*package*/ boolean hasRequiredPermissions(Guild guild, TextChannel channel) {
     return PermissionUtil.checkPermission(channel, guild.getSelfMember(), MESSAGE_MANAGE);
   }
   

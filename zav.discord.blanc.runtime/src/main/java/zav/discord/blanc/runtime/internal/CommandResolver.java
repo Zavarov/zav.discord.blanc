@@ -23,7 +23,7 @@ import java.util.Objects;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import zav.discord.blanc.api.Commands;
+import zav.discord.blanc.command.Commands;
 import zav.discord.blanc.runtime.command.core.MathCommand;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
@@ -31,33 +31,34 @@ import zav.discord.blanc.runtime.command.dev.KillCommand;
 import zav.discord.blanc.runtime.command.dev.SayCommand;
 import zav.discord.blanc.runtime.command.dev.StatusCommand;
 import zav.discord.blanc.runtime.command.mod.BlacklistCommand;
-import zav.discord.blanc.runtime.command.mod.ForbiddenExpressionConfigurationCommand;
-import zav.discord.blanc.runtime.command.mod.SubredditFeedConfigurationCommand;
-import zav.discord.blanc.runtime.command.mod.TextChannelRedditCommand;
-import zav.discord.blanc.runtime.command.mod.WebhookRedditCommand;
+import zav.discord.blanc.runtime.command.mod.BlacklistConfigurationCommand;
+import zav.discord.blanc.runtime.command.mod.RedditCommand;
+import zav.discord.blanc.runtime.command.mod.RedditConfigurationCommand;
+import zav.discord.blanc.runtime.command.mod.RedditLegacyCommand;
 
 /**
  * Utility class for mapping each command class to their name.
  */
-public class CommandResolver {
-  /**
-   * Initializes all supported commands.
-   */
-  public static void init() {
+@SuppressWarnings("deprecation")
+public final class CommandResolver {
+
+  static {
     Commands.bind("math", MathCommand.class);
     Commands.bind("support", SupportCommand.class);
     
     Commands.bind("mod.blacklist", BlacklistCommand.class);
-    Commands.bind("mod.config.blacklist", ForbiddenExpressionConfigurationCommand.class);
-    Commands.bind("mod.config.reddit", SubredditFeedConfigurationCommand.class);
-    Commands.bind("mod.reddit.textchannel", TextChannelRedditCommand.class);
-    Commands.bind("mod.reddit.webhook", WebhookRedditCommand.class);
+    Commands.bind("mod.config.blacklist", BlacklistConfigurationCommand.class);
+    Commands.bind("mod.config.reddit", RedditConfigurationCommand.class);
+    Commands.bind("mod.reddit.textchannel", RedditLegacyCommand.class);
+    Commands.bind("mod.reddit.webhook", RedditCommand.class);
   
     Commands.bind("dev.failsafe", FailsafeCommand.class);
     Commands.bind("dev.kill", KillCommand.class);
     Commands.bind("dev.say", SayCommand.class);
     Commands.bind("dev.status", StatusCommand.class);
   }
+  
+  private CommandResolver() {}
   
   /**
    * Deserializes all available commands from disk.

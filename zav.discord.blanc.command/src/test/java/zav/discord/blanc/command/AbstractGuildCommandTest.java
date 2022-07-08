@@ -18,6 +18,8 @@ package zav.discord.blanc.command;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,8 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.command.internal.PermissionValidator;
-import zav.discord.blanc.command.internal.RankValidator;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * Checks whether guild commands fail if a user with insufficient rank or permission tries to
@@ -35,8 +36,7 @@ import zav.discord.blanc.command.internal.RankValidator;
 @ExtendWith(MockitoExtension.class)
 public class AbstractGuildCommandTest {
   
-  @Mock PermissionValidator permissionValidator;
-  @Mock RankValidator rankValidator;
+  @Mock GuildCommandManager manager;
   AbstractGuildCommand command;
   
   /**
@@ -44,9 +44,7 @@ public class AbstractGuildCommandTest {
    */
   @BeforeEach
   public void setUp() {
-    command = new GuildCommand();
-    command.permissionValidator = permissionValidator;
-    command.rankValidator = rankValidator;
+    command = new GuildCommand(manager);
   }
   
   /**
@@ -59,17 +57,39 @@ public class AbstractGuildCommandTest {
   public void testValidate() throws Exception {
     // Everything ok
     command.validate();
-
-    // Not enough permissions
-    doThrow(InsufficientPermissionException.class).when(permissionValidator).validate(any());
-    assertThrows(InsufficientPermissionException.class, () -> command.validate());
+  }
   
+  /**
+   * Use Case: If the user doesn't have enough permissions, an exception should be thrown.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
+  @Test
+  public void testValidateInsufficientPermission() throws Exception {
+    // Not enough permissions
+    doNothing().when(manager).validate(any(Rank.class));
+    doThrow(InsufficientPermissionException.class).when(manager).validate(anySet());
+    assertThrows(InsufficientPermissionException.class, () -> command.validate());
+  }
+  
+  /**
+   * Use Case: If the user doesn't have the required rank, an exception should be thrown.
+   *
+   * @throws Exception Thrown by the validation method.
+   */
+  @Test
+  public void testValidateInsufficientRank() throws Exception {
     // Not enough ranks & ranks are validated before permissions
-    doThrow(InsufficientRankException.class).when(rankValidator).validate(any());
+    doThrow(InsufficientRankException.class).when(manager).validate(any(Rank.class));
     assertThrows(InsufficientRankException.class, () -> command.validate());
   }
   
   private static final class GuildCommand extends AbstractGuildCommand {
+    
+    private GuildCommand(GuildCommandManager manager) {
+      super(manager);
+    }
+  
     @Override
     public void run() {}
   }

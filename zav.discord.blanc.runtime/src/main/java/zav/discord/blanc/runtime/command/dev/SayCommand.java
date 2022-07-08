@@ -16,12 +16,12 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import java.util.Objects;
 import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This command makes the bot repeat a specified message.
@@ -35,13 +35,13 @@ public class SayCommand extends AbstractCommand {
    * Creates a new instance of this command.
    *
    * @param event The event triggering this command.
-   * @param content The message that should be repeated.
+   * @param manager The manager instance for this command.
    */
   @Inject
-  public SayCommand(SlashCommandEvent event, @Named("content")OptionMapping content) {
-    super(Rank.DEVELOPER);
+  public SayCommand(SlashCommandEvent event, CommandManager manager) {
+    super(Rank.DEVELOPER, manager);
     this.event = event;
-    this.content = content.getAsString();
+    this.content = Objects.requireNonNull(event.getOption("content")).getAsString();
   }
   
   @Override

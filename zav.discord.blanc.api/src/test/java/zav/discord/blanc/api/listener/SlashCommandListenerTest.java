@@ -25,15 +25,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +41,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Commands;
+import zav.discord.blanc.api.CommandParser;
 
 /**
  * Test Case for checking whether commands are executed when triggered via slash commands.
@@ -55,9 +53,9 @@ public class SlashCommandListenerTest {
   @Mock Command command;
   @Mock User author;
   @Mock SlashCommandEvent event;
-  @Mock Injector injector;
   @Mock ReplyAction reply;
   @Mock ScheduledExecutorService queue;
+  @Mock CommandParser parser;
   
   SlashCommandListener listener;
   
@@ -66,14 +64,7 @@ public class SlashCommandListenerTest {
    */
   @BeforeEach
   public void setUp() {
-    listener = new SlashCommandListener(queue, injector);
-    
-    Commands.bind(name, Command.class);
-  }
-  
-  @AfterEach
-  public void tearDown() {
-    Commands.clear();
+    listener = new SlashCommandListener(queue, parser);
   }
   
   /**
@@ -109,12 +100,9 @@ public class SlashCommandListenerTest {
   @Test
   public void testExecuteGuildCommand() throws Exception {
     when(event.getUser()).thenReturn(author);
-    when(event.getName()).thenReturn(name);
-    when(event.isFromGuild()).thenReturn(true);
-    
-    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
-    when(injector.getInstance(Command.class)).thenReturn(command);
-    
+    when(parser.parse(event)).thenReturn(Optional.of(command));
+
+    // Immediately execute the runnable
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();
@@ -123,7 +111,6 @@ public class SlashCommandListenerTest {
     
     listener.onSlashCommand(event);
     
-    verify(command, times(1)).postConstruct();
     verify(command, times(1)).validate();
     verify(command, times(1)).run();
   }
@@ -137,15 +124,12 @@ public class SlashCommandListenerTest {
   @MethodSource("contentProvider")
   public void testExecuteGuildCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
-    when(event.getName()).thenReturn(name);
-    when(event.isFromGuild()).thenReturn(true);
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-  
-    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
-    when(injector.getInstance(Command.class)).thenReturn(command);
+    when(parser.parse(event)).thenReturn(Optional.of(command));
     
     doThrow(new Exception(message, cause)).when(command).run();
-    
+
+    // Immediately execute the runnable
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();
@@ -165,11 +149,9 @@ public class SlashCommandListenerTest {
   @Test
   public void testExecutePrivateCommand() throws Exception {
     when(event.getUser()).thenReturn(author);
-    when(event.getName()).thenReturn(name);
-  
-    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
-    when(injector.getInstance(Command.class)).thenReturn(command);
-    
+    when(parser.parse(event)).thenReturn(Optional.of(command));
+
+    // Immediately execute the runnable
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();
@@ -178,7 +160,6 @@ public class SlashCommandListenerTest {
     
     listener.onSlashCommand(event);
     
-    verify(command, times(1)).postConstruct();
     verify(command, times(1)).validate();
     verify(command, times(1)).run();
   }
@@ -192,14 +173,12 @@ public class SlashCommandListenerTest {
   @MethodSource("contentProvider")
   public void testExecutePrivateCommandWithError(String message, Exception cause) throws Exception {
     when(event.getUser()).thenReturn(author);
-    when(event.getName()).thenReturn(name);
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-  
-    when(injector.createChildInjector(any(Module.class))).thenReturn(injector);
-    when(injector.getInstance(Command.class)).thenReturn(command);
+    when(parser.parse(event)).thenReturn(Optional.of(command));
     
     doThrow(new Exception(message, cause)).when(command).run();
     
+    // Immediately execute the runnable
     doAnswer(invocation -> {
       Runnable job = invocation.getArgument(0);
       job.run();

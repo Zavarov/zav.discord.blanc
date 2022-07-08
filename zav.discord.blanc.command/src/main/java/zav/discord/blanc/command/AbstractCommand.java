@@ -16,42 +16,47 @@
 
 package zav.discord.blanc.command;
 
-import static zav.discord.blanc.api.Rank.USER;
+import static zav.discord.blanc.databind.Rank.USER;
 
-import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.command.internal.RankValidator;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * Abstract base class for all commands.<br>
  * Commands can be either executed in a guild or private channel.
  */
+@NonNullByDefault
 public abstract class AbstractCommand implements Command {
-  protected final ResourceBundle i18n;
-  
-  @Inject
-  /*package*/ RankValidator rankValidator;
-  
   private final Rank requiredRank;
+  private final CommandManager manager;
   
-  protected AbstractCommand(Rank requiredRank) {
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param requiredRank The minimum rank required to execute this command.
+   * @param manager The command-specific manager.
+   */
+  protected AbstractCommand(Rank requiredRank, CommandManager manager) {
     this.requiredRank = requiredRank;
-    this.i18n = ResourceBundle.getBundle("i18n");
+    this.manager = manager;
   }
   
-  protected AbstractCommand() {
-    this(USER);
+  /**
+   * Creates a new instance of this class. Can be executed by every user.
+   *
+   * @param manager The command-specific manager.
+   */
+  protected AbstractCommand(CommandManager manager) {
+    this(USER, manager);
   }
   
   @Override
   @Contract(pure = true)
   public void validate() throws ExecutionException {
     // Does the user have the required rank?
-    rankValidator.validate(List.of(requiredRank));
+    manager.validate(requiredRank);
   }
 }

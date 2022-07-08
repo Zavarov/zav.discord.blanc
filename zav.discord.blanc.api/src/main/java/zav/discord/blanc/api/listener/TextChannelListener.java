@@ -17,51 +17,69 @@
 package zav.discord.blanc.api.listener;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.sql.SQLException;
-import javax.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebhookTable;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
 
 /**
  * This listener removes the corresponding entries from the text channel table, whenever a text
  * channel is deleted or the bot is kicked from a guild.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class TextChannelListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelListener.class);
-  private final WebhookTable db;
-  private final TextChannelTable db1;
+  private final EntityManagerFactory factory;
   
-  @Inject
-  public TextChannelListener(WebhookTable db, TextChannelTable db1) {
-    this.db = db;
-    this.db1 = db1;
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param factory The JPA persistence manager.
+   */
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public TextChannelListener(EntityManagerFactory factory) {
+    this.factory = factory;
   }
   
   @Override
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onTextChannelDelete(TextChannelDeleteEvent event) {
-    try {
-      db.delete(event.getChannel());
-      db1.delete(event.getChannel());
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      long key = event.getChannel().getIdLong();
+      TextChannelEntity entity = entityManager.find(TextChannelEntity.class, key);
+      
+      if (entity != null) {
+        // Update text-channels, webhooks and guilds are updated via a cascade
+        entityManager.getTransaction().begin();
+        entityManager.remove(entity);
+        entityManager.getTransaction().commit();
+      }
+      
       LOGGER.info("Delete all database entries associated with {}.", event.getChannel());
-    } catch (SQLException e) {
-      LOGGER.error(e.getMessage(), e);
     }
   }
   
   @Override
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onGuildLeave(GuildLeaveEvent event) {
-    try {
-      db.delete(event.getGuild());
-      db1.delete(event.getGuild());
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      long key = event.getGuild().getIdLong();
+      GuildEntity entity = entityManager.find(GuildEntity.class, key);
+      
+      if (entity != null) {
+        // Update guilds, text-channels and webhooks are updated via the cascade
+        entityManager.getTransaction().begin();
+        entityManager.remove(entity);
+        entityManager.getTransaction().commit();
+      }
+      
       LOGGER.info("Delete all database entries associated with {}.", event.getGuild());
-    } catch (SQLException e) {
-      LOGGER.error(e.getMessage(), e);
     }
   }
 }

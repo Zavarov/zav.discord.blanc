@@ -28,34 +28,36 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>zav.jrc</groupId>
-            <artifactId>jrc-listener</artifactId>
-            <version>${jrc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>zav.jrc</groupId>
-            <artifactId>jrc-endpoint-subreddit</artifactId>
-            <version>${jrc.version}</version>
-        </dependency>
-
+        <!-- Reactor Dependencies -->
         <dependency>
             <groupId>zav.discord.blanc</groupId>
-            <artifactId>blanc-api</artifactId>
+            <artifactId>blanc-databind</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        
+        <!-- Compile Dependencies -->
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>discord-webhooks</artifactId>
-            <version>${discord-webhooks.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>${text.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>zav.jrc</groupId>
+            <artifactId>jrc-listener</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>zav.jrc</groupId>
+            <artifactId>jrc-endpoint-subreddit</artifactId>
+        </dependency>
+        
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

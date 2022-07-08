@@ -18,6 +18,7 @@ package zav.discord.blanc.api;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.Callable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This interface should be implemented by any class that should be executed by an asynchronous
@@ -27,7 +28,13 @@ import java.util.concurrent.Callable;
  * @see Runnable
  * @see Callable
  */
-@SuppressFBWarnings(value = "THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION")
+@NonNullByDefault
 public interface Job {
+  /**
+   * The method which is executed by the thread.
+   *
+   * @throws Exception In case anything goes wrong.
+   */
+  @SuppressFBWarnings(value = "BAD_PRACTICE")
   void run() throws Exception;
 }

@@ -18,21 +18,21 @@ package zav.discord.blanc.reddit;
 
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
-import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.google.inject.name.Names;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zav.jrc.client.Client;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.endpoint.subreddit.Subreddit;
+import zav.jrc.listener.observable.AbstractSubredditObservable;
 import zav.jrc.listener.observer.SubredditObserver;
 
 /**
@@ -43,15 +43,23 @@ import zav.jrc.listener.observer.SubredditObserver;
  * Each webhook and text channel can only have a single listener for a subreddit.
  */
 @Singleton
-public final class SubredditObservable {
+@NonNullByDefault
+public final class SubredditObservable extends AbstractSubredditObservable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
   private final Map<String, SubredditObserver> observers = new ConcurrentHashMap<>();
   private final ScheduledExecutorService pool;
-  private final Injector injector;
+  private final Client client;
   
+  /**
+   * Creates a new observable instance.
+   *
+   * @param client The JRC client.
+   * @param pool The executor service over which the webhooks are notified.
+   */
   @Inject
-  public SubredditObservable(Injector injector, ScheduledExecutorService pool) {
-    this.injector = injector;
+  public SubredditObservable(Client client, ScheduledExecutorService pool) {
+    super(client);
+    this.client = client;
     this.pool = pool;
   }
   
@@ -139,9 +147,7 @@ public final class SubredditObservable {
   }
   
   private WebhookSubredditListener getListener(String subredditName, Webhook webhook) {
-    Injector subredditInjector = injector.createChildInjector(new ObserverModule(subredditName));
-    
-    Subreddit subreddit = subredditInjector.getInstance(Subreddit.class);
+    Subreddit subreddit = new Subreddit(client, subredditName);
     
     // client.close() should be ignored as the pool is shared across the entire application
     JDAWebhookClient client = WebhookClientBuilder.fromJDA(webhook)
@@ -149,23 +155,5 @@ public final class SubredditObservable {
           .buildJDA();
     
     return new WebhookSubredditListener(subreddit, client);
-  }
-  
-  private SubredditObserver getObserver(String subredditName) {
-    Injector subredditInjector = injector.createChildInjector(new ObserverModule(subredditName));
-    return subredditInjector.getInstance(SubredditObserver.class);
-  }
-  
-  private static class ObserverModule extends AbstractModule {
-    private final String subredditName;
-    
-    public ObserverModule(String subredditName) {
-      this.subredditName = subredditName;
-    }
-  
-    @Override
-    protected void configure() {
-      bind(String.class).annotatedWith(Names.named("subreddit")).toInstance(subredditName);
-    }
   }
 }

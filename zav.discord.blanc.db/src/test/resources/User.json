@@ -1,6 +1,0 @@
-{
-  "id" : 9999,
-  "name" : "User",
-  "discriminator" : 1234,
-  "ranks" : ["USER"]
-}

@@ -20,11 +20,13 @@ import java.util.List;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.Validate;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Implementation of site.
  */
+@NonNullByDefault
 public class Site {
   private final List<Page> pages;
   private final User owner;
@@ -52,21 +54,37 @@ public class Site {
     return new Site(List.copyOf(pages), owner);
   }
   
+  /**
+   * Moves one page to the left. If this is the first page, jumps to the last page.
+   */
   @Contract(mutates = "this")
   public void moveLeft() {
     currentPage.index = Math.floorMod(currentPage.index - 1, currentPage.entries.size());
   }
   
+  /**
+   * Moves one page to the right. If this is the last page, jumps to the first page.
+   */
   @Contract(mutates = "this")
   public void moveRight() {
     currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
   }
   
+  /**
+   * Returns the currently selected page.
+   *
+   * @return As described.
+   */
   @Contract(pure = true)
   public MessageEmbed getCurrentPage() {
     return currentPage.entries.get(currentPage.index);
   }
   
+  /**
+   * Returns the user for which this site was created.
+   *
+   * @return As described.
+   */
   @Contract(pure = true)
   public User getOwner() {
     return owner;

@@ -22,37 +22,51 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.github.stefanbirkner.systemlambda.SystemLambda;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.command.CommandManager;
 
 /**
  * Check whether all threads are terminated.
  */
 @ExtendWith(MockitoExtension.class)
 public class KillCommandTest {
-  @Mock SlashCommandEvent event;
+  
   @Mock ScheduledExecutorService queue;
   @Mock Client client;
-  @Mock JDA jda;
+  @Mock SlashCommandEvent event;
   @Mock ReplyAction reply;
+  @Mock JDA jda;
+  CommandManager manager;
   KillCommand command;
   
+  /**
+   * Initializes the command with no arguments.
+   */
+  @BeforeEach
+  public void setUp() {
+    when(client.getEventQueue()).thenReturn(queue);
+    manager = new CommandManager(client, event);
+    command = new KillCommand(event, manager);
+  }
+  
   @Test
-  public void testShutdown() {
+  public void testShutdown() throws Exception {
     when(event.reply(anyString())).thenReturn(reply);
     when(reply.setEphemeral(anyBoolean())).thenReturn(reply);
     when(client.getShards()).thenReturn(List.of(jda));
     
-    command = new KillCommand(event, queue, client);
-    command.run();
+    SystemLambda.catchSystemExit(() -> command.run());
     
     verify(jda, times(1)).shutdown();
     verify(queue, times(1)).shutdown();

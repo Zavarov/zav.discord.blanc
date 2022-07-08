@@ -6,7 +6,7 @@
     {
       "name" : "failsafe",
       "options" : [ ],
-      "description" : "Enabled/Disables super-user privileges for the author.",
+      "description" : "Enables/Disables super-user privileges for the author.",
       "type" : 1
     },
     {

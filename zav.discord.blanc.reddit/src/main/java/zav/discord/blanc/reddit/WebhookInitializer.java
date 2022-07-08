@@ -17,29 +17,40 @@
 package zav.discord.blanc.reddit;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.db.WebhookTable;
+import zav.discord.blanc.databind.WebhookEntity;
 
 /**
  * Utility class for initializing all subreddit feeds that have been mapped to a
  * {@link Webhook}.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@Singleton
+@NonNullByDefault
 public class WebhookInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebhookInitializer.class);
   
-  private final WebhookTable db;
-  
+  private final EntityManagerFactory factory;
   private final SubredditObservable observable;
   
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param factory The JPA persistence manager.
+   * @param observable The global subreddit observable.
+   */
   @Inject
-  public WebhookInitializer(WebhookTable db, SubredditObservable observable) {
-    this.db = db;
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public WebhookInitializer(EntityManagerFactory factory, SubredditObservable observable) {
+    this.factory = factory;
     this.observable = observable;
   }
   
@@ -47,20 +58,24 @@ public class WebhookInitializer {
    * Initialize the listeners for all registered subreddits per webhook.
    *
    * @param textChannel One of the text channels visible to the bot.
-   * @throws SQLException If a database error occurred.
    */
-  public void load(TextChannel textChannel) throws SQLException {
+  public void load(TextChannel textChannel) {
     for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
       load(webhook);
     }
   }
   
-  private void load(Webhook webhook) throws SQLException {
-    db.get(webhook).ifPresent(entity -> {
-      for (String subreddit : entity.getSubreddits()) {
-        LOGGER.info("Add subreddit '{}' to webhook '{}'.", subreddit, entity.getName());
-        observable.addListener(subreddit, webhook);
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
+  private void load(Webhook webhook) {
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      @Nullable WebhookEntity entity = entityManager.find(WebhookEntity.class, webhook.getIdLong());
+    
+      if (entity != null) {
+        for (String subreddit : entity.getSubreddits()) {
+          LOGGER.info("Add subreddit '{}' to webhook '{}'.", subreddit, entity.getName());
+          observable.addListener(subreddit, webhook);
+        }
       }
-    });
+    }
   }
 }

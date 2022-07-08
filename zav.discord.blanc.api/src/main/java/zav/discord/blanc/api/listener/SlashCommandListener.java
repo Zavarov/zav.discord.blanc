@@ -16,39 +16,38 @@
 
 package zav.discord.blanc.api.listener;
 
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Command;
-import zav.discord.blanc.api.Commands;
-import zav.discord.blanc.api.guice.GuildCommandModule;
-import zav.discord.blanc.api.guice.PrivateCommandModule;
+import zav.discord.blanc.api.CommandParser;
 
 /**
  * This class is responsible for handling and executing all user-commands.
  */
+@NonNullByDefault
 public class SlashCommandListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SlashCommandListener.class);
   
-  private final Injector shardInjector;
   private final ScheduledExecutorService commandQueue;
+  private final CommandParser commandParser;
   
-  @Inject
-  public SlashCommandListener(ScheduledExecutorService commandQueue, Injector shardInjector) {
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param commandQueue The shared executor pool.
+   * @param commandParser The parser used to create command instances.
+   */
+  public SlashCommandListener(ScheduledExecutorService commandQueue, CommandParser commandParser) {
     this.commandQueue = commandQueue;
-    this.shardInjector = shardInjector;
+    this.commandParser = commandParser;
   }
   
   @Override
@@ -60,35 +59,9 @@ public class SlashCommandListener extends ListenerAdapter {
       return;
     }
     
-    Class<? extends Command> clazz = Commands.get(getQualifiedName(event)).orElse(null);
-    
-    if (clazz == null) {
-      LOGGER.error("Unknown slash command {}.", event.getName());
-      return;
-    }
-  
-    Module module;
-    
-    if (event.isFromGuild()) {
-      module = new GuildCommandModule(event);
-    } else {
-      module = new PrivateCommandModule(event);
-    }
-
-    Command cmd = shardInjector.createChildInjector(module).getInstance(clazz);
-    
-    submit(event, cmd);
-  }
-  
-  @Contract(mutates = "this")
-  private String getQualifiedName(SlashCommandEvent event) {
-    List<String> parts = new ArrayList<>(3);
-    
-    parts.add(event.getName());
-  
-    Optional.ofNullable(event.getSubcommandGroup()).ifPresent(parts::add);
-    Optional.ofNullable(event.getSubcommandName()).ifPresent(parts::add);
-    return String.join(".", parts);
+    commandParser.parse(event).ifPresent(command -> {
+      submit(event, command);
+    });
   }
   
   /**
@@ -102,7 +75,6 @@ public class SlashCommandListener extends ListenerAdapter {
     commandQueue.submit(() -> {
       try {
         LOGGER.info("Execute {}.", command.getClass());
-        command.postConstruct();
         command.validate();
         command.run();
       } catch (Exception e) {

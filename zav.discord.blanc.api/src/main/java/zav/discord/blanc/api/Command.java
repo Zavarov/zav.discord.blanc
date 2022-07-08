@@ -17,16 +17,20 @@
 package zav.discord.blanc.api;
 
 import java.util.concurrent.ExecutionException;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
 /**
  * Base interface implemented by all commands.
  */
+@NonNullByDefault
 public interface Command extends Job {
   
-  @Contract(mutates = "this")
-  default void postConstruct() {}
-  
+  /**
+   * Checks whether the author of this command has the proper authorization for execution.
+   *
+   * @throws ExecutionException If the author lacks the required authorization.
+   */
   @Contract(pure = true)
   void validate() throws ExecutionException;
 }

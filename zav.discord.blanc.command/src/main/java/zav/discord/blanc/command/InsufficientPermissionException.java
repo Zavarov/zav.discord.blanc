@@ -18,6 +18,7 @@ package zav.discord.blanc.command;
 
 import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.Permission;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This exception is thrown whenever a user executes a guild command for which they lack the
@@ -25,5 +26,7 @@ import net.dv8tion.jda.api.Permission;
  *
  * @see Permission
  */
+@NonNullByDefault
 public class InsufficientPermissionException extends ExecutionException {
+  private static final long serialVersionUID = -7228912003018402683L;
 }

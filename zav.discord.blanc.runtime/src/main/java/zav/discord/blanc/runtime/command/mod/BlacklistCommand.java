@@ -17,70 +17,73 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static zav.discord.blanc.api.Constants.PATTERN;
-import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
 
-import com.google.common.cache.Cache;
-import java.sql.SQLException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.ResourceBundle;
 import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.PatternCache;
 import zav.discord.blanc.command.AbstractGuildCommand;
+import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildTable;
 
 /**
  * This command blacklists certain words. Any message that contains the word will be deleted by the
  * application.
  */
 public class BlacklistCommand extends AbstractGuildCommand {
+  private final EntityManagerFactory factory;
+  private final SlashCommandEvent event;
+  private final ResourceBundle i18n;
+  private final PatternCache cache;
+  private final Client client;
+  private final Guild guild;
+  private final String regex;
+  
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   * @param manager The manager instance for this command.
+   */
   @Inject
-  private GuildTable db;
-  
-  @Inject
-  @Named(PATTERN)
-  private Cache<Guild, Pattern> cache;
-  
-  @Inject
-  private SlashCommandEvent event;
-  
-  @Inject
-  private Guild guild;
-  
-  private GuildEntity guildEntity;
-  private String regex;
-  
-  public BlacklistCommand() {
-    super(MESSAGE_MANAGE);
+  public BlacklistCommand(SlashCommandEvent event, GuildCommandManager manager) {
+    super(manager, MESSAGE_MANAGE);
+    this.event = event;
+    this.guild = event.getGuild();
+    this.regex = Objects.requireNonNull(event.getOption("regex")).getAsString();
+    this.i18n = manager.getResourceBundle();
+    this.client = manager.getClient();
+    this.cache = client.getPatternCache();
+    this.factory = client.getEntityManagerFactory();
   }
   
   @Override
-  public void postConstruct() {
-    regex = Objects.requireNonNull(event.getOption("regex")).getAsString();
-    guildEntity = getOrCreate(db, guild);
-  }
-  
-  @Override
-  public void run() throws SQLException {
-    if (guildEntity.getBlacklist().remove(regex)) {
-      event.replyFormat(i18n.getString("remove_blacklist"), regex).complete();
-    } else {
-      //Check if the regex is valid
-      Pattern.compile(regex);
-  
-      guildEntity.getBlacklist().add(regex);
-      event.replyFormat(i18n.getString("add_blacklist"), regex).complete();
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
+  public void run() {    
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
+      String response;
+      
+      if (entity.getBlacklist().contains(regex)) {
+        entity.getBlacklist().remove(regex);
+        response = i18n.getString("remove_blacklist");
+      } else {
+        entity.getBlacklist().add(regex);
+        response = i18n.getString("add_blacklist");
+      }
+      
+      entityManager.getTransaction().begin();
+      entityManager.merge(entity);
+      entityManager.getTransaction().commit();
+      
+      cache.invalidate(guild);
+      event.replyFormat(response, regex).complete();
     }
-  
-    // Update database
-    db.put(guildEntity);
-  
-    // Update pattern
-    String regex = guildEntity.getBlacklist().stream().reduce((u, v) -> u + "|" + v).orElse(EMPTY);
-    cache.put(guild, Pattern.compile(regex));
   }
 }

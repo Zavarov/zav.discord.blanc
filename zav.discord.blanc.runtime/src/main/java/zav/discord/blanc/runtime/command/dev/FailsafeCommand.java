@@ -16,25 +16,25 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import static zav.discord.blanc.api.Rank.DEVELOPER;
-import static zav.discord.blanc.api.Rank.ROOT;
-import static zav.discord.blanc.runtime.internal.DatabaseUtils.getOrCreate;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import java.security.SecureRandom;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.api.Client;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.db.UserTable;
 
 /**
  * This command allows developers to become super-user and therefore allows them to bypass any
  * permission checks.
  */
 public class FailsafeCommand extends AbstractCommand {
+  private static final SecureRandom RANDOMIZER = new SecureRandom();
   /**
    * A list of quotes when becoming a super-user.
    */
@@ -78,51 +78,55 @@ public class FailsafeCommand extends AbstractCommand {
       "%s, you could have been useful.",
       "You will regret your resistance, %s."
   };
-  
-  private final UserTable db;
-  private final SlashCommandEvent event;
+
   private final User author;
-  private final UserEntity entity;
-  private final List<String> ranks;
+  private final SlashCommandEvent event;
+  private final Client client;
+  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
    *
    * @param event The event triggering this command.
-   * @param db The database table containing all user ranks.
-   * @param author The user triggering this command.
+   * @param manager The manager instance for this command.
    */
   @Inject
-  public FailsafeCommand(SlashCommandEvent event, UserTable db, User author) {
-    super(DEVELOPER);
+  public FailsafeCommand(SlashCommandEvent event, CommandManager manager) {
+    super(Rank.DEVELOPER, manager);
+    this.author = event.getUser();
     this.event = event;
-    this.db = db;
-    this.author = author;
-    this.entity = getOrCreate(db, author);
-    this.ranks = entity.getRanks();
+    this.client = manager.getClient();
+    this.factory = client.getEntityManagerFactory();
   }
   
   /**
    * This command makes super-user into developers and developers into super-user.
    */
   @Override
-  public void run() throws SQLException {
-    String response;
-    
-    if (ranks.contains(DEVELOPER.name())) {
-      entity.getRanks().remove(DEVELOPER.name());
-      entity.getRanks().add(ROOT.name());
+  @SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"})
+  public void run() {
+    // Persist entity modifications
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      UserEntity entity = UserEntity.getOrCreate(entityManager, author);
+      String response;
       
-      response = BECOME_ROOT[ThreadLocalRandom.current().nextInt(BECOME_ROOT.length)];
-    } else {
-      entity.getRanks().remove(ROOT.name());
-      entity.getRanks().add(DEVELOPER.name());
+      if (entity.getRanks().contains(Rank.DEVELOPER)) {
+        entity.getRanks().remove(Rank.DEVELOPER);
+        entity.getRanks().add(Rank.ROOT);
       
-      response = BECOME_DEVELOPER[ThreadLocalRandom.current().nextInt(BECOME_DEVELOPER.length)];
+        response = BECOME_ROOT[RANDOMIZER.nextInt(BECOME_ROOT.length)];
+      } else {
+        entity.getRanks().remove(Rank.ROOT);
+        entity.getRanks().add(Rank.DEVELOPER);
+      
+        response = BECOME_DEVELOPER[RANDOMIZER.nextInt(BECOME_DEVELOPER.length)];
+      }
+      
+      entityManager.getTransaction().begin();
+      entityManager.merge(entity);
+      entityManager.getTransaction().commit();
+      
+      event.replyFormat(response, author.getAsMention()).complete();
     }
-  
-    db.put(entity);
-    
-    event.replyFormat(response, author.getAsMention()).complete();
   }
 }
