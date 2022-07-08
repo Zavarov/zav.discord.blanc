@@ -19,28 +19,22 @@ package zav.discord.blanc.api.listener;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.cache.Cache;
-import java.nio.file.Files;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,9 +44,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.PatternCache;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.db.GuildTable;
-import zav.discord.blanc.db.sql.SqlQuery;
 
 /**
  * Test class for checking whether forbidden message are deleted automatically.
@@ -62,19 +55,16 @@ public class BlacklistListenerTest {
   MockedStatic<PermissionUtil> permissions;
 
   BlacklistListener listener;
-  @Mock Cache<Guild, Pattern> patternCache;
+  GuildEntity guildEntity;
+  @Mock PatternCache patternCache;
   @Mock JDA jda;
   @Mock SelfUser selfUser;
   @Mock Message message;
   @Mock AuditableRestAction<Void> restAction;
-  @Mock MessageEmbed messageEmbed;
-  @Mock MessageEmbed.Field field;
   @Mock User author;
   @Mock Guild guild;
   @Mock TextChannel textChannel;
   @Mock GuildMessageReceivedEvent event;
-  @Mock GuildTable db;
-  @Mock GuildEntity guildEntity;
   
   /**
    * Initializes a fictitious GuildMessageReceivedEvent.
@@ -84,20 +74,16 @@ public class BlacklistListenerTest {
     permissions = mockStatic(PermissionUtil.class);
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(true);
     
-    listener = new BlacklistListener(patternCache, db);
+    guildEntity = new GuildEntity();
+    listener = spy(new BlacklistListener(patternCache));
   }
   
   /**
    * Close all static mocks.
-   *
-   * @throws Exception When some mocks couldn't be closed.
    */
   @AfterEach
-  public void tearDown() throws Exception {
+  public void tearDown() {
     permissions.close();
-  
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH);
-    Files.deleteIfExists(SqlQuery.ENTITY_DB_PATH.getParent());
   }
   
   /**
@@ -122,11 +108,9 @@ public class BlacklistListenerTest {
    */
   @Test
   public void testIgnoreWithoutPermissions() {
-    when(event.getAuthor()).thenReturn(author);
+    doReturn(false).when(listener).isSelfUser(any());
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
     
     // We're not allowed to delete the message
     permissions.when(() -> PermissionUtil.checkPermission(any(), any(), any())).thenReturn(false);
@@ -139,18 +123,14 @@ public class BlacklistListenerTest {
   
   /**
    * Use Case: All messages are accepted without banned expressions.
-   *
-   * @throws SQLException When a database error occurred.
    */
   @Test
-  public void testIgnoreWithoutPattern() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(Collections.emptyList());
+  public void testIgnoreWithoutPattern() {
+    doReturn(false).when(listener).isSelfUser(any());
+    doReturn(true).when(listener).hasRequiredPermissions(any(), any());
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
   
     listener.onGuildMessageReceived(event);
   
@@ -160,88 +140,40 @@ public class BlacklistListenerTest {
   
   /**
    * Use Case: Only messages containing banned expressions should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
    */
   @Test
-  public void testIgnoreValidMessage() throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana"));
+  public void testIgnoreValidMessage() {
+    doReturn(false).when(listener).isSelfUser(any());
+    doReturn(true).when(listener).hasRequiredPermissions(any(), any());
+    doReturn(Optional.of(Pattern.compile("banana"))).when(patternCache).get(any(Guild.class));
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    // Check message + embeds + fields
-    when(message.getContentRaw()).thenReturn(StringUtils.EMPTY);
-    when(message.getEmbeds()).thenReturn(List.of(messageEmbed));
-    when(messageEmbed.getFields()).thenReturn(List.of(field));
+    when(message.getContentRaw()).thenReturn("hadoop");
     
     listener.onGuildMessageReceived(event);
   
     verify(message, times(0)).delete();
-  }
-  
-  /**
-   * Use Case: Messages shouldn't be deleted when an internal error occurred.
-   *
-   * @throws SQLException When a database error occurred.
-   */
-  @Test
-  public void testIgnoreOnError() throws SQLException {
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(db.get(any(Guild.class))).thenThrow(SQLException.class);
-    
-    listener.onGuildMessageReceived(event);
-    
-    verify(message, times(0)).delete();
-  }
-  
-  /**
-   * Use Case: Use the pattern that has been stored in the local cache when validating messages.
-   */
-  @Test
-  public void testDeleteWithCachedPattern() {
-    when(event.getAuthor()).thenReturn(author);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getChannel()).thenReturn(textChannel);
-    when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
-    doReturn(Pattern.compile("banana")).when(patternCache).getIfPresent(any(Guild.class));
-    // Banned word
-    when(message.getContentRaw()).thenReturn("banana");
-  
-    listener.onGuildMessageReceived(event);
-  
-    verify(message, times(1)).delete();
   }
   
   /**
    * Use Case: Text messages with banned expressions in their body should be deleted.
-   *
-   * @throws SQLException When a database error occurred.
    */
   @ParameterizedTest
   @ValueSource(strings = {"banana", "pizza"})
-  public void testDeleteMessage(String content) throws SQLException {
-    when(db.get(any(Guild.class))).thenReturn(Optional.of(guildEntity));
-    when(guildEntity.getBlacklist()).thenReturn(List.of("banana", "pizza"));
+  public void testDeleteMessage(String content) {
+    doReturn(false).when(listener).isSelfUser(any());
+    doReturn(true).when(listener).hasRequiredPermissions(any(), any());
+    doReturn(Optional.of(Pattern.compile(content))).when(patternCache).get(any(Guild.class));
+    
     when(event.getAuthor()).thenReturn(author);
     when(event.getGuild()).thenReturn(guild);
     when(event.getChannel()).thenReturn(textChannel);
     when(event.getMessage()).thenReturn(message);
-    when(author.getJDA()).thenReturn(jda);
-    when(jda.getSelfUser()).thenReturn(selfUser);
-    when(message.delete()).thenReturn(restAction);
     // Banned word
     when(message.getContentRaw()).thenReturn(content);
+    when(message.delete()).thenReturn(restAction);
   
     listener.onGuildMessageReceived(event);
     

@@ -18,30 +18,31 @@ package zav.discord.blanc.command;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Rank;
-import zav.discord.blanc.command.internal.PermissionValidator;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * Base class for all guild commands.<br>
  * Guild commands may require additional Guild-specific permissions in order to be executed.
  */
+@NonNullByDefault
 public abstract class AbstractGuildCommand extends AbstractCommand {
   
-  @Inject
-  /*package*/ PermissionValidator permissionValidator;
-  
   private final Set<Permission> permissions;
+  private final GuildCommandManager manager;
   
-  protected AbstractGuildCommand(Permission... permissions) {
-    this(Rank.USER, permissions);
-  }
-  
-  protected AbstractGuildCommand(Rank rank, Permission... permissions) {
-    super(rank);
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param manager The command-specific manager.
+   * @param permissions A list of all permissions required to execute this command.
+   */
+  protected AbstractGuildCommand(GuildCommandManager manager, Permission... permissions) {
+    super(Rank.USER, manager);
     this.permissions = Set.of(permissions);
+    this.manager = manager;
   }
   
   @Override
@@ -49,6 +50,6 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   public void validate() throws ExecutionException {
     super.validate();
     // Has the user the required guild permissions
-    permissionValidator.validate(permissions);
+    manager.validate(permissions);
   }
 }

@@ -16,26 +16,25 @@
 
 package zav.discord.blanc.api;
 
-import static zav.discord.blanc.api.Constants.DISCORD_TOKEN;
-import static zav.discord.blanc.api.Constants.SHARD_COUNT;
-
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.databind.Credentials;
 
 /**
  * Utility class for initializing Discord shards.
  */
 @Singleton
+@NonNullByDefault
 public class ShardSupplier implements Iterator<JDA> {
   /**
    * A set of all intents that are required for this bot to work.
@@ -67,10 +66,15 @@ public class ShardSupplier implements Iterator<JDA> {
   private final long shardCount;
   private int index = 0;
   
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param credentials The configuration file.
+   */
   @Inject
-  public ShardSupplier(@Named(DISCORD_TOKEN) String token, @Named(SHARD_COUNT) long shardCount) {
-    this.token = token;
-    this.shardCount = shardCount;
+  public ShardSupplier(Credentials credentials) {
+    this.token = credentials.getDiscordToken();
+    this.shardCount = credentials.getShardCount();
   }
   
   @Override

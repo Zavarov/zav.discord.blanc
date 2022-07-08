@@ -19,12 +19,13 @@ package zav.discord.blanc.runtime.job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.managers.Presence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import zav.discord.blanc.api.Client;
 
 /**
  * Repeatable job which updates the status message of the user account associated with this
@@ -32,8 +33,9 @@ import org.slf4j.LoggerFactory;
  */
 public class PresenceJob implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(PresenceJob.class);
+  private static final SecureRandom RANDOMIZER = new SecureRandom();
   
-  private final Presence self;
+  private final Client self;
   
   private final List<String> statusMessages;
   
@@ -43,7 +45,7 @@ public class PresenceJob implements Runnable {
    * @param self The presence of this application within a given shard.
    * @throws IOException If the file containing the status messages couldn't be read.
    */
-  public PresenceJob(Presence self) throws IOException {
+  public PresenceJob(Client self) throws IOException {
     this.self = self;
     
     ObjectMapper om = new ObjectMapper();
@@ -56,11 +58,13 @@ public class PresenceJob implements Runnable {
   
   @Override
   public void run() {
-    int index = ThreadLocalRandom.current().nextInt(statusMessages.size());
+    int index = RANDOMIZER.nextInt(statusMessages.size());
     String statusMessage = statusMessages.get(index);
   
   
     LOGGER.info("Change activity to '{}'.", statusMessage);
-    self.setActivity(Activity.playing(statusMessage));
+    for (JDA shard : self.getShards()) {
+      shard.getPresence().setActivity(Activity.playing(statusMessage));
+    }
   }
 }

@@ -1,6 +1,0 @@
-{
-  "id" : 2000,
-  "guildId" : 1000,
-  "name" : "TextChannel",
-  "subreddits" : ["redditdev", "announcements"]
-}

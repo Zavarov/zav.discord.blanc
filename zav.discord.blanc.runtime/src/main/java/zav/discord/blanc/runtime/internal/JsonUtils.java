@@ -23,7 +23,10 @@ import java.io.IOException;
 /**
  * Utility class for reading entities from disk and transforming them into Java objects.
  */
-public class JsonUtils {
+public final class JsonUtils {
+  
+  private JsonUtils() {}
+  
   /**
    * Reads a JSON file and transforms it into a Java entity.<br>
    * The file has to be located in the root directory.

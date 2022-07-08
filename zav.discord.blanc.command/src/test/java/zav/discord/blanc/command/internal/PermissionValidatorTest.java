@@ -17,11 +17,13 @@
 package zav.discord.blanc.command.internal;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -32,42 +34,49 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientPermissionException;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.databind.Rank;
+import zav.discord.blanc.databind.UserEntity;
 
 /**
  * Checks if the correct exception is thrown when called by a user with insufficient permissions.
  */
 @ExtendWith(MockitoExtension.class)
 public class PermissionValidatorTest {
-  @Mock UserTable db;
+  EntityManagerFactory factory;
+  EntityManager entityManager;
+  UserEntity userEntity;
+  
   @Mock Member author;
   @Mock User user;
   @Mock TextChannel textChannel;
   
   PermissionValidator validator;
-  MockedStatic<Rank> mocked;
   Set<Permission> permissions;
+  
+  static {
+    System.setProperty("org.jboss.logging.provider", "slf4j");
+  }
   
   /**
    * Initializes the permission validator. By default, every user has administrative permissions.
    */
   @BeforeEach
   public void setUp() {
-    validator = new PermissionValidator(db, author, textChannel);
-    
+    factory = Persistence.createEntityManagerFactory("discord-entities");
+    entityManager = factory.createEntityManager();
+    userEntity = new UserEntity();
+    userEntity.setRanks(List.of(Rank.ROOT));
+    validator = new PermissionValidator(factory, author, textChannel);
     permissions = EnumSet.of(Permission.ADMINISTRATOR);
     
-    mocked = mockStatic(Rank.class);
     when(author.getUser()).thenReturn(user);
   }
   
   @AfterEach
   public void tearDown() {
-    mocked.close();
+    entityManager.close();
   }
   
   /**
@@ -77,8 +86,13 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidateAsRoot() throws Exception {
-    mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Set.of(Rank.ROOT));
+    entityManager.getTransaction().begin();
+    entityManager.merge(userEntity);
+    entityManager.getTransaction().commit();
+    
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
+    when(author.getUser()).thenReturn(user);
+    when(user.getIdLong()).thenReturn(userEntity.getId());
   
     validator.validate(permissions);
   }
@@ -90,9 +104,7 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidate() throws Exception {
-    mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Collections.emptySet());
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.of(Permission.ADMINISTRATOR));
-    
     validator.validate(permissions);
   }
   
@@ -101,9 +113,7 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidateWithInsufficientPermissions() {
-    mocked.when(() -> Rank.getEffectiveRanks(db, user)).thenReturn(Collections.emptySet());
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
-  
     assertThrows(InsufficientPermissionException.class, () -> validator.validate(permissions));
   }
 }

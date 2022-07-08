@@ -24,27 +24,33 @@ import static org.mockito.Mockito.when;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.command.CommandManager;
 
 /**
  * Check whether the bot status is properly displayed.
  */
 @ExtendWith(MockitoExtension.class)
 public class StatusCommandTest {
-  
+
+  @Mock CommandManager manager;
   @Mock SlashCommandEvent event;
   @Mock ReplyAction reply;
   StatusCommand command;
+  
+  @BeforeEach
+  public void setUp() {
+    command = new StatusCommand(event, manager);
+  }
   
   @Test
   public void testSendStatus() {
     when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     
-    command = new StatusCommand(event);
-    command.postConstruct();
     command.run();
     
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));

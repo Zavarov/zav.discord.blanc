@@ -29,12 +29,14 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.jrc.client.FailedRequestException;
 import zav.jrc.databind.LinkEntity;
 import zav.jrc.listener.event.LinkEvent;
 
 /**
  * Checks whether links can be sent via a text channel.
  */
+@Deprecated
 public class TextChannelSubredditListenerTest {
   
   LinkEntity link;
@@ -63,6 +65,18 @@ public class TextChannelSubredditListenerTest {
   public void testNotify() {
     listener.notify(new LinkEvent(link));
     verify(action, times(1)).complete();
+  }
+  
+  /**
+   * Use Case: Errors when sending a link should be suppressed and logged as to not affect any other
+   * text-channel notifications. 
+   *
+   * @throws FailedRequestException Should never be thrown.
+   */
+  @Test
+  public void testNotifyWithError() throws FailedRequestException {
+    when(textChannel.sendMessage(any(Message.class))).thenThrow(RuntimeException.class);
+    listener.notify(new LinkEvent(link));
   }
   
   @Test

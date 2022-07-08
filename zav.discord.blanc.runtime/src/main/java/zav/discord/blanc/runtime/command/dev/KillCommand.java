@@ -16,13 +16,15 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This command terminates the whole instance by halting all threads.
@@ -31,30 +33,33 @@ public class KillCommand extends AbstractCommand {
 
   private final Client client;
   private final SlashCommandEvent event;
-  private final ScheduledExecutorService queue;
+  private final ScheduledExecutorService eventQueue;
   
   /**
    * Creates a new instance of this command.
    *
    * @param event The event triggering this command.
-   * @param queue The job queue.
-   * @param client The bot instance over all shards.
+   * @param manager The manager instance for this command.
    */
   @Inject
-  public KillCommand(SlashCommandEvent event, ScheduledExecutorService queue, Client client) {
-    super(Rank.DEVELOPER);
+  public KillCommand(SlashCommandEvent event, CommandManager manager) {
+    super(Rank.DEVELOPER, manager);
     this.event = event;
-    this.queue = queue;
-    this.client = client;
+    this.client = manager.getClient();
+    this.eventQueue = client.getEventQueue();
   }
   
   @Override
+  @SuppressFBWarnings(value = "DM_EXIT")
   public void run() {
     event.reply("Goodbye~").setEphemeral(true).complete();
 
-    queue.shutdown();
+    eventQueue.shutdown();
+    
     for (JDA shard : client.getShards()) {
       shard.shutdown();
     }
+    
+    System.exit(0);
   }
 }

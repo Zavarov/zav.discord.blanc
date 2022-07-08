@@ -16,40 +16,40 @@
 
 package zav.discord.blanc.command.internal;
 
-import static zav.discord.blanc.api.Rank.getEffectiveRanks;
+import static zav.discord.blanc.databind.Rank.getEffectiveRanks;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.Collection;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
-import zav.discord.blanc.api.Rank;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.command.InsufficientRankException;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This class checks whether the user executing the command has the required rank for execution.
  * An {@link InsufficientRankException} is thrown, if not.
  */
-@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "That's the point...")
+@NonNullByDefault
 public class RankValidator implements Validator<Rank> {
-  private final UserTable db;
+  private final EntityManagerFactory factory;
   private final User author;
   
   /**
    * Initializes the rank validator for a single command.
    *
-   * @param db The database containing all registered user ranks.
+   * @param factory The persistence context.
    * @param author The user who executed the command.
    */
-  @Inject
-  public RankValidator(UserTable db, User author) {
-    this.db = db;
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
+  public RankValidator(EntityManagerFactory factory, User author) {
+    this.factory = factory;
     this.author = author;
   }
   
   @Override
   public void validate(Collection<Rank> args) throws InsufficientRankException {
-    if (!getEffectiveRanks(db, author).containsAll(args)) {
+    if (!getEffectiveRanks(author, factory).containsAll(args)) {
       throw new InsufficientRankException(args);
     }
   }

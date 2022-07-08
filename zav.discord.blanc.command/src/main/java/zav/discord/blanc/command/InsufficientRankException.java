@@ -19,7 +19,8 @@ package zav.discord.blanc.command;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
-import zav.discord.blanc.api.Rank;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.databind.Rank;
 
 /**
  * This exception is thrown whenever a user executes a command for which they lack the required
@@ -27,7 +28,15 @@ import zav.discord.blanc.api.Rank;
  *
  * @see Rank
  */
+@NonNullByDefault
 public class InsufficientRankException extends ExecutionException {
+  private static final long serialVersionUID = 8803805769817538792L;
+
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param ranks The collection of missing ranks.
+   */
   public InsufficientRankException(Collection<Rank> ranks) {
     super(getMessage(ranks));
   }

@@ -17,9 +17,12 @@
 package zav.discord.blanc.command.internal;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.AfterEach;
@@ -27,40 +30,45 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.Rank;
 import zav.discord.blanc.command.InsufficientRankException;
-import zav.discord.blanc.db.UserTable;
+import zav.discord.blanc.databind.Rank;
+import zav.discord.blanc.databind.UserEntity;
 
 /**
  * Checks if the correct exception is thrown when called by a user with insufficient permissions.
  */
 @ExtendWith(MockitoExtension.class)
 public class RankValidatorTest {
-  @Mock UserTable db;
+  EntityManagerFactory factory;
+  EntityManager entityManager;
+  UserEntity userEntity;
+  
   @Mock User author;
   
   RankValidator validator;
-  MockedStatic<Rank> mocked;
   Set<Rank> ranks;
   
+  static {
+    System.setProperty("org.jboss.logging.provider", "slf4j");
+  }
   
   /**
    * Initializes the permission validator. By default, every user is root.
    */
   @BeforeEach
   public void setUp() {
-    validator = new RankValidator(db, author);
-    
+    factory = Persistence.createEntityManagerFactory("discord-entities");
+    entityManager = factory.createEntityManager();
+    userEntity = new UserEntity();
+    userEntity.setRanks(List.of(Rank.ROOT));
+    validator = new RankValidator(factory, author);
     ranks = Set.of(Rank.ROOT);
-    
-    mocked = mockStatic(Rank.class);
   }
   
   @AfterEach
   public void tearDown() {
-    mocked.close();
+    entityManager.close();
   }
   
   /**
@@ -70,8 +78,11 @@ public class RankValidatorTest {
    */
   @Test
   public void testValidate() throws Exception {
-    mocked.when(() -> Rank.getEffectiveRanks(db, author)).thenReturn(Set.of(Rank.ROOT));
+    entityManager.getTransaction().begin();
+    entityManager.merge(userEntity);
+    entityManager.getTransaction().commit();
     
+    when(author.getIdLong()).thenReturn(userEntity.getId());
     validator.validate(ranks);
   }
   
@@ -80,8 +91,6 @@ public class RankValidatorTest {
    */
   @Test
   public void testValidateWithInsufficientRanks() {
-    mocked.when(() -> Rank.getEffectiveRanks(db, author)).thenReturn(Collections.emptySet());
-    
     assertThrows(InsufficientRankException.class, () -> validator.validate(ranks));
   }
 }

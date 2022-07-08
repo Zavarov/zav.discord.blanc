@@ -17,7 +17,6 @@
 package zav.discord.blanc.api;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test class to check whether the default command methods are working as intended.
@@ -29,11 +28,6 @@ public class CommandTest {
   @BeforeEach
   public void setUp() {
     command = new TestCommand();
-  }
-  
-  @Test
-  public void testPostConstructDoesNothing() {
-    command.postConstruct();
   }
   
   private static class TestCommand implements Command {

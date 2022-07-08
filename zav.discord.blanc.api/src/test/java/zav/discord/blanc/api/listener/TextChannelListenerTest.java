@@ -16,21 +16,26 @@
 
 package zav.discord.blanc.api.listener;
 
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.db.TextChannelTable;
-import zav.discord.blanc.db.WebhookTable;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 
 /**
  * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
@@ -39,77 +44,109 @@ import zav.discord.blanc.db.WebhookTable;
 @ExtendWith(MockitoExtension.class)
 public class TextChannelListenerTest {
   
+  EntityManagerFactory factory;
+  EntityManager entityManager;
   TextChannelListener listener;
+  WebhookEntity webhookEntity;
+  TextChannelEntity textChannelEntity;
+  GuildEntity guildEntity;
   
-  @Mock
-  WebhookTable db;
-  @Mock TextChannelTable db1;
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
   @Mock TextChannelDeleteEvent deleteEvent;
   
+  static {
+    System.setProperty("org.jboss.logging.provider", "slf4j");
+  }
+  
+  /**
+   * Initializes the text channel listener.<br>
+   * The database used by the listener is initialized with the entities {@code Webhook.json},
+   * {@code TextChannel.json} and {@code Guild.json}.
+   */
   @BeforeEach
   public void setUp() {
-    listener = new TextChannelListener(db, db1);
+    factory = Persistence.createEntityManagerFactory("discord-entities");
+    entityManager = factory.createEntityManager();
+    listener = new TextChannelListener(factory);
+    
+    webhookEntity = new WebhookEntity();
+    textChannelEntity = new TextChannelEntity();
+    guildEntity = new GuildEntity();
+    
+    // Bidirectional mapping
+    guildEntity.add(webhookEntity);
+    guildEntity.add(textChannelEntity);
+    textChannelEntity.add(webhookEntity);
+    
+    entityManager.getTransaction().begin();
+    entityManager.merge(guildEntity);
+    entityManager.merge(textChannelEntity);
+    entityManager.merge(webhookEntity);
+    entityManager.getTransaction().commit();
+    entityManager.clear();
+  }
+  
+  @AfterEach
+  public void tearDown() {
+    entityManager.close();
   }
   
   /**
    * Use Case: When leaving a guild, all entries should be deleted from the database.
-   *
-   * @throws SQLException If a database error occurred.
    */
   @Test
-  public void testOnGuildLeave() throws SQLException {
+  public void testOnGuildLeave() {    
     when(leaveEvent.getGuild()).thenReturn(guild);
+    when(guild.getIdLong()).thenReturn(guildEntity.getId());
     listener.onGuildLeave(leaveEvent);
-    verify(db).delete(guild);
-    verify(db1).delete(guild);
+  
+    assertNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
+    assertNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
+    assertNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
   }
   
   /**
-   * Use Case: When leaving a guild, while the database is unavailable, nothing should happen. The
-   * entries are kept in the database and have to be cleaned by either restarting the bot or by
-   * joining and leaving the guild again.
-   *
-   * @throws SQLException If a database error occurred.
+   * Use Case: Do nothing when leaving a guild which isn't persisted.
    */
   @Test
-  public void testErrorOnGuildLeave() throws SQLException {
+  public void testDoNothingOnGuildLeave() {    
     when(leaveEvent.getGuild()).thenReturn(guild);
-    when(db1.delete(guild)).thenThrow(SQLException.class);
+    when(guild.getIdLong()).thenReturn(Long.MAX_VALUE);
     listener.onGuildLeave(leaveEvent);
-    verify(db).delete(guild);
-    verify(db1).delete(guild);
+  
+    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
+    assertNotNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
+    assertNotNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
   }
   
   /**
    * Use Case: When a text channel is deleted, all corresponding entries should be deleted from the
    * database.
-   *
-   * @throws SQLException If a database error occurred.
    */
   @Test
-  public void testOnTextChannelDelete() throws SQLException {
+  public void testOnTextChannelDelete() {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
+    when(textChannel.getIdLong()).thenReturn(textChannelEntity.getId());
     listener.onTextChannelDelete(deleteEvent);
-    verify(db).delete(textChannel);
-    verify(db1).delete(textChannel);
+  
+    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
+    assertNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
+    assertNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
   }
   
   /**
-   * Use Case: When leaving a text channel, while the database is unavailable, nothing should
-   * happen. The entries are kept in the database and have to be cleaned by either restarting the
-   * bot or by joining and leaving the guild again.
-   *
-   * @throws SQLException If a database error occurred.
+   * Use Case: Do nothing when a text channel is deleted which hasn't been persisted.
    */
   @Test
-  public void testErrorOnTextChannelDelete() throws SQLException {
+  public void testDoNothingOnTextChannelDelete() {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(db1.delete(textChannel)).thenThrow(SQLException.class);
+    when(textChannel.getIdLong()).thenReturn(Long.MAX_VALUE);
     listener.onTextChannelDelete(deleteEvent);
-    verify(db).delete(textChannel);
-    verify(db1).delete(textChannel);
+  
+    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
+    assertNotNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
+    assertNotNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
   }
 }

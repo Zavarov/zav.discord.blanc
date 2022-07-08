@@ -16,56 +16,38 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Objects;
 import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import org.apache.commons.jexl3.JexlBuilder;
-import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.JexlExpression;
-import org.apache.commons.jexl3.MapContext;
+import zav.discord.blanc.api.util.JexlParser;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
 
 /**
  * This command can solve simple mathematical expressions.
  */
 public class MathCommand extends AbstractCommand {
-  private static class InstanceHolder {
-    private static final Map<String, Object> CTX = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private static final Map<String, Object> NS = new HashMap<>();
-    
-    private static final JexlEngine JEXL = new JexlBuilder()
-          .cache(512)
-          .strict(true)
-          .silent(false)
-          .namespaces(NS)
-          .create();
-    
-    static {
-      // Use Math as default namespace. e.g. sin(5) instead of math:sin(5)
-      NS.put(null, Math.class);
-      // Define mathematical constants
-      CTX.put("e", Math.E);
-      CTX.put("pi", Math.PI);
-    }
-  }
-  
   private final SlashCommandEvent event;
+  private final JexlParser jexl;
   private final String value;
- 
+  
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   * @param manager The manager instance for this command.
+   * @param jexl The JEXL parser for evaluating the arithmetic expression.
+   */
   @Inject
-  public MathCommand(SlashCommandEvent event, @Named("value")OptionMapping value) {
+  public MathCommand(SlashCommandEvent event, CommandManager manager, JexlParser jexl) {
+    super(manager);
+    this.value = Objects.requireNonNull(event.getOption("value")).getAsString();
     this.event = event;
-    this.value = value.getAsString();
+    this.jexl = jexl;
   }
   
   @Override
   public void run() {
-    JexlExpression expression = InstanceHolder.JEXL.createExpression(value);
-    Object result = expression.evaluate(new MapContext(InstanceHolder.CTX));
-    event.reply(result.toString()).complete();
+    event.reply(jexl.evaluate(value).toString()).complete();
   }
 }

@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.Credentials;
 
 /**
  * Test case for initializing the JDA instances for all requested shards.
@@ -47,6 +48,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class ShardSupplierTest {
   ShardSupplier supplier;
+  Credentials credentials;
 
   MockedStatic<JDABuilder> jdaBuilder;
   MockedConstruction<TimedSemaphore> rateLimiter;
@@ -67,7 +69,11 @@ public class ShardSupplierTest {
     jdaBuilder = mockStatic(JDABuilder.class);
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
-    supplier = new ShardSupplier("token", 2L);
+    credentials = new Credentials();
+    credentials.setDiscordToken("token");
+    credentials.setShardCount(2);
+    
+    supplier = new ShardSupplier(credentials);
   }
   
   @AfterEach

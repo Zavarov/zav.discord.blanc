@@ -16,25 +16,35 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import static zav.discord.blanc.api.Constants.INVITE_SUPPORT_SERVER;
-
+import java.util.ResourceBundle;
 import javax.inject.Inject;
-import javax.inject.Named;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractCommand;
+import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Credentials;
 
 /**
  * This command prints an invitation link to the support server.
  */
 public class SupportCommand extends AbstractCommand {
   
+  private final ResourceBundle i18n;
   private final SlashCommandEvent event;
   private final String link;
   
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event The event triggering this command.
+   * @param manager The manager instance for this command.
+   * @param credentials The credentials used to authenticate this application.
+   */
   @Inject
-  public SupportCommand(SlashCommandEvent event, @Named(INVITE_SUPPORT_SERVER) String link) {
+  public SupportCommand(SlashCommandEvent event, CommandManager manager, Credentials credentials) {
+    super(manager);
     this.event = event;
-    this.link = link;
+    this.link = credentials.getInviteSupportServer();
+    this.i18n = manager.getResourceBundle();
   }
   
   @Override

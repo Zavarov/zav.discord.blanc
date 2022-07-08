@@ -16,22 +16,24 @@
 
 package zav.discord.blanc.reddit;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.List;
-import java.util.Optional;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.db.WebhookTable;
 
 /**
  * Checks whether listeners are created for all valid registered webhooks in the database.
@@ -39,28 +41,60 @@ import zav.discord.blanc.db.WebhookTable;
 @ExtendWith(MockitoExtension.class)
 public class WebhookInitializerTest {
   
-  @Mock WebhookTable db;
   @Mock SubredditObservable observable;
   @Mock TextChannel textChannel;
   @Mock Webhook webhook;
-  @Mock WebhookEntity entity;
   @Mock RestAction<List<Webhook>> action;
   WebhookInitializer initializer;
+  EntityManagerFactory factory;
+  EntityManager entityManager;
+  WebhookEntity entity;
   
+  static {
+    System.setProperty("org.jboss.logging.provider", "slf4j");
+  }
+  
+  /**
+   * Creates a new instance of the webhook initializer and loads the database with a single entity.
+   * The entity is registered to the subreddit {@code RedditDev}.
+   */
   @BeforeEach
   public void setUp() {
-    initializer = new WebhookInitializer(db, observable);
+    factory = Persistence.createEntityManagerFactory("discord-entities");
+    initializer = new WebhookInitializer(factory, observable);
+    entityManager = factory.createEntityManager();
+    entity = new WebhookEntity();
+    entity.setSubreddits(List.of("RedditDev"));
+
+    entityManager.getTransaction().begin();
+    entityManager.merge(entity);
+    entityManager.getTransaction().commit();
+  }
+  
+  @AfterEach
+  public void tearDown() {
+    entityManager.close();
   }
   
   @Test
-  public void testLoad() throws SQLException {
+  public void testLoad() {
     when(textChannel.retrieveWebhooks()).thenReturn(action);
     when(action.complete()).thenReturn(List.of(webhook));
-    when(db.get(webhook)).thenReturn(Optional.of(entity));
-    when(entity.getSubreddits()).thenReturn(List.of("RedditDev"));
+    when(webhook.getIdLong()).thenReturn(entity.getId());
     
     initializer.load(textChannel);
     
     verify(observable).addListener("RedditDev", webhook);
+  }
+  
+  @Test
+  public void testLoadUnrelatedWebhooks() {
+    when(textChannel.retrieveWebhooks()).thenReturn(action);
+    when(action.complete()).thenReturn(List.of(webhook));
+    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+    
+    initializer.load(textChannel);
+    
+    verify(observable, times(0)).addListener("RedditDev", webhook);
   }
 }

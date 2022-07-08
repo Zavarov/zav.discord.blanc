@@ -1,7 +1,11 @@
+**/.settings
 **/target
+**/bin
 **/*.idea
 **/*.iml
 **/.flattened-pom.xml
+**/*.classpath
+**/*.project
 
 **/src/main/resources/*.json
 **/Entity.db
