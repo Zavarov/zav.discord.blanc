@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>zav.discord.blanc</groupId>
     <artifactId>project</artifactId>
-    <version>5.1.0</version>
+    <version>5.1.1-SNAPSHOT</version>
 
     <parent>
         <groupId>zav.parent</groupId>
