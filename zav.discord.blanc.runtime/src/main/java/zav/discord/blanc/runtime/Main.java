@@ -154,7 +154,7 @@ public class Main {
     } else {
       try (EntityManager entityManager = factory.createEntityManager()) {
         UserEntity entity = UserEntity.getOrCreate(entityManager, owner);
-        entity.setRanks(List.of(Rank.ROOT));
+        entity.setRanks(List.of(Rank.DEVELOPER));
         entityManager.getTransaction().begin();
         entityManager.persist(entity);
         entityManager.getTransaction().commit();
