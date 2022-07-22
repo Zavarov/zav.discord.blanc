@@ -107,7 +107,7 @@ public class Main {
     listeners.add(new SiteComponentListener(client.getSiteCache()));
 
     LOGGER.info("Starting jobs for client");
-    Runnable job = new RedditJob(client.getSubredditObservable()); 
+    Runnable job = new RedditJob(client); 
     pool.scheduleAtFixedRate(job, 1, 1, TimeUnit.MINUTES);
     
     Runnable cleanupJob = new CleanupJob(client);    
