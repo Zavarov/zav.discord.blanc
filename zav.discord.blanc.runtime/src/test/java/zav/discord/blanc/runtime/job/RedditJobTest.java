@@ -59,7 +59,9 @@ public class RedditJobTest {
    */
   @BeforeEach
   public void setUp() {
-    job = new RedditJob(observable);
+    when(client.getSubredditObservable()).thenReturn(observable);
+    
+    job = new RedditJob(client);
   }
   
   @Test

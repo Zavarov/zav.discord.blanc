@@ -17,6 +17,7 @@
 package zav.discord.blanc.runtime.job;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.persistence.EntityManagerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
@@ -43,12 +44,15 @@ public class RedditJob implements Runnable {
   /**
    * Creates a new instance of this class.
    *
-   * @param observable The global subreddit observable.
+   * @param client The application client over all shards.
    */
   @Inject
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-  public RedditJob(SubredditObservable observable) {
-    this.observable = observable;
+  public RedditJob(Client client) {
+    EntityManagerFactory factory = client.getEntityManagerFactory();
+    this.observable = client.getSubredditObservable();
+    this.postConstruct(client,  new TextChannelInitializer(factory, observable));
+    this.postConstruct(client,  new WebhookInitializer(factory, observable));
   }
   
   /**
@@ -59,8 +63,7 @@ public class RedditJob implements Runnable {
    * @param client The application client over all shards.
    * @param initializer The initializer function for all text channel listeners.
    */
-  @Inject
-  public void postConstruct(Client client, TextChannelInitializer initializer) {
+  public final void postConstruct(Client client, TextChannelInitializer initializer) {
     LOGGER.info("Initializing listeners for all registered text channels.");
     for (JDA shard : client.getShards()) {
       LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
@@ -79,8 +82,7 @@ public class RedditJob implements Runnable {
    * @param client The application client over all shards.
    * @param initializer The initializer function for all webhook listeners.
    */
-  @Inject
-  public void postConstruct(Client client, WebhookInitializer initializer) {
+  public final void postConstruct(Client client, WebhookInitializer initializer) {
     LOGGER.info("Initializing listeners for all registered webhooks.");
     for (JDA shard : client.getShards()) {
       LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
