@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.reddit;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -43,6 +47,8 @@ public class WebhookInitializerTest {
   
   @Mock SubredditObservable observable;
   @Mock TextChannel textChannel;
+  @Mock Guild guild;
+  @Mock Member self;
   @Mock Webhook webhook;
   @Mock RestAction<List<Webhook>> action;
   WebhookInitializer initializer;
@@ -60,6 +66,9 @@ public class WebhookInitializerTest {
    */
   @BeforeEach
   public void setUp() {
+    when(textChannel.getGuild()).thenReturn(guild);
+    when(guild.getSelfMember()).thenReturn(self);
+    
     factory = Persistence.createEntityManagerFactory("discord-entities");
     initializer = new WebhookInitializer(factory, observable);
     entityManager = factory.createEntityManager();
@@ -77,7 +86,17 @@ public class WebhookInitializerTest {
   }
   
   @Test
+  public void testLoadWithInsufficientPermission() {
+    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
+    
+    initializer.load(textChannel);
+    
+    verify(observable, times(0)).addListener("RedditDev", webhook);
+  }
+  
+  @Test
   public void testLoad() {
+    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(textChannel.retrieveWebhooks()).thenReturn(action);
     when(action.complete()).thenReturn(List.of(webhook));
     when(webhook.getIdLong()).thenReturn(entity.getId());
@@ -89,6 +108,7 @@ public class WebhookInitializerTest {
   
   @Test
   public void testLoadUnrelatedWebhooks() {
+    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(textChannel.retrieveWebhooks()).thenReturn(action);
     when(action.complete()).thenReturn(List.of(webhook));
     when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);

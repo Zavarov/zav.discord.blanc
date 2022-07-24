@@ -21,6 +21,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -60,8 +62,11 @@ public class WebhookInitializer {
    * @param textChannel One of the text channels visible to the bot.
    */
   public void load(TextChannel textChannel) {
-    for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
-      load(webhook);
+    Member selfMember = textChannel.getGuild().getSelfMember();
+    if (selfMember.hasPermission(textChannel, Permission.MANAGE_WEBHOOKS)) {
+      for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
+        load(webhook);
+      }
     }
   }
   
