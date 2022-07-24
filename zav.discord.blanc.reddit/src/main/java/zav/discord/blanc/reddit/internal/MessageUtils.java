@@ -107,7 +107,7 @@ public final class MessageUtils {
       if (!link.getLinkFlairText().startsWith("[")) {
         builder.append("[");
       }
-      builder.append(link.getLinkFlairText());
+      builder.append(StringEscapeUtils.unescapeHtml4(link.getLinkFlairText()));
       if (!link.getLinkFlairText().endsWith("]")) {
         builder.append("] ");
       }
