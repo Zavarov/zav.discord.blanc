@@ -2,10 +2,13 @@ package zav.discord.blanc.runtime.internal;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,7 @@ import zav.discord.blanc.databind.WebhookEntity;
 @ExtendWith(MockitoExtension.class)
 public class WebhookValidatorTest {
   @Mock Guild guild;
+  @Mock Member self;
   @Mock TextChannel channel;
   TextChannelEntity channelEntity;
   WebhookEntity entity;
@@ -43,6 +47,16 @@ public class WebhookValidatorTest {
   }
   
   @Test
+  public void testInsufficientPermission() {
+    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
+    when(guild.getSelfMember()).thenReturn(self);
+    when(channel.canTalk()).thenReturn(true);
+    when(channel.getGuild()).thenReturn(guild);
+    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
+    assertTrue(validator.test(entity));
+  }
+  
+  @Test
   public void testInaccessible() {
     when(guild.getTextChannelById(anyLong())).thenReturn(channel);
     assertTrue(validator.test(entity));
@@ -51,7 +65,10 @@ public class WebhookValidatorTest {
   @Test
   public void testValid() {
     when(guild.getTextChannelById(anyLong())).thenReturn(channel);
+    when(guild.getSelfMember()).thenReturn(self);
     when(channel.canTalk()).thenReturn(true);
+    when(channel.getGuild()).thenReturn(guild);
+    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     assertFalse(validator.test(entity));
   }
 }

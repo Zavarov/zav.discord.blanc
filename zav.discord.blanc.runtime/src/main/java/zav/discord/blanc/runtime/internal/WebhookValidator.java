@@ -1,7 +1,9 @@
 package zav.discord.blanc.runtime.internal;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,12 @@ public class WebhookValidator implements Validator<WebhookEntity> {
     
     if (!textChannel.canTalk()) {
       LOGGER.error("Invalid textchannel {0}: Inaccessible.", entity.getName());
+      return true;
+    }
+    
+    Member self = textChannel.getGuild().getSelfMember();
+    if (!self.hasPermission(textChannel, Permission.MANAGE_WEBHOOKS)) {
+      LOGGER.error("Invalid textchannel {0}: Insufficient Permission.", entity.getName());
       return true;
     }
     
