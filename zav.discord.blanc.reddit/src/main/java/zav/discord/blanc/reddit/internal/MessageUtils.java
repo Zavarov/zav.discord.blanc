@@ -64,7 +64,7 @@ public final class MessageUtils {
     return String.format(
           "New submission from u/%s in `r/%s`:%n%n<%s>",
           link.getAuthor(),
-          link.getName(),
+          link.getSubreddit(),
           getShortLink(link)
     );
   }
