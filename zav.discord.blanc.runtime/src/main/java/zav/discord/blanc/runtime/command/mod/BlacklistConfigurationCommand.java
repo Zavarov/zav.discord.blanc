@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
@@ -75,7 +76,7 @@ public class BlacklistConfigurationCommand extends AbstractGuildCommand {
       if (value != null) {
         MessageEmbed content = new EmbedBuilder()
               .setTitle("Forbidden Expressions")
-              .setDescription(value)
+              .setDescription(MarkdownSanitizer.escape(value))
               .build();
         
         Site.Page mainPage = Site.Page.create("Forbidden Expressions", List.of(content));
