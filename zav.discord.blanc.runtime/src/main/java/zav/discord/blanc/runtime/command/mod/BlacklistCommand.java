@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.PatternCache;
 import zav.discord.blanc.command.AbstractGuildCommand;
@@ -83,7 +84,7 @@ public class BlacklistCommand extends AbstractGuildCommand {
       entityManager.getTransaction().commit();
       
       cache.invalidate(guild);
-      event.replyFormat(response, regex).complete();
+      event.replyFormat(response, MarkdownSanitizer.escape(regex)).complete();
     }
   }
 }
