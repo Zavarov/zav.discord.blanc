@@ -51,14 +51,6 @@
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>opus-java-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>opus-java-natives</artifactId>
-        </dependency>
         
         <!-- Provided Dependencies -->
         <dependency>
