@@ -256,6 +256,7 @@
                         <groupId>com.google.j2objc</groupId>
                         <artifactId>j2objc-annotations</artifactId>
                     </exclusion>
+                    <!-- JDA without audio -->
                     <exclusion>
                         <groupId>club.minnced</groupId>
                         <artifactId>opus-java</artifactId>
