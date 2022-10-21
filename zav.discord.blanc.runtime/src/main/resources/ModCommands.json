@@ -1,71 +1,66 @@
 {
-  "default_permission" : true,
-  "name" : "mod",
-  "description" : "All moderator-level commands.",
-  "options" : [
-    {
-      "name" : "blacklist",
-      "description" : "Add or remove the regular expression to the list of banned words.",
-      "type" : 1,
-      "options" : [ {
-        "name" : "regex",
-        "description" : "Example: 'http(s)?://discord.gg/.*",
-        "type" : 3,
-        "required" : true
-      } ]
-    },
-    {
-      "name" : "config",
-      "description" : "List all guild-specific bot configurations.",
-      "type" : 2,
-      "options" : [
-        {
-          "name" : "blacklist",
-          "description" : "List all blacklisted words.",
-          "type" : 1,
-          "options" : [ ]
-        }, {
-          "name" : "reddit",
-          "description" : "List all registered Reddit feeds.",
-          "type" : 1,
-          "options" : [ ]
-        } ]
-    },
-    {
-      "name" : "reddit",
-      "options" : [ {
-        "name" : "webhook",
-        "description" : "Add or remove a subreddit feed via webhooks.",
+    "default_permission" : true,
+    "name" : "mod",
+    "description" : "All moderator-level commands.",
+    "options" : [ {
+        "name" : "blacklist",
+        "description" : "Add or remove the regular expression to the list of banned words.",
         "type" : 1,
         "options" : [ {
-          "name" : "subreddit",
-          "description" : "Example: RedditDev",
-          "type" : 3,
-          "required" : true
-        }, {
-          "name" : "textchannel",
-          "description" : "Example: #Reddit. Defaults to the current channel",
-          "type" : 7,
-          "required" : false
+            "name" : "regex",
+            "description" : "Example: 'http(s)?://discord.gg/.*",
+            "type" : 3,
+            "required" : true
         } ]
-      }, {
-        "name" : "textchannel",
+    }, {
+        "name" : "config",
+        "description" : "List all guild-specific bot configurations.",
+        "type" : 2,
         "options" : [ {
-          "name" : "subreddit",
-          "description" : "Example: RedditDev",
-          "type" : 3,
-          "required" : true
+            "name" : "blacklist",
+            "description" : "List all blacklisted words.",
+            "type" : 1,
+            "options" : [ ]
         }, {
-          "name" : "textchannel",
-          "description" : "Example: #Reddit. Defaults to the current channel",
-          "type" : 7,
-          "required" : false
-        } ],
-        "description" : "Remove a textchannel-based subreddit feed.",
-        "type" : 1
-      } ],
-      "description" : "Add or remove a subreddit feed.",
-      "type" : 2
-    }
-  ]
+            "name" : "reddit",
+            "description" : "List all registered Reddit feeds.",
+            "type" : 1,
+            "options" : [ ]
+        } ]
+    }, {
+        "name" : "reddit",
+        "description" : "Add or remove a subreddit feed.",
+        "type" : 2,
+        "options" : [ {
+            "name" : "webhook",
+            "description" : "Add or remove a subreddit feed via webhooks.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "subreddit",
+                "description" : "Example: RedditDev",
+                "type" : 3,
+                "required" : true
+            }, {
+                "name" : "textchannel",
+                "description" : "Example: #Reddit. Defaults to the current channel",
+                "type" : 7,
+                "required" : false
+            } ]
+        }, {
+            "name" : "textchannel",
+            "description" : "Remove a textchannel-based subreddit feed.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "subreddit",
+                "description" : "Example: RedditDev",
+                "type" : 3,
+                "required" : true
+            }, {
+                "name" : "textchannel",
+                "description" : "Example: #Reddit. Defaults to the current channel",
+                "type" : 7,
+                "required" : false
+            } ]
+        } ]
+    } ]
 }

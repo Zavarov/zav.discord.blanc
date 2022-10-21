@@ -1,36 +1,31 @@
 {
-  "default_permission" : true,
-  "name" : "dev",
-  "description" : "All developer-level commands.",
-  "options" : [
-    {
-      "name" : "failsafe",
-      "options" : [ ],
-      "description" : "Enables/Disables super-user privileges for the author.",
-      "type" : 1
-    },
-    {
-      "name" : "kill",
-      "options" : [ ],
-      "description" : "Terminates the bot.",
-      "type" : 1
-    },
-    {
-      "name" : "say",
-      "options" : [ {
-        "name" : "content",
-        "description" : "Example: 'Hello World'",
-        "type" : 3,
-        "required" : true
-      } ],
-      "description" : "Repeats the given string.",
-      "type" : 1
-    },
-    {
-      "name" : "status",
-      "options" : [ ],
-      "description" : "Returns the status of the hardware, hosting the bot.",
-      "type" : 1
-    }
-  ]
+    "default_permission" : true,
+    "name" : "dev",
+    "description" : "All developer-level commands.",
+    "options" : [ {
+        "name" : "failsafe",
+        "description" : "Enables/Disables super-user privileges for the author.",
+        "type" : 1,
+        "options" : [ ]
+    }, {
+        "name" : "kill",
+        "description" : "Terminates the bot.",
+        "type" : 1,
+        "options" : [ ]
+    }, {
+        "name" : "say",
+        "description" : "Repeats the given string.",
+        "type" : 1,
+        "options" : [ {
+            "name" : "content",
+            "description" : "Example: 'Hello World'",
+            "type" : 3,
+            "required" : true
+        } ]
+    }, {
+        "name" : "status",
+        "description" : "Returns the status of the hardware, hosting the bot.",
+        "type" : 1,
+        "options" : [ ]
+    } ]
 }

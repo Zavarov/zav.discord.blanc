@@ -1,19 +1,16 @@
-[
-  {
+[ {
     "default_permission" : true,
     "name" : "math",
+    "description" : "Resolve the given mathematical equation.",
     "options" : [ {
-      "name" : "value",
-      "description" : "Example: 2+sin(pi)",
-      "type" : 3,
-      "required" : true
-    } ],
-    "description" : "Resolve the given mathematical equation."
-  },
-  {
+        "name" : "value",
+        "description" : "Example: 2+sin(pi)",
+        "type" : 3,
+        "required" : true
+    } ]
+}, {
     "default_permission" : true,
     "name" : "support",
-    "options" : [ ],
-    "description" : "Returns a Discord invitation to the support server."
-  }
-]
+    "description" : "Returns a Discord invitation to the support server.",
+    "options" : [ ]
+} ]
