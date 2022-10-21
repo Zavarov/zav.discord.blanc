@@ -29,6 +29,8 @@
         } ]
     }, {
       "name" : "reddit",
+      "description" : "Add or remove a subreddit feed.",
+      "type" : 2,
       "options" : [ {
         "name" : "webhook",
         "description" : "Add or remove a subreddit feed via webhooks.",
@@ -46,6 +48,8 @@
         } ]
       }, {
         "name" : "textchannel",
+        "description" : "Remove a textchannel-based subreddit feed.",
+        "type" : 1,
         "options" : [ {
           "name" : "subreddit",
           "description" : "Example: RedditDev",
@@ -56,11 +60,7 @@
           "description" : "Example: #Reddit. Defaults to the current channel",
           "type" : 7,
           "required" : false
-        } ],
-        "description" : "Remove a textchannel-based subreddit feed.",
-        "type" : 1
-      } ],
-      "description" : "Add or remove a subreddit feed.",
-      "type" : 2
+        } ]
+      } ]
     } ]
 }
