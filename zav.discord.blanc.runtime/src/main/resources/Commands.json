@@ -3,14 +3,14 @@
     "name" : "math",
     "description" : "Resolve the given mathematical equation.",
     "options" : [ {
-      "name" : "value",
-      "description" : "Example: 2+sin(pi)",
-      "type" : 3,
-      "required" : true
+        "name" : "value",
+        "description" : "Example: 2+sin(pi)",
+        "type" : 3,
+        "required" : true
     } ]
-  }, {
+}, {
     "default_permission" : true,
     "name" : "support",
     "description" : "Returns a Discord invitation to the support server.",
     "options" : [ ]
-  } ]
+} ]
