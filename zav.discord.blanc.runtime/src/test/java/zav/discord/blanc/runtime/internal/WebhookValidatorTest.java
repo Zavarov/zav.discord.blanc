@@ -7,25 +7,20 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * This test case checks whether invalid webhooks are detected properly.
  */
 @ExtendWith(MockitoExtension.class)
-public class WebhookValidatorTest {
-  @Mock Guild guild;
-  @Mock Member self;
-  @Mock TextChannel channel;
+public class WebhookValidatorTest extends AbstractTest {
   TextChannelEntity channelEntity;
   WebhookEntity entity;
   WebhookValidator validator;
@@ -43,16 +38,14 @@ public class WebhookValidatorTest {
   
   @Test
   public void testUnknownChannel() {
+    when(guild.getTextChannelById(anyLong())).thenReturn(null);
     assertTrue(validator.test(entity));
   }
   
   @Test
   public void testInsufficientPermission() {
-    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    when(guild.getSelfMember()).thenReturn(self);
     when(channel.canTalk()).thenReturn(true);
-    when(channel.getGuild()).thenReturn(guild);
-    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
+    when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
     assertTrue(validator.test(entity));
   }
   
@@ -64,11 +57,8 @@ public class WebhookValidatorTest {
   
   @Test
   public void testValid() {
-    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    when(guild.getSelfMember()).thenReturn(self);
     when(channel.canTalk()).thenReturn(true);
-    when(channel.getGuild()).thenReturn(guild);
-    when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
+    when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     assertFalse(validator.test(entity));
   }
 }

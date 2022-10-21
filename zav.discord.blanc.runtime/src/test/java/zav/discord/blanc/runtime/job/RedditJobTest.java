@@ -23,32 +23,21 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.Client;
-import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.reddit.TextChannelInitializer;
 import zav.discord.blanc.reddit.WebhookInitializer;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether the Reddit job can recover from the persistent database values.
  */
 @SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
-public class RedditJobTest {
-  
-  @Mock Client client;
-  @Mock JDA jda;
-  @Mock Guild guild;
-  @Mock TextChannel textChannel;
-  @Mock SubredditObservable observable;
+public class RedditJobTest extends AbstractTest {  
   @Mock TextChannelInitializer textInitializer;
   @Mock WebhookInitializer hookInitializer;
   
@@ -59,25 +48,20 @@ public class RedditJobTest {
    */
   @BeforeEach
   public void setUp() {
-    when(client.getSubredditObservable()).thenReturn(observable);
-    
     job = new RedditJob(client);
   }
   
   @Test
   public void testPostConstruct() {
-    when(client.getShards()).thenReturn(List.of(jda));
-    when(jda.getGuilds()).thenReturn(List.of(guild));
-    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
-    
     job.postConstruct(client, textInitializer);
     job.postConstruct(client, hookInitializer);
-   
+    
+    when(channel.canTalk()).thenReturn(false);
     // User can't talk in the channel
     verify(hookInitializer, times(0)).load(any());
     verify(textInitializer).load(any());
-  
-    when(textChannel.canTalk()).thenReturn(true);
+    
+    when(channel.canTalk()).thenReturn(true);
     job.postConstruct(client, hookInitializer);
     verify(hookInitializer).load(any());
   }
@@ -87,11 +71,11 @@ public class RedditJobTest {
     job.run();
   
     // Catch all exceptions to prevent the job from ending prematurely
-    doThrow(new RuntimeException()).when(observable).notifyAllObservers();
+    doThrow(new RuntimeException()).when(subredditObservable).notifyAllObservers();
     job.run();
   
     // We can't recover from errors -> terminate
-    doThrow(new Error()).when(observable).notifyAllObservers();
+    doThrow(new Error()).when(subredditObservable).notifyAllObservers();
     assertThrows(Error.class, job::run);
   }
 }

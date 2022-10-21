@@ -26,12 +26,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +34,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -52,13 +45,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<GuildEntity> {
-  @Captor ArgumentCaptor<List<Site.Page>> captor;
-  @Mock InteractionHook hook;
-  @Mock RestAction<Message> action;
-  @Mock Message message;
-  @Mock Member member;
-  @Mock Guild guild;
-  @Mock SlashCommandEvent event;
+  @Captor ArgumentCaptor<List<Site.Page>> pages;
   
   GuildCommandManager manager;
   BlacklistConfigurationCommand command;
@@ -69,14 +56,13 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    when(event.getMember()).thenReturn(member);
-    when(event.getGuild()).thenReturn(guild);
+    
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = spy(new GuildCommandManager(client, event));
     command = new BlacklistConfigurationCommand(event, manager);
     
-    doNothing().when(manager).submit(captor.capture());
+    doNothing().when(manager).submit(pages.capture());
   }
   
   @Test
@@ -85,7 +71,7 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
     
     command.run();
   
-    assertThat(captor.getValue()).isEmpty();
+    assertThat(pages.getValue()).isEmpty();
   }
   
   /**
@@ -101,7 +87,7 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
     
     command.run();
   
-    assertThat(captor.getValue()).hasSize(1);
+    assertThat(pages.getValue()).hasSize(1);
   }
   
   /**

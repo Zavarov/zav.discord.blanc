@@ -27,16 +27,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +39,6 @@ import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 
 /**
@@ -55,17 +46,8 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
-  @Mock AuditableRestAction<Void> delete;
-  @Mock SlashCommandEvent event;
-  @Mock Guild guild;
-  @Mock Member member;
-  @Mock TextChannel channel;
   @Mock OptionMapping subreddit;
-  @Mock RestAction<List<Webhook>> retrieveWebhooks;
-  @Mock WebhookAction createWebhook;
-  @Mock Webhook webhook;
-  @Mock SubredditObservable observable;
-  @Mock ReplyAction reply;
+  
   GuildCommandManager manager;
   TextChannelEntity channelEntity;
   RedditCommand command;
@@ -80,18 +62,9 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     guildEntity = new GuildEntity();
     channelEntity = new TextChannelEntity();
 
-    when(client.getSubredditObservable()).thenReturn(observable);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getMember()).thenReturn(member);
-    when(event.getTextChannel()).thenReturn(channel);
     when(event.getOption(anyString())).thenReturn(subreddit);
     when(event.reply(anyString())).thenReturn(reply);
     when(subreddit.getAsString()).thenReturn("RedditDev");
-    
-    when(channel.retrieveWebhooks()).thenReturn(retrieveWebhooks);
-    when(channel.createWebhook(anyString())).thenReturn(createWebhook);
-    when(createWebhook.complete()).thenReturn(webhook);
-    when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
     
     when(entityManager.find(eq(WebhookEntity.class), any())).thenReturn(entity);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(guildEntity);
@@ -112,7 +85,7 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     assertNotNull(entity.getChannel());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(observable).addListener(anyString(), any(Webhook.class));
+    verify(subredditObservable).addListener(anyString(), any(Webhook.class));
   }
   
   @Test
@@ -126,7 +99,7 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     assertNotNull(entity.getChannel());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(observable).removeListener(anyString(), any(Webhook.class));
+    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
   }
   
   @Test
@@ -142,7 +115,7 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     assertNotNull(entity.getChannel());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(observable).removeListener(anyString(), any(Webhook.class));
+    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
     // Has the webhook been deleted
     verify(delete).complete();
   }
@@ -159,7 +132,7 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     assertNotNull(entity.getChannel());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(observable).removeListener(anyString(), any(Webhook.class));
+    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
     // Does the webhook still exists?
     verify(delete, times(0)).complete();
   }
