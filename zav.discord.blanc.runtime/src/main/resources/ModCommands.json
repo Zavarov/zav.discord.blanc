@@ -2,8 +2,7 @@
   "default_permission" : true,
   "name" : "mod",
   "description" : "All moderator-level commands.",
-  "options" : [
-    {
+  "options" : [ {
       "name" : "blacklist",
       "description" : "Add or remove the regular expression to the list of banned words.",
       "type" : 1,
@@ -13,13 +12,11 @@
         "type" : 3,
         "required" : true
       } ]
-    },
-    {
+    }, {
       "name" : "config",
       "description" : "List all guild-specific bot configurations.",
       "type" : 2,
-      "options" : [
-        {
+      "options" : [ {
           "name" : "blacklist",
           "description" : "List all blacklisted words.",
           "type" : 1,
@@ -30,8 +27,7 @@
           "type" : 1,
           "options" : [ ]
         } ]
-    },
-    {
+    }, {
       "name" : "reddit",
       "options" : [ {
         "name" : "webhook",
@@ -66,6 +62,5 @@
       } ],
       "description" : "Add or remove a subreddit feed.",
       "type" : 2
-    }
-  ]
+    } ]
 }
