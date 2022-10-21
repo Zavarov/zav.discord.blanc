@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,11 +39,12 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Checks whether it is possible to blacklist/whitelist regular expressions.
  */
 @ExtendWith(MockitoExtension.class)
-public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
-
+public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
+  
   @Mock OptionMapping regex;
+  
   GuildCommandManager manager;
-  BlacklistCommand command;
+  BlacklistAddCommand command;
   
   /**
    * Initializes the command with argument {@code foo}.
@@ -52,13 +52,12 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     when(event.getOption(anyString())).thenReturn(regex);
     when(regex.getAsString()).thenReturn("foo");
+    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = new GuildCommandManager(client, event);
-    command = new BlacklistCommand(event, manager);
+    command = new BlacklistAddCommand(event, manager);
   }
   
   /**
@@ -75,15 +74,15 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
   }
   
   /**
-   * Tests whether the expression has been whitelisted.
+   * Tests whether the same expression can't be blacklisted twice.
    */
   @Test
-  public void testRemoveExpression() throws Exception {
+  public void testAlreadyAddedExpression() throws Exception {
     entity.setBlacklist(Lists.newArrayList("foo"));
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.emptyList());
+    assertEquals(entity.getBlacklist(), List.of("foo"));
     verify(patternCache).invalidate(guild);
   }
 }

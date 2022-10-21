@@ -16,11 +16,10 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -42,13 +41,12 @@ import zav.discord.blanc.reddit.SubredditObservable;
  * registered via webhooks.
  */
 @Deprecated
-public class RedditLegacyCommand extends AbstractGuildCommand {
-  private final EntityManagerFactory factory;
-  private final SubredditObservable reddit;
-  private final SlashCommandEvent event;
-  private final TextChannel target;
-  private final String subreddit;
+public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
   private final Client client;
+  private final SubredditObservable reddit;
+  private final TextChannel channel;
+  private final EntityManagerFactory factory;
+  private final SlashCommandEvent event;
   private final Guild guild;
   
   /**
@@ -58,50 +56,67 @@ public class RedditLegacyCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   @Inject
-  public RedditLegacyCommand(SlashCommandEvent event, GuildCommandManager manager) {
+  public LegacyRedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, Permission.MANAGE_CHANNEL);
-    this.client = manager.getClient();
-    this.factory = client.getEntityManagerFactory();
-    this.reddit = client.getSubredditObservable();
     this.event = event;
     this.guild = event.getGuild();
-    this.subreddit = Objects.requireNonNull(event.getOption("subreddit"))
-        .getAsString()
-        .toLowerCase(Locale.ENGLISH);
-    this.target = (TextChannel) Optional.ofNullable(event.getOption("channel"))
-        .map(OptionMapping::getAsGuildChannel)
-        .orElse(event.getTextChannel());
+    this.client = manager.getClient();
+    this.reddit = client.getSubredditObservable();
+    this.factory = client.getEntityManagerFactory();
+    this.channel = event.getTextChannel();
   }
   
   @Override
+  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void run() {
     try (EntityManager entityManager = factory.createEntityManager()) {
       GuildEntity guildEntity = GuildEntity.getOrCreate(entityManager, guild);
-      TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, target);
-      String response;
+      TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
+
+      final String response = modify(channelEntity, event);
       
-      // Remove subreddit from database
-      if (channelEntity.getSubreddits().contains(subreddit)) {
-        channelEntity.getSubreddits().remove(subreddit);
-    
-        // Update the Reddit job
-        reddit.removeListener(subreddit, target);
-        
-        // Update bi-directional associations
-        guildEntity.add(channelEntity);
-    
-        //Update the persistence file
-        entityManager.getTransaction().begin();
-        entityManager.merge(guildEntity);
-        entityManager.merge(channelEntity);
-        entityManager.getTransaction().commit();
-    
-        response = getMessage("remove_subreddit", subreddit, target.getAsMention());
-      } else {
-        response = getMessage("add_subreddit_deprecated", subreddit, target.getAsMention());
-      }
+      // Update bi-directional associations
+      guildEntity.add(channelEntity);
+  
+      // Write changes to the database
+      entityManager.getTransaction().begin();
+      entityManager.merge(guildEntity);
+      entityManager.merge(channelEntity);
+      entityManager.getTransaction().commit();
       
       event.reply(response).complete();
     }
+  }
+
+  private String modify(TextChannelEntity entity, SlashCommandEvent event) {
+    OptionMapping name = event.getOption("name");
+    OptionMapping index = event.getOption("index");
+    
+    if (name != null) {
+      return removeByName(entity, name.getAsString().toLowerCase(Locale.ENGLISH));
+    } else if (index != null) {
+      return removeByIndex(entity, (int) index.getAsLong());
+    }
+    
+    return getMessage("subreddit_invalid_argument");
+  }
+  
+  private String removeByName(TextChannelEntity entity, String name) {
+    if (entity.getSubreddits().remove(name)) {
+      // Remove subreddit from the Reddit job
+      reddit.removeListener(name, channel);
+      
+      return getMessage("subreddit_remove", name, channel.getAsMention());
+    }
+    
+    return getMessage("subreddit_name_not_found", name, channel.getAsMention());
+  }
+  
+  private String removeByIndex(TextChannelEntity entity, int index) {
+    if (index >= 0 && index < entity.getSubreddits().size()) {
+      return removeByName(entity, entity.getSubreddits().get(index));
+    }
+    
+    return getMessage("subreddit_index_not_found", index, channel.getAsMention());
   }
 }

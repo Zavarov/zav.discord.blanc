@@ -18,35 +18,25 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 
 /**
@@ -54,19 +44,12 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @Deprecated
 @ExtendWith(MockitoExtension.class)
-public class RedditLegacyCommandTest extends AbstractDatabaseTest<TextChannelEntity> {
-  @Mock SlashCommandEvent event;
-  @Mock Guild guild;
-  @Mock Member member;
-  @Mock TextChannel channel;
-  @Mock OptionMapping subreddit;
-  @Mock RestAction<List<Webhook>> retrieveWebhooks;
-  @Mock WebhookAction createWebhook;
-  @Mock Webhook webhook;
-  @Mock SubredditObservable observable;
-  @Mock ReplyAction reply;
+public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChannelEntity> {
+  @Mock OptionMapping name;
+  @Mock OptionMapping index;
+  
   GuildCommandManager manager;
-  RedditLegacyCommand command;
+  LegacyRedditRemoveCommand command;
   
   /**
    * Initializes the command with no arguments.
@@ -74,36 +57,28 @@ public class RedditLegacyCommandTest extends AbstractDatabaseTest<TextChannelEnt
   @BeforeEach
   public void setUp() {
     super.setUp(new TextChannelEntity());
-    when(client.getSubredditObservable()).thenReturn(observable);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getMember()).thenReturn(member);
-    when(event.getTextChannel()).thenReturn(channel);
-    when(event.getOption(anyString())).thenReturn(subreddit);
-    when(event.reply(anyString())).thenReturn(reply);
-    when(subreddit.getAsString()).thenReturn("RedditDev");
     
     when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(entity);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(new GuildEntity());
-    
-    manager = new GuildCommandManager(client, event);
-    command = new RedditLegacyCommand(event, manager);
-  }
-  
-  @Test
-  public void testAddSubreddit() throws Exception {
-    entity.setSubreddits(Lists.newArrayList());
-    
-    command.run();
 
-    // Adding subreddits to text channels is deprecated. Hence the database shouldn't be modified.
-    assertEquals(entity.getSubreddits(), Collections.emptyList());
-    assertNull(entity.getGuild());
-    // Adding subreddits to text channels is deprecated. Hence the Reddit job shouldn't be modified.
-    verify(observable, times(0)).addListener(anyString(), any(TextChannel.class));
+    entity.setSubreddits(Lists.newArrayList("RedditDev"));
+
+    manager = new GuildCommandManager(client, event);
+    command = new LegacyRedditRemoveCommand(event, manager);
   }
   
-  @Test
-  public void testRemoveSubreddit() throws Exception {
+  /**
+   * Subreddits are case insensitive.
+   *
+   * @param subredditName A human-readable subreddit name.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = { "RedditDev", "redditDev", "ReDdItDeV", "redditdev" })
+  public void testRemoveSubredditByName(String subredditName) {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn(subredditName);
+
     entity.setSubreddits(Lists.newArrayList("redditdev"));
     
     command.run();
@@ -112,6 +87,23 @@ public class RedditLegacyCommandTest extends AbstractDatabaseTest<TextChannelEnt
     assertEquals(entity.getSubreddits(), Collections.emptyList());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(observable).removeListener(anyString(), any(TextChannel.class));
+    verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndex() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(0L);
+    
+    entity.setSubreddits(Lists.newArrayList("redditdev"));
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertNotNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
   }
 }

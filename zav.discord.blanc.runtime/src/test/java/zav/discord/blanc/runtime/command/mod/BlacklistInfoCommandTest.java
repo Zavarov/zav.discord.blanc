@@ -44,11 +44,11 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Checks whether the interactive configuration message is returned.
  */
 @ExtendWith(MockitoExtension.class)
-public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<GuildEntity> {
-  @Captor ArgumentCaptor<List<Site.Page>> pages;
+public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
+  @Captor ArgumentCaptor<List<Site.Page>> captor;
   
   GuildCommandManager manager;
-  BlacklistConfigurationCommand command;
+  BlacklistInfoCommand command;
   
   /**
    * Initializes the command with no arguments.
@@ -56,13 +56,14 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    
+    when(event.getMember()).thenReturn(member);
+    when(event.getGuild()).thenReturn(guild);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = spy(new GuildCommandManager(client, event));
-    command = new BlacklistConfigurationCommand(event, manager);
+    command = new BlacklistInfoCommand(event, manager);
     
-    doNothing().when(manager).submit(pages.capture());
+    doNothing().when(manager).submit(captor.capture());
   }
   
   @Test
@@ -71,7 +72,7 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
     
     command.run();
   
-    assertThat(pages.getValue()).isEmpty();
+    assertThat(captor.getValue()).isEmpty();
   }
   
   /**
@@ -87,7 +88,7 @@ public class BlacklistConfigurationCommandTest extends AbstractDatabaseTest<Guil
     
     command.run();
   
-    assertThat(pages.getValue()).hasSize(1);
+    assertThat(captor.getValue()).hasSize(1);
   }
   
   /**

@@ -26,13 +26,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -45,12 +46,12 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Check whether subreddits can be added and removed from the Reddit feed.
  */
 @ExtendWith(MockitoExtension.class)
-public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
-  @Mock OptionMapping subreddit;
-  
+public class RedditRemoveCommandTest extends AbstractDatabaseTest<WebhookEntity> {
+  @Mock OptionMapping name;
+  @Mock OptionMapping index;
   GuildCommandManager manager;
   TextChannelEntity channelEntity;
-  RedditCommand command;
+  RedditRemoveCommand command;
   GuildEntity guildEntity;
   
   /**
@@ -61,35 +62,26 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     super.setUp(new WebhookEntity());
     guildEntity = new GuildEntity();
     channelEntity = new TextChannelEntity();
-
-    when(event.getOption(anyString())).thenReturn(subreddit);
-    when(event.reply(anyString())).thenReturn(reply);
-    when(subreddit.getAsString()).thenReturn("RedditDev");
     
     when(entityManager.find(eq(WebhookEntity.class), any())).thenReturn(entity);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(guildEntity);
     when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(channelEntity);
 
     manager = new GuildCommandManager(client, event);
-    command = new RedditCommand(event, manager);
+    command = new RedditRemoveCommand(event, manager);
   }
   
-  @Test
-  public void testAddSubreddit() throws Exception {
-    entity.setSubreddits(Lists.newArrayList());
-    
-    command.run();
-
-    // Has the database been updated?
-    assertEquals(entity.getSubreddits(), List.of("redditdev"));
-    assertNotNull(entity.getChannel());
-    assertNotNull(entity.getGuild());
-    // Has the Reddit job been updated?
-    verify(subredditObservable).addListener(anyString(), any(Webhook.class));
-  }
-  
-  @Test
-  public void testRemoveSubreddit() throws Exception {
+  /**
+   * Subreddits are case insensitive.
+   *
+   * @param subredditName A human-readable subreddit name.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = { "RedditDev", "redditDev", "ReDdItDeV", "redditdev" })
+  public void testRemoveSubredditByName(String subredditName) throws Exception {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn(subredditName);
     entity.setSubreddits(Lists.newArrayList("redditdev"));
     
     command.run();
@@ -99,12 +91,38 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     assertNotNull(entity.getChannel());
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
-    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
+    verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
   }
   
   @Test
-  public void testRemoveAndDeleteWebhook() throws Exception {
+  public void testRemoveSubredditByIndex() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(0L);
+    entity.setSubreddits(Lists.newArrayList("redditdev"));
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertNotNull(entity.getChannel());
+    assertNotNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
+  }
+  
+  /**
+   * Subreddits are case insensitive.
+   *
+   * @param subredditName A human-readable subreddit name.
+   */
+  @ParameterizedTest
+  @ValueSource(strings = { "RedditDev", "redditDev", "ReDdItDeV", "redditdev" })
+  public void testRemoveByNameAndDeleteWebhook(String subredditName) throws Exception {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
     when(webhook.delete()).thenReturn(delete);
+    when(name.getAsString()).thenReturn(subredditName);
     entity.setSubreddits(Lists.newArrayList("redditdev"));
     entity.setOwner(true);
     
@@ -121,7 +139,51 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
   }
   
   @Test
-  public void testRemoveAndKeepWebhook() throws Exception {
+  public void testRemoveByIndexAndDeleteWebhook() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(webhook.delete()).thenReturn(delete);
+    when(index.getAsLong()).thenReturn(0L);
+    entity.setSubreddits(Lists.newArrayList("redditdev"));
+    entity.setOwner(true);
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertNotNull(entity.getChannel());
+    assertNotNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
+    // Has the webhook been deleted
+    verify(delete).complete();
+  }
+  
+  @Test
+  public void testRemoveByNameAndKeepWebhook() throws Exception {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn("redditdev");
+    entity.setSubreddits(Lists.newArrayList("redditdev", "boiledgoulash"));
+    entity.setOwner(true);
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Lists.newArrayList("boiledgoulash"));
+    assertNotNull(entity.getChannel());
+    assertNotNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
+    // Does the webhook still exists?
+    verify(delete, times(0)).complete();
+  }
+  
+  @Test
+  public void testRemoveByIndexAndKeepWebhook() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(0L);
     entity.setSubreddits(Lists.newArrayList("redditdev", "boiledgoulash"));
     entity.setOwner(true);
     

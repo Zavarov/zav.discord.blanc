@@ -20,26 +20,22 @@ import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.runtime.internal.PageUtils;
 
 /**
  * This command allows to ban certain expressions in a guild. Every message that matches at least
  * one of those banned expressions is deleted automatically.
  */
-public class BlacklistConfigurationCommand extends AbstractGuildCommand {
+public class BlacklistInfoCommand extends AbstractGuildCommand {
   
   private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
@@ -53,7 +49,7 @@ public class BlacklistConfigurationCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   @Inject
-  public BlacklistConfigurationCommand(SlashCommandEvent event, GuildCommandManager manager) {
+  public BlacklistInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, MESSAGE_MANAGE);
     this.guild = event.getGuild();
     this.manager = manager;
@@ -65,25 +61,9 @@ public class BlacklistConfigurationCommand extends AbstractGuildCommand {
   public void run() {
     try (EntityManager entityManager = factory.createEntityManager()) {
       GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
-      List<Site.Page> pages = new ArrayList<>();
-      
-      String value = entity.getBlacklist()
-          .stream()
-          .reduce((u, v) -> u + StringUtils.LF + v)
-          .orElse(null);
-      
-      // Skip, if the guild doesn't contain any banned words
-      if (value != null) {
-        MessageEmbed content = new EmbedBuilder()
-              .setTitle("Forbidden Expressions")
-              .setDescription(MarkdownSanitizer.escape(value))
-              .build();
-        
-        Site.Page mainPage = Site.Page.create("Forbidden Expressions", List.of(content));
-        
-        pages.add(mainPage);
-      }
-      
+
+      List<Site.Page> pages = PageUtils.convert("Forbidden Expressions", entity.getBlacklist(), 10);
+
       manager.submit(pages);
     }
   }
