@@ -4,63 +4,98 @@
     "description" : "All moderator-level commands.",
     "options" : [ {
         "name" : "blacklist",
-        "description" : "Add or remove the regular expression to the list of banned words.",
-        "type" : 1,
-        "options" : [ {
-            "name" : "regex",
-            "description" : "Example: 'http(s)?://discord.gg/.*",
-            "type" : 3,
-            "required" : true
-        } ]
-    }, {
-        "name" : "config",
-        "description" : "List all guild-specific bot configurations.",
+        "description" : "Contains all commands related to blacklisted words and expressions.",
         "type" : 2,
         "options" : [ {
-            "name" : "blacklist",
-            "description" : "List all blacklisted words.",
+            "name" : "add",
+            "description" : "Add a regular expression to the list of blacklisted words.",
             "type" : 1,
-            "options" : [ ]
+            "options" : [ {
+                "name" : "regex",
+                "description" : "Example: 'http(s)?://discord.gg/.*",
+                "type" : 3,
+                "required" : true
+            } ]
         }, {
-            "name" : "reddit",
-            "description" : "List all registered Reddit feeds.",
+            "name" : "remove",
+            "description" : "Remove a regular expression to the list of blacklisted words.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "regex",
+                "description" : "Example: 'http(s)?://discord.gg/.*",
+                "type" : 3,
+                "required" : false
+            }, {
+                "name" : "index",
+                "description" : "The index of a blacklisted expression in the database. Starting from 0.\nExample: 1",
+                "type" : 4,
+                "required" : false
+            } ]
+        }, {
+            "name" : "info",
+            "description" : "List all blacklisted words.",
             "type" : 1,
             "options" : [ ]
         } ]
     }, {
         "name" : "reddit",
-        "description" : "Add or remove a subreddit feed.",
+        "description" : "Contains all commands related to subreddit feeds.",
         "type" : 2,
         "options" : [ {
-            "name" : "webhook",
-            "description" : "Add or remove a subreddit feed via webhooks.",
+            "name" : "add",
+            "description" : "Add a subreddit feed to the text channel.",
             "type" : 1,
             "options" : [ {
-                "name" : "subreddit",
-                "description" : "Example: RedditDev",
+                "name" : "regex",
+                "description" : "Example: 'http(s)?://discord.gg/.*",
                 "type" : 3,
                 "required" : true
+            } ]
+        }, {
+            "name" : "remove",
+            "description" : "Remove a subreddit feed from the current text channel.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "regex",
+                "description" : "RedditDev",
+                "type" : 3,
+                "required" : false
             }, {
-                "name" : "textchannel",
-                "description" : "Example: #Reddit. Defaults to the current channel",
-                "type" : 7,
+                "name" : "index",
+                "description" : "The index of a subreddit name in the database. Starting from 0.\nExample: 1",
+                "type" : 4,
                 "required" : false
             } ]
         }, {
-            "name" : "textchannel",
-            "description" : "Remove a textchannel-based subreddit feed.",
+            "name" : "info",
+            "description" : "List all registered Subreddit feeds of the current text channel.",
+            "type" : 1,
+            "options" : [ ]
+        } ]
+    }, {
+        "name" : "reddit_legacy",
+        "description" : "Contains all commands related to subreddit feeds.",
+        "type" : 2,
+        "options" : [ {
+            "name" : "remove",
+            "description" : "Remove a subreddit feed from the current text channel.",
             "type" : 1,
             "options" : [ {
-                "name" : "subreddit",
-                "description" : "Example: RedditDev",
+                "name" : "regex",
+                "description" : "RedditDev",
                 "type" : 3,
-                "required" : true
+                "required" : false
             }, {
-                "name" : "textchannel",
-                "description" : "Example: #Reddit. Defaults to the current channel",
-                "type" : 7,
+                "name" : "index",
+                "description" : "The index of a subreddit name in the database. Starting from 0.\nExample: 1",
+                "type" : 4,
                 "required" : false
             } ]
+        }, {
+            "name" : "info",
+            "description" : "List all registered Subreddit feeds of the current text channel.",
+            "type" : 1,
+            "options" : [ ]
         } ]
     } ]
 }

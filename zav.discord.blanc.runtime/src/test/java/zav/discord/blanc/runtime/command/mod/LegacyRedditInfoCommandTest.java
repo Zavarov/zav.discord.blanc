@@ -18,7 +18,6 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
@@ -36,7 +35,6 @@ import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 
 /**
@@ -44,13 +42,12 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * displayed.
  */
 @ExtendWith(MockitoExtension.class)
-public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @Captor ArgumentCaptor<List<Site.Page>> pages;
   
   TextChannelEntity channelEntity;
-  WebhookEntity webhookEntity;
   GuildCommandManager manager;
-  RedditConfigurationCommand command;
+  LegacyRedditInfoCommand command;
   
   /**
    * Initializes the command with no arguments. The database is initialized with one webhook and one
@@ -62,14 +59,10 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = spy(new GuildCommandManager(client, event));
-    command = new RedditConfigurationCommand(event, manager);
-    webhookEntity = new WebhookEntity();
-    webhookEntity.setSubreddits(Lists.newArrayList("RedditDev"));
+    command = new LegacyRedditInfoCommand(event, manager);
     channelEntity = new TextChannelEntity();
     channelEntity.setSubreddits(Lists.newArrayList("RedditDev", "BoatsOnWheels"));
-    channelEntity.add(webhookEntity);
     entity.add(channelEntity);
-    entity.add(webhookEntity);
     
     doNothing().when(manager).submit(pages.capture());
   }
@@ -77,7 +70,6 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
   @Test
   public void testShowEmptyPage() throws Exception {
     entity.setTextChannels(Lists.newArrayList());
-    entity.setWebhooks(Lists.newArrayList());
     
     command.run();
   
@@ -85,48 +77,9 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
   }
   
   @Test
-  public void testShowPageWithWebhooks() throws Exception {
-    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    when(channel.getAsMention()).thenReturn("@TextChannel");
-    entity.setTextChannels(Lists.newArrayList());
-    entity.setWebhooks(Lists.newArrayList(webhookEntity));
-    
-    command.run();
-  
-    assertThat(pages.getValue()).hasSize(1);
-  }
-  
-  @Test
-  public void testShowPageWithTextChannels() throws Exception {
-    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    when(channel.getAsMention()).thenReturn("@TextChannel");
+  public void testShowPage() throws Exception {
     entity.setTextChannels(Lists.newArrayList(channelEntity));
-    entity.setWebhooks(Lists.newArrayList());
-    
-    command.run();
-  
-    assertThat(pages.getValue()).hasSize(1);
-  }
-  
-  @Test
-  public void testShowPageWithUnknownTextChannel() throws Exception {
-    when(guild.getTextChannelById(anyLong())).thenReturn(null);
-    
-    entity.setTextChannels(Lists.newArrayList(channelEntity));
-    entity.setWebhooks(Lists.newArrayList(webhookEntity));
-    
-    command.run();
 
-    assertThat(pages.getValue()).isEmpty();
-  }
-  
-  @Test
-  public void testShowPageWithMultipleChannels() throws Exception {
-    when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    when(channel.getAsMention()).thenReturn("@TextChannel");
-    entity.setTextChannels(Lists.newArrayList(channelEntity));
-    entity.setWebhooks(Lists.newArrayList(webhookEntity));
-    
     command.run();
   
     assertThat(pages.getValue()).hasSize(1);
