@@ -1,5 +1,4 @@
-[
-  {
+[ {
     "default_permission" : true,
     "name" : "math",
     "options" : [ {
@@ -9,11 +8,9 @@
       "required" : true
     } ],
     "description" : "Resolve the given mathematical equation."
-  },
-  {
+  }, {
     "default_permission" : true,
     "name" : "support",
     "options" : [ ],
     "description" : "Returns a Discord invitation to the support server."
-  }
-]
+  } ]
