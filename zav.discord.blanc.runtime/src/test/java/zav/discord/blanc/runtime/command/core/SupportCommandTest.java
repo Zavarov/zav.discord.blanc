@@ -17,10 +17,8 @@
 package zav.discord.blanc.runtime.command.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.ResourceBundle;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +37,6 @@ import zav.discord.blanc.databind.Credentials;
 @ExtendWith(MockitoExtension.class)
 public class SupportCommandTest {
   static final String supportServer = "https://discord.gg/xxxxxxxxxx";
-  static final ResourceBundle bundle = ResourceBundle.getBundle("i18n");
   
   @Captor ArgumentCaptor<String> response;  
   @Mock Credentials credentials;
@@ -53,17 +50,16 @@ public class SupportCommandTest {
    */
   @BeforeEach
   public void setUp() {
-    when(manager.getResourceBundle()).thenReturn(bundle);
     when(credentials.getInviteSupportServer()).thenReturn(supportServer);
     command = new SupportCommand(event, manager, credentials);
   }
   
   @Test
   public void testSendSupportLink() {
-    when(event.replyFormat(anyString(), response.capture())).thenReturn(reply);
+    when(event.reply(response.capture())).thenReturn(reply);
     
     command.run();
     
-    assertThat(response.getValue()).isEqualTo(supportServer);
+    assertThat(response.getValue()).endsWith(supportServer);
   }
 }

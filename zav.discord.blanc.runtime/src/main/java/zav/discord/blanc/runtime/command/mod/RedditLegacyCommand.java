@@ -21,7 +21,6 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -47,7 +46,6 @@ public class RedditLegacyCommand extends AbstractGuildCommand {
   private final EntityManagerFactory factory;
   private final SubredditObservable reddit;
   private final SlashCommandEvent event;
-  private final ResourceBundle i18n;
   private final TextChannel target;
   private final String subreddit;
   private final Client client;
@@ -62,7 +60,6 @@ public class RedditLegacyCommand extends AbstractGuildCommand {
   @Inject
   public RedditLegacyCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, Permission.MANAGE_CHANNEL);
-    this.i18n = manager.getResourceBundle();
     this.client = manager.getClient();
     this.factory = client.getEntityManagerFactory();
     this.reddit = client.getSubredditObservable();
@@ -99,12 +96,12 @@ public class RedditLegacyCommand extends AbstractGuildCommand {
         entityManager.merge(channelEntity);
         entityManager.getTransaction().commit();
     
-        response = i18n.getString("remove_subreddit");
+        response = getMessage("remove_subreddit", subreddit, target.getAsMention());
       } else {
-        response = i18n.getString("add_subreddit_deprecated");
+        response = getMessage("add_subreddit_deprecated", subreddit, target.getAsMention());
       }
       
-      event.replyFormat(response, subreddit, target.getAsMention()).complete();
+      event.reply(response).complete();
     }
   }
 }

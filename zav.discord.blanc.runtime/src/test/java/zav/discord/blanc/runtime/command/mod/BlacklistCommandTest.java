@@ -65,7 +65,7 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
     when(event.getMember()).thenReturn(member);
     when(event.getGuild()).thenReturn(guild);
     when(event.getOption(anyString())).thenReturn(regex);
-    when(event.replyFormat(anyString(), anyString())).thenReturn(action);
+    when(event.reply(anyString())).thenReturn(action);
     when(regex.getAsString()).thenReturn("foo");
     when(client.getPatternCache()).thenReturn(cache);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);

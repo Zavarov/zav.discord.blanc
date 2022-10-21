@@ -22,7 +22,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -40,7 +39,6 @@ import zav.discord.blanc.databind.GuildEntity;
 public class BlacklistCommand extends AbstractGuildCommand {
   private final EntityManagerFactory factory;
   private final SlashCommandEvent event;
-  private final ResourceBundle i18n;
   private final PatternCache cache;
   private final Client client;
   private final Guild guild;
@@ -58,7 +56,6 @@ public class BlacklistCommand extends AbstractGuildCommand {
     this.event = event;
     this.guild = event.getGuild();
     this.regex = Objects.requireNonNull(event.getOption("regex")).getAsString();
-    this.i18n = manager.getResourceBundle();
     this.client = manager.getClient();
     this.cache = client.getPatternCache();
     this.factory = client.getEntityManagerFactory();
@@ -73,10 +70,10 @@ public class BlacklistCommand extends AbstractGuildCommand {
       
       if (entity.getBlacklist().contains(regex)) {
         entity.getBlacklist().remove(regex);
-        response = i18n.getString("remove_blacklist");
+        response = getMessage("remove_blacklist", MarkdownSanitizer.escape(regex));
       } else {
         entity.getBlacklist().add(regex);
-        response = i18n.getString("add_blacklist");
+        response = getMessage("add_blacklist", MarkdownSanitizer.escape(regex));
       }
       
       entityManager.getTransaction().begin();
@@ -84,7 +81,7 @@ public class BlacklistCommand extends AbstractGuildCommand {
       entityManager.getTransaction().commit();
       
       cache.invalidate(guild);
-      event.replyFormat(response, MarkdownSanitizer.escape(regex)).complete();
+      event.reply(response).complete();
     }
   }
 }

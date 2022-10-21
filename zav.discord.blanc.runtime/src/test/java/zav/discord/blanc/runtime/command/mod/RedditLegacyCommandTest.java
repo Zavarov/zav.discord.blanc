@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -80,7 +79,7 @@ public class RedditLegacyCommandTest extends AbstractDatabaseTest<TextChannelEnt
     when(event.getMember()).thenReturn(member);
     when(event.getTextChannel()).thenReturn(channel);
     when(event.getOption(anyString())).thenReturn(subreddit);
-    when(event.replyFormat(anyString(), anyString(), nullable(String.class))).thenReturn(reply);
+    when(event.reply(anyString())).thenReturn(reply);
     when(subreddit.getAsString()).thenReturn("RedditDev");
     
     when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(entity);

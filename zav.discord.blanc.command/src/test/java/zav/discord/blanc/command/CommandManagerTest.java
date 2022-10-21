@@ -1,7 +1,6 @@
 package zav.discord.blanc.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mockConstruction;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -39,11 +38,6 @@ public class CommandManagerTest {
   public void testValidate() throws InsufficientRankException {
     // RankValidator has been mocked, hence the call should proceed without any error
     manager.validate(Rank.ROOT);
-  }
-  
-  @Test
-  public void testGetResourceBundle() {
-    assertNotNull(manager.getResourceBundle());
   }
   
   @Test
