@@ -25,20 +25,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -53,14 +45,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEntity> {
-  @Captor ArgumentCaptor<List<Site.Page>> captor;
-  @Mock InteractionHook hook;
-  @Mock RestAction<Message> action;
-  @Mock Message message;
-  @Mock Member member;
-  @Mock Guild guild;
-  @Mock TextChannel channel;
-  @Mock SlashCommandEvent event;
+  @Captor ArgumentCaptor<List<Site.Page>> pages;
   
   TextChannelEntity channelEntity;
   WebhookEntity webhookEntity;
@@ -74,8 +59,6 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    when(event.getMember()).thenReturn(member);
-    when(event.getGuild()).thenReturn(guild);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = spy(new GuildCommandManager(client, event));
@@ -88,7 +71,7 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     entity.add(channelEntity);
     entity.add(webhookEntity);
     
-    doNothing().when(manager).submit(captor.capture());
+    doNothing().when(manager).submit(pages.capture());
   }
   
   @Test
@@ -98,7 +81,7 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     
     command.run();
   
-    assertThat(captor.getValue()).isEmpty();
+    assertThat(pages.getValue()).isEmpty();
   }
   
   @Test
@@ -110,7 +93,7 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     
     command.run();
   
-    assertThat(captor.getValue()).hasSize(1);
+    assertThat(pages.getValue()).hasSize(1);
   }
   
   @Test
@@ -122,17 +105,19 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     
     command.run();
   
-    assertThat(captor.getValue()).hasSize(1);
+    assertThat(pages.getValue()).hasSize(1);
   }
   
   @Test
   public void testShowPageWithUnknownTextChannel() throws Exception {
+    when(guild.getTextChannelById(anyLong())).thenReturn(null);
+    
     entity.setTextChannels(Lists.newArrayList(channelEntity));
     entity.setWebhooks(Lists.newArrayList(webhookEntity));
     
     command.run();
 
-    assertThat(captor.getValue()).isEmpty();
+    assertThat(pages.getValue()).isEmpty();
   }
   
   @Test
@@ -144,6 +129,6 @@ public class RedditConfigurationCommandTest extends AbstractDatabaseTest<GuildEn
     
     command.run();
   
-    assertThat(captor.getValue()).hasSize(1);
+    assertThat(pages.getValue()).hasSize(1);
   }
 }

@@ -19,27 +19,20 @@ package zav.discord.blanc.runtime.command.dev;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Check whether the bot status is properly displayed.
  */
 @ExtendWith(MockitoExtension.class)
-public class StatusCommandTest {
+public class StatusCommandTest extends AbstractTest {
 
-  @Mock CommandManager manager;
-  @Mock SlashCommandEvent event;
-  @Mock ReplyAction reply;
   StatusCommand command;
   
   @BeforeEach
@@ -49,8 +42,6 @@ public class StatusCommandTest {
   
   @Test
   public void testSendStatus() {
-    when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-    
     command.run();
     
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));

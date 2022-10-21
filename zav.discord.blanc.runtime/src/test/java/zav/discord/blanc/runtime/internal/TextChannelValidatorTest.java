@@ -5,23 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * This test case checks whether invalid text channels are detected properly.
  */
 @SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
-public class TextChannelValidatorTest {
-  @Mock Guild guild;
-  @Mock TextChannel channel;
+public class TextChannelValidatorTest extends AbstractTest {
   TextChannelEntity entity;
   TextChannelValidator validator;
   
@@ -33,6 +29,7 @@ public class TextChannelValidatorTest {
   
   @Test
   public void testUnknownChannel() {
+    when(guild.getTextChannelById(anyLong())).thenReturn(null);
     assertTrue(validator.test(entity));
   }
   

@@ -26,17 +26,12 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.PatternCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
@@ -47,12 +42,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 @ExtendWith(MockitoExtension.class)
 public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
 
-  @Mock SlashCommandEvent event;
-  @Mock Guild guild;
-  @Mock Member member;
   @Mock OptionMapping regex;
-  @Mock PatternCache cache;
-  @Mock ReplyAction action;
   GuildCommandManager manager;
   BlacklistCommand command;
   
@@ -62,13 +52,10 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    when(event.getMember()).thenReturn(member);
-    when(event.getGuild()).thenReturn(guild);
-    when(event.getOption(anyString())).thenReturn(regex);
-    when(event.reply(anyString())).thenReturn(action);
-    when(regex.getAsString()).thenReturn("foo");
-    when(client.getPatternCache()).thenReturn(cache);
+    
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
+    when(event.getOption(anyString())).thenReturn(regex);
+    when(regex.getAsString()).thenReturn("foo");
     
     manager = new GuildCommandManager(client, event);
     command = new BlacklistCommand(event, manager);
@@ -84,7 +71,7 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
     command.run();
     
     assertEquals(entity.getBlacklist(), List.of("foo"));
-    verify(cache).invalidate(guild);
+    verify(patternCache).invalidate(guild);
   }
   
   /**
@@ -97,6 +84,6 @@ public class BlacklistCommandTest extends AbstractDatabaseTest<GuildEntity> {
     command.run();
     
     assertEquals(entity.getBlacklist(), Collections.emptyList());
-    verify(cache).invalidate(guild);
+    verify(patternCache).invalidate(guild);
   }
 }

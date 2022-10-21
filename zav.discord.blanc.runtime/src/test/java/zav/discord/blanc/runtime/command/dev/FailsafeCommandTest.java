@@ -18,20 +18,14 @@ package zav.discord.blanc.runtime.command.dev;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Rank;
@@ -44,9 +38,6 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 @ExtendWith(MockitoExtension.class)
 public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
   
-  @Mock SlashCommandEvent event;
-  @Mock ReplyAction reply;
-  @Mock User user;
   CommandManager manager;
   FailsafeCommand command;
   
@@ -56,8 +47,6 @@ public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
   @BeforeEach
   public void setUp() {
     setUp(new UserEntity());
-    when(event.getUser()).thenReturn(user);
-    when(event.replyFormat(anyString(), nullable(String.class))).thenReturn(reply);
     when(entityManager.find(eq(UserEntity.class), any())).thenReturn(entity);
     
     manager = new CommandManager(client, event);

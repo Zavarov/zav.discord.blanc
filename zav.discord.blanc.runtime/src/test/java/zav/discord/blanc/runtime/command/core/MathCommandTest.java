@@ -20,30 +20,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.util.JexlParser;
-import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether the correct answer is returned for a given arithmetic expression.
  */
 @ExtendWith(MockitoExtension.class)
-public class MathCommandTest {
+public class MathCommandTest extends AbstractTest {
   
-  @Captor ArgumentCaptor<String> response;
-  @Mock CommandManager manager;
-  @Mock SlashCommandEvent event;
   @Mock OptionMapping value;
-  @Mock ReplyAction reply;
   JexlParser parser;
   MathCommand command;
   
