@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -82,6 +83,14 @@ public class AbstractGuildCommandTest {
     // Not enough ranks & ranks are validated before permissions
     doThrow(InsufficientRankException.class).when(manager).validate(any(Rank.class));
     assertThrows(InsufficientRankException.class, () -> command.validate());
+  }
+  
+  /**
+   * Use Case: Language specific messages should be read from the local properties file.
+   */
+  @Test
+  public void testGetMessage() {
+    assertEquals(command.getMessage("foo"), "bar");
   }
   
   private static final class GuildCommand extends AbstractGuildCommand {

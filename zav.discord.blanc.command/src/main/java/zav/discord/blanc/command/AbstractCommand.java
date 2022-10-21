@@ -18,6 +18,7 @@ package zav.discord.blanc.command;
 
 import static zav.discord.blanc.databind.Rank.USER;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
@@ -32,6 +33,7 @@ import zav.discord.blanc.databind.Rank;
 public abstract class AbstractCommand implements Command {
   private final Rank requiredRank;
   private final CommandManager manager;
+  private final ResourceBundle i18n;
   
   /**
    * Creates a new instance of this class.
@@ -42,6 +44,7 @@ public abstract class AbstractCommand implements Command {
   protected AbstractCommand(Rank requiredRank, CommandManager manager) {
     this.requiredRank = requiredRank;
     this.manager = manager;
+    this.i18n = ResourceBundle.getBundle("i18n");
   }
   
   /**
@@ -58,5 +61,19 @@ public abstract class AbstractCommand implements Command {
   public void validate() throws ExecutionException {
     // Does the user have the required rank?
     manager.validate(requiredRank);
+  }
+  
+  /**
+   * Returns the internationalized message with the given key.
+   * The messages are stored in a file with name {@code i18n_XX.properties} in the local class path,
+   * with {@code XX} being the country code (e.g en, ru, ...).
+   *
+   * @param key The id of the i18n message.
+   * @param args Additional arguments which may be injected into the message.
+   * @return An internationalized string.
+   * @see String#format(String, Object...)
+   */
+  protected String getMessage(String key, Object... args) {
+    return String.format(i18n.getString(key), args);
   }
 }

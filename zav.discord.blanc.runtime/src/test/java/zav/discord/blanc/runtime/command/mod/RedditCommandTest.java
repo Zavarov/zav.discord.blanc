@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,7 +85,7 @@ public class RedditCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     when(event.getMember()).thenReturn(member);
     when(event.getTextChannel()).thenReturn(channel);
     when(event.getOption(anyString())).thenReturn(subreddit);
-    when(event.replyFormat(anyString(), anyString(), nullable(String.class))).thenReturn(reply);
+    when(event.reply(anyString())).thenReturn(reply);
     when(subreddit.getAsString()).thenReturn("RedditDev");
     
     when(channel.retrieveWebhooks()).thenReturn(retrieveWebhooks);

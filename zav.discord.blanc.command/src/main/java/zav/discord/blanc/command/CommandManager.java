@@ -16,9 +16,7 @@
 
 package zav.discord.blanc.command;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
-import java.util.ResourceBundle;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Client;
@@ -41,7 +39,6 @@ public class CommandManager {
    */
   protected final SlashCommandEvent event;
   private final RankValidator validator;
-  private final ResourceBundle resourceBundle;
   
   /**
    * Creates a new manager instance. A new instance is created for each command.
@@ -53,7 +50,6 @@ public class CommandManager {
     this.client = client;
     this.event = event;
     this.validator = new RankValidator(client.getEntityManagerFactory(), event.getUser());
-    this.resourceBundle = ResourceBundle.getBundle("i18n");
   }
   
   /**
@@ -64,16 +60,6 @@ public class CommandManager {
    */
   public void validate(Rank rank) throws InsufficientRankException {
     validator.validate(List.of(rank));
-  }
-  
-  /**
-   * Returns the resource bundle containing locale-specific strings.
-   *
-   * @return As described.
-   */
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public ResourceBundle getResourceBundle() {
-    return resourceBundle;
   }
   
   /**

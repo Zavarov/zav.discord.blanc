@@ -22,7 +22,6 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -46,7 +45,6 @@ import zav.discord.blanc.reddit.SubredditObservable;
  */
 public class RedditCommand extends AbstractGuildCommand {
   private static final String WEBHOOK = "Reddit";
-  private final ResourceBundle i18n;
   private final Client client;
   private final EntityManagerFactory factory;
   private final SubredditObservable reddit;
@@ -70,7 +68,6 @@ public class RedditCommand extends AbstractGuildCommand {
     this.client = manager.getClient();
     this.reddit = client.getSubredditObservable();
     this.factory = client.getEntityManagerFactory();
-    this.i18n = manager.getResourceBundle();
 
     this.subreddit = Objects.requireNonNull(event.getOption("subreddit"))
         .getAsString()
@@ -110,7 +107,7 @@ public class RedditCommand extends AbstractGuildCommand {
           webhook.delete().complete();
         }
     
-        response = i18n.getString("remove_subreddit");
+        response = getMessage("remove_subreddit", subreddit, target.getAsMention());
       } else {
         // Add subreddit to the database
         webhookEntity.getSubreddits().add(subreddit);
@@ -119,7 +116,7 @@ public class RedditCommand extends AbstractGuildCommand {
         reddit.addListener(subreddit, webhook);
 
         // Webhook has already been created, so we don't need to do it here
-        response = i18n.getString("add_subreddit");
+        response = getMessage("add_subreddit", subreddit, target.getAsMention());
       }
       
       // Update bi-directional associations
@@ -134,7 +131,7 @@ public class RedditCommand extends AbstractGuildCommand {
       entityManager.merge(webhookEntity);
       entityManager.getTransaction().commit();
       
-      event.replyFormat(response, subreddit, target.getAsMention()).complete();
+      event.reply(response).complete();
     }
   }
 }

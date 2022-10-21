@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import java.util.ResourceBundle;
 import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractCommand;
@@ -28,7 +27,6 @@ import zav.discord.blanc.databind.Credentials;
  */
 public class SupportCommand extends AbstractCommand {
   
-  private final ResourceBundle i18n;
   private final SlashCommandEvent event;
   private final String link;
   
@@ -44,11 +42,10 @@ public class SupportCommand extends AbstractCommand {
     super(manager);
     this.event = event;
     this.link = credentials.getInviteSupportServer();
-    this.i18n = manager.getResourceBundle();
   }
   
   @Override
   public void run() {
-    event.replyFormat(i18n.getString("server_invitation"), link).complete();
+    event.reply(getMessage("server_invitation", link)).complete();
   }
 }
