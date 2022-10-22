@@ -18,7 +18,6 @@ package zav.discord.blanc.runtime.command.mod;
 
 import java.util.Collections;
 import java.util.List;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
@@ -35,7 +34,6 @@ public class LegacyRedditInfoCommand extends AbstractRedditInfoCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public LegacyRedditInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
   }

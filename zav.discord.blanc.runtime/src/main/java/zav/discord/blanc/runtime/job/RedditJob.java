@@ -18,8 +18,6 @@ package zav.discord.blanc.runtime.job;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManagerFactory;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -34,7 +32,6 @@ import zav.discord.blanc.reddit.WebhookInitializer;
 /**
  * Executable class for updating all registered Subreddit feeds.
  */
-@Singleton
 @NonNullByDefault
 @SuppressWarnings("deprecation")
 public class RedditJob implements Runnable {
@@ -46,7 +43,6 @@ public class RedditJob implements Runnable {
    *
    * @param client The application client over all shards.
    */
-  @Inject
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public RedditJob(Client client) {
     EntityManagerFactory factory = client.getEntityManagerFactory();

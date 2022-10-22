@@ -18,8 +18,6 @@ package zav.discord.blanc.runtime.job;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
@@ -34,7 +32,6 @@ import zav.discord.blanc.runtime.internal.WebhookValidator;
  * handled. For example when the text channel no longer exists or can't be accessed by the bot
  * anymore.
  */
-@Singleton
 @SuppressWarnings("deprecation")
 public class CleanupJob implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(CleanupJob.class);
@@ -46,7 +43,6 @@ public class CleanupJob implements Runnable {
    *
    * @param client The global application instance.
    */
-  @Inject
   public CleanupJob(Client client) {
     this.client = client;
     this.factory = client.getEntityManagerFactory();

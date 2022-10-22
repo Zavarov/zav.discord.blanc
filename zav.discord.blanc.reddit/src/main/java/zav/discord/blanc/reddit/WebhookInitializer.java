@@ -19,8 +19,6 @@ package zav.discord.blanc.reddit;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -35,7 +33,6 @@ import zav.discord.blanc.databind.WebhookEntity;
  * Utility class for initializing all subreddit feeds that have been mapped to a
  * {@link Webhook}.
  */
-@Singleton
 @NonNullByDefault
 public class WebhookInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebhookInitializer.class);
@@ -49,7 +46,6 @@ public class WebhookInitializer {
    * @param factory The JPA persistence manager.
    * @param observable The global subreddit observable.
    */
-  @Inject
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public WebhookInitializer(EntityManagerFactory factory, SubredditObservable observable) {
     this.factory = factory;

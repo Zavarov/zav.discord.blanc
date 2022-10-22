@@ -108,33 +108,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>5.1.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.inject</groupId>
-                        <artifactId>javax.inject</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>jsr305</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.checkerframework</groupId>
-                        <artifactId>checker-qual</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.errorprone</groupId>
-                        <artifactId>error_prone_annotations</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.j2objc</groupId>
-                        <artifactId>j2objc-annotations</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>4.10.0</version>
@@ -153,11 +126,6 @@
                 <groupId>club.minnced</groupId>
                 <artifactId>opus-java-natives</artifactId>
                 <version>1.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.inject</groupId>
-                <artifactId>jakarta.inject-api</artifactId>
-                <version>1.0.5</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.persistence</groupId>
@@ -183,13 +151,6 @@
                 <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>6.1.4.Final</version>
-                <!-- Can be deleted once Guice supports jakarta.inject.Inject -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>jakarta.inject</groupId>
-                        <artifactId>jakarta.inject-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- JPA -->
             <dependency>
@@ -276,12 +237,12 @@
             <dependency>
                 <groupId>zav.jrc</groupId>
                 <artifactId>jrc-listener</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.0</version>
             </dependency>
             <dependency>
                 <groupId>zav.jrc</groupId>
                 <artifactId>jrc-endpoint-subreddit</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.0</version>
             </dependency>
             
             <!-- Test Dependencies -->

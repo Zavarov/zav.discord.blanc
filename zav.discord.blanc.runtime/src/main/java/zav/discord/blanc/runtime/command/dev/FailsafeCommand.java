@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.security.SecureRandom;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
@@ -90,7 +89,6 @@ public class FailsafeCommand extends AbstractCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public FailsafeCommand(SlashCommandEvent event, CommandManager manager) {
     super(Rank.DEVELOPER, manager);
     this.author = event.getUser();

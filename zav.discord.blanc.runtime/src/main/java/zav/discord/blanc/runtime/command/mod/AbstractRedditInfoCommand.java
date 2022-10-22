@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -36,7 +35,6 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public AbstractRedditInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, MESSAGE_MANAGE);
     this.guild = event.getGuild();

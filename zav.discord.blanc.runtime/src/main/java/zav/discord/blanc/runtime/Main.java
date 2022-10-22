@@ -16,15 +16,14 @@
 
 package zav.discord.blanc.runtime;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
@@ -35,23 +34,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.CommandParser;
+import zav.discord.blanc.api.CommandProvider;
 import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
 import zav.discord.blanc.api.listener.TextChannelListener;
+import zav.discord.blanc.command.SimpleCommandParser;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.runtime.internal.BlancModule;
 import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.JsonUtils;
+import zav.discord.blanc.runtime.internal.SimpleCommandProvider;
 import zav.discord.blanc.runtime.job.CleanupJob;
 import zav.discord.blanc.runtime.job.PresenceJob;
 import zav.discord.blanc.runtime.job.RedditJob;
 import zav.jrc.client.Duration;
 import zav.jrc.client.FailedRequestException;
 import zav.jrc.client.UserlessClient;
-import zav.jrc.client.guice.UserlessClientModule;
+import zav.jrc.databind.io.CredentialsEntity;
+import zav.jrc.databind.io.UserAgentEntity;
 
 /**
  * Entry point for the application.
@@ -62,43 +64,38 @@ public class Main {
     System.setProperty("org.jboss.logging.provider", "slf4j");
   }
   
+  private static final String DISCORD_CREDENTIALS = "DiscordUser.json";
+  private static final File REDDIT_CREDENTIALS = new File("RedditUser.json");
+  private static final File USER_AGENT = new File("UserAgent.json");
+  
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
   private final List<CommandData> commands = CommandResolver.getCommands();
   private final List<Object> listeners = new ArrayList<>();
-  private final Credentials credentials;
-  private final Injector guice;
-  private final Client client;
 
   @SuppressFBWarnings(value = "BAD_PRACTICE")
-  private Main(Credentials credentials) throws Exception {
-    this.credentials = credentials;
-    this.guice = loadGuice();
-    this.client = loadDiscordClient();
-    this.loadRedditClient();
-    this.loadDatabase();
+  private Main() throws Exception {
+    Credentials credentials = JsonUtils.read(DISCORD_CREDENTIALS, Credentials.class);
+    UserlessClient reddit = loadRedditClient();
+    Client client = loadDiscordClient(reddit, credentials);
+    loadDatabase(client, credentials);
     LOGGER.info("All Done~");
   }
   
-  private Injector loadGuice() {
-    LOGGER.info("Loading Guice");
-    List<Module> modules = new ArrayList<>();
-    modules.add(new BlancModule(credentials));
-    modules.add(new UserlessClientModule());
-    return Guice.createInjector(modules);
-  }
-  
-  private UserlessClient loadRedditClient() throws FailedRequestException {
+  private UserlessClient loadRedditClient() throws FailedRequestException, IOException {
     LOGGER.info("Loading Reddit Client");
-    UserlessClient reddit = guice.getInstance(UserlessClient.class);
+    UserAgentEntity userAgent = UserAgentEntity.read(USER_AGENT);
+    CredentialsEntity credentials = CredentialsEntity.read(REDDIT_CREDENTIALS);
+    UserlessClient reddit = new UserlessClient(userAgent, credentials);
     reddit.login(Duration.TEMPORARY);
     return reddit;
   }
   
-  private Client loadDiscordClient() throws IOException {
+  private Client loadDiscordClient(UserlessClient reddit, Credentials credentials) throws IOException {
     LOGGER.info("Loading Discord Client");
-    ScheduledExecutorService pool = guice.getInstance(ScheduledExecutorService.class);
-    CommandParser parser = guice.getInstance(CommandParser.class);
-    Client client = guice.getInstance(Client.class);
+    ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
+    CommandProvider provider = new SimpleCommandProvider();
+    Client client = new Client(credentials, reddit);
+    CommandParser parser = new SimpleCommandParser(client, provider);
     
     EntityManagerFactory factory = client.getEntityManagerFactory();
     listeners.add(new SlashCommandListener(pool, parser));
@@ -144,7 +141,7 @@ public class Main {
   }
   
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-  private void loadDatabase() {
+  private void loadDatabase(Client client, Credentials credentials) {
     LOGGER.info("Loading Database");
     EntityManagerFactory factory = client.getEntityManagerFactory();
     User owner = client.getShards().get(0).retrieveUserById(credentials.getOwner()).complete();
@@ -170,7 +167,6 @@ public class Main {
    */
   @SuppressFBWarnings(value = "BAD_PRACTICE")
   public static void main(String[] args) throws Exception {    
-    Credentials credentials = JsonUtils.read("Credentials.json", Credentials.class);
-    new Main(credentials);
+    new Main();
   }
 }

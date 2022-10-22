@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -55,7 +54,6 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public LegacyRedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, Permission.MANAGE_CHANNEL);
     this.event = event;

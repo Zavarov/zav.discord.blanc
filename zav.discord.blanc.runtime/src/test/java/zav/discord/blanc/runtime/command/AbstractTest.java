@@ -75,6 +75,7 @@ public class AbstractTest {
     lenient().when(client.getEntityManagerFactory()).thenReturn(entityManagerFactory);
     lenient().when(client.getEventQueue()).thenReturn(queue);
     lenient().when(client.getPatternCache()).thenReturn(patternCache);
+    lenient().when(client.getCredentials()).thenReturn(credentials);
     
     lenient().when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
     lenient().when(entityManager.getTransaction()).thenReturn(entityTransaction);
@@ -90,6 +91,7 @@ public class AbstractTest {
     lenient().when(channel.createWebhook(anyString())).thenReturn(createWebhook);
     lenient().when(createWebhook.complete()).thenReturn(webhook);
     lenient().when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
+    lenient().when(manager.getClient()).thenReturn(client);
 
     lenient().when(event.getMember()).thenReturn(member);
     lenient().when(event.getGuild()).thenReturn(guild);

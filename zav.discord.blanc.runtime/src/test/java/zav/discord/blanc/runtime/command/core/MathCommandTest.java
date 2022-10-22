@@ -48,7 +48,7 @@ public class MathCommandTest extends AbstractTest {
     when(value.getAsString()).thenReturn("12345");
     
     parser = new JexlParser();
-    command = new MathCommand(event, manager, parser);
+    command = new MathCommand(event, manager);
   }
   
   @Test

@@ -21,7 +21,6 @@ import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
@@ -48,7 +47,6 @@ public class BlacklistInfoCommand extends AbstractGuildCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public BlacklistInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, MESSAGE_MANAGE);
     this.guild = event.getGuild();
