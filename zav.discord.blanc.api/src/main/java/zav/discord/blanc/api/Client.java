@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.JDA;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.util.PatternCache;
+import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.api.util.SiteCache;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.reddit.SubredditObservable;

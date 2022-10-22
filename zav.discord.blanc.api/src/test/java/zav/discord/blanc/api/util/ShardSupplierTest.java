@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.util;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.ALL_INTENTS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.getIntents;
@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.databind.Credentials;
 
 /**
