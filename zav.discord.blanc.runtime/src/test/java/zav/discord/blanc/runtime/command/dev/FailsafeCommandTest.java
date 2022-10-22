@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
   
   @Test
   public void testBecomeRoot() throws Exception {
-    entity.setRanks(Lists.newArrayList(Rank.DEVELOPER));
+    entity.setRanks(new ArrayList<>(List.of(Rank.DEVELOPER)));
     
     command.run();
     
@@ -65,7 +65,7 @@ public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
   
   @Test
   public void testBecomeDeveloper() throws Exception {
-    entity.setRanks(Lists.newArrayList(Rank.ROOT));
+    entity.setRanks(new ArrayList<>(List.of(Rank.ROOT)));
     
     command.run();
     

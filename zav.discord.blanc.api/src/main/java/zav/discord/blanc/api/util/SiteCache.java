@@ -16,8 +16,8 @@
 
 package zav.discord.blanc.api.util;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
 import java.util.Optional;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,7 +40,7 @@ public class SiteCache {
    * Creates a new instance. The instance is managed by the {@link Client} class.
    */
   public SiteCache() {
-    cache = CacheBuilder.newBuilder()
+    cache = Caffeine.newBuilder()
           .expireAfterAccess(Duration.ofHours(1))
           .maximumSize(MAX_CACHE_SIZE)
           .build();

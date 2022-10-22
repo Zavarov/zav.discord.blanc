@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +65,7 @@ public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @Test
   public void testAddExpression() throws Exception {
-    entity.setBlacklist(Lists.newArrayList());
+    entity.setBlacklist(new ArrayList<>());
     
     command.run();
     
@@ -78,7 +78,7 @@ public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @Test
   public void testAlreadyAddedExpression() throws Exception {
-    entity.setBlacklist(Lists.newArrayList("foo"));
+    entity.setBlacklist(new ArrayList<>(List.of("foo")));
     
     command.run();
     
