@@ -19,6 +19,13 @@ package zav.discord.blanc.runtime.internal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.utils.data.DataArray;
+import net.dv8tion.jda.api.utils.data.DataObject;
 
 /**
  * Utility class for reading entities from disk and transforming them into Java objects.
@@ -41,5 +48,31 @@ public final class JsonUtils {
     ObjectMapper om = new ObjectMapper();
     File file = new File(fileName);
     return om.readValue(file, clazz);
+  }
+  
+  /**
+   * Deserializes all available commands from disk.
+   *
+   * @return A list of all commands supported by the bot.
+   */
+  public static List<CommandData> getCommands() {
+    ClassLoader cl = JsonUtils.class.getClassLoader();
+    
+    // Core Commands
+    InputStream is = cl.getResourceAsStream("Commands.json");
+    Objects.requireNonNull(is);
+    List<CommandData> result = new ArrayList<>(CommandData.fromList(DataArray.fromJson(is)));
+    
+    // Developer Commands
+    is = cl.getResourceAsStream("DeveloperCommands.json");
+    Objects.requireNonNull(is);
+    result.add(CommandData.fromData(DataObject.fromJson(is)));
+    
+    // Mod Commands
+    is = cl.getResourceAsStream("ModCommands.json");
+    Objects.requireNonNull(is);
+    result.add(CommandData.fromData(DataObject.fromJson(is)));
+    
+    return result;
   }
 }

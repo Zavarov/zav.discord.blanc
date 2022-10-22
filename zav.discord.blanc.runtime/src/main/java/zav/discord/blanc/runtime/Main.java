@@ -43,7 +43,6 @@ import zav.discord.blanc.api.util.SimpleCommandParser;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.runtime.internal.CommandResolver;
 import zav.discord.blanc.runtime.internal.JsonUtils;
 import zav.discord.blanc.runtime.internal.SimpleCommandProvider;
 import zav.discord.blanc.runtime.job.CleanupJob;
@@ -69,7 +68,7 @@ public class Main {
   private static final File USER_AGENT = new File("UserAgent.json");
   
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-  private final List<CommandData> commands = CommandResolver.getCommands();
+  private final List<CommandData> commands = JsonUtils.getCommands();
   private final List<Object> listeners = new ArrayList<>();
 
   @SuppressFBWarnings(value = "BAD_PRACTICE")
