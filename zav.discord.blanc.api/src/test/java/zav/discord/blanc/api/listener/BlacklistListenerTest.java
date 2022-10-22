@@ -44,7 +44,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.PatternCache;
+import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.databind.GuildEntity;
 
 /**

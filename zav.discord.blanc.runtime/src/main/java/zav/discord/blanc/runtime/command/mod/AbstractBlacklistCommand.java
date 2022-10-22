@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import zav.discord.blanc.api.Client;
-import zav.discord.blanc.api.PatternCache;
+import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;

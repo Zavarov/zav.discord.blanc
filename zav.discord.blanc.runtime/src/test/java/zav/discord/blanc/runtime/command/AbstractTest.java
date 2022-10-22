@@ -30,7 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import zav.discord.blanc.api.Client;
-import zav.discord.blanc.api.PatternCache;
+import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.reddit.SubredditObservable;

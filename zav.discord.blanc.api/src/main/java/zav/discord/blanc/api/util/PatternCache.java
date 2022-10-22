@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.util;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Guild;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.GuildEntity;
 
 /**
@@ -46,7 +47,7 @@ public class PatternCache {
    *
    * @param factory The persistence manager.
    */
-  /*package*/ PatternCache(EntityManagerFactory factory) {
+  public PatternCache(EntityManagerFactory factory) {
     this.factory = factory;
     this.cache = CacheBuilder.newBuilder()
           .expireAfterAccess(Duration.ofHours(1))
