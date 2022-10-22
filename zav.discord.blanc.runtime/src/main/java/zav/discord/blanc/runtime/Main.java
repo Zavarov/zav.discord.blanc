@@ -39,7 +39,7 @@ import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
 import zav.discord.blanc.api.listener.TextChannelListener;
-import zav.discord.blanc.command.SimpleCommandParser;
+import zav.discord.blanc.api.util.SimpleCommandParser;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.databind.UserEntity;
