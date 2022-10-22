@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Contract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Site;
-import zav.discord.blanc.api.SiteCache;
+import zav.discord.blanc.api.util.SiteCache;
 
 /**
  * The listener for notifying the message components of a command whenever the author interacts with

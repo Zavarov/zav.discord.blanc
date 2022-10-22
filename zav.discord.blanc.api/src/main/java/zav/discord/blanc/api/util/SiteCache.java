@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api;
+package zav.discord.blanc.api.util;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -23,6 +23,8 @@ import java.util.Optional;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Site;
 
 /**
  * A cache for keeping track of all interactive messages. The user can use buttons and menus to
@@ -37,7 +39,7 @@ public class SiteCache {
   /**
    * Creates a new instance. The instance is managed by the {@link Client} class.
    */
-  /*package*/ SiteCache() {
+  public SiteCache() {
     cache = CacheBuilder.newBuilder()
           .expireAfterAccess(Duration.ofHours(1))
           .maximumSize(MAX_CACHE_SIZE)
