@@ -24,6 +24,9 @@ import zav.discord.blanc.runtime.command.mod.LegacyRedditRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.RedditAddCommand;
 import zav.discord.blanc.runtime.command.mod.RedditInfoCommand;
 import zav.discord.blanc.runtime.command.mod.RedditRemoveCommand;
+import zav.discord.blanc.runtime.command.mod.ResponseAddCommand;
+import zav.discord.blanc.runtime.command.mod.ResponseInfoCommand;
+import zav.discord.blanc.runtime.command.mod.ResponseRemoveCommand;
 
 /**
  * Implementation for all available commands. Commands are grouped into three categories. Normal
@@ -98,6 +101,12 @@ public class SimpleCommandProvider implements CommandProvider {
         return new LegacyRedditRemoveCommand(event, manager);
       case "mod.reddit_legacy.info":
         return new LegacyRedditInfoCommand(event, manager);
+      case "mod.response.add":
+        return new ResponseAddCommand(event, manager);
+      case "mod.response.remove":
+        return new ResponseRemoveCommand(event, manager);
+      case "mod.response.info":
+        return new ResponseInfoCommand(event, manager);
       default:
         // Guild commands are also normal commands
         return createCommand(client, event);
