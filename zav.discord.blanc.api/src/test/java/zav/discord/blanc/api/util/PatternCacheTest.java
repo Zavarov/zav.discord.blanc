@@ -16,7 +16,8 @@
 
 package zav.discord.blanc.api.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +26,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,7 +91,7 @@ public class PatternCacheTest {
     // Invalidate the cached entity
     cache.invalidate(guild);
     
-    assertThat(cache.get(guild)).map(Pattern::toString).isEmpty();
+    assertTrue(cache.get(guild).isEmpty());
   }
   
   /**
@@ -100,7 +100,7 @@ public class PatternCacheTest {
   @Test
   public void testGet() {
     when(guild.getIdLong()).thenReturn(entity.getId());
-    assertThat(cache.get(mock(Guild.class))).isEmpty();
-    assertThat(cache.get(guild)).map(Pattern::toString).contains("banana|pizza");
+    assertTrue(cache.get(mock(Guild.class)).isEmpty());
+    assertEquals(cache.get(guild).orElseThrow().toString(), "banana|pizza");
   }
 }

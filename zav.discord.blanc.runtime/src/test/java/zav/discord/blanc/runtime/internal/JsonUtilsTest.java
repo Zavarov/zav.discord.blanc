@@ -1,6 +1,6 @@
 package zav.discord.blanc.runtime.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
@@ -49,13 +49,13 @@ public class JsonUtilsTest {
     List<CommandData> commands = JsonUtils.getCommands();
     
     // Should match the content of the JSON files
-    assertThat(commands).hasSize(4);
-    assertThat(commands.get(0).getName()).isEqualTo("math");
-    assertThat(commands.get(1).getName()).isEqualTo("support");
-    assertThat(commands.get(2).getName()).isEqualTo("dev");
-    assertThat(commands.get(2).getSubcommands()).hasSize(4);
-    assertThat(commands.get(3).getName()).isEqualTo("mod");
-    assertThat(commands.get(3).getSubcommands()).hasSize(0);
-    assertThat(commands.get(3).getSubcommandGroups()).hasSize(3);
+    assertEquals(commands.size(), 4);
+    assertEquals(commands.get(0).getName(), "math");
+    assertEquals(commands.get(1).getName(), "support");
+    assertEquals(commands.get(2).getName(), "dev");
+    assertEquals(commands.get(2).getSubcommands().size(), 4);
+    assertEquals(commands.get(3).getName(), "mod");
+    assertEquals(commands.get(3).getSubcommands().size(), 0);
+    assertEquals(commands.get(3).getSubcommandGroups().size(), 3);
   }
 }

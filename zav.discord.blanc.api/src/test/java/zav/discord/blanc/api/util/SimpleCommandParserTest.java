@@ -1,7 +1,7 @@
 package zav.discord.blanc.api.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +46,6 @@ public class SimpleCommandParserTest {
   public void testParseUnknownCommand() {
     Optional<Command> response = parser.parse(event);
     
-    assertThat(response).isEmpty();
+    assertTrue(response.isEmpty());
   }
 }

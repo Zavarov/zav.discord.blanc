@@ -16,7 +16,8 @@
 
 package zav.discord.blanc.api.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.dv8tion.jda.api.entities.Message;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +47,7 @@ public class SiteCacheTest {
    */
   @Test
   public void testGetNone() {
-    assertThat(cache.get(message)).isEmpty();
+    assertTrue(cache.get(message).isEmpty());
   }
   
   /**
@@ -55,6 +56,6 @@ public class SiteCacheTest {
   @Test
   public void testGet() {
     cache.put(message, site);
-    assertThat(cache.get(message)).contains(site);
+    assertEquals(cache.get(message).orElseThrow(), site);
   }
 }

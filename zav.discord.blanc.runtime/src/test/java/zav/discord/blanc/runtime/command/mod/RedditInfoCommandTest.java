@@ -16,15 +16,16 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,9 +64,9 @@ public class RedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
     manager = spy(new GuildCommandManager(client, event));
     command = new RedditInfoCommand(event, manager);
     webhookEntity = new WebhookEntity();
-    webhookEntity.setSubreddits(Lists.newArrayList("RedditDev"));
+    webhookEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
     channelEntity = new TextChannelEntity();
-    channelEntity.setSubreddits(Lists.newArrayList("RedditDev", "BoatsOnWheels"));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
     channelEntity.add(webhookEntity);
     entity.add(channelEntity);
     entity.add(webhookEntity);
@@ -75,19 +76,19 @@ public class RedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setWebhooks(Lists.newArrayList());
+    entity.setWebhooks(new ArrayList<>());
     
     command.run();
   
-    assertThat(pages.getValue()).isEmpty();
+    assertTrue(pages.getValue().isEmpty());
   }
   
   @Test
   public void testShowPage() throws Exception {
-    entity.setWebhooks(Lists.newArrayList(webhookEntity));
+    entity.setWebhooks(new ArrayList<>(List.of(webhookEntity)));
     
     command.run();
   
-    assertThat(pages.getValue()).hasSize(1);
+    assertEquals(pages.getValue().size(), 1);
   }
 }

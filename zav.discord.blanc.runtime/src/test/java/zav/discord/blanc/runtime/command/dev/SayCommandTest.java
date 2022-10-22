@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +51,7 @@ public class SayCommandTest extends AbstractTest {
   public void testSend() {
     command.run();
     
-    assertThat(response.getValue()).isEqualTo("Hello World");
+    assertEquals(response.getValue(), "Hello World");
   }
   
 }
