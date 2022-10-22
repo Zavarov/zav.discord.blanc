@@ -16,9 +16,8 @@
 
 package zav.discord.blanc.api.util;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.time.Duration;
@@ -38,7 +37,7 @@ import zav.discord.blanc.databind.GuildEntity;
 @NonNullByDefault
 public class PatternCache {
   private static final int MAX_CACHE_SIZE = 1024;
-  private final LoadingCache<Guild, Optional<Pattern>> cache;
+  private final Cache<Guild, Optional<Pattern>> cache;
   private final EntityManagerFactory factory;
   
   /**
@@ -49,10 +48,10 @@ public class PatternCache {
    */
   public PatternCache(EntityManagerFactory factory) {
     this.factory = factory;
-    this.cache = CacheBuilder.newBuilder()
+    this.cache = Caffeine.newBuilder()
           .expireAfterAccess(Duration.ofHours(1))
           .maximumSize(MAX_CACHE_SIZE)
-          .build(CacheLoader.from(this::fetch));
+          .build();
   }
 
   /**
@@ -75,7 +74,7 @@ public class PatternCache {
    */
   @Contract(pure = true)
   public Optional<Pattern> get(Guild guild) {
-    return cache.getUnchecked(guild);
+    return cache.get(guild, this::fetch);
   }
   
   private Optional<Pattern> fetch(Guild guild) {
