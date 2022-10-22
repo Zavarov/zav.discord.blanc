@@ -23,10 +23,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +62,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(entity);
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(new GuildEntity());
 
-    entity.setSubreddits(Lists.newArrayList("RedditDev"));
+    entity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
 
     manager = new GuildCommandManager(client, event);
     command = new LegacyRedditRemoveCommand(event, manager);
@@ -79,7 +80,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn(subredditName);
 
-    entity.setSubreddits(Lists.newArrayList("redditdev"));
+    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
     command.run();
 
@@ -96,7 +97,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     
-    entity.setSubreddits(Lists.newArrayList("redditdev"));
+    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
     command.run();
 

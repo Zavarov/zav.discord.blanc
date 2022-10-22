@@ -16,11 +16,11 @@
 
 package zav.discord.blanc.reddit.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Color;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -174,7 +174,7 @@ public class MessageUtilsTest {
   @Test
   public void testLinkFlairTest() {
     MessageEmbed embed = getMessageEmbed();
-    assertThat(embed.getTitle()).startsWith("[flair]");
+    assertTrue(embed.getTitle().startsWith("[flair]"));
   }
   
   @Test
@@ -182,7 +182,7 @@ public class MessageUtilsTest {
     // Brackets should be omitted when the already exist
     link.setLinkFlairText("[flair]");
     MessageEmbed embed = getMessageEmbed();
-    assertThat(embed.getTitle()).startsWith("[flair]");
+    assertTrue(embed.getTitle().startsWith("[flair]"));
   }
   
   private MessageEmbed getMessageEmbed() {

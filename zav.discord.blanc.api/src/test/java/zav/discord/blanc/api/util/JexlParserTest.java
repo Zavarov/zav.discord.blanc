@@ -16,12 +16,12 @@
 
 package zav.discord.blanc.api.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.stream.Stream;
 import org.apache.commons.jexl3.JexlException;
-import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,7 +32,6 @@ import org.junit.jupiter.params.provider.MethodSource;
  *
  */
 public class JexlParserTest {
-  static final Percentage offset = Percentage.withPercentage(1e-15);
   
   static Stream<Arguments> getArguments() {
     return Stream.of(
@@ -121,7 +120,7 @@ public class JexlParserTest {
   @ParameterizedTest
   @MethodSource("getArguments")
   public void testExpression(String key, Number value) {
-    assertThat(parser.evaluate(key).doubleValue()).isCloseTo(value.doubleValue(), offset);
+    assertEquals(parser.evaluate(key).doubleValue(), value.doubleValue(), 1e-15);
   }
   
   /**
@@ -132,6 +131,6 @@ public class JexlParserTest {
   @ParameterizedTest
   @MethodSource("getInvalidArguments")
   public void testExpression(String key) {
-    assertThatThrownBy(() -> parser.evaluate(key)).isInstanceOf(JexlException.class);
+    assertThrows(JexlException.class, () -> parser.evaluate(key));
   }
 }

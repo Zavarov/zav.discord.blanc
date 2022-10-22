@@ -16,7 +16,7 @@
 
 package zav.discord.blanc.runtime.command.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +49,6 @@ public class SupportCommandTest extends AbstractTest {
     
     command.run();
     
-    assertThat(response.getValue()).endsWith(supportServer);
+    assertTrue(response.getValue().endsWith(supportServer));
   }
 }

@@ -24,10 +24,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,7 +79,7 @@ public class RedditAddCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     when(event.getOption(anyString())).thenReturn(name);
     when(name.getAsString()).thenReturn(subredditName);
     
-    entity.setSubreddits(Lists.newArrayList());
+    entity.setSubreddits(new ArrayList<>());
     
     command.run();
 

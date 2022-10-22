@@ -16,15 +16,16 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,7 +62,7 @@ public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntit
     manager = spy(new GuildCommandManager(client, event));
     command = new LegacyRedditInfoCommand(event, manager);
     channelEntity = new TextChannelEntity();
-    channelEntity.setSubreddits(Lists.newArrayList("RedditDev", "BoatsOnWheels"));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
     entity.add(channelEntity);
     
     doNothing().when(manager).submit(pages.capture());
@@ -69,19 +70,19 @@ public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntit
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setTextChannels(Lists.newArrayList());
+    entity.setTextChannels(new ArrayList<>());
     
     command.run();
   
-    assertThat(pages.getValue()).isEmpty();
+    assertTrue(pages.getValue().isEmpty());
   }
   
   @Test
   public void testShowPage() throws Exception {
-    entity.setTextChannels(Lists.newArrayList(channelEntity));
+    entity.setTextChannels(new ArrayList<>(List.of(channelEntity)));
 
     command.run();
   
-    assertThat(pages.getValue()).hasSize(1);
+    assertEquals(pages.getValue().size(), 1);
   }
 }

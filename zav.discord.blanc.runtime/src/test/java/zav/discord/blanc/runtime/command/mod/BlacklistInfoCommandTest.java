@@ -16,7 +16,8 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -72,7 +73,7 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
     
     command.run();
   
-    assertThat(captor.getValue()).isEmpty();
+    assertTrue(captor.getValue().isEmpty());
   }
   
   /**
@@ -88,7 +89,7 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
     
     command.run();
   
-    assertThat(captor.getValue()).hasSize(1);
+    assertEquals(captor.getValue().size(), 1);
   }
   
   /**
