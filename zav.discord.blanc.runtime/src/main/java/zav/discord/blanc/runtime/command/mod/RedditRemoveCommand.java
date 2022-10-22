@@ -17,7 +17,6 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import java.util.Locale;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -38,7 +37,6 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public RedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
   }

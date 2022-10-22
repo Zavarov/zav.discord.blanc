@@ -17,7 +17,6 @@
 package zav.discord.blanc.runtime.command.core;
 
 import java.util.Objects;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.util.JexlParser;
 import zav.discord.blanc.command.AbstractCommand;
@@ -36,14 +35,12 @@ public class MathCommand extends AbstractCommand {
    *
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
-   * @param jexl The JEXL parser for evaluating the arithmetic expression.
    */
-  @Inject
-  public MathCommand(SlashCommandEvent event, CommandManager manager, JexlParser jexl) {
+  public MathCommand(SlashCommandEvent event, CommandManager manager) {
     super(manager);
+    this.jexl = new JexlParser();
     this.value = Objects.requireNonNull(event.getOption("value")).getAsString();
     this.event = event;
-    this.jexl = jexl;
   }
   
   @Override

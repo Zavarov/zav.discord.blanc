@@ -23,46 +23,11 @@ import java.util.Objects;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import zav.discord.blanc.command.Commands;
-import zav.discord.blanc.runtime.command.core.MathCommand;
-import zav.discord.blanc.runtime.command.core.SupportCommand;
-import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
-import zav.discord.blanc.runtime.command.dev.KillCommand;
-import zav.discord.blanc.runtime.command.dev.SayCommand;
-import zav.discord.blanc.runtime.command.dev.StatusCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistAddCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistInfoCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistRemoveCommand;
-import zav.discord.blanc.runtime.command.mod.LegacyRedditInfoCommand;
-import zav.discord.blanc.runtime.command.mod.LegacyRedditRemoveCommand;
-import zav.discord.blanc.runtime.command.mod.RedditAddCommand;
-import zav.discord.blanc.runtime.command.mod.RedditInfoCommand;
-import zav.discord.blanc.runtime.command.mod.RedditRemoveCommand;
 
 /**
  * Utility class for mapping each command class to their name.
  */
-@SuppressWarnings("deprecation")
 public final class CommandResolver {
-
-  static {
-    Commands.bind("math", MathCommand.class);
-    Commands.bind("support", SupportCommand.class);
-    
-    Commands.bind("mod.blacklist.add", BlacklistAddCommand.class);
-    Commands.bind("mod.blacklist.remove", BlacklistRemoveCommand.class);
-    Commands.bind("mod.blacklist.info", BlacklistInfoCommand.class);
-    Commands.bind("mod.reddit.add", RedditAddCommand.class);
-    Commands.bind("mod.reddit.remove", RedditRemoveCommand.class);
-    Commands.bind("mod.reddit.config", RedditInfoCommand.class);
-    Commands.bind("mod.reddit_legacy.remove", LegacyRedditRemoveCommand.class);
-    Commands.bind("mod.reddit_legacy.config", LegacyRedditInfoCommand.class);
-  
-    Commands.bind("dev.failsafe", FailsafeCommand.class);
-    Commands.bind("dev.kill", KillCommand.class);
-    Commands.bind("dev.say", SayCommand.class);
-    Commands.bind("dev.status", StatusCommand.class);
-  }
   
   private CommandResolver() {}
   

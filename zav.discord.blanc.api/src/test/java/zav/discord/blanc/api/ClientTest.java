@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import com.google.inject.Injector;
 import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +39,6 @@ import zav.jrc.client.UserlessClient;
 public class ClientTest {
   @Mock ShardSupplier supplier;
   @Mock Credentials credentials;
-  @Mock Injector injector;
   @Mock UserlessClient jrc;
   List<JDA> shards;
   Client client;

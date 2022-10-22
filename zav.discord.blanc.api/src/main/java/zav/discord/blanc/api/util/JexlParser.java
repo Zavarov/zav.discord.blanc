@@ -19,7 +19,6 @@ package zav.discord.blanc.api.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.inject.Singleton;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
@@ -31,7 +30,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * numbers, the constants {@link Math#PI} and {@link Math#E}, as well as all methods provided by the
  * {@link Math} class.
  */
-@Singleton
 @NonNullByDefault
 public final class JexlParser {
   private static class InstanceHolder {

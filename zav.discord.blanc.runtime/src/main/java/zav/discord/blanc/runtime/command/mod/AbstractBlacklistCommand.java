@@ -5,7 +5,6 @@ import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
@@ -31,7 +30,6 @@ public abstract class AbstractBlacklistCommand  extends AbstractGuildCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public AbstractBlacklistCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager, MESSAGE_MANAGE);
     this.event = event;

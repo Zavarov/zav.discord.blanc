@@ -22,8 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -42,7 +40,6 @@ import zav.jrc.listener.observer.SubredditObserver;
  * registered subreddits for updates and notify their corresponding listeners.<br>
  * Each webhook and text channel can only have a single listener for a subreddit.
  */
-@Singleton
 @NonNullByDefault
 public final class SubredditObservable extends AbstractSubredditObservable {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubredditObservable.class);
@@ -56,7 +53,6 @@ public final class SubredditObservable extends AbstractSubredditObservable {
    * @param client The JRC client.
    * @param pool The executor service over which the webhooks are notified.
    */
-  @Inject
   public SubredditObservable(Client client, ScheduledExecutorService pool) {
     super(client);
     this.client = client;

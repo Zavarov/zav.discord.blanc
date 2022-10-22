@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
@@ -35,7 +33,6 @@ import zav.jrc.client.UserlessClient;
 /**
  * The application instance over all shards.
  */
-@Singleton
 @NonNullByDefault
 public class Client {
   private final List<JDA> shards = new ArrayList<>();
@@ -53,7 +50,6 @@ public class Client {
    * @param credentials The credentials used to authenticate this program to Discord.
    * @param client The JRC client.
    */
-  @Inject
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public Client(Credentials credentials, UserlessClient client) {
     this.credentials = credentials;
@@ -69,7 +65,6 @@ public class Client {
    *
    * @param supplier The provider used to create those instances.
    */
-  @Inject
   @Contract(mutates = "this")
   public void postConstruct(ShardSupplier supplier) {
     supplier.forEachRemaining(shards::add);

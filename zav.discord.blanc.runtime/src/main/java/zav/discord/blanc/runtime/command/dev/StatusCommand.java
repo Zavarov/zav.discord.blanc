@@ -21,7 +21,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.time.Duration;
 import java.util.List;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import oshi.SystemInfo;
@@ -72,7 +71,6 @@ public class StatusCommand extends AbstractCommand {
    * @param event The event triggering this command.
    * @param manager The command-specific manager.
    */
-  @Inject
   public StatusCommand(SlashCommandEvent event, CommandManager manager) {
     super(Rank.DEVELOPER, manager);
     this.event = event;

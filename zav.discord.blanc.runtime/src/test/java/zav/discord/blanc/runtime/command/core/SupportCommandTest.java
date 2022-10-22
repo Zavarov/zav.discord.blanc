@@ -40,7 +40,7 @@ public class SupportCommandTest extends AbstractTest {
   @BeforeEach
   public void setUp() {
     when(credentials.getInviteSupportServer()).thenReturn(supportServer);
-    command = new SupportCommand(event, manager, credentials);
+    command = new SupportCommand(event, manager);
   }
   
   @Test

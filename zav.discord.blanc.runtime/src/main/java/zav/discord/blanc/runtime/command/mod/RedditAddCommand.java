@@ -17,7 +17,6 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import java.util.Locale;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.WebhookEntity;
@@ -36,7 +35,6 @@ public class RedditAddCommand extends AbstractRedditCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public RedditAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
   }

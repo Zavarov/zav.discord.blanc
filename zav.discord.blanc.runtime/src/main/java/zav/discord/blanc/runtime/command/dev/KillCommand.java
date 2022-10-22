@@ -18,7 +18,6 @@ package zav.discord.blanc.runtime.command.dev;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
@@ -41,7 +40,6 @@ public class KillCommand extends AbstractCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public KillCommand(SlashCommandEvent event, CommandManager manager) {
     super(Rank.DEVELOPER, manager);
     this.event = event;

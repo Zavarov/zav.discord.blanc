@@ -19,8 +19,6 @@ package zav.discord.blanc.reddit;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -35,7 +33,6 @@ import zav.discord.blanc.databind.TextChannelEntity;
  *
  * @deprecated Deprecated in favor of {@link WebhookInitializer}.
  */
-@Singleton
 @Deprecated
 @NonNullByDefault
 public class TextChannelInitializer {
@@ -50,7 +47,6 @@ public class TextChannelInitializer {
    * @param factory The JPA persistence manager.
    * @param observable The global subreddit observable.
    */
-  @Inject
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public TextChannelInitializer(EntityManagerFactory factory, SubredditObservable observable) {
     this.factory = factory;

@@ -19,8 +19,6 @@ package zav.discord.blanc.api;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -33,7 +31,6 @@ import zav.discord.blanc.databind.Credentials;
 /**
  * Utility class for initializing Discord shards.
  */
-@Singleton
 @NonNullByDefault
 public class ShardSupplier implements Iterator<JDA> {
   /**
@@ -71,7 +68,6 @@ public class ShardSupplier implements Iterator<JDA> {
    *
    * @param credentials The configuration file.
    */
-  @Inject
   public ShardSupplier(Credentials credentials) {
     this.token = credentials.getDiscordToken();
     this.shardCount = credentials.getShardCount();

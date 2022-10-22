@@ -17,7 +17,6 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import java.util.Objects;
-import javax.inject.Inject;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.CommandManager;
@@ -37,7 +36,6 @@ public class SayCommand extends AbstractCommand {
    * @param event The event triggering this command.
    * @param manager The manager instance for this command.
    */
-  @Inject
   public SayCommand(SlashCommandEvent event, CommandManager manager) {
     super(Rank.DEVELOPER, manager);
     this.event = event;
