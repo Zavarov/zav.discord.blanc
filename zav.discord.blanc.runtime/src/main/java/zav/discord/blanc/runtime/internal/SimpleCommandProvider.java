@@ -22,6 +22,7 @@ import zav.discord.blanc.runtime.command.mod.BlacklistRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditInfoCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.RedditAddCommand;
+import zav.discord.blanc.runtime.command.mod.RedditInfoCommand;
 import zav.discord.blanc.runtime.command.mod.RedditRemoveCommand;
 
 /**
@@ -91,6 +92,8 @@ public class SimpleCommandProvider implements CommandProvider {
         return new RedditAddCommand(event, manager);
       case "mod.reddit.remove":
         return new RedditRemoveCommand(event, manager);
+      case "mod.reddit.info":
+        return new RedditInfoCommand(event, manager);
       case "mod.reddit_legacy.remove":
         return new LegacyRedditRemoveCommand(event, manager);
       case "mod.reddit_legacy.info":
