@@ -101,11 +101,11 @@ public class SimpleCommandProvider implements CommandProvider {
         return new LegacyRedditRemoveCommand(event, manager);
       case "mod.reddit_legacy.info":
         return new LegacyRedditInfoCommand(event, manager);
-      case "mod.response.add":
+      case "mod.auto-response.add":
         return new ResponseAddCommand(event, manager);
-      case "mod.response.remove":
+      case "mod.auto-response.remove":
         return new ResponseRemoveCommand(event, manager);
-      case "mod.response.info":
+      case "mod.auto-response.info":
         return new ResponseInfoCommand(event, manager);
       default:
         // Guild commands are also normal commands
