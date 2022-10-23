@@ -39,6 +39,7 @@ import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
 import zav.discord.blanc.api.listener.TextChannelListener;
+import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.api.util.SimpleCommandParser;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.databind.Rank;
@@ -94,6 +95,7 @@ public class Main {
     ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
     CommandProvider provider = new SimpleCommandProvider();
     Client client = new Client(credentials, reddit);
+    client.postConstruct(new ShardSupplier(credentials));
     CommandParser parser = new SimpleCommandParser(client, provider);
     
     EntityManagerFactory factory = client.getEntityManagerFactory();
