@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zav.discord.blanc.databind.AutoResponseEntity;
 
 /**
@@ -17,6 +19,7 @@ import zav.discord.blanc.databind.AutoResponseEntity;
  * If a string matches one or more groups, the response from the first matched group is returned.
  */
 public class RegularExpressionMatcher {
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegularExpressionMatcher.class);
   private final Pattern pattern;
   private final List<String> groupNames;
   private final List<String> responses;
@@ -30,6 +33,8 @@ public class RegularExpressionMatcher {
     this.responses = createResponses(patterns);
     this.groupNames = createGroupNames(patterns);
     this.pattern = createPattern(patterns);
+    
+    LOGGER.debug("Created pattern {}", pattern.toString());
   }
   
   /**
