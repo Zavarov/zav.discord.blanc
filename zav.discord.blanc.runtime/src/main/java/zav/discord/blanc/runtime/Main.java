@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.CommandParser;
 import zav.discord.blanc.api.CommandProvider;
+import zav.discord.blanc.api.listener.AutoResponseListener;
 import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
@@ -102,6 +103,7 @@ public class Main {
     listeners.add(new SlashCommandListener(pool, parser));
     listeners.add(new TextChannelListener(factory));
     listeners.add(new BlacklistListener(client.getPatternCache()));
+    listeners.add(new AutoResponseListener(client.getAutoResponseCache()));
     listeners.add(new SiteComponentListener(client.getSiteCache()));
 
     LOGGER.info("Starting jobs for client");
