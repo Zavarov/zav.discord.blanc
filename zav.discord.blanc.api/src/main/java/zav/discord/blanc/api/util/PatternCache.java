@@ -37,7 +37,7 @@ import zav.discord.blanc.databind.GuildEntity;
 @NonNullByDefault
 public class PatternCache {
   private static final int MAX_CACHE_SIZE = 1024;
-  private final Cache<Guild, Optional<Pattern>> cache;
+  private final Cache<Guild, Pattern> cache;
   private final EntityManagerFactory factory;
   
   /**
@@ -74,12 +74,12 @@ public class PatternCache {
    */
   @Contract(pure = true)
   public Optional<Pattern> get(Guild guild) {
-    return cache.get(guild, this::fetch);
+    return Optional.ofNullable(cache.get(guild, this::fetch));
   }
   
-  private Optional<Pattern> fetch(Guild guild) {
+  private Pattern fetch(Guild guild) {
     try (EntityManager entityManager = factory.createEntityManager()) {
-      return GuildEntity.getOrCreate(entityManager, guild).getPattern();
+      return GuildEntity.getOrCreate(entityManager, guild).getPattern().orElse(null);
     }
   }
 }
