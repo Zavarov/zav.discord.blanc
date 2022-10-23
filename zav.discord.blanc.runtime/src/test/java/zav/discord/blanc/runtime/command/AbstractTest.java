@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Credentials;
@@ -58,6 +59,7 @@ public class AbstractTest {
   public @Mock EntityTransaction entityTransaction;
   public @Mock ScheduledExecutorService queue;
   public @Mock PatternCache patternCache;
+  public @Mock AutoResponseCache responseCache;
   
   public @Captor ArgumentCaptor<String> response;
   public @Mock SlashCommandEvent event;
@@ -76,6 +78,7 @@ public class AbstractTest {
     lenient().when(client.getEventQueue()).thenReturn(queue);
     lenient().when(client.getPatternCache()).thenReturn(patternCache);
     lenient().when(client.getCredentials()).thenReturn(credentials);
+    lenient().when(client.getAutoResponseCache()).thenReturn(responseCache);
     
     lenient().when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
     lenient().when(entityManager.getTransaction()).thenReturn(entityTransaction);

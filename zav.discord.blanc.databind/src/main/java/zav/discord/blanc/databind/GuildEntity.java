@@ -70,6 +70,13 @@ public class GuildEntity {
    */
   @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<TextChannelEntity> textChannels = new ArrayList<>();
+
+  
+  /**
+   * A list of registered auto-responses.
+   */
+  @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<AutoResponseEntity> autoResponses = new ArrayList<>();
   
   /**
    * Each expression is concatenated using an {@code or}, meaning the pattern will match any String
@@ -99,6 +106,13 @@ public class GuildEntity {
     entity.setGuild(this);
   }
   
+  public void add(AutoResponseEntity entity) {
+    remove(entity);
+    
+    getAutoResponses().add(entity);
+    entity.setGuild(this);
+  }
+  
   public void remove(TextChannelEntity entity) {
     getTextChannels().removeIf(channel -> channel.getId() == entity.getId());
     entity.setGuild(null);
@@ -106,6 +120,11 @@ public class GuildEntity {
   
   public void remove(WebhookEntity entity) {
     getWebhooks().removeIf(webhook -> webhook.getId() == entity.getId());
+    entity.setGuild(null);
+  }
+  
+  public void remove(AutoResponseEntity entity) {
+    getAutoResponses().removeIf(response -> response.getId() == entity.getId());
     entity.setGuild(null);
   }
   

@@ -97,5 +97,40 @@
             "type" : 1,
             "options" : [ ]
         } ]
+    }, {
+        "name" : "auto-response",
+        "description" : "Contains all commands related to blacklisted words and expressions.",
+        "type" : 2,
+        "options" : [ {
+            "name" : "add",
+            "description" : "Add a regular expression to the list of blacklisted words.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "regex",
+                "description" : "\\bHello There\\b",
+                "type" : 3,
+                "required" : true
+            }, {
+                "name" : "answer",
+                "description" : "General Kenobi!",
+                "type" : 3,
+                "required" : true
+            } ]
+        }, {
+            "name" : "remove",
+            "description" : "Remove a regular expression to the list of blacklisted words.",
+            "type" : 1,
+            "options" : [ {
+                "name" : "index",
+                "description" : "The index of a blacklisted expression in the database. Starting from 0.\nExample: 1",
+                "type" : 4,
+                "required" : true
+            } ]
+        }, {
+            "name" : "info",
+            "description" : "List all blacklisted words.",
+            "type" : 1,
+            "options" : [ ]
+        } ]
     } ]
 }

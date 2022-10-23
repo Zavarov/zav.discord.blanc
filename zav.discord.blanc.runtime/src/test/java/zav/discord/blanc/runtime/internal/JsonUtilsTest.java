@@ -56,6 +56,6 @@ public class JsonUtilsTest {
     assertEquals(commands.get(2).getSubcommands().size(), 4);
     assertEquals(commands.get(3).getName(), "mod");
     assertEquals(commands.get(3).getSubcommands().size(), 0);
-    assertEquals(commands.get(3).getSubcommandGroups().size(), 3);
+    assertEquals(commands.get(3).getSubcommandGroups().size(), 4);
   }
 }

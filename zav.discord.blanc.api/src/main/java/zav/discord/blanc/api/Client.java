@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.JDA;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.api.util.SiteCache;
@@ -44,6 +45,7 @@ public class Client {
   private final ScheduledExecutorService eventQueue;
   private final PatternCache patternCache;
   private final SiteCache siteCache;
+  private final AutoResponseCache responseCache;
   private final SubredditObservable subredditObservable;
   
 
@@ -60,6 +62,7 @@ public class Client {
     this.eventQueue = Executors.newScheduledThreadPool(4);
     this.patternCache = new PatternCache(factory);
     this.siteCache = new SiteCache();
+    this.responseCache = new AutoResponseCache(factory);
     this.subredditObservable = new SubredditObservable(client, eventQueue);
   }
   
@@ -137,6 +140,15 @@ public class Client {
   @SuppressFBWarnings(value = "EI_EXPOSE_REP")
   public SiteCache getSiteCache() {
     return siteCache;
+  }
+
+  /**
+   * Returns the cache of all guild-specific registered auto-responses.
+   */
+  @Contract(pure = true)
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
+  public AutoResponseCache getAutoResponseCache() {
+    return responseCache;
   }
   
   /**

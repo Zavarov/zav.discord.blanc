@@ -21,6 +21,7 @@
 
     <persistence-unit name="discord-entities">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>zav.discord.blanc.databind.AutoResponseEntity</class>
         <class>zav.discord.blanc.databind.GuildEntity</class>
         <class>zav.discord.blanc.databind.TextChannelEntity</class>
         <class>zav.discord.blanc.databind.UserEntity</class>

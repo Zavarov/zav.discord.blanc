@@ -102,6 +102,11 @@ public class ClientTest {
   }
   
   @Test
+  public void testGetAutoResonseCache() {
+    assertNotNull(client.getAutoResponseCache());
+  }
+  
+  @Test
   public void testGetSubredditObservable() {
     assertNotNull(client.getSubredditObservable());
   }
