@@ -51,9 +51,9 @@ public class RedditAddCommand extends AbstractRedditCommand {
       reddit.addListener(name, webhook);
 
       // Webhook has already been created, so we don't need to do it here
-      return getMessage("subreddit_add", name, channel.getAsMention());
+      return getMessage("subreddit_add", name);
     } else {
-      return getMessage("subreddit_already_added", name, channel.getAsMention());
+      return getMessage("subreddit_already_added", name);
     }
   }
 }

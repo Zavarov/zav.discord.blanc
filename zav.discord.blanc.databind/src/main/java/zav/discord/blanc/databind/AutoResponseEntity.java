@@ -28,7 +28,7 @@ public class AutoResponseEntity {
   /**
    * The expression all messages are matched against.
    */
-  private String expression;
+  private String pattern;
   
   /**
    * The message that is returned on a match.
@@ -46,7 +46,7 @@ public class AutoResponseEntity {
     AutoResponseEntity entity = new AutoResponseEntity();
     
     entity = new AutoResponseEntity();
-    entity.setExpression(regex);
+    entity.setPattern(regex);
     entity.setAnswer(answer);
     
     return entity;

@@ -57,7 +57,7 @@ public class ResponseInfoCommand extends AbstractGuildCommand {
     List<String> result = new ArrayList<>();
     
     for (AutoResponseEntity entity : source) {
-      result.add(MessageFormat.format("`{0}`%n{1}", entity.getExpression(), entity.getAnswer()));
+      result.add(MessageFormat.format("`{0}`%n{1}", entity.getPattern(), entity.getAnswer()));
     }
     
     return Collections.unmodifiableList(result);

@@ -34,10 +34,8 @@ public class ResponseRemoveCommand extends AbstractResponseCommand {
     
     // Remove the corresponding entry from cache
     client.getAutoResponseCache().invalidate(guild);
-
-    String regex = responseEntity.getExpression();
-    String answer = responseEntity.getAnswer();
-    return getMessage("response_removed", regex, answer);
+    
+    return getMessage("response_removed", responseEntity.getPattern());
   }
 
 }

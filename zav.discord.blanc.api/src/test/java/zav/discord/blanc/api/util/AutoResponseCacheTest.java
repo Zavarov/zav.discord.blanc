@@ -59,7 +59,7 @@ public class AutoResponseCacheTest {
   @BeforeEach
   public void setUp() {
     autoResponse = new AutoResponseEntity();
-    autoResponse.setExpression("foo");
+    autoResponse.setPattern("foo");
     autoResponse.setAnswer("bar");
     
     factory = Persistence.createEntityManagerFactory("discord-entities");

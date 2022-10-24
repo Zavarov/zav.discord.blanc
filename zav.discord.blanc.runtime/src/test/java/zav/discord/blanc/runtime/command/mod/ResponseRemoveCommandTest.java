@@ -38,7 +38,7 @@ public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity>
     super.setUp(new GuildEntity());
     
     responseEntity = new AutoResponseEntity();
-    responseEntity.setExpression("Hello There");
+    responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
     
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
@@ -76,7 +76,7 @@ public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity>
     command.run();
     
     assertEquals(entity.getAutoResponses().size(), 1);
-    assertEquals(entity.getAutoResponses().get(0).getExpression(), "Hello There");
+    assertEquals(entity.getAutoResponses().get(0).getPattern(), "Hello There");
     assertEquals(entity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
 
     verify(responseCache, times(0)).invalidate(guild);

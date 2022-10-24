@@ -27,23 +27,23 @@ public class RegularExpressionMatcherTest {
   @BeforeEach
   public void setUp() {
     e1 = new AutoResponseEntity();
-    e1.setExpression("\\bcheat(s)?\\b");
+    e1.setPattern("\\bcheat(s)?\\b");
     e1.setAnswer("#FAQ");
     
     e2 = new AutoResponseEntity();
-    e2.setExpression("(ping)");
+    e2.setPattern("(ping)");
     e2.setAnswer("pong");
     
     e3 = new AutoResponseEntity();
-    e3.setExpression("(?:mii~)");
+    e3.setPattern("(?:mii~)");
     e3.setAnswer("nipah");
     
     e4 = new AutoResponseEntity();
-    e4.setExpression("Hello There!");
+    e4.setPattern("Hello There!");
     e4.setAnswer("General Kenobi!");
     
     e5 = new AutoResponseEntity();
-    e5.setExpression("n(o)+");
+    e5.setPattern("n(o)+");
     e5.setAnswer("yes");
     matcher = new RegularExpressionMatcher(List.of(e1, e2, e3, e4, e5));
   }

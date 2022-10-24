@@ -65,10 +65,10 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
         webhook.delete().complete();
       }
       
-      return getMessage("subreddit_remove", name, channel.getAsMention());
+      return getMessage("subreddit_remove", name);
     }
     
-    return getMessage("subreddit_name_not_found", name, channel.getAsMention());
+    return getMessage("subreddit_name_not_found", name);
   }
   
   private String removeByIndex(WebhookEntity entity, int index) {
@@ -76,6 +76,6 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
       return removeByName(entity, entity.getSubreddits().get(index));
     }
     
-    return getMessage("subreddit_index_not_found", index, channel.getAsMention());
+    return getMessage("subreddit_index_not_found");
   }
 }

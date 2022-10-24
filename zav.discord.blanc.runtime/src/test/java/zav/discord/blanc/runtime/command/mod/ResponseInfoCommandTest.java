@@ -41,7 +41,7 @@ public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
     super.setUp(new GuildEntity());
     
     responseEntity = new AutoResponseEntity();
-    responseEntity.setExpression("Hello There");
+    responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
     
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);

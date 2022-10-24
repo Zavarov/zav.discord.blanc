@@ -53,7 +53,7 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
     command.run();
     
     assertEquals(entity.getAutoResponses().size(), 1);
-    assertEquals(entity.getAutoResponses().get(0).getExpression(), "Hello There");
+    assertEquals(entity.getAutoResponses().get(0).getPattern(), "Hello There");
     assertEquals(entity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
 
     verify(responseCache).invalidate(guild);

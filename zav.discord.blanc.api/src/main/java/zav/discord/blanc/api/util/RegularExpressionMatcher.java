@@ -80,7 +80,7 @@ public class RegularExpressionMatcher {
     
     for (int i = 0; i < patterns.size(); ++i) {
       String groupName = groupNames.get(i);
-      String pattern = patterns.get(i).getExpression();
+      String pattern = patterns.get(i).getPattern();
       
       // Note: The pattern can't allow named groups!
       String group = MessageFormat.format("(?<{0}>{1})", groupName, pattern);
