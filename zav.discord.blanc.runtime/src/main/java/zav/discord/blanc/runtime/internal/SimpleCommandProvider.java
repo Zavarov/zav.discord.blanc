@@ -34,6 +34,7 @@ import zav.discord.blanc.runtime.command.mod.ResponseRemoveCommand;
  * within a guild by members with the required permissions. Developer commands, which can only be
  * executed by bot developers.
  */
+@SuppressWarnings("deprecation")
 public class SimpleCommandProvider implements CommandProvider {
   
   @Override
