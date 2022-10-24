@@ -1,9 +1,8 @@
 package zav.discord.blanc.runtime.command.mod;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -12,18 +11,18 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PageUtils;
 
 /**
  * Abstract base class for printing all registered subreddits of a text channel.
  * Used by both the deprecated command posting submissions to the text channels
  * directly, and the new approach using webhooks.
  */
-public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand {  
+public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand implements RichResponse {
   private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
   private final Client client;
@@ -48,17 +47,27 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand {
   public abstract List<String> getSubreddits(GuildEntity entity);
 
   @Override
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
   public void run() {
-    List<Site.Page> pages = new ArrayList<>();
+    manager.submit(getPages());
+  }
+  
+  @Override
+  public List<Site.Page> getPages() {
+    Site.Page.Builder builder = new Site.Page.Builder();
+    builder.setItemsPerPage(10);
+    builder.setLabel("Subreddit Feeds");
     
     try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity guildEntity = GuildEntity.getOrCreate(entityManager, guild);
+      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
       
-      pages.addAll(PageUtils.convert("Subreddit feeds", getSubreddits(guildEntity), 10));
+      
+      List<String> subreddits = getSubreddits(entity);
+      for (int i = 0; i < subreddits.size(); ++i) {
+        builder.add(MessageFormat.format("`[{0}]` r/{1}\n", i, subreddits.get(i)));
+      }
     }
     
-    manager.submit(pages);
+    return builder.build();
   }
   
   @Override
