@@ -38,16 +38,16 @@ public class BlacklistAddCommand extends AbstractBlacklistCommand {
 
   @Override
   protected String modify(GuildEntity entity, SlashCommandEvent event) {
-    String regex = Objects.requireNonNull(event.getOption("regex")).getAsString();
-    return addByName(entity, regex);
+    String pattern = Objects.requireNonNull(event.getOption("pattern")).getAsString();
+    return addByName(entity, pattern);
   }
   
-  private String addByName(GuildEntity entity, String regex) {
-    if (!entity.getBlacklist().contains(regex)) {
-      entity.getBlacklist().add(regex);
-      return getMessage("blacklist_add", regex);
+  private String addByName(GuildEntity entity, String pattern) {
+    if (!entity.getBlacklist().contains(pattern)) {
+      entity.getBlacklist().add(pattern);
+      return getMessage("blacklist_add", pattern);
     }
     
-    return getMessage("blacklist_already_added", regex);
+    return getMessage("blacklist_already_added", pattern);
   }
 }

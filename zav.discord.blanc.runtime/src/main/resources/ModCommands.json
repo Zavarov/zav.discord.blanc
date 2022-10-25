@@ -11,7 +11,7 @@
             "description" : "Add a regular expression to the list of blacklisted words.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "pattern",
                 "description" : "Example: 'http(s)?://discord.gg/.*",
                 "type" : 3,
                 "required" : true
@@ -21,7 +21,7 @@
             "description" : "Remove a regular expression to the list of blacklisted words.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "pattern",
                 "description" : "Example: 'http(s)?://discord.gg/.*",
                 "type" : 3,
                 "required" : false
@@ -46,7 +46,7 @@
             "description" : "Add a subreddit feed to the text channel.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "name",
                 "description" : "Example: 'http(s)?://discord.gg/.*",
                 "type" : 3,
                 "required" : true
@@ -56,7 +56,7 @@
             "description" : "Remove a subreddit feed from the current text channel.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "name",
                 "description" : "RedditDev",
                 "type" : 3,
                 "required" : false
@@ -81,7 +81,7 @@
             "description" : "Remove a subreddit feed from the current text channel.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "name",
                 "description" : "RedditDev",
                 "type" : 3,
                 "required" : false
@@ -106,7 +106,7 @@
             "description" : "Add a regular expression to the list of blacklisted words.",
             "type" : 1,
             "options" : [ {
-                "name" : "regex",
+                "name" : "pattern",
                 "description" : "\\bHello There\\b",
                 "type" : 3,
                 "required" : true

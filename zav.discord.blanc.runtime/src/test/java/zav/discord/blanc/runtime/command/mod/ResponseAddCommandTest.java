@@ -22,7 +22,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
-  @Mock OptionMapping regex;
+  @Mock OptionMapping pattern;
   @Mock OptionMapping answer;
   GuildCommandManager manager;
   ResponseAddCommand command;
@@ -41,13 +41,13 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
   }
 
   /**
-   * Use Case: A valid regex should be added to the list of auto responses..
+   * Use Case: A valid pattern should be added to the list of auto responses..
    */
   @Test
   public void testAddResponse() {
-    when(event.getOption("regex")).thenReturn(regex);
+    when(event.getOption("pattern")).thenReturn(pattern);
     when(event.getOption("answer")).thenReturn(answer);
-    when(regex.getAsString()).thenReturn("Hello There");
+    when(pattern.getAsString()).thenReturn("Hello There");
     when(answer.getAsString()).thenReturn("General Kenobi");
     
     command.run();
@@ -60,13 +60,13 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
   }
 
   /**
-   * Use Case: named-capturing groups are used internally and thus can't be in the input regex.
+   * Use Case: named-capturing groups are used internally and thus can't be in the input pattern.
    */
   @Test
   public void testPatternContainsNameCapturingGroup() {
-    when(event.getOption("regex")).thenReturn(regex);
+    when(event.getOption("pattern")).thenReturn(pattern);
     when(event.getOption("answer")).thenReturn(answer);
-    when(regex.getAsString()).thenReturn("(?<g0>Hello There)");
+    when(pattern.getAsString()).thenReturn("(?<g0>Hello There)");
     when(answer.getAsString()).thenReturn("General Kenobi");
     
     command.run();

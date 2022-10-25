@@ -25,21 +25,21 @@ public class ResponseAddCommand extends AbstractResponseCommand {
 
   @Override
   protected String modify(GuildEntity entity, SlashCommandEvent event) {
-    String regex = event.getOption("regex").getAsString();
+    String pattern = event.getOption("pattern").getAsString();
     String answer = event.getOption("answer").getAsString();
     
-    Pattern pattern = Pattern.compile(regex);
-    if (pattern.matcher(StringUtils.EMPTY).groupCount() > 0) {
+    Pattern tester = Pattern.compile(pattern);
+    if (tester.matcher(StringUtils.EMPTY).groupCount() > 0) {
       return getMessage("response_groups_not_allowed");
     }
     
-    AutoResponseEntity responseEntity = AutoResponseEntity.create(regex, answer);
+    AutoResponseEntity responseEntity = AutoResponseEntity.create(pattern, answer);
     entity.add(responseEntity);
 
     // Remove the corresponding entry from cache
     client.getAutoResponseCache().invalidate(guild);
 
-    return getMessage("response_added", regex, answer);
+    return getMessage("response_added", pattern, answer);
   }
 
 }

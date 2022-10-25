@@ -43,7 +43,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 @ExtendWith(MockitoExtension.class)
 public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
-  @Mock OptionMapping regex;
+  @Mock OptionMapping pattern;
   @Mock OptionMapping index;
   GuildCommandManager manager;
   BlacklistRemoveCommand command;
@@ -69,9 +69,9 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
    */
   @Test
   public void testRemoveByName() throws Exception {
-    when(event.getOption("regex")).thenReturn(regex);
+    when(event.getOption("pattern")).thenReturn(pattern);
     when(event.getOption("index")).thenReturn(null);
-    when(regex.getAsString()).thenReturn("foo");
+    when(pattern.getAsString()).thenReturn("foo");
     
     command.run();
     
@@ -84,7 +84,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
    */
   @Test
   public void testRemoveByIndex() throws Exception {
-    when(event.getOption("regex")).thenReturn(null);
+    when(event.getOption("pattern")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     
@@ -99,7 +99,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
    */
   @Test
   public void testIndexTooLow() throws Exception {
-    when(event.getOption("regex")).thenReturn(null);
+    when(event.getOption("pattern")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(-1L);
     
@@ -116,7 +116,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
   @ParameterizedTest
   @ValueSource(longs = {1, 2, Long.MAX_VALUE})
   public void testIndexTooHigh(long value) throws Exception {
-    when(event.getOption("regex")).thenReturn(null);
+    when(event.getOption("pattern")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(value);
     
@@ -132,7 +132,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
   @ParameterizedTest
   @ValueSource(longs = {1, 2, Long.MAX_VALUE})
   public void testInvalidArgument(long value) throws Exception {
-    when(event.getOption("regex")).thenReturn(null);
+    when(event.getOption("pattern")).thenReturn(null);
     when(event.getOption("index")).thenReturn(null);
     
     command.run();

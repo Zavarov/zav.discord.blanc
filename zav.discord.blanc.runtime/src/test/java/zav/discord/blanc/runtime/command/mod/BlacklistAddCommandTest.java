@@ -41,7 +41,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 @ExtendWith(MockitoExtension.class)
 public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
-  @Mock OptionMapping regex;
+  @Mock OptionMapping pattern;
   
   GuildCommandManager manager;
   BlacklistAddCommand command;
@@ -52,8 +52,8 @@ public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @BeforeEach
   public void setUp() {
     super.setUp(new GuildEntity());
-    when(event.getOption(anyString())).thenReturn(regex);
-    when(regex.getAsString()).thenReturn("foo");
+    when(event.getOption(anyString())).thenReturn(pattern);
+    when(pattern.getAsString()).thenReturn("foo");
     when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = new GuildCommandManager(client, event);

@@ -23,11 +23,11 @@ public class BlacklistRemoveCommand extends AbstractBlacklistCommand {
   
   @Override
   protected String modify(GuildEntity entity, SlashCommandEvent event) {
-    OptionMapping regex = event.getOption("regex");
+    OptionMapping pattern = event.getOption("pattern");
     OptionMapping index = event.getOption("index");
     
-    if (regex != null) {
-      return removeByName(entity, regex.getAsString());
+    if (pattern != null) {
+      return removeByName(entity, pattern.getAsString());
     } else if (index != null) {
       return removeByIndex(entity, (int) index.getAsLong());
     }
@@ -35,12 +35,12 @@ public class BlacklistRemoveCommand extends AbstractBlacklistCommand {
     return getMessage("blacklist_invalid_argument");
   }
   
-  private String removeByName(GuildEntity entity, String regex) {
-    if (entity.getBlacklist().remove(regex)) {
-      return getMessage("blacklist_remove", regex);
+  private String removeByName(GuildEntity entity, String pattern) {
+    if (entity.getBlacklist().remove(pattern)) {
+      return getMessage("blacklist_remove", pattern);
     }
     
-    return getMessage("blacklist_name_not_found", regex);
+    return getMessage("blacklist_name_not_found", pattern);
   }
   
   private String removeByIndex(GuildEntity entity, int index) {
