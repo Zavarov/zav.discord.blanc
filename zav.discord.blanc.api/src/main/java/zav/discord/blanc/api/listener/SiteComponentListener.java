@@ -86,11 +86,11 @@ public class SiteComponentListener extends ListenerAdapter {
     switch (id) {
       case "left":
         site.moveLeft();
-        event.getInteraction().replyEmbeds(site.getCurrentPage()).queue();
+        event.editMessageEmbeds(site.getCurrentPage()).queue();
         break;
       case "right":
         site.moveRight();
-        event.getInteraction().replyEmbeds(site.getCurrentPage()).queue();
+        event.editMessageEmbeds(site.getCurrentPage()).queue();
         break;
       default:
         LOGGER.error("unknown id '{}'.", id);
@@ -123,6 +123,6 @@ public class SiteComponentListener extends ListenerAdapter {
     }
     
     site.changeSelection(values.get(0));
-    event.replyEmbeds(site.getCurrentPage()).complete();
+    event.editMessageEmbeds(site.getCurrentPage()).complete();
   }
 }

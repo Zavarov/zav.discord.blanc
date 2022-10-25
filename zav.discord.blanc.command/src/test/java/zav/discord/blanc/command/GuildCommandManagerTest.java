@@ -79,7 +79,8 @@ public class GuildCommandManagerTest {
   
   @Test
   public void testSubmit() {
-    when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(action);
+    when(event.deferReply()).thenReturn(action);
+    when(action.addEmbeds(any(MessageEmbed.class))).thenReturn(action);
     when(action.complete()).thenReturn(hook);
     when(hook.retrieveOriginal()).thenReturn(response);
     when(response.complete()).thenReturn(message);

@@ -81,6 +81,15 @@ public class Site {
   }
   
   /**
+   * Returns the number of entry of the currently selected page.
+   *
+   * @return As described.
+   */
+  public int getCurrentSize() {
+    return currentPage.entries.size();
+  }
+  
+  /**
    * Returns the user for which this site was created.
    *
    * @return As described.

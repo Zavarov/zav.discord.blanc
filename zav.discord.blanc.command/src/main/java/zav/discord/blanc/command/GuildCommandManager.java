@@ -25,6 +25,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
@@ -37,6 +41,8 @@ import zav.discord.blanc.command.internal.PermissionValidator;
  */
 @NonNullByDefault
 public class GuildCommandManager extends CommandManager {
+  private static final Button LEFT = Button.of(ButtonStyle.PRIMARY, "left", "←");
+  private static final Button RIGHT = Button.of(ButtonStyle.PRIMARY, "right", "→");
   private final TextChannel textChannel;
   private final Member member;
   private final PermissionValidator validator;
@@ -82,7 +88,16 @@ public class GuildCommandManager extends CommandManager {
       Site site = Site.create(pages, event.getUser());
       
       // Send response
-      InteractionHook response = event.replyEmbeds(site.getCurrentPage()).complete();
+      ReplyAction action = event.deferReply();
+      
+      // Only add the left & right arrows if necessary
+      if (site.getCurrentSize() > 1) {
+        action = action.addActionRows(ActionRow.of(LEFT, RIGHT));
+      }
+      
+      action = action.addEmbeds(site.getCurrentPage());
+      
+      InteractionHook response = action.complete();
       
       // Store message in cache
       Message source = response.retrieveOriginal().complete();
