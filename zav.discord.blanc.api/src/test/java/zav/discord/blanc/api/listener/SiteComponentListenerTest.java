@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonInteraction;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenuInteraction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.UpdateInteractionAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,6 +69,7 @@ public class SiteComponentListenerTest {
   @Mock SelectionMenuInteraction selectionInteraction;
   @Mock Message message;
   @Mock Button button;
+  @Mock UpdateInteractionAction updateAction;
   @Mock ReplyAction replyAction;
   @Mock MessageEmbed mainPage;
   @Mock SiteCache siteCache;
@@ -153,7 +155,8 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(left);
-    when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
     doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
@@ -171,7 +174,8 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(right);
-    when(buttonInteraction.replyEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(buttonInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
     doReturn(Optional.of(site)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
@@ -241,8 +245,8 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getMessage()).thenReturn(message);
     when(selectionInteraction.getUser()).thenReturn(user);
     when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
-    when(selectionInteraction.deferReply()).thenReturn(replyAction);
-    when(replyAction.addEmbeds(any(MessageEmbed.class))).thenReturn(replyAction);
+    when(selectionInteraction.deferEdit()).thenReturn(updateAction);
+    when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
     doReturn(Optional.of(site)).when(siteCache).get(any());
     
     listener.onSelectionMenu(selectionEvent);
