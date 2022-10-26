@@ -73,7 +73,7 @@ public final class SubredditObservable extends AbstractSubredditObservable {
   public boolean addListener(String subreddit, TextChannel textChannel) {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
     
-    return observers.computeIfAbsent(subreddit, this::getObserver)
+    return getObservers().computeIfAbsent(subreddit, this::getObserver)
           .addListener(new TextChannelSubredditListener(textChannel));
   }
   
@@ -90,7 +90,7 @@ public final class SubredditObservable extends AbstractSubredditObservable {
   public boolean addListener(String subreddit, Webhook webhook) {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
     
-    return observers.computeIfAbsent(subreddit, this::getObserver)
+    return getObservers().computeIfAbsent(subreddit, this::getObserver)
           .addListener(getListener(subreddit, webhook));
   }
   
@@ -106,8 +106,19 @@ public final class SubredditObservable extends AbstractSubredditObservable {
   public boolean removeListener(String subreddit, Webhook webhook) {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
   
-    return observers.computeIfAbsent(subreddit, this::getObserver)
-          .removeListener(getListener(subreddit, webhook));
+    SubredditObserver observer = getObservers().get(subreddit);
+    
+    if (observer == null) {
+      return false;
+    }
+    
+    boolean modified = observer.removeListener(getListener(subreddit, webhook));
+    
+    if (observer.size() == 0) {
+      getObservers().remove(subreddit);
+    }
+    
+    return modified;
   }
   
   /**
@@ -124,8 +135,19 @@ public final class SubredditObservable extends AbstractSubredditObservable {
   public boolean removeListener(String subreddit, TextChannel textChannel) {
     subreddit = subreddit.toLowerCase(Locale.ENGLISH);
     
-    return observers.computeIfAbsent(subreddit, this::getObserver)
-          .removeListener(new TextChannelSubredditListener(textChannel));
+    SubredditObserver observer = getObservers().get(subreddit);
+    
+    if (observer == null) {
+      return false;
+    }
+    
+    boolean modified = observer.removeListener(new TextChannelSubredditListener(textChannel));
+    
+    if (observer.size() == 0) {
+      getObservers().remove(subreddit);
+    }
+    
+    return modified;
   }
   
   /**
@@ -133,7 +155,7 @@ public final class SubredditObservable extends AbstractSubredditObservable {
    * listeners.
    */
   public void notifyAllObservers() {
-    for (SubredditObserver observer : observers.values()) {
+    for (SubredditObserver observer : getObservers().values()) {
       try {
         observer.notifyAllListeners();
       } catch (FailedRequestException e) {
@@ -151,5 +173,9 @@ public final class SubredditObservable extends AbstractSubredditObservable {
           .buildJDA();
     
     return new WebhookSubredditListener(subreddit, client);
+  }
+  
+  /*package*/ Map<String, SubredditObserver> getObservers() {
+    return observers;
   }
 }

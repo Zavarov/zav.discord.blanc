@@ -58,11 +58,12 @@ public class SubredditObservableTest {
   @BeforeEach
   public void setUp() {    
     observable = spy(new SubredditObservable(client, pool));
-    when(observable.getObserver(anyString())).thenReturn(observer);
   }
   
   @Test
   public void testAddTextChannelListener() {
+    when(observable.getObserver(anyString())).thenReturn(observer);
+    
     observable.addListener("subreddit", textChannel);
   
     verify(observer).addListener(any(TextChannelSubredditListener.class));
@@ -70,6 +71,7 @@ public class SubredditObservableTest {
   
   @Test
   public void testAddWebhookListener() {
+    when(observable.getObserver(anyString())).thenReturn(observer);
     when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
     
     observable.addListener("subreddit", webhook);
@@ -79,14 +81,25 @@ public class SubredditObservableTest {
   
   @Test
   public void testRemoveTextChannelListener() {
+    observable.getObservers().put("subreddit", observer);
+    
     observable.removeListener("subreddit", textChannel);
   
     verify(observer).removeListener(any(TextChannelSubredditListener.class));
   }
   
   @Test
+  public void testRemoveUnknownTextChannelListener() {
+    observable.removeListener("subreddit", textChannel);
+  
+    verify(observer, times(0)).removeListener(any(TextChannelSubredditListener.class));
+  }
+  
+  @Test
   public void testRemoveWebhookListener() {
     when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
+    
+    observable.getObservers().put("subreddit", observer);
     
     observable.removeListener("subreddit", webhook);
   
@@ -94,7 +107,15 @@ public class SubredditObservableTest {
   }
   
   @Test
+  public void testRemoveUnknownWebhookListener() {
+    observable.removeListener("subreddit", webhook);
+  
+    verify(observer, times(0)).removeListener(any(WebhookSubredditListener.class));
+  }
+  
+  @Test
   public void testNotifyAll() throws FailedRequestException {
+    when(observable.getObserver(anyString())).thenReturn(observer);
     when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
     
     observable.addListener("subreddit1", webhook);
@@ -111,6 +132,7 @@ public class SubredditObservableTest {
    */
   @Test
   public void testNotifyAllWithError() throws FailedRequestException {
+    when(observable.getObserver(anyString())).thenReturn(observer);
     when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
     doThrow(FailedRequestException.class).when(observer).notifyAllListeners();
     
