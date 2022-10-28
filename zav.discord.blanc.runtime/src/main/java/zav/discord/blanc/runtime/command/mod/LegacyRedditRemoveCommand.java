@@ -72,23 +72,23 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
     try (EntityManager entityManager = factory.createEntityManager()) {
       GuildEntity guildEntity = GuildEntity.getOrCreate(entityManager, guild);
       TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
-
-      final String response = modify(channelEntity, event);
       
-      // Update bi-directional associations
-      guildEntity.add(channelEntity);
-  
+      final String response = modify(channelEntity);
+      
+      if (channelEntity.isEmpty()) {
+        guildEntity.remove(channelEntity);
+      }
+      
       // Write changes to the database
       entityManager.getTransaction().begin();
       entityManager.merge(guildEntity);
-      entityManager.merge(channelEntity);
       entityManager.getTransaction().commit();
       
       event.reply(response).complete();
     }
   }
 
-  private String modify(TextChannelEntity entity, SlashCommandEvent event) {
+  private String modify(TextChannelEntity entity) {
     OptionMapping name = event.getOption("name");
     OptionMapping index = event.getOption("index");
     

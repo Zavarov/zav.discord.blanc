@@ -16,9 +16,13 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
+import jakarta.persistence.EntityManager;
 import java.util.Locale;
+import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.GuildCommandManager;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
 
 /**
@@ -28,6 +32,7 @@ import zav.discord.blanc.databind.WebhookEntity;
  * the same webhook, is deleted if and only if it was created by this program.
  */
 public class RedditAddCommand extends AbstractRedditCommand {
+  private final Webhook webhook;
   
   /**
    * Creates a new instance of this command.
@@ -37,18 +42,27 @@ public class RedditAddCommand extends AbstractRedditCommand {
    */
   public RedditAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    webhook = getWebhook().orElseGet(this::createWebhook);
   }
 
   @Override
-  protected String modify(WebhookEntity entity, SlashCommandEvent event) {
+  protected String modify(EntityManager entityManager, GuildEntity entity) {
     String name = event.getOption("name").getAsString().toLowerCase(Locale.ENGLISH);
     
-    if (!entity.getSubreddits().contains(name)) {
+    WebhookEntity webhookEntity = WebhookEntity.getOrCreate(entityManager, webhook);
+    TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
+    
+    if (!webhookEntity.getSubreddits().contains(name)) {
       // Add subreddit to the database
-      entity.getSubreddits().add(name);
+      webhookEntity.getSubreddits().add(name);
 
       // Add subreddit to the Reddit job
       reddit.addListener(name, webhook);
+      
+      // Add bi-directional dependencies
+      channelEntity.add(webhookEntity);
+      entity.add(webhookEntity);
+      entity.add(channelEntity);
 
       // Webhook has already been created, so we don't need to do it here
       return getMessage("subreddit_add", name);

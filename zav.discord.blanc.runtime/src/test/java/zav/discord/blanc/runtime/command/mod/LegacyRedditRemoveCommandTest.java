@@ -18,6 +18,7 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -54,6 +55,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
   @Mock OptionMapping name;
   @Mock OptionMapping index;
   
+  GuildEntity guildEntity;
   GuildCommandManager manager;
   LegacyRedditRemoveCommand command;
   
@@ -64,8 +66,11 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
   public void setUp() {
     super.setUp(new TextChannelEntity());
     
+    guildEntity = new GuildEntity();
+    guildEntity.add(entity);
+    
     when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(entity);
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(new GuildEntity());
+    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(guildEntity);
 
     entity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
 
@@ -80,7 +85,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
    */
   @ParameterizedTest
   @ValueSource(strings = { "RedditDev", "redditDev", "ReDdItDeV", "redditdev" })
-  public void testRemoveSubredditByName(String subredditName) {
+  public void testRemoveLastSubredditByName(String subredditName) {
     when(event.getOption("name")).thenReturn(name);
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn(subredditName);
@@ -91,6 +96,40 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
 
     // Has the database been updated?
     assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveLastSubredditByIndex() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(0L);
+    
+    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertNull(entity.getGuild());
+    // Has the Reddit job been updated?
+    verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByName() {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn("redditdev");
+
+    entity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
+    
+    command.run();
+
+    // Has the database been updated?
+    assertEquals(entity.getSubreddits(), Collections.singletonList("all"));
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
@@ -102,12 +141,12 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     
-    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    entity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), Collections.emptyList());
+    assertEquals(entity.getSubreddits(), Collections.singletonList("all"));
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));

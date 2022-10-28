@@ -87,4 +87,8 @@ public class WebhookEntity {
     
     return entity;
   }
+  
+  public boolean isEmpty() {
+    return getSubreddits().isEmpty();
+  }
 }

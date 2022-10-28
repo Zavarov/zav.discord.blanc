@@ -96,4 +96,8 @@ public class TextChannelEntity {
     
     return entity;
   }
+  
+  public boolean isEmpty() {
+    return getSubreddits().isEmpty() && getWebhooks().isEmpty();
+  }
 }

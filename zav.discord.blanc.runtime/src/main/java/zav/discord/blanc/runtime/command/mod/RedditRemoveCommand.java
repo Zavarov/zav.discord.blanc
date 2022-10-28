@@ -16,10 +16,14 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
+import jakarta.persistence.EntityManager;
 import java.util.Locale;
+import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.command.GuildCommandManager;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
 
 /**
@@ -29,7 +33,7 @@ import zav.discord.blanc.databind.WebhookEntity;
  * the same webhook, is deleted if and only if it was created by this program.
  */
 public class RedditRemoveCommand extends AbstractRedditCommand {
-
+  private final Webhook webhook;
   
   /**
    * Creates a new instance of this command.
@@ -39,20 +43,43 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
    */
   public RedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    this.webhook = getWebhook().orElse(null);
   }
 
   @Override
-  protected String modify(WebhookEntity entity, SlashCommandEvent event) {
+  protected String modify(EntityManager entityManager, GuildEntity entity) {
     OptionMapping name = event.getOption("name");
     OptionMapping index = event.getOption("index");
     
-    if (name != null) {
-      return removeByName(entity, name.getAsString().toLowerCase(Locale.ENGLISH));
-    } else if (index != null) {
-      return removeByIndex(entity, (int) index.getAsLong());
+    // Sanity check
+    if (webhook == null) {
+      return getMessage("subreddit_missing_webhook", WEBHOOK);
     }
     
-    return getMessage("subreddit_invalid_argument");
+    if (name == null && index == null) {
+      return getMessage("subreddit_invalid_argument");
+    }
+    String response = null;
+    WebhookEntity webhookEntity = WebhookEntity.getOrCreate(entityManager, webhook);
+    TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
+    
+    if (name != null) {
+      response = removeByName(webhookEntity, name.getAsString().toLowerCase(Locale.ENGLISH));
+    } else {
+      response = removeByIndex(webhookEntity, (int) index.getAsLong());
+    }
+    
+    // Cleanup
+    if (webhookEntity.isEmpty()) {
+      channelEntity.remove(webhookEntity);
+      entity.remove(webhookEntity);
+    }
+    
+    if (channelEntity.isEmpty()) {
+      entity.remove(channelEntity);
+    }
+    
+    return response;
   }
   
   private String removeByName(WebhookEntity entity, String name) {
