@@ -1,3 +1,9 @@
  
 subreddit
+subreddits
 webhook
+webhooks
+whitelist
+whitelists
+guild
+guilds
