@@ -45,8 +45,6 @@ public class BlacklistAddCommand extends AbstractDatabaseCommand {
 
   @Override
   protected String modify(EntityManager entityManager, GuildEntity entity) {
-    cache.invalidate(guild);
-    
     String pattern = Objects.requireNonNull(event.getOption("pattern")).getAsString();
     
     return addByName(entity, pattern);
@@ -55,6 +53,9 @@ public class BlacklistAddCommand extends AbstractDatabaseCommand {
   private String addByName(GuildEntity entity, String pattern) {
     if (!entity.getBlacklist().contains(pattern)) {
       entity.getBlacklist().add(pattern);
+      
+      cache.invalidate(guild);
+      
       return getMessage("blacklist_add", pattern);
     }
     

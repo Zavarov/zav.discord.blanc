@@ -19,6 +19,7 @@ package zav.discord.blanc.runtime.command.mod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -111,7 +112,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     command.run();
     
     assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
-    verify(patternCache).invalidate(guild);
+    verify(patternCache, times(0)).invalidate(guild);
   }
   
   /**
@@ -128,7 +129,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     command.run();
     
     assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
-    verify(patternCache).invalidate(guild);
+    verify(patternCache, times(0)).invalidate(guild);
   }
   
   /**
@@ -143,7 +144,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     command.run();
     
     assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
-    verify(patternCache).invalidate(guild);
+    verify(patternCache, times(0)).invalidate(guild);
   }
   
   @Test

@@ -30,8 +30,6 @@ public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
   
   @Override
   protected String modify(EntityManager entityManager, GuildEntity entity) {
-    cache.invalidate(guild);
-    
     OptionMapping pattern = event.getOption("pattern");
     OptionMapping index = event.getOption("index");
     
@@ -46,6 +44,8 @@ public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
   
   private String removeByName(GuildEntity entity, String pattern) {
     if (entity.getBlacklist().remove(pattern)) {
+      cache.invalidate(guild);
+      
       return getMessage("blacklist_remove", pattern);
     }
     
