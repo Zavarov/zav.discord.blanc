@@ -1,10 +1,12 @@
 package zav.discord.blanc.runtime.internal;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.List;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Webhook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.databind.WebhookEntity;
@@ -48,6 +50,12 @@ public class WebhookValidator implements Validator<WebhookEntity> {
     Member self = textChannel.getGuild().getSelfMember();
     if (!self.hasPermission(textChannel, Permission.MANAGE_WEBHOOKS)) {
       LOGGER.error("Invalid textchannel {0}: Insufficient Permission.", entity.getName());
+      return true;
+    }
+    
+    List<Webhook> webhooks = textChannel.retrieveWebhooks().complete();
+    if (webhooks.stream().noneMatch(webhook -> webhook.getIdLong() == entity.getId())) {
+      LOGGER.error("Invalid webhook {0} : It doesn't exist.", entity.getName());
       return true;
     }
     
