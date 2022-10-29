@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.command;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.Permission;
@@ -30,18 +31,15 @@ import zav.discord.blanc.databind.Rank;
 @NonNullByDefault
 public abstract class AbstractGuildCommand extends AbstractCommand {
   
-  private final Set<Permission> permissions;
   private final GuildCommandManager manager;
   
   /**
    * Creates a new instance of this class.
    *
    * @param manager The command-specific manager.
-   * @param permissions A list of all permissions required to execute this command.
    */
-  protected AbstractGuildCommand(GuildCommandManager manager, Permission... permissions) {
+  protected AbstractGuildCommand(GuildCommandManager manager) {
     super(Rank.USER, manager);
-    this.permissions = Set.of(permissions);
     this.manager = manager;
   }
   
@@ -50,6 +48,16 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   public void validate() throws ExecutionException {
     super.validate();
     // Has the user the required guild permissions
-    manager.validate(permissions);
+    manager.validate(getPermissions());
+  }
+  
+  /**
+   * Returns the set of permissions required for executing this command. Empty by default, but
+   * subclasses may overwrite this method, in order to impose further restrictions.
+   * 
+   * @return An unmodifiable list of permissions required to execute this command.
+   */
+  protected Set<Permission> getPermissions() {
+    return EnumSet.noneOf(Permission.class);
   }
 }

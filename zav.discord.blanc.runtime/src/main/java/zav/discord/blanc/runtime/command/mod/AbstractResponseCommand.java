@@ -3,6 +3,8 @@ package zav.discord.blanc.runtime.command.mod;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.EnumSet;
+import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -27,7 +29,7 @@ public abstract class AbstractResponseCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   protected AbstractResponseCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager, Permission.MESSAGE_MANAGE);
+    super(manager);
     this.factory = manager.getClient().getEntityManagerFactory();
     this.event = event;
     this.guild = event.getGuild();
@@ -51,5 +53,10 @@ public abstract class AbstractResponseCommand extends AbstractGuildCommand {
       
       event.reply(response).complete();
     }
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MESSAGE_MANAGE);
   }
 }

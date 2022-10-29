@@ -16,11 +16,12 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
@@ -48,7 +49,7 @@ public class BlacklistInfoCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   public BlacklistInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager, MESSAGE_MANAGE);
+    super(manager);
     this.guild = event.getGuild();
     this.manager = manager;
     this.client = manager.getClient();
@@ -64,5 +65,10 @@ public class BlacklistInfoCommand extends AbstractGuildCommand {
 
       manager.submit(pages);
     }
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MESSAGE_MANAGE);
   }
 }

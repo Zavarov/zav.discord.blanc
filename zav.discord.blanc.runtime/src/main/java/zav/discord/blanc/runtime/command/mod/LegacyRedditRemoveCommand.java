@@ -19,7 +19,9 @@ package zav.discord.blanc.runtime.command.mod;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -55,7 +57,7 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   public LegacyRedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager, Permission.MANAGE_CHANNEL);
+    super(manager);
     this.event = event;
     this.guild = event.getGuild();
     this.client = manager.getClient();
@@ -116,5 +118,10 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
     }
     
     return getMessage("subreddit_index_not_found", index, channel.getAsMention());
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MANAGE_CHANNEL);
   }
 }
