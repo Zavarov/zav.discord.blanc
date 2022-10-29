@@ -27,7 +27,7 @@ public class ResponseAddCommand extends AbstractDatabaseCommand {
    */
   public ResponseAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
-    cache = client.getAutoResponseCache();
+    this.cache = client.getAutoResponseCache();
   }
 
   @Override
