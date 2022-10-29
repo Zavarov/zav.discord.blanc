@@ -1,5 +1,9 @@
 package zav.discord.blanc.runtime.command.mod;
 
+import jakarta.persistence.EntityManager;
+import java.util.EnumSet;
+import java.util.Set;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -10,7 +14,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * This command allows the user to remove automatic responses. The responses are identified by their
  * (fixed) index in the database.
  */
-public class ResponseRemoveCommand extends AbstractResponseCommand {
+public class ResponseRemoveCommand extends AbstractDatabaseCommand {
   private final AutoResponseCache cache;
   
   /**
@@ -25,7 +29,7 @@ public class ResponseRemoveCommand extends AbstractResponseCommand {
   }
 
   @Override
-  protected String modify(GuildEntity entity, SlashCommandEvent event) {
+  protected String modify(EntityManager entityManager, GuildEntity entity) {
     int index = (int) event.getOption("index").getAsLong();
     
     if (index < 0 || index >= entity.getAutoResponses().size()) {
@@ -39,6 +43,11 @@ public class ResponseRemoveCommand extends AbstractResponseCommand {
     cache.invalidate(guild);
     
     return getMessage("response_removed", responseEntity.getPattern());
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MESSAGE_MANAGE);
   }
 
 }
