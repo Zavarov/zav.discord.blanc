@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.apache.commons.lang3.StringUtils;
 import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
@@ -17,6 +16,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * matching the registered expressions with the pre-defined response.
  */
 public class ResponseAddCommand extends AbstractDatabaseCommand {
+  private static final Pattern NAMED_GROUP = Pattern.compile("(\\?<\\w+>.*)");
   private final AutoResponseCache cache;
   
   /**
@@ -35,10 +35,12 @@ public class ResponseAddCommand extends AbstractDatabaseCommand {
     String pattern = event.getOption("pattern").getAsString();
     String answer = event.getOption("answer").getAsString();
     
-    Pattern tester = Pattern.compile(pattern);
-    if (tester.matcher(StringUtils.EMPTY).groupCount() > 0) {
+    if (NAMED_GROUP.matcher(pattern).find()) {
       return getMessage("response_groups_not_allowed");
     }
+    
+    // Check that the pattern is a valid regular expression
+    Pattern.compile(pattern);
     
     AutoResponseEntity responseEntity = AutoResponseEntity.create(pattern, answer);
     entity.add(responseEntity);

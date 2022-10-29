@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -48,18 +50,23 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
   /**
    * Use Case: A valid pattern should be added to the list of auto responses..
    */
-  @Test
-  public void testAddResponse() {
+  @ParameterizedTest
+  @CsvSource({
+    "Hello There,General Kenobi",
+    "^Hello There(!)?$, General Kenobi!",
+    "(Foo),Bar"
+  })
+  public void testAddResponse(String source, String target) {
     when(event.getOption("pattern")).thenReturn(pattern);
     when(event.getOption("answer")).thenReturn(answer);
-    when(pattern.getAsString()).thenReturn("Hello There");
-    when(answer.getAsString()).thenReturn("General Kenobi");
+    when(pattern.getAsString()).thenReturn(source);
+    when(answer.getAsString()).thenReturn(target);
     
     command.run();
     
     assertEquals(entity.getAutoResponses().size(), 1);
-    assertEquals(entity.getAutoResponses().get(0).getPattern(), "Hello There");
-    assertEquals(entity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
+    assertEquals(entity.getAutoResponses().get(0).getPattern(), source);
+    assertEquals(entity.getAutoResponses().get(0).getAnswer(), target);
 
     verify(responseCache).invalidate(guild);
   }
