@@ -3,6 +3,7 @@ package zav.discord.blanc.runtime.command.mod;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.lang3.StringUtils;
+import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
@@ -12,6 +13,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * matching the registered expressions with the pre-defined response.
  */
 public class ResponseAddCommand extends AbstractResponseCommand {
+  private final AutoResponseCache cache;
   
   /**
    * Creates a new instance of this command.
@@ -21,6 +23,7 @@ public class ResponseAddCommand extends AbstractResponseCommand {
    */
   public ResponseAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    cache = client.getAutoResponseCache();
   }
 
   @Override
@@ -37,7 +40,7 @@ public class ResponseAddCommand extends AbstractResponseCommand {
     entity.add(responseEntity);
 
     // Remove the corresponding entry from cache
-    client.getAutoResponseCache().invalidate(guild);
+    cache.invalidate(guild);
 
     return getMessage("response_added", pattern, answer);
   }

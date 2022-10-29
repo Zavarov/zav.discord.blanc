@@ -1,6 +1,7 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.api.util.AutoResponseCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
@@ -10,6 +11,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * (fixed) index in the database.
  */
 public class ResponseRemoveCommand extends AbstractResponseCommand {
+  private final AutoResponseCache cache;
   
   /**
    * Creates a new instance of this command.
@@ -19,6 +21,7 @@ public class ResponseRemoveCommand extends AbstractResponseCommand {
    */
   public ResponseRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    this.cache = client.getAutoResponseCache();
   }
 
   @Override
@@ -33,7 +36,7 @@ public class ResponseRemoveCommand extends AbstractResponseCommand {
     entity.remove(responseEntity);
     
     // Remove the corresponding entry from cache
-    client.getAutoResponseCache().invalidate(guild);
+    cache.invalidate(guild);
     
     return getMessage("response_removed", responseEntity.getPattern());
   }
