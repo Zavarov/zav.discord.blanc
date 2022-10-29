@@ -9,13 +9,17 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
@@ -26,6 +30,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * This test case verifies whether the list of all auto-responses are displayed correctly.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @Captor ArgumentCaptor<List<Site.Page>> pages;
   GuildCommandManager manager;
@@ -69,5 +74,10 @@ public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
     command.run();
   
     assertEquals(pages.getValue().size(), 1);
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MESSAGE_MANAGE));
   }
 }

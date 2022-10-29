@@ -24,7 +24,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
@@ -41,6 +45,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Checks whether it is possible to blacklist/whitelist regular expressions.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
   @Mock OptionMapping pattern;
@@ -139,5 +144,10 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
     verify(patternCache).invalidate(guild);
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MESSAGE_MANAGE));
   }
 }

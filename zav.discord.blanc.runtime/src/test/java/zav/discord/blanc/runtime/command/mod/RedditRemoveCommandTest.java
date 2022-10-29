@@ -27,7 +27,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
@@ -47,6 +51,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Check whether subreddits can be added and removed from the Reddit feed.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class RedditRemoveCommandTest extends AbstractDatabaseTest<WebhookEntity> {
   @Mock OptionMapping name;
   @Mock OptionMapping index;
@@ -198,5 +203,10 @@ public class RedditRemoveCommandTest extends AbstractDatabaseTest<WebhookEntity>
     verify(subredditObservable).removeListener(anyString(), any(Webhook.class));
     // Does the webhook still exists?
     verify(delete, times(0)).complete();
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MANAGE_CHANNEL));
   }
 }

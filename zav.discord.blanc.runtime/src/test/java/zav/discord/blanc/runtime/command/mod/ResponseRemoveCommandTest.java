@@ -7,6 +7,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
@@ -24,6 +28,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Checks whether automatic responses can be removed to the database.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @Mock OptionMapping index;
   GuildCommandManager manager;
@@ -80,5 +85,10 @@ public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity>
     assertEquals(entity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
 
     verify(responseCache, times(0)).invalidate(guild);
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MESSAGE_MANAGE));
   }
 }

@@ -25,7 +25,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
@@ -45,6 +49,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @Deprecated
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChannelEntity> {
   @Mock OptionMapping name;
   @Mock OptionMapping index;
@@ -106,5 +111,10 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     assertNotNull(entity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MANAGE_CHANNEL));
   }
 }

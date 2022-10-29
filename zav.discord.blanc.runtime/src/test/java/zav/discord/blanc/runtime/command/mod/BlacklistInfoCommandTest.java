@@ -25,8 +25,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
+import net.dv8tion.jda.api.Permission;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
@@ -45,6 +49,7 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  * Checks whether the interactive configuration message is returned.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   @Captor ArgumentCaptor<List<Site.Page>> captor;
   
@@ -102,5 +107,10 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
         Arguments.of(List.of("bananaphone")),
         Arguments.of(List.of("foo", "bar"))
     );
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MESSAGE_MANAGE));
   }
 }
