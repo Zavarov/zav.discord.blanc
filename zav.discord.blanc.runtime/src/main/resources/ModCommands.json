@@ -107,7 +107,7 @@
             "type" : 1,
             "options" : [ {
                 "name" : "pattern",
-                "description" : "\\bHello There\\b",
+                "description" : "^Hello There(!)?$",
                 "type" : 3,
                 "required" : true
             }, {
