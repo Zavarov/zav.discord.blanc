@@ -1,7 +1,12 @@
 package zav.discord.blanc.runtime.command.mod;
 
+import jakarta.persistence.EntityManager;
+import java.util.EnumSet;
+import java.util.Set;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import zav.discord.blanc.api.util.PatternCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 
@@ -9,7 +14,8 @@ import zav.discord.blanc.databind.GuildEntity;
  * This command whitelists certain words. Any previously blacklisted word will no longer be deleted
  * by this application.
  */
-public class BlacklistRemoveCommand extends AbstractBlacklistCommand {
+public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
+  private final PatternCache cache;
   
   /**
    * Creates a new instance of this command.
@@ -19,10 +25,13 @@ public class BlacklistRemoveCommand extends AbstractBlacklistCommand {
    */
   public BlacklistRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    this.cache = client.getPatternCache();
   }
   
   @Override
-  protected String modify(GuildEntity entity, SlashCommandEvent event) {
+  protected String modify(EntityManager entityManager, GuildEntity entity) {
+    cache.invalidate(guild);
+    
     OptionMapping pattern = event.getOption("pattern");
     OptionMapping index = event.getOption("index");
     
@@ -49,6 +58,11 @@ public class BlacklistRemoveCommand extends AbstractBlacklistCommand {
     }
     
     return getMessage("blacklist_index_not_found", index);
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MESSAGE_MANAGE);
   }
 
 }
