@@ -16,11 +16,19 @@
 
 package zav.discord.blanc.api;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import lombok.Setter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -138,6 +146,62 @@ public class Site {
       // Page needs at least one entry
       Validate.validIndex(entries, 0);
       return new Page(label, List.copyOf(entries));
+    }
+    
+    /**
+     * Implements the builder pattern for pages.
+     */
+    @Setter
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
+    public static class Builder {
+      private int itemsPerPage;
+      @edu.umd.cs.findbugs.annotations.Nullable
+      private @Nullable String label;
+      private List<String> items = new ArrayList<>();
+      
+      /**
+       * Adds a new item to the page.
+       *
+       * @param item A human-readable string.
+       */
+      public void add(String item) {
+        items.add(item);
+      }
+      
+      /**
+       * Creates all pages required to represent the given items.
+       *
+       * @return A list of pages.
+       */
+      public List<Site.Page> build() {
+        Objects.requireNonNull(label);
+        
+        if (items.isEmpty()) {
+          return Collections.emptyList();
+        }
+        
+        List<Site.Page> result = new ArrayList<>();
+        List<MessageEmbed> messages = new ArrayList<>();
+        
+        for (List<String> chunk : ListUtils.partition(items, itemsPerPage)) {
+          EmbedBuilder builder = new EmbedBuilder();
+          
+          StringBuilder description = new StringBuilder();
+          
+          for (String item : chunk) {
+            description.append(item);
+          }
+          
+          builder.setDescription(description.toString());
+          builder.setTitle(label);
+          
+          messages.add(builder.build());
+          
+        }
+        
+        result.add(Site.Page.create(label, messages));
+        return Collections.unmodifiableList(result);
+      }
     }
   }
 }

@@ -18,24 +18,26 @@ package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PageUtils;
 
 /**
  * This command allows to ban certain expressions in a guild. Every message that matches at least
  * one of those banned expressions is deleted automatically.
  */
-public class BlacklistInfoCommand extends AbstractGuildCommand {
+public class BlacklistInfoCommand extends AbstractGuildCommand implements RichResponse {
   
   private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
@@ -58,13 +60,25 @@ public class BlacklistInfoCommand extends AbstractGuildCommand {
 
   @Override
   public void run() {
+    manager.submit(getPages());
+  }
+  
+  @Override
+  public List<Site.Page> getPages() {
+    Site.Page.Builder builder = new Site.Page.Builder();
+    builder.setItemsPerPage(10);
+    builder.setLabel("Forbidden Expressions");
+    
     try (EntityManager entityManager = factory.createEntityManager()) {
       GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
-
-      List<Site.Page> pages = PageUtils.convert("Forbidden Expressions", entity.getBlacklist(), 10);
-
-      manager.submit(pages);
+      
+      List<String> patterns = entity.getBlacklist();
+      for (int i = 0; i < patterns.size(); ++i) {
+        builder.add(MessageFormat.format("`[{0}]` {1}\n", i, MarkdownSanitizer.escape(patterns.get(i))));
+      }
     }
+
+    return builder.build();
   }
   
   @Override

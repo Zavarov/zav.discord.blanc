@@ -3,26 +3,25 @@ package zav.discord.blanc.runtime.command.mod;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PageUtils;
 
 /**
  * This command displays all currently registered auto-responses.
  */
-public class ResponseInfoCommand extends AbstractGuildCommand {
+public class ResponseInfoCommand extends AbstractGuildCommand implements RichResponse {
   
   private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
@@ -45,23 +44,27 @@ public class ResponseInfoCommand extends AbstractGuildCommand {
 
   @Override
   public void run() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
-
-      List<Site.Page> pages = PageUtils.convert("Automatic Responses", convert(entity.getAutoResponses()), 10);
-
-      manager.submit(pages);
-    }
+    manager.submit(getPages());
   }
   
-  private List<String> convert(List<AutoResponseEntity> source) {
-    List<String> result = new ArrayList<>();
+  @Override
+  public List<Site.Page> getPages() {
+    Site.Page.Builder builder = new Site.Page.Builder();
+    builder.setItemsPerPage(5);
+    builder.setLabel("Automatic Responses");
     
-    for (AutoResponseEntity entity : source) {
-      result.add(MessageFormat.format("`{0}`%n{1}", entity.getPattern(), entity.getAnswer()));
+    try (EntityManager entityManager = factory.createEntityManager()) {
+      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
+      
+      List<AutoResponseEntity> responses = entity.getAutoResponses();
+      for (int i = 0; i < responses.size(); ++i) {
+        String pattern = MarkdownSanitizer.escape(responses.get(i).getPattern());
+        String answer = MarkdownSanitizer.escape(responses.get(i).getAnswer());
+        builder.add(MessageFormat.format("`[{0}]` {1}\n → _{2}_\n", i, pattern, answer));
+      }
     }
-    
-    return Collections.unmodifiableList(result);
+
+    return builder.build();
   }
   
   @Override
