@@ -73,7 +73,7 @@ public final class MessageUtils {
     EmbedBuilder builder = new EmbedBuilder();
   
     builder.setTitle(getQualifiedTitle(link), getPermalink(link));
-    builder.setAuthor("source", getUrl(link));
+    builder.setAuthor("r/" + link.getSubreddit(), getUrl(link));
     builder.addField("Author", link.getAuthor(), false);
   
     if (link.getCreatedUtc() != null) {

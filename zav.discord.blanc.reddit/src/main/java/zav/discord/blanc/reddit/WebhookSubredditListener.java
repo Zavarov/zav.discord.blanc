@@ -69,23 +69,20 @@ public final class WebhookSubredditListener implements SubredditListener {
     Message source = forLink(link);
     
     String avatarUrl;
-    String subredditName;
     
     try {
       SubredditEntity entity = subreddit.getAbout();
       avatarUrl = getAvatarUrl(entity);
-      subredditName = "r/" + entity.getDisplayName();
     } catch (FailedRequestException e) {
       // Might be thrown when e.g. the subreddit is private or if Reddit is unavailable.
       LOGGER.error(e.getMessage(), e);
       avatarUrl = null;
-      subredditName = "r/" + link.getSubreddit();
     }
     
     WebhookMessage message = new WebhookMessageBuilder()
           .addEmbeds(transform(source.getEmbeds()))
           .setAvatarUrl(avatarUrl)
-          .setUsername(subredditName)
+          .setUsername(null)
           .build();
 
     try {
