@@ -49,10 +49,6 @@ public class RankValidatorTest {
   RankValidator validator;
   Set<Rank> ranks;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Initializes the permission validator. By default, every user is root.
    */

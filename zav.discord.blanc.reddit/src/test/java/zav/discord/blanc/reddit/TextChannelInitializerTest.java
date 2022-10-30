@@ -49,10 +49,6 @@ public class TextChannelInitializerTest {
   TextChannelEntity entity;
   TextChannelInitializer initializer;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Creates a new instance of the text channel initializer and loads the database with a single
    * entity. The entity is registered to the subreddit {@code RedditDev}.

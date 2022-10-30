@@ -21,16 +21,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class GuildEntityTest {
   // Arbitrary but fixed. Because of GenerationType.IDENTITY, the first element gets the id 1
-  private static final long AUTORESPONSE_ID = 1L;
+  private static final long AUTORESPONSE_ID = 0L;
   
   EntityManagerFactory factory;
   @Mock Guild guild;
   @Mock TextChannel channel;
   @Mock Webhook webhook;
-  
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
   
   @BeforeEach
   public void setUp() {

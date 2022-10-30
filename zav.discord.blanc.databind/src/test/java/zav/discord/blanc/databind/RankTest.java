@@ -48,10 +48,6 @@ public class RankTest {
   @Mock EntityManager mockManager;
   @Mock User user;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   @BeforeEach
   public void setUp() {
     factory = Persistence.createEntityManagerFactory("discord-entities");

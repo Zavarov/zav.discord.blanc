@@ -20,22 +20,24 @@
              version="2.0">
 
     <persistence-unit name="discord-entities">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>zav.discord.blanc.databind.AutoResponseEntity</class>
         <class>zav.discord.blanc.databind.GuildEntity</class>
         <class>zav.discord.blanc.databind.TextChannelEntity</class>
         <class>zav.discord.blanc.databind.UserEntity</class>
         <class>zav.discord.blanc.databind.WebhookEntity</class>
         <properties>
-            <property name="dialect" value="org.sqlite.hibernate.dialect.SQLiteDialect" />
             <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC" />
             <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:file::memory:?cache=shared" />
             <property name="jakarta.persistence.jdbc.user" value="" />
             <property name="jakarta.persistence.jdbc.password" value="" />
-            <property name="hibernate.show_sql" value="false" />
-            <property name="hibernate.format_sql" value="false" />
-            <property name="hibernate.connection.charSet" value="UTF-8" />
-            <property name="hibernate.hbm2ddl.auto" value="create" />
+            <property name="eclipselink.ddl-generation" value="create-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="both"/>
+            <property name="eclipselink.allow-zero-id" value="true"/>
+            <property name="eclipselink.logging.level.connection" value="FINE"/>
+            <property name="eclipselink.logging.level.jpa" value="FINER"/>
+            <property name="eclipselink.logging.level.sql" value="FINEST"/>
+            <property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.slf4j.SLF4JLogger"/>
         </properties>
     </persistence-unit>
 </persistence>

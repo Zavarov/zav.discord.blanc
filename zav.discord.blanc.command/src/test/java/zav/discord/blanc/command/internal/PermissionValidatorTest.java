@@ -55,10 +55,6 @@ public class PermissionValidatorTest {
   PermissionValidator validator;
   Set<Permission> permissions;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Initializes the permission validator. By default, every user has administrative permissions.
    */

@@ -56,10 +56,6 @@ public class TextChannelListenerTest {
   @Mock GuildLeaveEvent leaveEvent;
   @Mock TextChannelDeleteEvent deleteEvent;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Initializes the text channel listener.<br>
    * The database used by the listener is initialized with the entities {@code Webhook.json},

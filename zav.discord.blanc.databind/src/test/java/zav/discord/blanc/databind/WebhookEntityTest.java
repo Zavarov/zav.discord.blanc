@@ -24,10 +24,6 @@ public class WebhookEntityTest {
   @Mock TextChannel channel;
   @Mock Webhook webhook;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   @BeforeEach
   public void setUp() {
     factory = Persistence.createEntityManagerFactory("discord-entities");

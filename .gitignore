@@ -9,4 +9,5 @@
 
 **/src/main/resources/*.json
 **/Entity.db
+**/createDDL.jdbc
 **/META-INF/MANIFEST.MF
