@@ -48,10 +48,6 @@ public class PatternCacheTest {
   PatternCache cache;
   @Mock Guild guild;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Initializes the pattern cache. The cache will load a single guild entity, containing both the
    * words {@code banana} and {@code pizza} as blacklisted expressions.

@@ -48,10 +48,6 @@ public class AutoResponseCacheTest {
   AutoResponseEntity autoResponse;
   @Mock Guild guild;
   
-  static {
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-  }
-  
   /**
    * Initializes the pattern cache. The cache will load a single guild entity, containing an entry
    * to automatically response to the string {@code foo} with {@code bar}.
