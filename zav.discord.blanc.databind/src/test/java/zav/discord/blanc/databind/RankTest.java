@@ -62,6 +62,7 @@ public class RankTest {
   @AfterEach
   public void tearDown() {
     entityManager.close();
+    factory.close();
   }
   
   /**

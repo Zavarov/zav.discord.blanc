@@ -69,6 +69,7 @@ public class RankValidatorTest {
   @AfterEach
   public void tearDown() {
     entityManager.close();
+    factory.close();
   }
   
   /**

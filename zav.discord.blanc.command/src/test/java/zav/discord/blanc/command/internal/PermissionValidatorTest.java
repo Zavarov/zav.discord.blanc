@@ -77,6 +77,7 @@ public class PermissionValidatorTest {
   @AfterEach
   public void tearDown() {
     entityManager.close();
+    factory.close();
   }
   
   /**
