@@ -154,7 +154,7 @@ public class StatusCommand extends AbstractCommand {
     long free = memory.getAvailable() / MEBI;
     long used = process.getResidentSetSize() / MEBI;
     double ratio = (100.0 * used) / total;
-    String keys = "`Total | Used  | Free  | Ratio`%n";
+    String keys = "`Total | Used  | Free  | Ratio`";
     String pattern = "%s%n`%-5d | %-5d | %-5d | %-4.1f%%`";
     
     return String.format(pattern, keys, total, free, used, ratio);
