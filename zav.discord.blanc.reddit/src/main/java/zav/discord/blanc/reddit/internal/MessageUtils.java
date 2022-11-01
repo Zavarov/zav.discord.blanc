@@ -22,6 +22,8 @@ import static net.dv8tion.jda.api.entities.MessageEmbed.URL_MAX_LENGTH;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,6 +32,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.translate.AggregateTranslator;
+import org.apache.commons.text.translate.CharSequenceTranslator;
+import org.apache.commons.text.translate.LookupTranslator;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -46,6 +51,21 @@ public final class MessageUtils {
   private MessageUtils() {}
   
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageUtils.class);
+  private static final CharSequenceTranslator UNESCAPE_REDDIT;
+  
+  static {
+    Map<CharSequence, CharSequence> specialCharacters = new HashMap<>();
+    specialCharacters.put("&#x200B;", StringUtils.EMPTY); // Zero-Width Character
+    specialCharacters.put(":bugcatcher:", ":bug:");       // Used by r/DiscordApp flairs
+    specialCharacters.put(":botdev:", "</>");
+
+    LookupTranslator unescapeSpecialCharacters = new LookupTranslator(specialCharacters);
+
+    UNESCAPE_REDDIT = new AggregateTranslator(
+        StringEscapeUtils.UNESCAPE_HTML4,
+        unescapeSpecialCharacters
+      );
+  }
   
   /**
    * Creates an embedded message displaying the relevant information of the Reddit link.
@@ -107,7 +127,7 @@ public final class MessageUtils {
       if (!link.getLinkFlairText().startsWith("[")) {
         builder.append("[");
       }
-      builder.append(StringEscapeUtils.unescapeHtml4(link.getLinkFlairText()));
+      builder.append(UNESCAPE_REDDIT.translate(link.getLinkFlairText()));
       if (!link.getLinkFlairText().endsWith("]")) {
         builder.append("] ");
       }
@@ -128,7 +148,7 @@ public final class MessageUtils {
   
   private static String getTitle(LinkEntity link) {
     String title = link.getTitle();
-    return StringEscapeUtils.unescapeHtml4(title);
+    return UNESCAPE_REDDIT.translate(title);
   }
   
   private static @Nullable String getPermalink(LinkEntity link) {
@@ -152,7 +172,8 @@ public final class MessageUtils {
   }
   
   private static @Nullable String getDescription(LinkEntity link) {
-    @Nullable String description = StringEscapeUtils.unescapeHtml4(link.getSelftext());
+    @Nullable
+    String description = UNESCAPE_REDDIT.translate(link.getSelftext());
     return StringUtils.truncate(description, DESCRIPTION_MAX_LENGTH);
   }
   
