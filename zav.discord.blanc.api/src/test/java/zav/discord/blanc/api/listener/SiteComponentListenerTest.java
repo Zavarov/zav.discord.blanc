@@ -46,7 +46,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Site;
-import zav.discord.blanc.api.util.SiteCache;
+import zav.discord.blanc.api.cache.SiteCache;
 
 /**
  * Checks whether site interactions are processed correctly.

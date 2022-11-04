@@ -32,7 +32,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import zav.discord.blanc.api.util.PatternCache;
+import zav.discord.blanc.api.cache.PatternCache;
 
 /**
  * Listener for filtering banned expressions within a guild.<br>

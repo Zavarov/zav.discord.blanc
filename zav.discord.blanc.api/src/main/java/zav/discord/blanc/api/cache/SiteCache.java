@@ -14,16 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.util;
+package zav.discord.blanc.api.cache;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import java.time.Duration;
-import java.util.Optional;
 import net.dv8tion.jda.api.entities.Message;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
 
 /**
@@ -32,19 +27,7 @@ import zav.discord.blanc.api.Site;
  * Those messages are not persisted.
  */
 @NonNullByDefault
-public class SiteCache {
-  private static final int MAX_CACHE_SIZE = 1024;
-  private final Cache<Long, Site> cache;
-  
-  /**
-   * Creates a new instance. The instance is managed by the {@link Client} class.
-   */
-  public SiteCache() {
-    cache = Caffeine.newBuilder()
-          .expireAfterAccess(Duration.ofHours(1))
-          .maximumSize(MAX_CACHE_SIZE)
-          .build();
-  }
+public class SiteCache extends AbstractCache<Message, Site> {
   
   /**
    * Caches a new site.
@@ -54,18 +37,12 @@ public class SiteCache {
    */
   @Contract(mutates = "this")
   public void put(Message message, Site site) {
-    cache.put(message.getIdLong(), site);
+    cache.put(message, site);
   }
-  
-  /**
-   * Returns the site cached for the given message. Returns {@link Optional#empty()}, if no matching
-   * site is cached. Otherwise the optional contains the corresponding site.
-   *
-   * @param message The message corresponding to the site.
-   * @return As described.
-   */
-  @Contract(pure = true)
-  public Optional<Site> get(Message message) {
-    return Optional.ofNullable(cache.getIfPresent(message.getIdLong()));
+
+  @Override
+  protected Site fetch(Message key) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

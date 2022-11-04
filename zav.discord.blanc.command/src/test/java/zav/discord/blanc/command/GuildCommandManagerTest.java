@@ -26,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
-import zav.discord.blanc.api.util.SiteCache;
+import zav.discord.blanc.api.cache.SiteCache;
 import zav.discord.blanc.command.internal.PermissionValidator;
 
 /**

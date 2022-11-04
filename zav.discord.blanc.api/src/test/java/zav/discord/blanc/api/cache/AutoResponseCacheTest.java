@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.util;
+package zav.discord.blanc.api.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import java.util.Collections;
-import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,33 +31,39 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
 
 /**
- * This test case checks whether the pattern cache is able to retrieve the persisted entity as well
+ * This test case checks whether the response cache is able to retrieve the persisted entity as well
  * as update then when necessary.
  */
 @ExtendWith(MockitoExtension.class)
-public class PatternCacheTest {
+public class AutoResponseCacheTest {
   
   EntityManagerFactory factory;
   EntityManager entityManager;
   GuildEntity entity;
-  PatternCache cache;
+  AutoResponseCache cache;
+  AutoResponseEntity autoResponse;
   @Mock Guild guild;
   
   /**
-   * Initializes the pattern cache. The cache will load a single guild entity, containing both the
-   * words {@code banana} and {@code pizza} as blacklisted expressions.
+   * Initializes the pattern cache. The cache will load a single guild entity, containing an entry
+   * to automatically response to the string {@code foo} with {@code bar}.
    */
   @BeforeEach
   public void setUp() {
+    autoResponse = new AutoResponseEntity();
+    autoResponse.setPattern("foo");
+    autoResponse.setAnswer("bar");
+    
     factory = Persistence.createEntityManagerFactory("discord-entities");
-    cache = new PatternCache(factory);
+    cache = new AutoResponseCache(factory);
     entityManager = factory.createEntityManager();
     entity = new GuildEntity();
     entity.setId(1000L);
-    entity.setBlacklist(List.of("banana", "pizza"));
+    entity.add(autoResponse);
     
     entityManager.getTransaction().begin();
     entityManager.merge(entity);
@@ -79,7 +83,7 @@ public class PatternCacheTest {
     when(guild.getIdLong()).thenReturn(entity.getId());
 
     // Modify entity and store it in the database
-    entity.setBlacklist(Collections.emptyList());
+    entity.remove(autoResponse);
     entityManager.getTransaction().begin();
     entityManager.merge(entity);
     entityManager.getTransaction().commit();
@@ -91,12 +95,13 @@ public class PatternCacheTest {
   }
   
   /**
-   * Use Case: Fetch the pattern from the database, if available.
+   * Use Case: Fetch the matcher from the database, if available.
    */
   @Test
   public void testGet() {
     when(guild.getIdLong()).thenReturn(entity.getId());
     assertTrue(cache.get(mock(Guild.class)).isEmpty());
-    assertEquals(cache.get(guild).orElseThrow().toString(), "banana|pizza");
+    
+    assertEquals(cache.get(guild).orElseThrow().match("foo").orElseThrow(), "bar");
   }
 }

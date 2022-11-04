@@ -2,7 +2,7 @@ package zav.discord.blanc.api.listener;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import zav.discord.blanc.api.util.AutoResponseCache;
+import zav.discord.blanc.api.cache.AutoResponseCache;
 
 /**
  * The listener for automatically responding to specific messages. Per guild, an arbitrary number

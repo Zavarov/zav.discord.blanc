@@ -14,18 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package zav.discord.blanc.api.util;
+package zav.discord.blanc.api.cache;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.time.Duration;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Guild;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.GuildEntity;
 
@@ -35,9 +30,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * possible. Messages matching the pattern are deleted automatically.
  */
 @NonNullByDefault
-public class PatternCache {
-  private static final int MAX_CACHE_SIZE = 1024;
-  private final Cache<Guild, Pattern> cache;
+public class PatternCache extends AbstractCache<Guild, Pattern> {
   private final EntityManagerFactory factory;
   
   /**
@@ -48,36 +41,10 @@ public class PatternCache {
    */
   public PatternCache(EntityManagerFactory factory) {
     this.factory = factory;
-    this.cache = Caffeine.newBuilder()
-          .expireAfterAccess(Duration.ofHours(1))
-          .maximumSize(MAX_CACHE_SIZE)
-          .build();
-  }
-
-  /**
-   * Removes the provided guild from the cache.
-   *
-   * @param guild One of the guilds available to the program.
-   */
-  @Contract(mutates = "this")
-  public void invalidate(Guild guild) {
-    cache.invalidate(guild);
-  }
-
-  /**
-   * Returns the pattern cached for the provided guild. If the pattern isn't cached yet, it is
-   * retrieved from the database. If no pattern is cached, returns {@link Optional#empty()},
-   * otherwise the optional contains the corresponding pattern.
-   *
-   * @param guild One of the guilds available to the program.
-   * @return As described.
-   */
-  @Contract(pure = true)
-  public Optional<Pattern> get(Guild guild) {
-    return Optional.ofNullable(cache.get(guild, this::fetch));
   }
   
-  private Pattern fetch(Guild guild) {
+  @Override
+  protected Pattern fetch(Guild guild) {
     try (EntityManager entityManager = factory.createEntityManager()) {
       return GuildEntity.getOrCreate(entityManager, guild).getPattern().orElse(null);
     }

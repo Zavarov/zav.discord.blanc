@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import zav.discord.blanc.api.util.PatternCache;
+import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 
