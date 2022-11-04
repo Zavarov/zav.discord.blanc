@@ -34,10 +34,7 @@
             <property name="eclipselink.ddl-generation" value="create-tables"/>
             <property name="eclipselink.ddl-generation.output-mode" value="both"/>
             <property name="eclipselink.allow-zero-id" value="true"/>
-            <property name="eclipselink.logging.level.connection" value="FINE"/>
-            <property name="eclipselink.logging.level.jpa" value="FINER"/>
-            <property name="eclipselink.logging.level.sql" value="FINEST"/>
-            <property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.slf4j.SLF4JLogger"/>
+            <property name="eclipselink.logging.level" value="OFF"/>
         </properties>
     </persistence-unit>
 </persistence>
