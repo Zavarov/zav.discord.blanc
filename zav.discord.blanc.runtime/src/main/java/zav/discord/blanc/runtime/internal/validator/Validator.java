@@ -1,4 +1,4 @@
-package zav.discord.blanc.runtime.internal;
+package zav.discord.blanc.runtime.internal.validator;
 
 import java.util.function.Predicate;
 

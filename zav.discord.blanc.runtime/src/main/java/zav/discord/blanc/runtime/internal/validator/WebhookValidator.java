@@ -1,4 +1,4 @@
-package zav.discord.blanc.runtime.internal;
+package zav.discord.blanc.runtime.internal.validator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;

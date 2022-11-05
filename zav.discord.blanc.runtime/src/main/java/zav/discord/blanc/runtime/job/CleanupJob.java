@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.TextChannelValidator;
-import zav.discord.blanc.runtime.internal.WebhookValidator;
+import zav.discord.blanc.runtime.internal.validator.TextChannelValidator;
+import zav.discord.blanc.runtime.internal.validator.WebhookValidator;
 
 /**
  * This job is used to periodically remove all Reddit feeds from the database which can no longer be
