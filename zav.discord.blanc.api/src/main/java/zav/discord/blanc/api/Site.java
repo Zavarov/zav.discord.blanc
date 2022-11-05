@@ -17,6 +17,7 @@
 package zav.discord.blanc.api;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -168,6 +169,16 @@ public class Site {
         items.add(item);
       }
       
+      /**
+       * Adds a new item to the page.
+       * 
+       * @param pattern the pattern string
+       * @param args object(s) to format
+       */
+      public void add(String pattern, Object... args) {
+        items.add(MessageFormat.format(pattern, args));
+      }
+
       /**
        * Creates all pages required to represent the given items.
        *

@@ -18,7 +18,6 @@ package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +73,7 @@ public class BlacklistInfoCommand extends AbstractGuildCommand implements RichRe
       
       List<String> patterns = entity.getBlacklist();
       for (int i = 0; i < patterns.size(); ++i) {
-        builder.add(MessageFormat.format("`[{0}]` {1}\n", i, MarkdownSanitizer.escape(patterns.get(i))));
+        builder.add("`[{0}]` {1}\n", i, MarkdownSanitizer.escape(patterns.get(i)));
       }
     }
 

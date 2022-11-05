@@ -2,7 +2,6 @@ package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +59,7 @@ public class ResponseInfoCommand extends AbstractGuildCommand implements RichRes
       for (int i = 0; i < responses.size(); ++i) {
         String pattern = MarkdownSanitizer.escape(responses.get(i).getPattern());
         String answer = MarkdownSanitizer.escape(responses.get(i).getAnswer());
-        builder.add(MessageFormat.format("`[{0}]` {1}\n → _{2}_\n", i, pattern, answer));
+        builder.add("`[{0}]` {1}\n → _{2}_\n", i, pattern, answer);
       }
     }
 
