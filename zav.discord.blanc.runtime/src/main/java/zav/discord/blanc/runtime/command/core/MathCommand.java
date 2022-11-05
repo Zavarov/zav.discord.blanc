@@ -26,7 +26,6 @@ import zav.discord.blanc.command.CommandManager;
  * This command can solve simple mathematical expressions.
  */
 public class MathCommand extends AbstractCommand {
-  private final SlashCommandEvent event;
   private final JexlParser jexl;
   private final String value;
   
@@ -37,14 +36,13 @@ public class MathCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public MathCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.jexl = new JexlParser();
     this.value = Objects.requireNonNull(event.getOption("value")).getAsString();
-    this.event = event;
   }
   
   @Override
   public void run() {
-    event.reply(jexl.evaluate(value).toString()).complete();
+    reply(jexl.evaluate(value));
   }
 }

@@ -27,7 +27,6 @@ import zav.discord.blanc.databind.Rank;
  */
 public class SayCommand extends AbstractCommand {
   
-  private final SlashCommandEvent event;
   private final String content;
   
   /**
@@ -37,8 +36,7 @@ public class SayCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public SayCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
-    this.event = event;
+    super(event, manager);
     this.content = Objects.requireNonNull(event.getOption("content")).getAsString();
   }
   
@@ -49,6 +47,6 @@ public class SayCommand extends AbstractCommand {
 
   @Override
   public void run() {
-    event.reply(content).complete();
+    reply(content);
   }
 }

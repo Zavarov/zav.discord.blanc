@@ -34,7 +34,7 @@ public class ResponseInfoCommand extends AbstractGuildCommand implements RichRes
    * @param manager The manager instance for this command.
    */
   public ResponseInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.guild = event.getGuild();
     this.manager = manager;
     this.client = manager.getClient();

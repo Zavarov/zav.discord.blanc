@@ -31,7 +31,6 @@ import zav.discord.blanc.databind.Rank;
 public class KillCommand extends AbstractCommand {
 
   private final Client client;
-  private final SlashCommandEvent event;
   private final ScheduledExecutorService eventQueue;
   
   /**
@@ -41,8 +40,7 @@ public class KillCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public KillCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
-    this.event = event;
+    super(event, manager);
     this.client = manager.getClient();
     this.eventQueue = client.getEventQueue();
   }
@@ -55,7 +53,7 @@ public class KillCommand extends AbstractCommand {
   @Override
   @SuppressFBWarnings(value = "DM_EXIT")
   public void run() {
-    event.reply("Goodbye~").setEphemeral(true).complete();
+    reply("Goodbye~", true);
 
     eventQueue.shutdown();
     

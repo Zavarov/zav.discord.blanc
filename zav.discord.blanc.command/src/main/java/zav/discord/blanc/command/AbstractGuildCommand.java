@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 
@@ -35,10 +36,11 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   /**
    * Creates a new instance of this class.
    *
+   * @param event The event triggering this command.
    * @param manager The command-specific manager.
    */
-  protected AbstractGuildCommand(GuildCommandManager manager) {
-    super(manager);
+  protected AbstractGuildCommand(SlashCommandEvent event, GuildCommandManager manager) {
+    super(event, manager);
     this.manager = manager;
   }
   

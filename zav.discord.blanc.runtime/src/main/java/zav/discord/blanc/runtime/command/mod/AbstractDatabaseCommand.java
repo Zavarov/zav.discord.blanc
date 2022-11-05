@@ -5,7 +5,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -18,7 +17,7 @@ public abstract class AbstractDatabaseCommand extends AbstractGuildCommand {
   private final EntityManagerFactory factory;
   
   protected AbstractDatabaseCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.event = event;
     this.guild = event.getGuild();
     this.client = manager.getClient();
@@ -47,7 +46,7 @@ public abstract class AbstractDatabaseCommand extends AbstractGuildCommand {
       entityManager.merge(entity);
       entityManager.getTransaction().commit();
       
-      event.reply(MarkdownSanitizer.escape(response)).complete();
+      reply(response);
     }
   }
 

@@ -50,7 +50,7 @@ public class BlacklistInfoCommand extends AbstractGuildCommand implements RichRe
    * @param manager The manager instance for this command.
    */
   public BlacklistInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.guild = event.getGuild();
     this.manager = manager;
     this.client = manager.getClient();

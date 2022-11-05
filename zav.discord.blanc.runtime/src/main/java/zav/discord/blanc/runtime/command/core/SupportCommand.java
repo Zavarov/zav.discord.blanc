@@ -25,7 +25,6 @@ import zav.discord.blanc.command.CommandManager;
  */
 public class SupportCommand extends AbstractCommand {
   
-  private final SlashCommandEvent event;
   private final String link;
   
   /**
@@ -35,13 +34,12 @@ public class SupportCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public SupportCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
-    this.event = event;
+    super(event, manager);
     this.link = manager.getClient().getCredentials().getInviteSupportServer();
   }
   
   @Override
   public void run() {
-    event.reply(getMessage("server_invitation", link)).complete();
+    reply(getMessage("server_invitation", link));
   }
 }

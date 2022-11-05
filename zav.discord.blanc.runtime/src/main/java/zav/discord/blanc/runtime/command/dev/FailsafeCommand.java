@@ -46,8 +46,8 @@ public class FailsafeCommand extends AbstractCommand {
       "I will direct this personally.",
       "Direct intervention is necessary.",
       "Relinquish your form to us.",
-      "Your minions have failed, %s.",
-      "Your cannot stop us, %s.",
+      "Your minions have failed, {0}.",
+      "Your cannot stop us, {0}.",
       "Submit now!",
       "This is true power.",
       "Progress cannot be halted.",
@@ -65,7 +65,7 @@ public class FailsafeCommand extends AbstractCommand {
       "We are not finished.",
       "Releasing control of this form.",
       "Destroying this body gains you nothing.",
-      "This changes nothing, %s.",
+      "This changes nothing, {0}.",
       "You have only delayed the inevitable.",
       "You are no longer relevant.",
       "Your interference has ended.",
@@ -73,13 +73,12 @@ public class FailsafeCommand extends AbstractCommand {
       "We will find another way.",
       "This body does not matter.",
       "I am releasing this form.",
-      "Impressive, %s.",
+      "Impressive, {0}.",
       "%s, you could have been useful.",
-      "You will regret your resistance, %s."
+      "You will regret your resistance, {0}."
   };
 
   private final User author;
-  private final SlashCommandEvent event;
   private final Client client;
   private final EntityManagerFactory factory;
   
@@ -90,9 +89,8 @@ public class FailsafeCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public FailsafeCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.author = event.getUser();
-    this.event = event;
     this.client = manager.getClient();
     this.factory = client.getEntityManagerFactory();
   }
@@ -129,7 +127,7 @@ public class FailsafeCommand extends AbstractCommand {
       entityManager.merge(entity);
       entityManager.getTransaction().commit();
       
-      event.replyFormat(response, author.getAsMention()).complete();
+      reply(response, author.getAsMention());
     }
   }
 }

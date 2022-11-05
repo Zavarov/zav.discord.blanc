@@ -47,7 +47,6 @@ public class StatusCommand extends AbstractCommand {
   private final EmbedBuilder messageEmbed = new EmbedBuilder();
   private final SystemInfo systemInfo = new SystemInfo();
   private final HardwareAbstractionLayer hardware = systemInfo.getHardware();
-  private final SlashCommandEvent event;
   
   private OperatingSystem os;
   private OSProcess process;
@@ -72,8 +71,7 @@ public class StatusCommand extends AbstractCommand {
    * @param manager The command-specific manager.
    */
   public StatusCommand(SlashCommandEvent event, CommandManager manager) {
-    super(manager);
-    this.event = event;
+    super(event, manager);
     
     os = systemInfo.getOperatingSystem();
     process = os.getProcess(os.getProcessId());
@@ -125,7 +123,7 @@ public class StatusCommand extends AbstractCommand {
     // Global Uptime
     messageEmbed.addField("Global Memory", getGlobalMemory(), false);
     
-    event.replyEmbeds(messageEmbed.build()).complete();
+    reply(messageEmbed.build());
   }
   
   private String getFrequencies() {

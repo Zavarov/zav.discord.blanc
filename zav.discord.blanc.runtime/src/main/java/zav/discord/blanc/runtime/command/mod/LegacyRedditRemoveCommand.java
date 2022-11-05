@@ -57,7 +57,7 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
    * @param manager The manager instance for this command.
    */
   public LegacyRedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.event = event;
     this.guild = event.getGuild();
     this.client = manager.getClient();
@@ -84,7 +84,7 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
       entityManager.merge(guildEntity);
       entityManager.getTransaction().commit();
       
-      event.reply(response).complete();
+      reply(response);
     }
   }
 

@@ -16,8 +16,12 @@
 
 package zav.discord.blanc.command;
 
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
 import zav.discord.blanc.api.Command;
@@ -29,15 +33,18 @@ import zav.discord.blanc.databind.Rank;
  */
 @NonNullByDefault
 public abstract class AbstractCommand implements Command {
+  private final SlashCommandEvent event;
   private final CommandManager manager;
   private final ResourceBundle i18n;
   
   /**
    * Creates a new instance of this class.
    *
+   * @param event The event triggering this command.
    * @param manager The command-specific manager.
    */
-  protected AbstractCommand(CommandManager manager) {
+  protected AbstractCommand(SlashCommandEvent event, CommandManager manager) {
+    this.event = event;
     this.manager = manager;
     this.i18n = ResourceBundle.getBundle("i18n");
   }
@@ -65,5 +72,21 @@ public abstract class AbstractCommand implements Command {
    */
   protected String getMessage(String key, Object... args) {
     return String.format(i18n.getString(key), args);
+  }
+
+  protected void reply(Object content, boolean ephemeral) {
+    event.reply(MarkdownSanitizer.escape(content.toString())).setEphemeral(ephemeral).complete();
+  }
+
+  protected void reply(Object content) {
+    reply(content, false);
+  }
+
+  protected void reply(String pattern, Object... args) {
+    reply(MessageFormat.format(pattern, args));
+  }
+
+  protected void reply(MessageEmbed messageEmbed) {
+    event.replyEmbeds(messageEmbed).complete();
   }
 }

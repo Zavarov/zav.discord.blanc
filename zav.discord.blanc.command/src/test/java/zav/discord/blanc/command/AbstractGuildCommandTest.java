@@ -22,7 +22,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,7 +98,7 @@ public class AbstractGuildCommandTest {
   private static final class GuildCommand extends AbstractGuildCommand {
     
     private GuildCommand(GuildCommandManager manager) {
-      super(manager);
+      super(mock(SlashCommandEvent.class), manager);
     }
   
     @Override

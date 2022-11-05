@@ -35,7 +35,7 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand imp
    * @param manager The manager instance for this command.
    */
   public AbstractRedditInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(manager);
+    super(event, manager);
     this.guild = event.getGuild();
     this.channel = event.getTextChannel();
     this.manager = manager;
