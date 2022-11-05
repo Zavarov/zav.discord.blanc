@@ -58,7 +58,7 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
     this.event = event;
     this.guild = event.getGuild();
     this.client = manager.getClient();
-    this.reddit = client.getSubredditObservable();
+    this.reddit = client.get(SubredditObservable.class);
     this.channel = event.getTextChannel();
   }
   

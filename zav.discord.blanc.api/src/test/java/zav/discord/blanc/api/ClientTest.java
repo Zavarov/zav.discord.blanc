@@ -18,11 +18,13 @@ package zav.discord.blanc.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.databind.Credentials;
-import zav.jrc.client.UserlessClient;
 
 /**
  * Test class for the shards over which the client is split.
@@ -40,7 +41,6 @@ import zav.jrc.client.UserlessClient;
 public class ClientTest {
   @Mock ShardSupplier supplier;
   @Mock Credentials credentials;
-  @Mock UserlessClient jrc;
   List<JDA> shards;
   Client client;
   
@@ -56,8 +56,9 @@ public class ClientTest {
       return null;
     }).when(supplier).forEachRemaining(any());
     
-    client = new Client(credentials, jrc);
+    client = new Client();
     client.postConstruct(supplier);
+    client.bind(Object.class, new Object());
   }
   
   /**
@@ -82,32 +83,12 @@ public class ClientTest {
   }
   
   @Test
-  public void testGetCredentials() {
-    assertEquals(client.getCredentials(), credentials);
+  public void testGet() {
+    assertNotNull(client.get(Object.class));
   }
   
   @Test
-  public void testGetEventQueue() {
-    assertNotNull(client.getEventQueue());
-  }
-  
-  @Test
-  public void testGetPatternCache() {
-    assertNotNull(client.getPatternCache());
-  }
-  
-  @Test
-  public void testGetSiteCache() {
-    assertNotNull(client.getSiteCache());
-  }
-  
-  @Test
-  public void testGetAutoResonseCache() {
-    assertNotNull(client.getAutoResponseCache());
-  }
-  
-  @Test
-  public void testGetSubredditObservable() {
-    assertNotNull(client.getSubredditObservable());
+  public void testGetUnknown() {
+    assertThrows(NoSuchElementException.class, () -> client.get(String.class));
   }
 }

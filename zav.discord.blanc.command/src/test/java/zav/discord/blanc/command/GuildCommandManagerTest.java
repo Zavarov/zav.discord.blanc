@@ -84,7 +84,7 @@ public class GuildCommandManagerTest {
     when(action.complete()).thenReturn(hook);
     when(hook.retrieveOriginal()).thenReturn(response);
     when(response.complete()).thenReturn(message);
-    when(client.getSiteCache()).thenReturn(cache);
+    when(client.get(SiteCache.class)).thenReturn(cache);
     
     manager.submit(List.of(page));
     

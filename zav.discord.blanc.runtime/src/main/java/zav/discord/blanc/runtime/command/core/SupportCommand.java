@@ -19,6 +19,7 @@ package zav.discord.blanc.runtime.command.core;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.Credentials;
 
 /**
  * This command prints an invitation link to the support server.
@@ -37,7 +38,7 @@ public class SupportCommand extends AbstractCommand {
   public SupportCommand(SlashCommandEvent event, CommandManager manager) {
     super(manager);
     this.event = event;
-    this.link = manager.getClient().getCredentials().getInviteSupportServer();
+    this.link = manager.getClient().get(Credentials.class).getInviteSupportServer();
   }
   
   @Override

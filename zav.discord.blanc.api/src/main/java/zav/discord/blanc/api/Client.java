@@ -16,51 +16,24 @@
 
 package zav.discord.blanc.api;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import net.dv8tion.jda.api.JDA;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.cache.AutoResponseCache;
-import zav.discord.blanc.api.cache.PatternCache;
-import zav.discord.blanc.api.cache.SiteCache;
+import zav.discord.blanc.api.util.ApplicationContext;
 import zav.discord.blanc.api.util.ShardSupplier;
-import zav.discord.blanc.databind.Credentials;
-import zav.discord.blanc.reddit.SubredditObservable;
-import zav.jrc.client.UserlessClient;
 
 /**
  * The application instance over all shards.
  */
 @NonNullByDefault
-public class Client {
+public class Client implements ApplicationContext {
   private final List<JDA> shards = new ArrayList<>();
-  private final Credentials credentials;
-  private final ScheduledExecutorService eventQueue;
-  private final PatternCache patternCache;
-  private final SiteCache siteCache;
-  private final AutoResponseCache responseCache;
-  private final SubredditObservable subredditObservable;
-  
-
-  /** 
-   * Initializes the client instance.
-   *
-   * @param credentials The credentials used to authenticate this program to Discord.
-   * @param client The JRC client.
-   */
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-  public Client(Credentials credentials, UserlessClient client) {
-    this.credentials = credentials;
-    this.eventQueue = Executors.newScheduledThreadPool(4);
-    this.patternCache = new PatternCache();
-    this.siteCache = new SiteCache();
-    this.responseCache = new AutoResponseCache();
-    this.subredditObservable = new SubredditObservable(client, eventQueue);
-  }
+  private final Map<Class<?>, Object> context = new HashMap<>();
   
   /**
    * Creates and initializes all shards.
@@ -95,66 +68,22 @@ public class Client {
     long index = (guildId >> 22) % shards.size();
     return shards.get((int) index);
   }
-  
-  /**
-   * Returns the configuration file.
-   *
-   * @return As described.
-   */
+
+  @Override
   @Contract(pure = true)
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public Credentials getCredentials() {
-    return credentials;
-  }
-  
-  /**
-   * Returns the shared executor pool.
-   *
-   * @return As described.
-   */
-  @Contract(pure = true)
-  public ScheduledExecutorService getEventQueue() {
-    return eventQueue;
-  }
-  
-  /**
-   * Returns the cache of all blacklisted expressions.
-   *
-   * @return As described.
-   */
-  @Contract(pure = true)
-  public PatternCache getPatternCache() {
-    return patternCache;
-  }
-  
-  /**
-   * Returns the cache of all interactive message.
-   *
-   * @return As described.
-   */
-  @Contract(pure = true)
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public SiteCache getSiteCache() {
-    return siteCache;
+  public <T> T get(Class<T> clazz) {
+    Object result = context.get(clazz);
+
+    if (result == null) {
+      throw new NoSuchElementException("No element bound for " + clazz.toString());
+    }
+
+    return clazz.cast(result);
   }
 
-  /**
-   * Returns the cache of all guild-specific registered auto-responses.
-   */
-  @Contract(pure = true)
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public AutoResponseCache getAutoResponseCache() {
-    return responseCache;
-  }
-  
-  /**
-   * Returns the global subreddit observable.
-   *
-   * @return As described.
-   */
-  @Contract(pure = true)
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public SubredditObservable getSubredditObservable() {
-    return subredditObservable;
+  @Override
+  @Contract(mutates = "this")
+  public <T> void bind(Class<T> clazz, T object) {
+    context.put(clazz, object);
   }
 }

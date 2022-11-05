@@ -44,7 +44,7 @@ public class RedditJob implements Runnable {
    */
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public RedditJob(Client client) {
-    this.observable = client.getSubredditObservable();
+    this.observable = client.get(SubredditObservable.class);
     this.postConstruct(client, new TextChannelInitializer(observable));
     this.postConstruct(client, new WebhookInitializer(observable));
   }

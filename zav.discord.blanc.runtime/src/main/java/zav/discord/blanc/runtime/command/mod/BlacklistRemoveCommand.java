@@ -27,7 +27,7 @@ public class BlacklistRemoveCommand extends AbstractGuildCommand {
   public BlacklistRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.cache = manager.getClient().getPatternCache();
+    this.cache = manager.getClient().get(PatternCache.class);
   }
 
   @Override
