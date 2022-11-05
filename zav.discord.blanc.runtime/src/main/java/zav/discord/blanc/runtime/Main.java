@@ -97,7 +97,7 @@ public class Main {
     client.bind(PatternCache.class, new PatternCache());
     client.bind(AutoResponseCache.class, new AutoResponseCache());
     client.bind(SiteCache.class, new SiteCache());
-    client.bind(ScheduledExecutorService.class, Executors.newScheduledThreadPool(4));
+    client.bind(ScheduledExecutorService.class, pool);
     client.postConstruct(new ShardSupplier(credentials));
     CommandParser parser = new SimpleCommandParser(client, provider);
     
