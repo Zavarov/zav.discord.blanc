@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.CommandParser;
 import zav.discord.blanc.api.CommandProvider;
+import zav.discord.blanc.api.cache.AutoResponseCache;
+import zav.discord.blanc.api.cache.PatternCache;
+import zav.discord.blanc.api.cache.SiteCache;
 import zav.discord.blanc.api.listener.AutoResponseListener;
 import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
@@ -71,7 +74,7 @@ public class Main {
   private Main() throws Exception {
     Credentials credentials = JsonUtils.read(DISCORD_CREDENTIALS, Credentials.class);
     UserlessClient reddit = loadRedditClient();
-    Client client = loadDiscordClient(reddit, credentials);
+    Client client = loadDiscordClient(credentials);
     loadDatabase(client, credentials);
     LOGGER.info("All Done~");
   }
@@ -85,19 +88,24 @@ public class Main {
     return reddit;
   }
   
-  private Client loadDiscordClient(UserlessClient reddit, Credentials credentials) throws IOException {
+  private Client loadDiscordClient(Credentials credentials) throws IOException {
     LOGGER.info("Loading Discord Client");
     ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
     CommandProvider provider = new SimpleCommandProvider();
-    Client client = new Client(credentials, reddit);
+    Client client = new Client();
+    client.bind(Credentials.class, credentials);
+    client.bind(PatternCache.class, new PatternCache());
+    client.bind(AutoResponseCache.class, new AutoResponseCache());
+    client.bind(SiteCache.class, new SiteCache());
+    client.bind(ScheduledExecutorService.class, Executors.newScheduledThreadPool(4));
     client.postConstruct(new ShardSupplier(credentials));
     CommandParser parser = new SimpleCommandParser(client, provider);
     
     listeners.add(new SlashCommandListener(pool, parser));
     listeners.add(new TextChannelListener());
-    listeners.add(new BlacklistListener(client.getPatternCache()));
-    listeners.add(new AutoResponseListener(client.getAutoResponseCache()));
-    listeners.add(new SiteComponentListener(client.getSiteCache()));
+    listeners.add(new BlacklistListener(client.get(PatternCache.class)));
+    listeners.add(new AutoResponseListener(client.get(AutoResponseCache.class)));
+    listeners.add(new SiteComponentListener(client.get(SiteCache.class)));
 
     LOGGER.info("Starting jobs for client");
     Runnable job = new RedditJob(client); 

@@ -43,7 +43,7 @@ public class BlacklistAddCommand extends AbstractGuildCommand {
   public BlacklistAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.cache = manager.getClient().getPatternCache();
+    this.cache = manager.getClient().get(PatternCache.class);
   }
 
   @Override

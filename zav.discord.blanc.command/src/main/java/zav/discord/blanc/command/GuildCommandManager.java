@@ -82,7 +82,7 @@ public class GuildCommandManager extends CommandManager {
     if (pages.isEmpty()) {
       event.reply("No entries.").complete();
     } else {
-      SiteCache cache = client.getSiteCache();
+      SiteCache cache = client.get(SiteCache.class);
       
       // Build site
       Site site = Site.create(pages, event.getUser());

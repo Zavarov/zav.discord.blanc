@@ -34,17 +34,8 @@
             <artifactId>blanc-databind</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>zav.discord.blanc</groupId>
-            <artifactId>blanc-reddit</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         
         <!-- Compile Dependencies -->
-        <dependency>
-            <groupId>zav.jrc</groupId>
-            <artifactId>jrc-client</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>

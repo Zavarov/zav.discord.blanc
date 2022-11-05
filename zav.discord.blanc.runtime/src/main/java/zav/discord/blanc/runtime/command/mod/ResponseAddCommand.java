@@ -29,7 +29,7 @@ public class ResponseAddCommand extends AbstractGuildCommand {
   public ResponseAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.cache = manager.getClient().getAutoResponseCache();
+    this.cache = manager.getClient().get(AutoResponseCache.class);
   }
 
   @Override

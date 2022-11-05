@@ -29,7 +29,7 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   public AbstractRedditCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.reddit = manager.getClient().getSubredditObservable();
+    this.reddit = manager.getClient().get(SubredditObservable.class);
     this.channel = event.getTextChannel();
   }
   

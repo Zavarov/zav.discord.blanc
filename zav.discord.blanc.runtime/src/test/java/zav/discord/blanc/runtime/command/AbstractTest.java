@@ -87,11 +87,11 @@ public class AbstractTest {
   @BeforeEach
   public void initMocks() {
     lenient().when(client.getShards()).thenReturn(List.of(jda));
-    lenient().when(client.getSubredditObservable()).thenReturn(subredditObservable);
-    lenient().when(client.getEventQueue()).thenReturn(queue);
-    lenient().when(client.getPatternCache()).thenReturn(patternCache);
-    lenient().when(client.getCredentials()).thenReturn(credentials);
-    lenient().when(client.getAutoResponseCache()).thenReturn(responseCache);
+    lenient().when(client.get(SubredditObservable.class)).thenReturn(subredditObservable);
+    lenient().when(client.get(ScheduledExecutorService.class)).thenReturn(queue);
+    lenient().when(client.get(PatternCache.class)).thenReturn(patternCache);
+    lenient().when(client.get(Credentials.class)).thenReturn(credentials);
+    lenient().when(client.get(AutoResponseCache.class)).thenReturn(responseCache);
     
     lenient().when(jda.getGuilds()).thenReturn(List.of(guild));
     lenient().when(jda.getPresence()).thenReturn(presence);

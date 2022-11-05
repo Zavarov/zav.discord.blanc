@@ -44,7 +44,7 @@ public class KillCommand extends AbstractCommand {
     super(manager);
     this.event = event;
     this.client = manager.getClient();
-    this.eventQueue = client.getEventQueue();
+    this.eventQueue = client.get(ScheduledExecutorService.class);
   }
   
   @Override
