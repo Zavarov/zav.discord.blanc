@@ -45,6 +45,7 @@ import zav.discord.blanc.api.util.ShardSupplier;
 import zav.discord.blanc.databind.Credentials;
 import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.runtime.internal.JsonUtils;
 import zav.discord.blanc.runtime.internal.SimpleCommandParser;
 import zav.discord.blanc.runtime.internal.SimpleCommandProvider;
@@ -74,7 +75,7 @@ public class Main {
   private Main() throws Exception {
     Credentials credentials = JsonUtils.read(DISCORD_CREDENTIALS, Credentials.class);
     UserlessClient reddit = loadRedditClient();
-    Client client = loadDiscordClient(credentials);
+    Client client = loadDiscordClient(reddit, credentials);
     loadDatabase(client, credentials);
     LOGGER.info("All Done~");
   }
@@ -88,7 +89,7 @@ public class Main {
     return reddit;
   }
   
-  private Client loadDiscordClient(Credentials credentials) throws IOException {
+  private Client loadDiscordClient(UserlessClient reddit, Credentials credentials) throws IOException {
     LOGGER.info("Loading Discord Client");
     ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
     CommandProvider provider = new SimpleCommandProvider();
@@ -98,6 +99,7 @@ public class Main {
     client.bind(AutoResponseCache.class, new AutoResponseCache());
     client.bind(SiteCache.class, new SiteCache());
     client.bind(ScheduledExecutorService.class, pool);
+    client.bind(SubredditObservable.class, new SubredditObservable(reddit, pool));
     client.postConstruct(new ShardSupplier(credentials));
     CommandParser parser = new SimpleCommandParser(client, provider);
     
