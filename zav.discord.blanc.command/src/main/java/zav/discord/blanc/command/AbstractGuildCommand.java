@@ -22,7 +22,6 @@ import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.api.Permission;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.databind.Rank;
 
 /**
  * Base class for all guild commands.<br>
@@ -39,7 +38,7 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
    * @param manager The command-specific manager.
    */
   protected AbstractGuildCommand(GuildCommandManager manager) {
-    super(Rank.USER, manager);
+    super(manager);
     this.manager = manager;
   }
   

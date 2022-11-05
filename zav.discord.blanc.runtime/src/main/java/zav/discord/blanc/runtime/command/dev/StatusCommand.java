@@ -72,7 +72,7 @@ public class StatusCommand extends AbstractCommand {
    * @param manager The command-specific manager.
    */
   public StatusCommand(SlashCommandEvent event, CommandManager manager) {
-    super(Rank.DEVELOPER, manager);
+    super(manager);
     this.event = event;
     
     os = systemInfo.getOperatingSystem();
@@ -98,6 +98,11 @@ public class StatusCommand extends AbstractCommand {
     cpuVoltage = Double.toString(sensors.getCpuVoltage());
   }
   
+  @Override
+  public Rank getRequiredRank() {
+    return Rank.DEVELOPER;
+  }
+
   @Override
   public void run() {
     messageEmbed.setTitle(os.toString());

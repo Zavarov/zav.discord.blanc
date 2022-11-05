@@ -41,12 +41,17 @@ public class KillCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public KillCommand(SlashCommandEvent event, CommandManager manager) {
-    super(Rank.DEVELOPER, manager);
+    super(manager);
     this.event = event;
     this.client = manager.getClient();
     this.eventQueue = client.getEventQueue();
   }
   
+  @Override
+  public Rank getRequiredRank() {
+    return Rank.DEVELOPER;
+  }
+
   @Override
   @SuppressFBWarnings(value = "DM_EXIT")
   public void run() {

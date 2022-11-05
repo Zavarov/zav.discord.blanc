@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.command;
 
-import static zav.discord.blanc.databind.Rank.USER;
-
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -31,36 +29,28 @@ import zav.discord.blanc.databind.Rank;
  */
 @NonNullByDefault
 public abstract class AbstractCommand implements Command {
-  private final Rank requiredRank;
   private final CommandManager manager;
   private final ResourceBundle i18n;
   
   /**
    * Creates a new instance of this class.
    *
-   * @param requiredRank The minimum rank required to execute this command.
-   * @param manager The command-specific manager.
-   */
-  protected AbstractCommand(Rank requiredRank, CommandManager manager) {
-    this.requiredRank = requiredRank;
-    this.manager = manager;
-    this.i18n = ResourceBundle.getBundle("i18n");
-  }
-  
-  /**
-   * Creates a new instance of this class. Can be executed by every user.
-   *
    * @param manager The command-specific manager.
    */
   protected AbstractCommand(CommandManager manager) {
-    this(USER, manager);
+    this.manager = manager;
+    this.i18n = ResourceBundle.getBundle("i18n");
+  }
+
+  protected Rank getRequiredRank() {
+    return Rank.USER;
   }
   
   @Override
   @Contract(pure = true)
   public void validate() throws ExecutionException {
     // Does the user have the required rank?
-    manager.validate(requiredRank);
+    manager.validate(getRequiredRank());
   }
   
   /**

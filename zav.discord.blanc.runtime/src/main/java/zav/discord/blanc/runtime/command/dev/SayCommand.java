@@ -37,11 +37,16 @@ public class SayCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public SayCommand(SlashCommandEvent event, CommandManager manager) {
-    super(Rank.DEVELOPER, manager);
+    super(manager);
     this.event = event;
     this.content = Objects.requireNonNull(event.getOption("content")).getAsString();
   }
   
+  @Override
+  public Rank getRequiredRank() {
+    return Rank.DEVELOPER;
+  }
+
   @Override
   public void run() {
     event.reply(content).complete();

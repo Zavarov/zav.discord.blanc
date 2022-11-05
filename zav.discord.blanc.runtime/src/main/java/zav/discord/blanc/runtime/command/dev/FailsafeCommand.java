@@ -90,13 +90,18 @@ public class FailsafeCommand extends AbstractCommand {
    * @param manager The manager instance for this command.
    */
   public FailsafeCommand(SlashCommandEvent event, CommandManager manager) {
-    super(Rank.DEVELOPER, manager);
+    super(manager);
     this.author = event.getUser();
     this.event = event;
     this.client = manager.getClient();
     this.factory = client.getEntityManagerFactory();
   }
   
+  @Override
+  public Rank getRequiredRank() {
+    return Rank.DEVELOPER;
+  }
+
   /**
    * This command makes super-user into developers and developers into super-user.
    */
