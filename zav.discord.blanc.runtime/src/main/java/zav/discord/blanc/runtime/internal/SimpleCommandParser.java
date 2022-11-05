@@ -1,4 +1,4 @@
-package zav.discord.blanc.api.util;
+package zav.discord.blanc.runtime.internal;
 
 import java.util.Optional;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;

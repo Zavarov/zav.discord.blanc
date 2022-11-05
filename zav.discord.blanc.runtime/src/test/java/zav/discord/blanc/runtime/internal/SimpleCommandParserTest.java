@@ -1,4 +1,4 @@
-package zav.discord.blanc.api.util;
+package zav.discord.blanc.runtime.internal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
