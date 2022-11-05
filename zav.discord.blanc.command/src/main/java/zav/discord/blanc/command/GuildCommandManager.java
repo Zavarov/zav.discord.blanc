@@ -57,7 +57,7 @@ public class GuildCommandManager extends CommandManager {
     super(client, event);
     this.textChannel = event.getTextChannel();
     this.member = Objects.requireNonNull(event.getMember());
-    this.validator = new PermissionValidator(client.getEntityManagerFactory(), member, textChannel);
+    this.validator = new PermissionValidator(member, textChannel);
   }
   
   /**

@@ -17,9 +17,6 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Rank;
-import zav.discord.blanc.databind.UserEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Check whether developer can request and relinquish super-user privileges.
  */
 @ExtendWith(MockitoExtension.class)
-public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
+public class FailsafeCommandTest extends AbstractTest {
   
   CommandManager manager;
   FailsafeCommand command;
@@ -46,29 +42,25 @@ public class FailsafeCommandTest extends AbstractDatabaseTest<UserEntity> {
    */
   @BeforeEach
   public void setUp() {
-    setUp(new UserEntity());
-    when(entityManager.find(eq(UserEntity.class), any())).thenReturn(entity);
-    
     manager = new CommandManager(client, event);
     command = new FailsafeCommand(event, manager);
   }
   
-  
   @Test
   public void testBecomeRoot() throws Exception {
-    entity.setRanks(new ArrayList<>(List.of(Rank.DEVELOPER)));
+    userEntity.setRanks(new ArrayList<>(List.of(Rank.DEVELOPER)));
     
     command.run();
     
-    assertEquals(entity.getRanks(), List.of(Rank.ROOT));
+    assertEquals(userEntity.getRanks(), List.of(Rank.ROOT));
   }
   
   @Test
   public void testBecomeDeveloper() throws Exception {
-    entity.setRanks(new ArrayList<>(List.of(Rank.ROOT)));
+    userEntity.setRanks(new ArrayList<>(List.of(Rank.ROOT)));
     
     command.run();
     
-    assertEquals(entity.getRanks(), List.of(Rank.DEVELOPER));
+    assertEquals(userEntity.getRanks(), List.of(Rank.DEVELOPER));
   }
 }

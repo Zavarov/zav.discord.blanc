@@ -18,7 +18,6 @@ package zav.discord.blanc.databind;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -29,6 +28,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.User;
+import zav.discord.blanc.databind.internal.PersistenceUtil;
 
 @Getter
 @Setter
@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.entities.User;
 @NoArgsConstructor
 @Entity
 @Table(name = "User")
-public class UserEntity {
+public class UserEntity implements PersistedEntity {
   /**
    * Unique 64bit long id of the user.
    */
@@ -58,20 +58,12 @@ public class UserEntity {
    */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<Rank> ranks = new ArrayList<>();
-  
-  public static UserEntity getOrCreate(EntityManager entityManager, User user) {
-    UserEntity  entity = entityManager.find(UserEntity.class, user.getIdLong());
-    
-    if (entity == null) {
-      entity = new UserEntity();
-      entity.setId(user.getIdLong());
-      entity.setRanks(List.of(Rank.USER));
-    }
-    
-    // User name and discriminator may have changed since the last time the entity was persisted
-    entity.setName(user.getName());
-    entity.setDiscriminator(user.getDiscriminator());
-    
-    return entity;
+
+  public static void remove(User user) {
+    PersistenceUtil.remove(user);
+  }
+
+  public static UserEntity find(User user) {
+    return PersistenceUtil.find(user);
   }
 }

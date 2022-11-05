@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.runtime.job;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
@@ -35,7 +33,6 @@ import zav.discord.blanc.runtime.internal.validator.WebhookValidator;
 @SuppressWarnings("deprecation")
 public class CleanupJob implements Runnable {
   private static final Logger LOGGER = LoggerFactory.getLogger(CleanupJob.class);
-  private final EntityManagerFactory factory;
   private final Client client;
   
   /**
@@ -45,25 +42,20 @@ public class CleanupJob implements Runnable {
    */
   public CleanupJob(Client client) {
     this.client = client;
-    this.factory = client.getEntityManagerFactory();
   }
   
   @Override
   public void run() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      for (JDA shard : client.getShards()) {
-        for (Guild guild : shard.getGuilds()) {
-          GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
+    for (JDA shard : client.getShards()) {
+      for (Guild guild : shard.getGuilds()) {
+        GuildEntity entity = GuildEntity.find(guild);
 
-          LOGGER.info("Remove invalid text channels from the database.");
-          entity.getTextChannels().removeIf(new TextChannelValidator(guild));
-          LOGGER.info("Remove invalid webhooks from the database.");
-          entity.getWebhooks().removeIf(new WebhookValidator(guild));
-          
-          entityManager.getTransaction().begin();
-          entityManager.merge(entity);
-          entityManager.getTransaction().commit();
-        }
+        LOGGER.info("Remove invalid text channels from the database.");
+        entity.getTextChannels().removeIf(new TextChannelValidator(guild));
+        LOGGER.info("Remove invalid webhooks from the database.");
+        entity.getWebhooks().removeIf(new WebhookValidator(guild));
+
+        entity.merge();
       }
     }
   }

@@ -17,7 +17,6 @@
 package zav.discord.blanc.runtime.job;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -45,10 +44,9 @@ public class RedditJob implements Runnable {
    */
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public RedditJob(Client client) {
-    EntityManagerFactory factory = client.getEntityManagerFactory();
     this.observable = client.getSubredditObservable();
-    this.postConstruct(client,  new TextChannelInitializer(factory, observable));
-    this.postConstruct(client,  new WebhookInitializer(factory, observable));
+    this.postConstruct(client, new TextChannelInitializer(observable));
+    this.postConstruct(client, new WebhookInitializer(observable));
   }
   
   /**

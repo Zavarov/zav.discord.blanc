@@ -17,6 +17,7 @@ import zav.discord.blanc.reddit.SubredditObservable;
 public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   protected static final String WEBHOOK = "Reddit";
   protected final SubredditObservable reddit;
+  protected final SlashCommandEvent event;
   protected final TextChannel channel;
   
   /**
@@ -27,6 +28,7 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
    */
   public AbstractRedditCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
+    this.event = event;
     this.reddit = manager.getClient().getSubredditObservable();
     this.channel = event.getTextChannel();
   }

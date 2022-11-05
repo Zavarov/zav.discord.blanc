@@ -17,8 +17,6 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,15 +37,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether it is possible to blacklist/whitelist regular expressions.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class BlacklistRemoveCommandTest extends AbstractTest {
   
   @Mock OptionMapping pattern;
   @Mock OptionMapping index;
@@ -59,15 +56,13 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
     when(event.getMember()).thenReturn(member);
     when(event.getGuild()).thenReturn(guild);
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = new GuildCommandManager(client, event);
     command = new BlacklistRemoveCommand(event, manager);
 
-    entity.setBlacklist(new ArrayList<>(List.of("foo")));
+    guildEntity.setBlacklist(new ArrayList<>(List.of("foo")));
   }
   
   /**
@@ -81,7 +76,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.emptyList());
+    assertEquals(guildEntity.getBlacklist(), Collections.emptyList());
     verify(patternCache).invalidate(guild);
   }
   
@@ -96,7 +91,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.emptyList());
+    assertEquals(guildEntity.getBlacklist(), Collections.emptyList());
     verify(patternCache).invalidate(guild);
   }
   
@@ -111,7 +106,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
+    assertEquals(guildEntity.getBlacklist(), Collections.singletonList("foo"));
     verify(patternCache, times(0)).invalidate(guild);
   }
   
@@ -128,7 +123,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
+    assertEquals(guildEntity.getBlacklist(), Collections.singletonList("foo"));
     verify(patternCache, times(0)).invalidate(guild);
   }
   
@@ -143,7 +138,7 @@ public class BlacklistRemoveCommandTest extends AbstractDatabaseTest<GuildEntity
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), Collections.singletonList("foo"));
+    assertEquals(guildEntity.getBlacklist(), Collections.singletonList("foo"));
     verify(patternCache, times(0)).invalidate(guild);
   }
   

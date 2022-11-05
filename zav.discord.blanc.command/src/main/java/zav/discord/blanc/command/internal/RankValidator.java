@@ -19,7 +19,6 @@ package zav.discord.blanc.command.internal;
 import static zav.discord.blanc.databind.Rank.getEffectiveRanks;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.Collection;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -32,24 +31,21 @@ import zav.discord.blanc.databind.Rank;
  */
 @NonNullByDefault
 public class RankValidator implements Validator<Rank> {
-  private final EntityManagerFactory factory;
   private final User author;
   
   /**
    * Initializes the rank validator for a single command.
    *
-   * @param factory The persistence context.
    * @param author The user who executed the command.
    */
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-  public RankValidator(EntityManagerFactory factory, User author) {
-    this.factory = factory;
+  public RankValidator(User author) {
     this.author = author;
   }
   
   @Override
   public void validate(Collection<Rank> args) throws InsufficientRankException {
-    if (!getEffectiveRanks(author, factory).containsAll(args)) {
+    if (!getEffectiveRanks(author).containsAll(args)) {
       throw new InsufficientRankException(args);
     }
   }

@@ -1,7 +1,5 @@
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
@@ -11,7 +9,6 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command allows the user to remove automatic responses. The responses are identified by their
@@ -20,7 +17,6 @@ import zav.discord.blanc.runtime.internal.PersistenceUtils;
 public class ResponseRemoveCommand extends AbstractGuildCommand {
   private final AutoResponseCache cache;
   private final SlashCommandEvent event;
-  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
@@ -31,16 +27,17 @@ public class ResponseRemoveCommand extends AbstractGuildCommand {
   public ResponseRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.factory = manager.getClient().getEntityManagerFactory();
     this.cache = manager.getClient().getAutoResponseCache();
   }
 
   @Override
   public void run() {
-    PersistenceUtils.handle(factory, event, this::modify);
+    GuildEntity entity = GuildEntity.find(event.getGuild());
+    event.reply(modify(entity)).complete();
+    entity.merge();
   }
 
-  private String modify(EntityManager entityManager, GuildEntity entity) {
+  private String modify(GuildEntity entity) {
     int index = (int) event.getOption("index").getAsLong();
     
     if (index < 0 || index >= entity.getAutoResponses().size()) {

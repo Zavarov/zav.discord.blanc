@@ -16,12 +16,9 @@
 
 package zav.discord.blanc.api.cache;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Guild;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.GuildEntity;
 
 /**
@@ -31,22 +28,9 @@ import zav.discord.blanc.databind.GuildEntity;
  */
 @NonNullByDefault
 public class PatternCache extends AbstractCache<Guild, Pattern> {
-  private final EntityManagerFactory factory;
-  
-  /**
-   * Creates a new instance for the given persistence manager. The instance is managed by the
-   * {@link Client} class.
-   *
-   * @param factory The persistence manager.
-   */
-  public PatternCache(EntityManagerFactory factory) {
-    this.factory = factory;
-  }
   
   @Override
   protected Pattern fetch(Guild guild) {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      return GuildEntity.getOrCreate(entityManager, guild).getPattern().orElse(null);
-    }
+    return GuildEntity.find(guild).getPattern().orElse(null);
   }
 }

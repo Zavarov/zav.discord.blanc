@@ -6,10 +6,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.JDA;
@@ -25,15 +24,22 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.cache.AutoResponseCache;
 import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.command.CommandManager;
+import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.Credentials;
+import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.databind.TextChannelEntity;
+import zav.discord.blanc.databind.UserEntity;
+import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
@@ -54,9 +60,6 @@ public class AbstractTest {
   public @Mock Webhook webhook;
   public @Mock AuditableRestAction<Void> delete;
   public @Mock SubredditObservable subredditObservable;
-  public @Mock EntityManagerFactory entityManagerFactory;
-  public @Mock EntityManager entityManager;
-  public @Mock EntityTransaction entityTransaction;
   public @Mock ScheduledExecutorService queue;
   public @Mock PatternCache patternCache;
   public @Mock AutoResponseCache responseCache;
@@ -67,6 +70,17 @@ public class AbstractTest {
   public @Mock ReplyAction reply;
   public @Mock Credentials credentials;
   
+  public GuildEntity guildEntity;
+  public TextChannelEntity channelEntity;
+  public WebhookEntity webhookEntity;
+  public UserEntity userEntity;
+  public AutoResponseEntity responseEntity;
+
+  private MockedStatic<GuildEntity> mocked1;
+  private MockedStatic<TextChannelEntity> mocked2;
+  private MockedStatic<WebhookEntity> mocked3;
+  private MockedStatic<UserEntity> mocked4;
+
   /**
    * Initializes the getter and setter methods of the individual mocks.
    */
@@ -74,14 +88,10 @@ public class AbstractTest {
   public void initMocks() {
     lenient().when(client.getShards()).thenReturn(List.of(jda));
     lenient().when(client.getSubredditObservable()).thenReturn(subredditObservable);
-    lenient().when(client.getEntityManagerFactory()).thenReturn(entityManagerFactory);
     lenient().when(client.getEventQueue()).thenReturn(queue);
     lenient().when(client.getPatternCache()).thenReturn(patternCache);
     lenient().when(client.getCredentials()).thenReturn(credentials);
     lenient().when(client.getAutoResponseCache()).thenReturn(responseCache);
-    
-    lenient().when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
-    lenient().when(entityManager.getTransaction()).thenReturn(entityTransaction);
     
     lenient().when(jda.getGuilds()).thenReturn(List.of(guild));
     lenient().when(jda.getPresence()).thenReturn(presence);
@@ -105,5 +115,48 @@ public class AbstractTest {
     lenient().when(event.reply(response.capture())).thenReturn(reply);
     lenient().when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
     lenient().when(reply.setEphemeral(anyBoolean())).thenReturn(reply);
+  }
+
+  /**
+   * Initializes all Discord entities.
+   */
+  @BeforeEach
+  public void initEntities() {
+    guildEntity = spy(new GuildEntity());
+    channelEntity = spy(new TextChannelEntity());
+    webhookEntity = spy(new WebhookEntity());
+    userEntity = spy(new UserEntity());
+    responseEntity = spy(new AutoResponseEntity());
+    
+    lenient().doNothing().when(guildEntity).merge();
+    lenient().doNothing().when(channelEntity).merge();
+    lenient().doNothing().when(webhookEntity).merge();
+    lenient().doNothing().when(userEntity).merge();
+    lenient().doNothing().when(responseEntity).merge();
+
+    guildEntity.add(channelEntity);
+    guildEntity.add(webhookEntity);
+    guildEntity.add(responseEntity);
+    channelEntity.add(webhookEntity);
+
+    mocked1 = mockStatic(GuildEntity.class);
+    mocked1.when(() -> GuildEntity.find(guild)).thenReturn(guildEntity);
+    mocked2 = mockStatic(TextChannelEntity.class);
+    mocked2.when(() -> TextChannelEntity.find(channel)).thenReturn(channelEntity);
+    mocked3 = mockStatic(WebhookEntity.class);
+    mocked3.when(() -> WebhookEntity.find(webhook)).thenReturn(webhookEntity);
+    mocked4 = mockStatic(UserEntity.class);
+    mocked4.when(() -> UserEntity.find(user)).thenReturn(userEntity);
+  }
+
+  /**
+   * Close all static mocks.
+   */
+  @AfterEach
+  public void tearDownEntities() {
+    mocked1.close();
+    mocked2.close();
+    mocked3.close();
+    mocked4.close();
   }
 }

@@ -13,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
 import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
@@ -22,8 +20,6 @@ import zav.discord.blanc.runtime.command.AbstractTest;
  */
 @ExtendWith(MockitoExtension.class)
 public class WebhookValidatorTest extends AbstractTest {
-  TextChannelEntity channelEntity;
-  WebhookEntity entity;
   WebhookValidator validator;
   
   /**
@@ -31,16 +27,13 @@ public class WebhookValidatorTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    entity = new WebhookEntity();
-    channelEntity = new TextChannelEntity();
-    channelEntity.add(entity);
     validator = new WebhookValidator(guild);
   }
   
   @Test
   public void testUnknownChannel() {
     when(guild.getTextChannelById(anyLong())).thenReturn(null);
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(webhookEntity));
   }
   
   @Test
@@ -48,26 +41,26 @@ public class WebhookValidatorTest extends AbstractTest {
     when(channel.canTalk()).thenReturn(true);
     when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(retrieveWebhooks.complete()).thenReturn(Collections.emptyList());
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(webhookEntity));
   }
   
   @Test
   public void testInsufficientPermission() {
     when(channel.canTalk()).thenReturn(true);
     when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(webhookEntity));
   }
   
   @Test
   public void testInaccessible() {
     when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(webhookEntity));
   }
   
   @Test
   public void testValid() {
     when(channel.canTalk()).thenReturn(true);
     when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
-    assertFalse(validator.test(entity));
+    assertFalse(validator.test(webhookEntity));
   }
 }

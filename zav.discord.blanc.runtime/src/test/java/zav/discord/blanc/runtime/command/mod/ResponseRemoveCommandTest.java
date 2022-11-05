@@ -1,8 +1,6 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,35 +18,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.AutoResponseEntity;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether automatic responses can be removed to the database.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class ResponseRemoveCommandTest extends AbstractTest {
   @Mock OptionMapping index;
   GuildCommandManager manager;
   ResponseRemoveCommand command;
-  AutoResponseEntity responseEntity;
   
   /**
    * Initializes the command with a single response.
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
-    
-    responseEntity = new AutoResponseEntity();
     responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
-    
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
-    
-    entity.add(responseEntity);
     
     manager = new GuildCommandManager(client, event);
     command = new ResponseRemoveCommand(event, manager);
@@ -64,7 +52,7 @@ public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity>
     
     command.run();
     
-    assertEquals(entity.getAutoResponses().size(), 0);
+    assertEquals(guildEntity.getAutoResponses().size(), 0);
 
     verify(responseCache).invalidate(guild);
   }
@@ -80,9 +68,9 @@ public class ResponseRemoveCommandTest extends AbstractDatabaseTest<GuildEntity>
     
     command.run();
     
-    assertEquals(entity.getAutoResponses().size(), 1);
-    assertEquals(entity.getAutoResponses().get(0).getPattern(), "Hello There");
-    assertEquals(entity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
+    assertEquals(guildEntity.getAutoResponses().size(), 1);
+    assertEquals(guildEntity.getAutoResponses().get(0).getPattern(), "Hello There");
+    assertEquals(guildEntity.getAutoResponses().get(0).getAnswer(), "General Kenobi");
 
     verify(responseCache, times(0)).invalidate(guild);
   }

@@ -1,12 +1,11 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -20,15 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether automatic responses can be added to the database.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class ResponseAddCommandTest extends AbstractTest {
   @Mock OptionMapping pattern;
   @Mock OptionMapping answer;
   GuildCommandManager manager;
@@ -39,12 +37,10 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
-    
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
-
     manager = new GuildCommandManager(client, event);
     command = new ResponseAddCommand(event, manager);
+
+    guildEntity.setAutoResponses(new ArrayList<>());
   }
 
   /**
@@ -64,9 +60,9 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
     
     command.run();
     
-    assertEquals(entity.getAutoResponses().size(), 1);
-    assertEquals(entity.getAutoResponses().get(0).getPattern(), source);
-    assertEquals(entity.getAutoResponses().get(0).getAnswer(), target);
+    assertEquals(guildEntity.getAutoResponses().size(), 1);
+    assertEquals(guildEntity.getAutoResponses().get(0).getPattern(), source);
+    assertEquals(guildEntity.getAutoResponses().get(0).getAnswer(), target);
 
     verify(responseCache).invalidate(guild);
   }
@@ -83,7 +79,7 @@ public class ResponseAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
     
     command.run();
     
-    assertEquals(entity.getAutoResponses().size(), 0);
+    assertEquals(guildEntity.getAutoResponses().size(), 0);
     
     verify(responseCache, times(0)).invalidate(guild);
   }

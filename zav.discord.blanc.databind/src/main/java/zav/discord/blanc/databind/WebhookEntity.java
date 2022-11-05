@@ -19,7 +19,6 @@ package zav.discord.blanc.databind;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -31,6 +30,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.Webhook;
+import zav.discord.blanc.databind.internal.PersistenceUtil;
 
 @Getter
 @Setter
@@ -38,7 +38,7 @@ import net.dv8tion.jda.api.entities.Webhook;
 @NoArgsConstructor
 @Entity
 @Table(name = "Webhook")
-public class WebhookEntity {
+public class WebhookEntity implements PersistedEntity {
   /**
    * Unique 64bit long id of the webhook.
    */
@@ -74,21 +74,15 @@ public class WebhookEntity {
   @Column(length = 1000)
   private List<String> subreddits = new ArrayList<>();
   
-  public static WebhookEntity getOrCreate(EntityManager entityManager, Webhook webhook) {
-    WebhookEntity entity = entityManager.find(WebhookEntity.class, webhook.getIdLong());
-    
-    if (entity == null) {
-      entity = new WebhookEntity();
-      entity.setId(webhook.getIdLong());
-    }
-    
-    // Webhook name may have changed since the last time the entity was persisted
-    entity.setName(webhook.getName());
-    
-    return entity;
-  }
-  
   public boolean isEmpty() {
     return getSubreddits().isEmpty();
+  }
+
+  public static void remove(Webhook webhook) {
+    PersistenceUtil.remove(webhook);
+  }
+
+  public static WebhookEntity find(Webhook webhook) {
+    return PersistenceUtil.find(webhook);
   }
 }

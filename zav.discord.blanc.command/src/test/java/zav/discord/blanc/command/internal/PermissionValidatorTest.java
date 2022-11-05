@@ -17,11 +17,9 @@
 package zav.discord.blanc.command.internal;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.InsufficientPermissionException;
 import zav.discord.blanc.databind.Rank;
@@ -44,13 +43,12 @@ import zav.discord.blanc.databind.UserEntity;
  */
 @ExtendWith(MockitoExtension.class)
 public class PermissionValidatorTest {
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   UserEntity userEntity;
   
   @Mock Member author;
   @Mock User user;
   @Mock TextChannel textChannel;
+  MockedStatic<UserEntity> mocked;
   
   PermissionValidator validator;
   Set<Permission> permissions;
@@ -60,20 +58,19 @@ public class PermissionValidatorTest {
    */
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    entityManager = factory.createEntityManager();
     userEntity = new UserEntity();
-    userEntity.setRanks(List.of(Rank.ROOT));
-    validator = new PermissionValidator(factory, author, textChannel);
+    validator = new PermissionValidator(author, textChannel);
     permissions = EnumSet.of(Permission.ADMINISTRATOR);
     
+    mocked = mockStatic(UserEntity.class);
+    mocked.when(() -> UserEntity.find(user)).thenReturn(userEntity);
+
     when(author.getUser()).thenReturn(user);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
-    factory.close();
+    mocked.close();
   }
   
   /**
@@ -83,13 +80,9 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidateAsRoot() throws Exception {
-    entityManager.getTransaction().begin();
-    entityManager.merge(userEntity);
-    entityManager.getTransaction().commit();
-    
+    userEntity.setRanks(List.of(Rank.ROOT));
+
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
-    when(author.getUser()).thenReturn(user);
-    when(user.getIdLong()).thenReturn(userEntity.getId());
   
     validator.validate(permissions);
   }
@@ -101,7 +94,10 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidate() throws Exception {
+    userEntity.setRanks(List.of(Rank.USER));
+
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.of(Permission.ADMINISTRATOR));
+
     validator.validate(permissions);
   }
   
@@ -110,7 +106,10 @@ public class PermissionValidatorTest {
    */
   @Test
   public void testValidateWithInsufficientPermissions() {
+    userEntity.setRanks(List.of(Rank.USER));
+
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
+
     assertThrows(InsufficientPermissionException.class, () -> validator.validate(permissions));
   }
 }

@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +23,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
@@ -38,9 +35,7 @@ import zav.discord.blanc.databind.GuildEntity;
  */
 public class BlacklistInfoCommand extends AbstractGuildCommand implements RichResponse {
   
-  private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
-  private final Client client;
   private final Guild guild;
   
   /**
@@ -53,8 +48,6 @@ public class BlacklistInfoCommand extends AbstractGuildCommand implements RichRe
     super(manager);
     this.guild = event.getGuild();
     this.manager = manager;
-    this.client = manager.getClient();
-    this.factory = client.getEntityManagerFactory();
   }
 
   @Override
@@ -68,13 +61,11 @@ public class BlacklistInfoCommand extends AbstractGuildCommand implements RichRe
     builder.setItemsPerPage(10);
     builder.setLabel("Forbidden Expressions");
     
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
-      
-      List<String> patterns = entity.getBlacklist();
-      for (int i = 0; i < patterns.size(); ++i) {
-        builder.add("`[{0}]` {1}\n", i, MarkdownSanitizer.escape(patterns.get(i)));
-      }
+    GuildEntity entity = GuildEntity.find(guild);
+    
+    List<String> patterns = entity.getBlacklist();
+    for (int i = 0; i < patterns.size(); ++i) {
+      builder.add("`[{0}]` {1}\n", i, MarkdownSanitizer.escape(patterns.get(i)));
     }
 
     return builder.build();

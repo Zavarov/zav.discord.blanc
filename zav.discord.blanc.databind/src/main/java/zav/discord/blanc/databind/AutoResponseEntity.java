@@ -17,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "AutoResponse")
-public class AutoResponseEntity {
+public class AutoResponseEntity implements PersistedEntity {
   
   /**
    * The guild entity this object is contained by.

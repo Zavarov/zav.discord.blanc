@@ -49,7 +49,7 @@ public class CommandManager {
   public CommandManager(Client client, SlashCommandEvent event) {
     this.client = client;
     this.event = event;
-    this.validator = new RankValidator(client.getEntityManagerFactory(), event.getUser());
+    this.validator = new RankValidator(event.getUser());
   }
   
   /**

@@ -1,7 +1,5 @@
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -9,7 +7,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
@@ -22,9 +19,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * directly, and the new approach using webhooks.
  */
 public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand implements RichResponse {
-  private final EntityManagerFactory factory;
   private final GuildCommandManager manager;
-  private final Client client;
   private final Guild guild;
   protected final TextChannel channel;
   
@@ -39,8 +34,6 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand imp
     this.guild = event.getGuild();
     this.channel = event.getTextChannel();
     this.manager = manager;
-    this.client = manager.getClient();
-    this.factory = client.getEntityManagerFactory();
   }
   
   public abstract List<String> getSubreddits(GuildEntity entity);
@@ -56,14 +49,11 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand imp
     builder.setItemsPerPage(10);
     builder.setLabel("Subreddit Feeds");
     
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity entity = GuildEntity.getOrCreate(entityManager, guild);
-      
-      
-      List<String> subreddits = getSubreddits(entity);
-      for (int i = 0; i < subreddits.size(); ++i) {
-        builder.add("`[{0}]` r/{1}\n", i, subreddits.get(i));
-      }
+    GuildEntity entity = GuildEntity.find(guild);
+
+    List<String> subreddits = getSubreddits(entity);
+    for (int i = 0; i < subreddits.size(); ++i) {
+      builder.add("`[{0}]` r/{1}\n", i, subreddits.get(i));
     }
     
     return builder.build();

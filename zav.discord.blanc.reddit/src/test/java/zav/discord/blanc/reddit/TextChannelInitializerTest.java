@@ -16,13 +16,11 @@
 
 package zav.discord.blanc.reddit;
 
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -31,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.TextChannelEntity;
 
@@ -43,11 +42,12 @@ public class TextChannelInitializerTest {
   
   @Mock SubredditObservable observable;
   @Mock Guild guild;
-  @Mock TextChannel textChannel;
-  EntityManagerFactory factory;
-  EntityManager entityManager;
-  TextChannelEntity entity;
+  @Mock TextChannel textChannel1;
+  @Mock TextChannel textChannel2;
+  TextChannelEntity entity1;
+  TextChannelEntity entity2;
   TextChannelInitializer initializer;
+  MockedStatic<TextChannelEntity> mocked;
   
   /**
    * Creates a new instance of the text channel initializer and loads the database with a single
@@ -55,39 +55,38 @@ public class TextChannelInitializerTest {
    */
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    initializer = new TextChannelInitializer(factory, observable);
-    entityManager = factory.createEntityManager();
-    entity = new TextChannelEntity();
-    entity.setSubreddits(List.of("RedditDev"));
+    initializer = new TextChannelInitializer(observable);
+    entity1 = new TextChannelEntity();
+    entity1.setSubreddits(List.of("RedditDev"));
+    entity2 = new TextChannelEntity();
     
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
+    mocked = mockStatic(TextChannelEntity.class);
+    mocked.when(() -> TextChannelEntity.find(textChannel1)).thenReturn(entity1);
+    mocked.when(() -> TextChannelEntity.find(textChannel2)).thenReturn(entity2);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
+    mocked.close();
   }
   
   @Test
   public void testLoad() {
-    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
-    when(textChannel.getIdLong()).thenReturn(entity.getId());
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel1));
     
     initializer.load(guild);
     
-    verify(observable).addListener("RedditDev", textChannel);
+    verify(observable).addListener("RedditDev", textChannel1);
+    verify(observable, times(0)).addListener("RedditDev", textChannel2);
   }
   
   @Test
   public void testLoadUnrelatedTextChannels() {
-    when(guild.getTextChannels()).thenReturn(List.of(textChannel));
-    when(textChannel.getIdLong()).thenReturn(Long.MAX_VALUE);
+    when(guild.getTextChannels()).thenReturn(List.of(textChannel2));
     
     initializer.load(guild);
     
-    verify(observable, times(0)).addListener("RedditDev", textChannel);
+    verify(observable, times(0)).addListener("RedditDev", textChannel1);
+    verify(observable, times(0)).addListener("RedditDev", textChannel2);
   }
 }

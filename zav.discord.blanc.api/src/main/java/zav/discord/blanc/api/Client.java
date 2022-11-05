@@ -17,8 +17,6 @@
 package zav.discord.blanc.api;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -40,7 +38,6 @@ import zav.jrc.client.UserlessClient;
 @NonNullByDefault
 public class Client {
   private final List<JDA> shards = new ArrayList<>();
-  private final EntityManagerFactory factory;
   private final Credentials credentials;
   private final ScheduledExecutorService eventQueue;
   private final PatternCache patternCache;
@@ -58,11 +55,10 @@ public class Client {
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public Client(Credentials credentials, UserlessClient client) {
     this.credentials = credentials;
-    this.factory = Persistence.createEntityManagerFactory("discord-entities");
     this.eventQueue = Executors.newScheduledThreadPool(4);
-    this.patternCache = new PatternCache(factory);
+    this.patternCache = new PatternCache();
     this.siteCache = new SiteCache();
-    this.responseCache = new AutoResponseCache(factory);
+    this.responseCache = new AutoResponseCache();
     this.subredditObservable = new SubredditObservable(client, eventQueue);
   }
   
@@ -160,16 +156,5 @@ public class Client {
   @SuppressFBWarnings(value = "EI_EXPOSE_REP")
   public SubredditObservable getSubredditObservable() {
     return subredditObservable;
-  }
-
-  /**
-   * Returns the global JPA persistence manager.
-   *
-   * @return As described.
-   */
-  @Contract(pure = true)
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP")
-  public EntityManagerFactory getEntityManagerFactory() {
-    return factory;
   }
 }
