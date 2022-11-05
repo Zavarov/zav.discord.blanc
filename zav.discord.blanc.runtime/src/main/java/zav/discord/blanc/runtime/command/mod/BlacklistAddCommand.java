@@ -17,21 +17,27 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.cache.PatternCache;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command blacklists certain words. Any message that contains the word will be deleted by the
  * application.
  */
-public class BlacklistAddCommand extends AbstractDatabaseCommand {  
+public class BlacklistAddCommand extends AbstractGuildCommand {
   private final PatternCache cache;
+  private final SlashCommandEvent event;
+  private final EntityManagerFactory factory;
+
   /**
    * Creates a new instance of this command.
    *
@@ -39,12 +45,18 @@ public class BlacklistAddCommand extends AbstractDatabaseCommand {
    * @param manager The manager instance for this command.
    */
   public BlacklistAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
-    this.cache = client.getPatternCache();
+    super(manager);
+    this.event = event;
+    this.cache = manager.getClient().getPatternCache();
+    this.factory = manager.getClient().getEntityManagerFactory();
   }
 
   @Override
-  protected String modify(EntityManager entityManager, GuildEntity entity) {
+  public void run() {
+    PersistenceUtils.handle(factory, event, this::modify);
+  }
+
+  private String modify(EntityManager entityManager, GuildEntity entity) {
     String pattern = Objects.requireNonNull(event.getOption("pattern")).getAsString();
     
     return addByName(entity, pattern);
@@ -54,7 +66,7 @@ public class BlacklistAddCommand extends AbstractDatabaseCommand {
     if (!entity.getBlacklist().contains(pattern)) {
       entity.getBlacklist().add(pattern);
       
-      cache.invalidate(guild);
+      cache.invalidate(event.getGuild());
       
       return getMessage("blacklist_add", pattern);
     }

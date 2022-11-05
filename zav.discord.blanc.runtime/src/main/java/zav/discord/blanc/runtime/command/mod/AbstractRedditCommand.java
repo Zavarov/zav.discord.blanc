@@ -7,13 +7,14 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.reddit.SubredditObservable;
 
 /**
  * Abstract base class for either adding or removing a subreddit to a text channel.
  */
-public abstract class AbstractRedditCommand extends AbstractDatabaseCommand {
+public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   protected static final String WEBHOOK = "Reddit";
   protected final SubredditObservable reddit;
   protected final TextChannel channel;
@@ -25,8 +26,8 @@ public abstract class AbstractRedditCommand extends AbstractDatabaseCommand {
    * @param manager The manager instance for this command.
    */
   public AbstractRedditCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
-    this.reddit = client.getSubredditObservable();
+    super(manager);
+    this.reddit = manager.getClient().getSubredditObservable();
     this.channel = event.getTextChannel();
   }
   

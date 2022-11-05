@@ -1,21 +1,26 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.api.cache.PatternCache;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command whitelists certain words. Any previously blacklisted word will no longer be deleted
  * by this application.
  */
-public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
+public class BlacklistRemoveCommand extends AbstractGuildCommand {
   private final PatternCache cache;
+  private final SlashCommandEvent event;
+  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
@@ -24,12 +29,18 @@ public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
    * @param manager The manager instance for this command.
    */
   public BlacklistRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
-    this.cache = client.getPatternCache();
+    super(manager);
+    this.event = event;
+    this.cache = manager.getClient().getPatternCache();
+    this.factory = manager.getClient().getEntityManagerFactory();
   }
   
   @Override
-  protected String modify(EntityManager entityManager, GuildEntity entity) {
+  public void run() {
+    PersistenceUtils.handle(factory, event, this::modify);
+  }
+  
+  private String modify(EntityManager entityManager, GuildEntity entity) {
     OptionMapping pattern = event.getOption("pattern");
     OptionMapping index = event.getOption("index");
     
@@ -44,7 +55,7 @@ public class BlacklistRemoveCommand extends AbstractDatabaseCommand {
   
   private String removeByName(GuildEntity entity, String pattern) {
     if (entity.getBlacklist().remove(pattern)) {
-      cache.invalidate(guild);
+      cache.invalidate(event.getGuild());
       
       return getMessage("blacklist_remove", pattern);
     }

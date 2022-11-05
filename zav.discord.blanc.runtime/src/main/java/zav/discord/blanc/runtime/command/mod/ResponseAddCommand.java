@@ -1,23 +1,28 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.cache.AutoResponseCache;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
+import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command allows the user to register automatic responses. The bot will respond to any message
  * matching the registered expressions with the pre-defined response.
  */
-public class ResponseAddCommand extends AbstractDatabaseCommand {
+public class ResponseAddCommand extends AbstractGuildCommand {
   private static final Pattern NAMED_GROUP = Pattern.compile("(\\?<\\w+>.*)");
   private final AutoResponseCache cache;
+  private final SlashCommandEvent event;
+  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
@@ -26,12 +31,18 @@ public class ResponseAddCommand extends AbstractDatabaseCommand {
    * @param manager The manager instance for this command.
    */
   public ResponseAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
-    this.cache = client.getAutoResponseCache();
+    super(manager);
+    this.event = event;
+    this.factory = manager.getClient().getEntityManagerFactory();
+    this.cache = manager.getClient().getAutoResponseCache();
   }
 
   @Override
-  protected String modify(EntityManager entityManager, GuildEntity entity) {
+  public void run() {
+    PersistenceUtils.handle(factory, event, this::modify);
+  }
+
+  private String modify(EntityManager entityManager, GuildEntity entity) {
     String pattern = event.getOption("pattern").getAsString();
     String answer = event.getOption("answer").getAsString();
     
@@ -46,7 +57,7 @@ public class ResponseAddCommand extends AbstractDatabaseCommand {
     entity.add(responseEntity);
 
     // Remove the corresponding entry from cache
-    cache.invalidate(guild);
+    cache.invalidate(event.getGuild());
 
     return getMessage("response_added", pattern, answer);
   }
