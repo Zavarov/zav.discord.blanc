@@ -17,6 +17,7 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -24,6 +25,7 @@ import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
+import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command allows the user to register webhooks to Reddit feeds. New submissions are directly
@@ -32,6 +34,8 @@ import zav.discord.blanc.databind.WebhookEntity;
  * the same webhook, is deleted if and only if it was created by this program.
  */
 public class RedditAddCommand extends AbstractRedditCommand {
+  private final SlashCommandEvent event;
+  private final EntityManagerFactory factory;
   private final Webhook webhook;
   
   /**
@@ -42,11 +46,17 @@ public class RedditAddCommand extends AbstractRedditCommand {
    */
   public RedditAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
+    this.event = event;
+    this.factory = manager.getClient().getEntityManagerFactory();
     webhook = getWebhook().orElseGet(this::createWebhook);
   }
 
   @Override
-  protected String modify(EntityManager entityManager, GuildEntity entity) {
+  public void run() {
+    PersistenceUtils.handle(factory, event, this::modify);
+  }
+
+  private String modify(EntityManager entityManager, GuildEntity entity) {
     String name = event.getOption("name").getAsString().toLowerCase(Locale.ENGLISH);
     
     WebhookEntity webhookEntity = WebhookEntity.getOrCreate(entityManager, webhook);
