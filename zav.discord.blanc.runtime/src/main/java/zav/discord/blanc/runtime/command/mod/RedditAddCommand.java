@@ -48,7 +48,7 @@ public class RedditAddCommand extends AbstractRedditCommand {
     super(event, manager);
     this.event = event;
     this.factory = manager.getClient().getEntityManagerFactory();
-    webhook = getWebhook().orElseGet(this::createWebhook);
+    this.webhook = getWebhook().orElseGet(this::createWebhook);
   }
 
   @Override
