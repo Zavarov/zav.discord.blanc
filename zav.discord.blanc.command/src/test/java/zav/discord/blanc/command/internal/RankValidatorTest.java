@@ -17,11 +17,8 @@
 package zav.discord.blanc.command.internal;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mockStatic;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.User;
@@ -30,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.InsufficientRankException;
 import zav.discord.blanc.databind.Rank;
@@ -40,11 +38,10 @@ import zav.discord.blanc.databind.UserEntity;
  */
 @ExtendWith(MockitoExtension.class)
 public class RankValidatorTest {
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   UserEntity userEntity;
   
   @Mock User author;
+  MockedStatic<UserEntity> mocked;
   
   RankValidator validator;
   Set<Rank> ranks;
@@ -54,18 +51,17 @@ public class RankValidatorTest {
    */
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    entityManager = factory.createEntityManager();
     userEntity = new UserEntity();
-    userEntity.setRanks(List.of(Rank.ROOT));
-    validator = new RankValidator(factory, author);
+    validator = new RankValidator(author);
     ranks = Set.of(Rank.ROOT);
+
+    mocked = mockStatic(UserEntity.class);
+    mocked.when(() -> UserEntity.find(author)).thenReturn(userEntity);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
-    factory.close();
+    mocked.close();
   }
   
   /**
@@ -75,11 +71,8 @@ public class RankValidatorTest {
    */
   @Test
   public void testValidate() throws Exception {
-    entityManager.getTransaction().begin();
-    entityManager.merge(userEntity);
-    entityManager.getTransaction().commit();
-    
-    when(author.getIdLong()).thenReturn(userEntity.getId());
+    userEntity.setRanks(List.of(Rank.ROOT));
+
     validator.validate(ranks);
   }
   
@@ -88,6 +81,8 @@ public class RankValidatorTest {
    */
   @Test
   public void testValidateWithInsufficientRanks() {
+    userEntity.setRanks(List.of(Rank.USER));
+
     assertThrows(InsufficientRankException.class, () -> validator.validate(ranks));
   }
 }

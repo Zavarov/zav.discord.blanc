@@ -17,8 +17,6 @@
 package zav.discord.blanc.api.listener;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -35,51 +33,22 @@ import zav.discord.blanc.databind.TextChannelEntity;
 @NonNullByDefault
 public class TextChannelListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelListener.class);
-  private final EntityManagerFactory factory;
-  
-  /**
-   * Creates a new instance of this class.
-   *
-   * @param factory The JPA persistence manager.
-   */
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-  public TextChannelListener(EntityManagerFactory factory) {
-    this.factory = factory;
-  }
   
   @Override
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onTextChannelDelete(TextChannelDeleteEvent event) {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      long key = event.getChannel().getIdLong();
-      TextChannelEntity entity = entityManager.find(TextChannelEntity.class, key);
-      
-      if (entity != null) {
-        // Update text-channels, webhooks and guilds are updated via a cascade
-        entityManager.getTransaction().begin();
-        entityManager.remove(entity);
-        entityManager.getTransaction().commit();
-      }
-      
-      LOGGER.info("Delete all database entries associated with {}.", event.getChannel());
-    }
+    // Update text-channels, webhooks and guilds are updated via a cascade
+    TextChannelEntity.remove(event.getChannel());
+
+    LOGGER.info("Delete all database entries associated with {}.", event.getChannel());
   }
   
   @Override
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onGuildLeave(GuildLeaveEvent event) {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      long key = event.getGuild().getIdLong();
-      GuildEntity entity = entityManager.find(GuildEntity.class, key);
-      
-      if (entity != null) {
-        // Update guilds, text-channels and webhooks are updated via the cascade
-        entityManager.getTransaction().begin();
-        entityManager.remove(entity);
-        entityManager.getTransaction().commit();
-      }
-      
-      LOGGER.info("Delete all database entries associated with {}.", event.getGuild());
-    }
+    // Update guilds, text-channels and webhooks are updated via the cascade
+    GuildEntity.remove(event.getGuild());
+
+    LOGGER.info("Delete all database entries associated with {}.", event.getGuild());
   }
 }

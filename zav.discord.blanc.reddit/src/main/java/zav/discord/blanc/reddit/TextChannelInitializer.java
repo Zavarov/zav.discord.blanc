@@ -17,12 +17,9 @@
 package zav.discord.blanc.reddit;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.databind.TextChannelEntity;
@@ -38,18 +35,15 @@ import zav.discord.blanc.databind.TextChannelEntity;
 public class TextChannelInitializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelInitializer.class);
   
-  private final EntityManagerFactory factory;
   private final SubredditObservable observable;
   
   /**
    * Creates a new instance of this class.
    *
-   * @param factory The JPA persistence manager.
    * @param observable The global subreddit observable.
    */
   @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
-  public TextChannelInitializer(EntityManagerFactory factory, SubredditObservable observable) {
-    this.factory = factory;
+  public TextChannelInitializer(SubredditObservable observable) {
     this.observable = observable;
   }
   
@@ -66,17 +60,11 @@ public class TextChannelInitializer {
 
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   private void load(TextChannel textChannel) {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      long channelId = textChannel.getIdLong();
-      @Nullable
-      TextChannelEntity entity = entityManager.find(TextChannelEntity.class, channelId);
+    TextChannelEntity entity = TextChannelEntity.find(textChannel);
     
-      if (entity != null) {
-        for (String subreddit : entity.getSubreddits()) {
-          observable.addListener(subreddit, textChannel);
-          LOGGER.info("Add subreddit '{}' to textChannel '{}'.", subreddit, textChannel.getName());
-        }
-      }
+    for (String subreddit : entity.getSubreddits()) {
+      observable.addListener(subreddit, textChannel);
+      LOGGER.info("Add subreddit '{}' to textChannel '{}'.", subreddit, textChannel.getName());
     }
   }
 }

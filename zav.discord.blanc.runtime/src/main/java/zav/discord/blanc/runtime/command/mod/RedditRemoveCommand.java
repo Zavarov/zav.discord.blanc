@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.Locale;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -26,7 +24,6 @@ import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command allows the user to register webhooks to Reddit feeds. New submissions are directly
@@ -35,8 +32,6 @@ import zav.discord.blanc.runtime.internal.PersistenceUtils;
  * the same webhook, is deleted if and only if it was created by this program.
  */
 public class RedditRemoveCommand extends AbstractRedditCommand {
-  private final SlashCommandEvent event;
-  private final EntityManagerFactory factory;
   private final Webhook webhook;
   
   /**
@@ -47,17 +42,17 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
    */
   public RedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(event, manager);
-    this.event = event;
-    this.factory = manager.getClient().getEntityManagerFactory();
     this.webhook = getWebhook().orElse(null);
   }
 
   @Override
   public void run() {
-    PersistenceUtils.handle(factory, event, this::modify);
+    GuildEntity entity = GuildEntity.find(event.getGuild());
+    event.reply(modify(entity)).complete();
+    entity.merge();
   }
 
-  private String modify(EntityManager entityManager, GuildEntity entity) {
+  private String modify(GuildEntity entity) {
     OptionMapping name = event.getOption("name");
     OptionMapping index = event.getOption("index");
     
@@ -70,8 +65,8 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
       return getMessage("subreddit_invalid_argument");
     }
     String response = null;
-    WebhookEntity webhookEntity = WebhookEntity.getOrCreate(entityManager, webhook);
-    TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
+    WebhookEntity webhookEntity = WebhookEntity.find(webhook);
+    TextChannelEntity channelEntity = TextChannelEntity.find(channel);
     
     if (name != null) {
       response = removeByName(webhookEntity, name.getAsString().toLowerCase(Locale.ENGLISH));

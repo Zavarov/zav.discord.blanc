@@ -17,20 +17,20 @@
 package zav.discord.blanc.api.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mockStatic;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import java.util.Collections;
 import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.util.RegularExpressionMatcher;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
 
@@ -41,12 +41,11 @@ import zav.discord.blanc.databind.GuildEntity;
 @ExtendWith(MockitoExtension.class)
 public class AutoResponseCacheTest {
   
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   GuildEntity entity;
   AutoResponseCache cache;
   AutoResponseEntity autoResponse;
   @Mock Guild guild;
+  MockedStatic<GuildEntity> mocked;
   
   /**
    * Initializes the pattern cache. The cache will load a single guild entity, containing an entry
@@ -58,21 +57,21 @@ public class AutoResponseCacheTest {
     autoResponse.setPattern("foo");
     autoResponse.setAnswer("bar");
     
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    cache = new AutoResponseCache(factory);
-    entityManager = factory.createEntityManager();
     entity = new GuildEntity();
     entity.setId(1000L);
     entity.add(autoResponse);
     
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
+    mocked = mockStatic(GuildEntity.class);
+    mocked.when(() -> GuildEntity.find(guild)).thenReturn(entity);
+
+    // Initialize the cache and load the entity
+    cache = new AutoResponseCache();
+    cache.get(guild);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
+    mocked.close();
   }
   
   /**
@@ -80,18 +79,13 @@ public class AutoResponseCacheTest {
    */
   @Test
   public void testInvalidate() {
-    when(guild.getIdLong()).thenReturn(entity.getId());
+    assertNotNull(cache.fetch(guild));
 
-    // Modify entity and store it in the database
-    entity.remove(autoResponse);
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
-    
-    // Invalidate the cached entity
+    entity.setAutoResponses(Collections.emptyList());
+
     cache.invalidate(guild);
-    
-    assertTrue(cache.get(guild).isEmpty());
+
+    assertNull(cache.fetch(guild));
   }
   
   /**
@@ -99,9 +93,8 @@ public class AutoResponseCacheTest {
    */
   @Test
   public void testGet() {
-    when(guild.getIdLong()).thenReturn(entity.getId());
-    assertTrue(cache.get(mock(Guild.class)).isEmpty());
+    RegularExpressionMatcher result = cache.get(guild).orElseThrow();
     
-    assertEquals(cache.get(guild).orElseThrow().match("foo").orElseThrow(), "bar");
+    assertEquals(result.match("foo").orElseThrow(), "bar");
   }
 }

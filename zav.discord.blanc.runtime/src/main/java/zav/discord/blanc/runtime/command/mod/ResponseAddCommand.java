@@ -1,7 +1,5 @@
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -12,7 +10,6 @@ import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command allows the user to register automatic responses. The bot will respond to any message
@@ -22,7 +19,6 @@ public class ResponseAddCommand extends AbstractGuildCommand {
   private static final Pattern NAMED_GROUP = Pattern.compile("(\\?<\\w+>.*)");
   private final AutoResponseCache cache;
   private final SlashCommandEvent event;
-  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
@@ -33,16 +29,17 @@ public class ResponseAddCommand extends AbstractGuildCommand {
   public ResponseAddCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.factory = manager.getClient().getEntityManagerFactory();
     this.cache = manager.getClient().getAutoResponseCache();
   }
 
   @Override
   public void run() {
-    PersistenceUtils.handle(factory, event, this::modify);
+    GuildEntity entity = GuildEntity.find(event.getGuild());
+    event.reply(modify(entity)).complete();
+    entity.merge();
   }
 
-  private String modify(EntityManager entityManager, GuildEntity entity) {
+  private String modify(GuildEntity entity) {
     String pattern = event.getOption("pattern").getAsString();
     String answer = event.getOption("answer").getAsString();
     

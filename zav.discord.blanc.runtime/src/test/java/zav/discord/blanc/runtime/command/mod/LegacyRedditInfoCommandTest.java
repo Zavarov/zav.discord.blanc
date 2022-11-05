@@ -18,11 +18,8 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -38,9 +35,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * This test case verifies whether the list of all currently registered Reddit feeds is correctly
@@ -48,10 +43,9 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class LegacyRedditInfoCommandTest extends AbstractTest {
   @Captor ArgumentCaptor<List<Site.Page>> pages;
   
-  TextChannelEntity channelEntity;
   GuildCommandManager manager;
   LegacyRedditInfoCommand command;
   
@@ -61,21 +55,16 @@ public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntit
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
-    
     manager = spy(new GuildCommandManager(client, event));
     command = new LegacyRedditInfoCommand(event, manager);
-    channelEntity = new TextChannelEntity();
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
-    entity.add(channelEntity);
     
     doNothing().when(manager).submit(pages.capture());
   }
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setTextChannels(new ArrayList<>());
+    guildEntity.setTextChannels(new ArrayList<>());
     
     command.run();
   
@@ -84,7 +73,7 @@ public class LegacyRedditInfoCommandTest extends AbstractDatabaseTest<GuildEntit
   
   @Test
   public void testShowPage() throws Exception {
-    entity.setTextChannels(new ArrayList<>(List.of(channelEntity)));
+    guildEntity.setTextChannels(new ArrayList<>(List.of(channelEntity)));
 
     command.run();
   

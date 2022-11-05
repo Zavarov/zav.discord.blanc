@@ -20,7 +20,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -34,6 +33,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.entities.Guild;
+import zav.discord.blanc.databind.internal.PersistenceUtil;
 
 @Getter
 @Setter
@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.entities.Guild;
 @NoArgsConstructor
 @Entity
 @Table(name = "Guild")
-public class GuildEntity {
+public class GuildEntity implements PersistedEntity {
   /**
    * Unique 64bit long id of the guild.
    */
@@ -127,18 +127,12 @@ public class GuildEntity {
     getAutoResponses().removeIf(response -> response.getId() == entity.getId());
     entity.setGuild(null);
   }
-  
-  public static GuildEntity getOrCreate(EntityManager entityManager, Guild guild) {
-    GuildEntity entity = entityManager.find(GuildEntity.class, guild.getIdLong());
-    
-    if (entity == null) {
-      entity = new GuildEntity();
-      entity.setId(guild.getIdLong());
-    }
-    
-    // Guild name may have changed since the last time the entity was persisted
-    entity.setName(guild.getName());
-    
-    return entity;
+
+  public static void remove(Guild guild) {
+    PersistenceUtil.remove(guild);
+  }
+
+  public static GuildEntity find(Guild guild) {
+    return PersistenceUtil.find(guild);
   }
 }

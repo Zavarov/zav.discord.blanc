@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
@@ -18,32 +17,30 @@ import zav.discord.blanc.runtime.command.AbstractTest;
 @SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
 public class TextChannelValidatorTest extends AbstractTest {
-  TextChannelEntity entity;
   TextChannelValidator validator;
   
   @BeforeEach
   public void setUp() {
-    entity = new TextChannelEntity();
     validator = new TextChannelValidator(guild);
   }
   
   @Test
   public void testUnknownChannel() {
     when(guild.getTextChannelById(anyLong())).thenReturn(null);
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(channelEntity));
   }
   
   @Test
   public void testInaccessible() {
     when(guild.getTextChannelById(anyLong())).thenReturn(channel);
-    assertTrue(validator.test(entity));
+    assertTrue(validator.test(channelEntity));
   }
   
   @Test
   public void testValid() {
     when(guild.getTextChannelById(anyLong())).thenReturn(channel);
     when(channel.canTalk()).thenReturn(true);
-    assertFalse(validator.test(entity));
+    assertFalse(validator.test(channelEntity));
   }
 
 }

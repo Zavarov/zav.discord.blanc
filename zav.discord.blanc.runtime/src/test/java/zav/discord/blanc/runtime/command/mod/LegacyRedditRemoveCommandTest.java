@@ -41,9 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether subreddit feeds can be removed, but not added.
@@ -51,11 +49,10 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
 @Deprecated
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChannelEntity> {
+public class LegacyRedditRemoveCommandTest extends AbstractTest {
   @Mock OptionMapping name;
   @Mock OptionMapping index;
   
-  GuildEntity guildEntity;
   GuildCommandManager manager;
   LegacyRedditRemoveCommand command;
   
@@ -64,15 +61,8 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new TextChannelEntity());
-    
-    guildEntity = new GuildEntity();
-    guildEntity.add(entity);
-    
-    when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(entity);
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(guildEntity);
-
-    entity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
+    channelEntity.setWebhooks(Collections.emptyList());
 
     manager = new GuildCommandManager(client, event);
     command = new LegacyRedditRemoveCommand(event, manager);
@@ -90,13 +80,13 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn(subredditName);
 
-    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), Collections.emptyList());
-    assertNull(entity.getGuild());
+    assertEquals(channelEntity.getSubreddits(), Collections.emptyList());
+    assertNull(channelEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
   }
@@ -107,13 +97,13 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     
-    entity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), Collections.emptyList());
-    assertNull(entity.getGuild());
+    assertEquals(channelEntity.getSubreddits(), Collections.emptyList());
+    assertNull(channelEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
   }
@@ -124,13 +114,13 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn("redditdev");
 
-    entity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), Collections.singletonList("all"));
-    assertNotNull(entity.getGuild());
+    assertEquals(channelEntity.getSubreddits(), Collections.singletonList("all"));
+    assertNotNull(channelEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
   }
@@ -141,13 +131,13 @@ public class LegacyRedditRemoveCommandTest extends AbstractDatabaseTest<TextChan
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     
-    entity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev", "all")));
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), Collections.singletonList("all"));
-    assertNotNull(entity.getGuild());
+    assertEquals(channelEntity.getSubreddits(), Collections.singletonList("all"));
+    assertNotNull(channelEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
   }

@@ -18,11 +18,8 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -38,10 +35,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * This test case verifies whether the list of all currently registered Reddit feeds is correctly
@@ -49,11 +43,9 @@ import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class RedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class RedditInfoCommandTest extends AbstractTest {
   @Captor ArgumentCaptor<List<Site.Page>> pages;
   
-  TextChannelEntity channelEntity;
-  WebhookEntity webhookEntity;
   GuildCommandManager manager;
   RedditInfoCommand command;
   
@@ -63,25 +55,17 @@ public class RedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
-    
     manager = spy(new GuildCommandManager(client, event));
     command = new RedditInfoCommand(event, manager);
-    webhookEntity = new WebhookEntity();
     webhookEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
-    channelEntity = new TextChannelEntity();
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
-    channelEntity.add(webhookEntity);
-    entity.add(channelEntity);
-    entity.add(webhookEntity);
     
     doNothing().when(manager).submit(pages.capture());
   }
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setWebhooks(new ArrayList<>());
+    guildEntity.setWebhooks(new ArrayList<>());
     
     command.run();
   
@@ -90,7 +74,7 @@ public class RedditInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
   @Test
   public void testShowPage() throws Exception {
-    entity.setWebhooks(new ArrayList<>(List.of(webhookEntity)));
+    guildEntity.setWebhooks(new ArrayList<>(List.of(webhookEntity)));
     
     command.run();
   

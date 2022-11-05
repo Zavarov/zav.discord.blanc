@@ -16,13 +16,10 @@
 
 package zav.discord.blanc.api.listener;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
@@ -32,10 +29,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
 
 /**
  * Checks whether the text channel database is updated whenever the bot leaves a guild or a text
@@ -44,17 +41,16 @@ import zav.discord.blanc.databind.WebhookEntity;
 @ExtendWith(MockitoExtension.class)
 public class TextChannelListenerTest {
   
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   TextChannelListener listener;
-  WebhookEntity webhookEntity;
-  TextChannelEntity textChannelEntity;
+  TextChannelEntity channelEntity;
   GuildEntity guildEntity;
   
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock GuildLeaveEvent leaveEvent;
   @Mock TextChannelDeleteEvent deleteEvent;
+  MockedStatic<GuildEntity> mocked1;
+  MockedStatic<TextChannelEntity> mocked2;
   
   /**
    * Initializes the text channel listener.<br>
@@ -63,30 +59,22 @@ public class TextChannelListenerTest {
    */
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    entityManager = factory.createEntityManager();
-    listener = new TextChannelListener(factory);
+    listener = new TextChannelListener();
     
-    webhookEntity = new WebhookEntity();
-    textChannelEntity = new TextChannelEntity();
+    channelEntity = new TextChannelEntity();
     guildEntity = new GuildEntity();
     
-    // Bidirectional mapping
-    guildEntity.add(webhookEntity);
-    guildEntity.add(textChannelEntity);
-    textChannelEntity.add(webhookEntity);
-    
-    entityManager.getTransaction().begin();
-    entityManager.merge(guildEntity);
-    entityManager.merge(textChannelEntity);
-    entityManager.merge(webhookEntity);
-    entityManager.getTransaction().commit();
-    entityManager.clear();
+    mocked1 = mockStatic(GuildEntity.class);
+    mocked1.when(() -> GuildEntity.find(guild)).thenReturn(guildEntity);
+
+    mocked2 = mockStatic(TextChannelEntity.class);
+    mocked2.when(() -> TextChannelEntity.find(textChannel)).thenReturn(channelEntity);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
+    mocked1.close();
+    mocked2.close();
   }
   
   /**
@@ -95,26 +83,10 @@ public class TextChannelListenerTest {
   @Test
   public void testOnGuildLeave() {    
     when(leaveEvent.getGuild()).thenReturn(guild);
-    when(guild.getIdLong()).thenReturn(guildEntity.getId());
+
     listener.onGuildLeave(leaveEvent);
-  
-    assertNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
-    assertNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
-    assertNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
-  }
-  
-  /**
-   * Use Case: Do nothing when leaving a guild which isn't persisted.
-   */
-  @Test
-  public void testDoNothingOnGuildLeave() {    
-    when(leaveEvent.getGuild()).thenReturn(guild);
-    when(guild.getIdLong()).thenReturn(Long.MAX_VALUE);
-    listener.onGuildLeave(leaveEvent);
-  
-    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
-    assertNotNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
-    assertNotNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
+
+    mocked1.verify(() -> GuildEntity.remove(guild));
   }
   
   /**
@@ -124,25 +96,10 @@ public class TextChannelListenerTest {
   @Test
   public void testOnTextChannelDelete() {
     when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(textChannel.getIdLong()).thenReturn(textChannelEntity.getId());
+
     listener.onTextChannelDelete(deleteEvent);
-  
-    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
-    assertNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
-    assertNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
-  }
-  
-  /**
-   * Use Case: Do nothing when a text channel is deleted which hasn't been persisted.
-   */
-  @Test
-  public void testDoNothingOnTextChannelDelete() {
-    when(deleteEvent.getChannel()).thenReturn(textChannel);
-    when(textChannel.getIdLong()).thenReturn(Long.MAX_VALUE);
-    listener.onTextChannelDelete(deleteEvent);
-  
-    assertNotNull(entityManager.find(GuildEntity.class, guildEntity.getId()));
-    assertNotNull(entityManager.find(TextChannelEntity.class, textChannelEntity.getId()));
-    assertNotNull(entityManager.find(WebhookEntity.class, webhookEntity.getId()));
+
+    mocked2.verify(() -> TextChannelEntity.remove(guild), times(0));
+    mocked2.verify(() -> TextChannelEntity.remove(textChannel));
   }
 }

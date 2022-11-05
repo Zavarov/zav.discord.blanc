@@ -20,7 +20,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -32,7 +31,9 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import zav.discord.blanc.databind.internal.PersistenceUtil;
 
 @Getter
 @Setter
@@ -40,7 +41,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 @NoArgsConstructor
 @Entity
 @Table(name = "TextChannel")
-public class TextChannelEntity {
+public class TextChannelEntity implements PersistedEntity {
   /**
    * Unique 64bit long id of the guild.
    */
@@ -83,21 +84,19 @@ public class TextChannelEntity {
     entity.setChannel(null);
   }
   
-  public static TextChannelEntity getOrCreate(EntityManager entityManager, TextChannel channel) {
-    TextChannelEntity entity = entityManager.find(TextChannelEntity.class, channel.getIdLong());
-    
-    if (entity == null) {
-      entity = new TextChannelEntity();
-      entity.setId(channel.getIdLong());
-    }
-    
-    // Text-channel name may have changed since the last time the entity was persisted
-    entity.setName(channel.getName());
-    
-    return entity;
-  }
-  
   public boolean isEmpty() {
     return getSubreddits().isEmpty() && getWebhooks().isEmpty();
+  }
+
+  public static void remove(Guild guild) {
+    PersistenceUtil.remove(guild);
+  }
+
+  public static void remove(TextChannel channel) {
+    PersistenceUtil.remove(channel);
+  }
+
+  public static TextChannelEntity find(TextChannel channel) {
+    return PersistenceUtil.find(channel);
   }
 }

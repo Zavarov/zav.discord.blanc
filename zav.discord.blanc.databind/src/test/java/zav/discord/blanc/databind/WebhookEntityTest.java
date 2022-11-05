@@ -1,11 +1,8 @@
 package zav.discord.blanc.databind;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
@@ -18,43 +15,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class WebhookEntityTest {
+  GuildEntity guildEntity;
+  TextChannelEntity channelEntity;
+  WebhookEntity webhookEntity;
   
-  EntityManagerFactory factory;
   @Mock Guild guild;
   @Mock TextChannel channel;
   @Mock Webhook webhook;
   
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity guildEntity = GuildEntity.getOrCreate(entityManager, guild);
-      TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
-      WebhookEntity webhookEntity = WebhookEntity.getOrCreate(entityManager, webhook);
+    guildEntity = GuildEntity.find(guild);
+    channelEntity = TextChannelEntity.find(channel);
+    webhookEntity = WebhookEntity.find(webhook);
       
-      guildEntity.add(webhookEntity);
-      guildEntity.add(channelEntity);
-      
-      entityManager.getTransaction().begin();
-      entityManager.merge(guildEntity);
-      entityManager.getTransaction().commit();
-    }
+    guildEntity.add(webhookEntity);
+    guildEntity.add(channelEntity);
+    guildEntity.merge();
   }
   
   @AfterEach
   public void tearDown() {
-    factory.close();
-  }
-  
-  private void removeWebhook() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      WebhookEntity entity = entityManager.find(WebhookEntity.class, webhook.getIdLong());
-      
-      entityManager.getTransaction().begin();
-      entityManager.remove(entity);
-      entityManager.getTransaction().commit();
-    }
+    GuildEntity.remove(guild);
   }
   
   /**
@@ -62,17 +44,13 @@ public class WebhookEntityTest {
    */
   @Test
   public void testRemoveWebhookKeepsChannel() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      assertNotNull(entityManager.find(TextChannelEntity.class, channel.getIdLong()));
-      assertNotNull(entityManager.find(WebhookEntity.class, webhook.getIdLong()));
-    }
-    
-    removeWebhook();
-    
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      assertNotNull(entityManager.find(TextChannelEntity.class, channel.getIdLong()));
-      assertNull(entityManager.find(WebhookEntity.class, webhook.getIdLong()));
-    }
+    assertTrue(channelEntity.isPersisted());
+    assertTrue(webhookEntity.isPersisted());
+
+    WebhookEntity.remove(webhook);
+
+    assertFalse(channelEntity.isPersisted());
+    assertFalse(webhookEntity.isPersisted());
   }
   
   /**
@@ -80,16 +58,12 @@ public class WebhookEntityTest {
    */
   @Test
   public void testRemoveWebhookKeepsGuild() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      assertNotNull(entityManager.find(GuildEntity.class, guild.getIdLong()));
-      assertNotNull(entityManager.find(WebhookEntity.class, webhook.getIdLong()));
-    }
-    
-    removeWebhook();
-    
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      assertNotNull(entityManager.find(GuildEntity.class, guild.getIdLong()));
-      assertNull(entityManager.find(WebhookEntity.class, webhook.getIdLong()));
-    }
+    assertTrue(guildEntity.isPersisted());
+    assertTrue(webhookEntity.isPersisted());
+
+    WebhookEntity.remove(webhook);
+
+    assertFalse(guildEntity.isPersisted());
+    assertFalse(webhookEntity.isPersisted());
   }
 }

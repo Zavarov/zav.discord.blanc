@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -27,7 +25,6 @@ import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.internal.PersistenceUtils;
 
 /**
  * This command blacklists certain words. Any message that contains the word will be deleted by the
@@ -36,7 +33,6 @@ import zav.discord.blanc.runtime.internal.PersistenceUtils;
 public class BlacklistAddCommand extends AbstractGuildCommand {
   private final PatternCache cache;
   private final SlashCommandEvent event;
-  private final EntityManagerFactory factory;
 
   /**
    * Creates a new instance of this command.
@@ -48,15 +44,16 @@ public class BlacklistAddCommand extends AbstractGuildCommand {
     super(manager);
     this.event = event;
     this.cache = manager.getClient().getPatternCache();
-    this.factory = manager.getClient().getEntityManagerFactory();
   }
 
   @Override
   public void run() {
-    PersistenceUtils.handle(factory, event, this::modify);
+    GuildEntity entity = GuildEntity.find(event.getGuild());
+    event.reply(modify(entity)).complete();
+    entity.merge();
   }
 
-  private String modify(EntityManager entityManager, GuildEntity entity) {
+  private String modify(GuildEntity entity) {
     String pattern = Objects.requireNonNull(event.getOption("pattern")).getAsString();
     
     return addByName(entity, pattern);

@@ -21,13 +21,11 @@ import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.entities.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,8 +39,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 public class RankTest {
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   UserEntity entity;
   @Mock EntityManagerFactory mockFactory;
   @Mock EntityManager mockManager;
@@ -50,15 +46,7 @@ public class RankTest {
   
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    entityManager = factory.createEntityManager();
     entity = new UserEntity();
-  }
-  
-  @AfterEach
-  public void tearDown() {
-    entityManager.close();
-    factory.close();
   }
   
   /**
@@ -84,14 +72,11 @@ public class RankTest {
   @MethodSource
   public void testGetEffectiveRanks(Rank rank, Set<Rank> effectiveRanks) {
     entity.setRanks(List.of(rank));
-    
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
+    entity.merge();
     
     when(user.getIdLong()).thenReturn(entity.getId());
     
-    assertEquals(Rank.getEffectiveRanks(user, factory), effectiveRanks);
+    assertEquals(Rank.getEffectiveRanks(user), effectiveRanks);
   }
   
   /**
@@ -100,6 +85,6 @@ public class RankTest {
   //@Test
   public void testGetDefaultRanks() {
     when(user.getIdLong()).thenReturn(entity.getId());
-    assertEquals(Rank.getEffectiveRanks(user, factory), EnumSet.of(Rank.USER));
+    assertEquals(Rank.getEffectiveRanks(user), EnumSet.of(Rank.USER));
   }
 }

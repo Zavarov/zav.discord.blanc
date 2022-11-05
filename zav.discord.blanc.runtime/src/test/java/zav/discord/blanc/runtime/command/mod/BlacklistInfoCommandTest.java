@@ -18,8 +18,6 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -42,15 +40,14 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether the interactive configuration message is returned.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class BlacklistInfoCommandTest extends AbstractTest {
   @Captor ArgumentCaptor<List<Site.Page>> captor;
   
   GuildCommandManager manager;
@@ -61,10 +58,8 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
     when(event.getMember()).thenReturn(member);
     when(event.getGuild()).thenReturn(guild);
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = spy(new GuildCommandManager(client, event));
     command = new BlacklistInfoCommand(event, manager);
@@ -74,7 +69,7 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setBlacklist(Collections.emptyList());
+    guildEntity.setBlacklist(Collections.emptyList());
     
     command.run();
   
@@ -90,7 +85,7 @@ public class BlacklistInfoCommandTest extends AbstractDatabaseTest<GuildEntity> 
   @MethodSource
   @ParameterizedTest
   public void testShowPage(List<String> blacklist) {
-    entity.setBlacklist(blacklist);
+    guildEntity.setBlacklist(blacklist);
     
     command.run();
   

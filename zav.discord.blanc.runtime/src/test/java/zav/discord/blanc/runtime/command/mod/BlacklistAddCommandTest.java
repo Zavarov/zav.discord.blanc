@@ -17,9 +17,7 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,44 +31,41 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Checks whether it is possible to blacklist/whitelist regular expressions.
  */
 @ExtendWith(MockitoExtension.class)
-public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class BlacklistAddCommandTest extends AbstractTest {
   
   @Mock OptionMapping pattern;
   
   GuildCommandManager manager;
   BlacklistAddCommand command;
-  
+
   /**
    * Initializes the command with argument {@code foo}.
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
     when(event.getOption(anyString())).thenReturn(pattern);
     when(pattern.getAsString()).thenReturn("foo");
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
     
     manager = new GuildCommandManager(client, event);
     command = new BlacklistAddCommand(event, manager);
   }
-  
+
   /**
    * Tests whether the expression has been blacklisted.
    */
   @Test
   public void testAddExpression() throws Exception {
-    entity.setBlacklist(new ArrayList<>());
+    guildEntity.setBlacklist(new ArrayList<>());
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), List.of("foo"));
+    assertEquals(guildEntity.getBlacklist(), List.of("foo"));
     verify(patternCache).invalidate(guild);
   }
   
@@ -79,11 +74,11 @@ public class BlacklistAddCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @Test
   public void testAlreadyAddedExpression() throws Exception {
-    entity.setBlacklist(new ArrayList<>(List.of("foo")));
+    guildEntity.setBlacklist(new ArrayList<>(List.of("foo")));
     
     command.run();
     
-    assertEquals(entity.getBlacklist(), List.of("foo"));
+    assertEquals(guildEntity.getBlacklist(), List.of("foo"));
     verify(patternCache, times(0)).invalidate(guild);
   }
 }

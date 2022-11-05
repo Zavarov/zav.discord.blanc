@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,36 +39,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.databind.TextChannelEntity;
-import zav.discord.blanc.databind.WebhookEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * Check whether subreddits can be added and removed from the Reddit feed.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class RedditAddCommandTest extends AbstractDatabaseTest<WebhookEntity> {
+public class RedditAddCommandTest extends AbstractTest {
   @Mock OptionMapping name;
   GuildCommandManager manager;
-  TextChannelEntity channelEntity;
   RedditAddCommand command;
-  GuildEntity guildEntity;
   
   /**
    * Initializes the command with no arguments.
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new WebhookEntity());
-    guildEntity = new GuildEntity();
-    channelEntity = new TextChannelEntity();
-    
-    when(entityManager.find(eq(WebhookEntity.class), any())).thenReturn(entity);
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(guildEntity);
-    when(entityManager.find(eq(TextChannelEntity.class), any())).thenReturn(channelEntity);
-
     manager = new GuildCommandManager(client, event);
     command = new RedditAddCommand(event, manager);
   }
@@ -77,7 +63,8 @@ public class RedditAddCommandTest extends AbstractDatabaseTest<WebhookEntity> {
   /**
    * Subreddits are case insensitive.
    *
-   * @param subredditName A human-readable subreddit name.
+   * @param subredditName
+   *          A human-readable subreddit name.
    */
   @ParameterizedTest
   @ValueSource(strings = { "RedditDev", "redditDev", "ReDdItDeV", "redditdev" })
@@ -85,14 +72,14 @@ public class RedditAddCommandTest extends AbstractDatabaseTest<WebhookEntity> {
     when(event.getOption(anyString())).thenReturn(name);
     when(name.getAsString()).thenReturn(subredditName);
     
-    entity.setSubreddits(new ArrayList<>());
+    webhookEntity.setSubreddits(new ArrayList<>());
     
     command.run();
 
     // Has the database been updated?
-    assertEquals(entity.getSubreddits(), List.of("redditdev"));
-    assertNotNull(entity.getChannel());
-    assertNotNull(entity.getGuild());
+    assertEquals(webhookEntity.getSubreddits(), List.of("redditdev"));
+    assertNotNull(webhookEntity.getChannel());
+    assertNotNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).addListener(anyString(), any(Webhook.class));
   }

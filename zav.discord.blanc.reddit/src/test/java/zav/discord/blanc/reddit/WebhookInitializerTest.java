@@ -17,13 +17,11 @@
 package zav.discord.blanc.reddit;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.List;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -36,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.WebhookEntity;
 
@@ -49,12 +48,13 @@ public class WebhookInitializerTest {
   @Mock TextChannel textChannel;
   @Mock Guild guild;
   @Mock Member self;
-  @Mock Webhook webhook;
+  @Mock Webhook webhook1;
+  @Mock Webhook webhook2;
   @Mock RestAction<List<Webhook>> action;
+  MockedStatic<WebhookEntity> mocked;
   WebhookInitializer initializer;
-  EntityManagerFactory factory;
-  EntityManager entityManager;
-  WebhookEntity entity;
+  WebhookEntity entity1;
+  WebhookEntity entity2;
   
   /**
    * Creates a new instance of the webhook initializer and loads the database with a single entity.
@@ -65,20 +65,19 @@ public class WebhookInitializerTest {
     when(textChannel.getGuild()).thenReturn(guild);
     when(guild.getSelfMember()).thenReturn(self);
     
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    initializer = new WebhookInitializer(factory, observable);
-    entityManager = factory.createEntityManager();
-    entity = new WebhookEntity();
-    entity.setSubreddits(List.of("RedditDev"));
+    initializer = new WebhookInitializer(observable);
+    entity1 = new WebhookEntity();
+    entity1.setSubreddits(List.of("RedditDev"));
+    entity2 = new WebhookEntity();
 
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
+    mocked = mockStatic(WebhookEntity.class);
+    mocked.when(() -> WebhookEntity.find(webhook1)).thenReturn(entity1);
+    mocked.when(() -> WebhookEntity.find(webhook2)).thenReturn(entity2);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
+    mocked.close();
   }
   
   @Test
@@ -86,31 +85,32 @@ public class WebhookInitializerTest {
     when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(false);
     
     initializer.load(textChannel);
-    
-    verify(observable, times(0)).addListener("RedditDev", webhook);
+
+    verify(observable, times(0)).addListener("RedditDev", webhook1);
+    verify(observable, times(0)).addListener("RedditDev", webhook2);
   }
   
   @Test
   public void testLoad() {
     when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(textChannel.retrieveWebhooks()).thenReturn(action);
-    when(action.complete()).thenReturn(List.of(webhook));
-    when(webhook.getIdLong()).thenReturn(entity.getId());
+    when(action.complete()).thenReturn(List.of(webhook1));
     
     initializer.load(textChannel);
     
-    verify(observable).addListener("RedditDev", webhook);
+    verify(observable).addListener("RedditDev", webhook1);
+    verify(observable, times(0)).addListener("RedditDev", webhook2);
   }
   
   @Test
   public void testLoadUnrelatedWebhooks() {
     when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(textChannel.retrieveWebhooks()).thenReturn(action);
-    when(action.complete()).thenReturn(List.of(webhook));
-    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+    when(action.complete()).thenReturn(List.of(webhook2));
     
     initializer.load(textChannel);
-    
-    verify(observable, times(0)).addListener("RedditDev", webhook);
+
+    verify(observable, times(0)).addListener("RedditDev", webhook1);
+    verify(observable, times(0)).addListener("RedditDev", webhook2);
   }
 }

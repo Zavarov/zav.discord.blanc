@@ -17,8 +17,6 @@
 package zav.discord.blanc.runtime;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,9 +93,8 @@ public class Main {
     client.postConstruct(new ShardSupplier(credentials));
     CommandParser parser = new SimpleCommandParser(client, provider);
     
-    EntityManagerFactory factory = client.getEntityManagerFactory();
     listeners.add(new SlashCommandListener(pool, parser));
-    listeners.add(new TextChannelListener(factory));
+    listeners.add(new TextChannelListener());
     listeners.add(new BlacklistListener(client.getPatternCache()));
     listeners.add(new AutoResponseListener(client.getAutoResponseCache()));
     listeners.add(new SiteComponentListener(client.getSiteCache()));
@@ -142,19 +139,14 @@ public class Main {
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   private void loadDatabase(Client client, Credentials credentials) {
     LOGGER.info("Loading Database");
-    EntityManagerFactory factory = client.getEntityManagerFactory();
     User owner = client.getShards().get(0).retrieveUserById(credentials.getOwner()).complete();
     
     if (owner == null) {
       LOGGER.error("User with id {} doesn't exist.", credentials.getOwner());
     } else {
-      try (EntityManager entityManager = factory.createEntityManager()) {
-        UserEntity entity = UserEntity.getOrCreate(entityManager, owner);
-        entity.setRanks(List.of(Rank.DEVELOPER));
-        entityManager.getTransaction().begin();
-        entityManager.persist(entity);
-        entityManager.getTransaction().commit();
-      }
+      UserEntity entity = UserEntity.find(owner);
+      entity.setRanks(List.of(Rank.DEVELOPER));
+      entity.merge();
     }
   }
   

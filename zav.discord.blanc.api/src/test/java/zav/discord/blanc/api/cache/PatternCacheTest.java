@@ -17,21 +17,20 @@
 package zav.discord.blanc.api.cache;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mockStatic;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.databind.GuildEntity;
 
@@ -42,11 +41,10 @@ import zav.discord.blanc.databind.GuildEntity;
 @ExtendWith(MockitoExtension.class)
 public class PatternCacheTest {
   
-  EntityManagerFactory factory;
-  EntityManager entityManager;
   GuildEntity entity;
   PatternCache cache;
   @Mock Guild guild;
+  MockedStatic<GuildEntity> mocked;
   
   /**
    * Initializes the pattern cache. The cache will load a single guild entity, containing both the
@@ -54,21 +52,20 @@ public class PatternCacheTest {
    */
   @BeforeEach
   public void setUp() {
-    factory = Persistence.createEntityManagerFactory("discord-entities");
-    cache = new PatternCache(factory);
-    entityManager = factory.createEntityManager();
     entity = new GuildEntity();
     entity.setId(1000L);
     entity.setBlacklist(List.of("banana", "pizza"));
     
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
+    mocked = mockStatic(GuildEntity.class);
+    mocked.when(() -> GuildEntity.find(guild)).thenReturn(entity);
+
+    cache = new PatternCache();
+    cache.get(guild);
   }
   
   @AfterEach
   public void tearDown() {
-    entityManager.close();
+    mocked.close();
   }
   
   /**
@@ -76,18 +73,13 @@ public class PatternCacheTest {
    */
   @Test
   public void testInvalidate() {
-    when(guild.getIdLong()).thenReturn(entity.getId());
+    assertNotNull(cache.fetch(guild));
 
-    // Modify entity and store it in the database
     entity.setBlacklist(Collections.emptyList());
-    entityManager.getTransaction().begin();
-    entityManager.merge(entity);
-    entityManager.getTransaction().commit();
-    
-    // Invalidate the cached entity
+
     cache.invalidate(guild);
-    
-    assertTrue(cache.get(guild).isEmpty());
+
+    assertNull(cache.fetch(guild));
   }
   
   /**
@@ -95,8 +87,8 @@ public class PatternCacheTest {
    */
   @Test
   public void testGet() {
-    when(guild.getIdLong()).thenReturn(entity.getId());
-    assertTrue(cache.get(mock(Guild.class)).isEmpty());
-    assertEquals(cache.get(guild).orElseThrow().toString(), "banana|pizza");
+    Pattern result = cache.get(guild).orElseThrow();
+
+    assertEquals(result.toString(), "banana|pizza");
   }
 }

@@ -110,9 +110,4 @@ public class ClientTest {
   public void testGetSubredditObservable() {
     assertNotNull(client.getSubredditObservable());
   }
-  
-  @Test
-  public void testGetEntityManagerFactory() {
-    assertNotNull(client.getEntityManagerFactory());
-  }
 }

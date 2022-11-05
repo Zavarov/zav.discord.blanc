@@ -2,11 +2,8 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -22,20 +19,17 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.GuildCommandManager;
-import zav.discord.blanc.databind.AutoResponseEntity;
-import zav.discord.blanc.databind.GuildEntity;
-import zav.discord.blanc.runtime.command.AbstractDatabaseTest;
+import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
  * This test case verifies whether the list of all auto-responses are displayed correctly.
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
+public class ResponseInfoCommandTest extends AbstractTest {
   @Captor ArgumentCaptor<List<Site.Page>> pages;
   GuildCommandManager manager;
   ResponseInfoCommand command;
-  AutoResponseEntity responseEntity;
   
   /**
    * Initializes the command with no arguments. The database is initialized with one automatic
@@ -43,14 +37,8 @@ public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
    */
   @BeforeEach
   public void setUp() {
-    super.setUp(new GuildEntity());
-    
-    responseEntity = new AutoResponseEntity();
     responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
-    
-    when(entityManager.find(eq(GuildEntity.class), any())).thenReturn(entity);
-    entity.add(responseEntity);
     
     manager = spy(new GuildCommandManager(client, event));
     command = new ResponseInfoCommand(event, manager);
@@ -60,7 +48,7 @@ public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    entity.setAutoResponses(new ArrayList<>());
+    guildEntity.setAutoResponses(new ArrayList<>());
     
     command.run();
   
@@ -69,7 +57,7 @@ public class ResponseInfoCommandTest extends AbstractDatabaseTest<GuildEntity> {
   
   @Test
   public void testShowPage() throws Exception {
-    entity.setAutoResponses(new ArrayList<>(List.of(responseEntity)));
+    guildEntity.setAutoResponses(new ArrayList<>(List.of(responseEntity)));
     
     command.run();
   

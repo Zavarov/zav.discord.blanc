@@ -16,8 +16,6 @@
 
 package zav.discord.blanc.databind;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -52,21 +50,18 @@ public enum Rank {
    * an SQL error occurred, {@link Rank#USER} is returned.
    *
    * @param user A Discord user.
-   * @param factory The persistence context
    * @return A list of effective ranks.
    */
   @Contract(pure = true)
-  public static Set<Rank> getEffectiveRanks(User user, EntityManagerFactory factory) {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      UserEntity entity = entityManager.find(UserEntity.class, user.getIdLong());
+  public static Set<Rank> getEffectiveRanks(User user) {
+    UserEntity entity = UserEntity.find(user);
     
-      return Optional.ofNullable(entity)
-            .map(UserEntity::getRanks)
-            .orElse(List.of(Rank.USER))
-            .stream()
-            .map(effectiveRanks::get)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toUnmodifiableSet());
-    }
+    return Optional.ofNullable(entity)
+          .map(UserEntity::getRanks)
+          .orElse(List.of(Rank.USER))
+          .stream()
+          .map(effectiveRanks::get)
+          .flatMap(Collection::stream)
+          .collect(Collectors.toUnmodifiableSet());
   }
 }

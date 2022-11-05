@@ -17,12 +17,9 @@
 package zav.discord.blanc.runtime.command.dev;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.security.SecureRandom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Rank;
@@ -80,8 +77,6 @@ public class FailsafeCommand extends AbstractCommand {
 
   private final User author;
   private final SlashCommandEvent event;
-  private final Client client;
-  private final EntityManagerFactory factory;
   
   /**
    * Creates a new instance of this command.
@@ -93,8 +88,6 @@ public class FailsafeCommand extends AbstractCommand {
     super(manager);
     this.author = event.getUser();
     this.event = event;
-    this.client = manager.getClient();
-    this.factory = client.getEntityManagerFactory();
   }
   
   @Override
@@ -109,27 +102,23 @@ public class FailsafeCommand extends AbstractCommand {
   @SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"})
   public void run() {
     // Persist entity modifications
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      UserEntity entity = UserEntity.getOrCreate(entityManager, author);
-      String response;
-      
-      if (entity.getRanks().contains(Rank.DEVELOPER)) {
-        entity.getRanks().remove(Rank.DEVELOPER);
-        entity.getRanks().add(Rank.ROOT);
-      
-        response = BECOME_ROOT[RANDOMIZER.nextInt(BECOME_ROOT.length)];
-      } else {
-        entity.getRanks().remove(Rank.ROOT);
-        entity.getRanks().add(Rank.DEVELOPER);
-      
-        response = BECOME_DEVELOPER[RANDOMIZER.nextInt(BECOME_DEVELOPER.length)];
-      }
-      
-      entityManager.getTransaction().begin();
-      entityManager.merge(entity);
-      entityManager.getTransaction().commit();
-      
-      event.replyFormat(response, author.getAsMention()).complete();
+    UserEntity entity = UserEntity.find(author);
+    String response;
+
+    if (entity.getRanks().contains(Rank.DEVELOPER)) {
+      entity.getRanks().remove(Rank.DEVELOPER);
+      entity.getRanks().add(Rank.ROOT);
+
+      response = BECOME_ROOT[RANDOMIZER.nextInt(BECOME_ROOT.length)];
+    } else {
+      entity.getRanks().remove(Rank.ROOT);
+      entity.getRanks().add(Rank.DEVELOPER);
+
+      response = BECOME_DEVELOPER[RANDOMIZER.nextInt(BECOME_DEVELOPER.length)];
     }
+
+    entity.merge();
+
+    event.replyFormat(response, author.getAsMention()).complete();
   }
 }

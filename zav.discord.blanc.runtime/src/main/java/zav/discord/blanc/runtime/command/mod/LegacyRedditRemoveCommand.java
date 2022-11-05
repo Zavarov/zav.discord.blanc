@@ -17,8 +17,6 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
@@ -46,7 +44,6 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
   private final Client client;
   private final SubredditObservable reddit;
   private final TextChannel channel;
-  private final EntityManagerFactory factory;
   private final SlashCommandEvent event;
   private final Guild guild;
   
@@ -62,30 +59,24 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
     this.guild = event.getGuild();
     this.client = manager.getClient();
     this.reddit = client.getSubredditObservable();
-    this.factory = client.getEntityManagerFactory();
     this.channel = event.getTextChannel();
   }
   
   @Override
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void run() {
-    try (EntityManager entityManager = factory.createEntityManager()) {
-      GuildEntity guildEntity = GuildEntity.getOrCreate(entityManager, guild);
-      TextChannelEntity channelEntity = TextChannelEntity.getOrCreate(entityManager, channel);
-      
-      final String response = modify(channelEntity);
-      
-      if (channelEntity.isEmpty()) {
-        guildEntity.remove(channelEntity);
-      }
-      
-      // Write changes to the database
-      entityManager.getTransaction().begin();
-      entityManager.merge(guildEntity);
-      entityManager.getTransaction().commit();
-      
-      event.reply(response).complete();
+    GuildEntity guildEntity = GuildEntity.find(guild);
+    TextChannelEntity channelEntity = TextChannelEntity.find(channel);
+
+    final String response = modify(channelEntity);
+
+    if (channelEntity.isEmpty()) {
+      guildEntity.remove(channelEntity);
     }
+
+    guildEntity.merge();
+
+    event.reply(response).complete();
   }
 
   private String modify(TextChannelEntity entity) {
