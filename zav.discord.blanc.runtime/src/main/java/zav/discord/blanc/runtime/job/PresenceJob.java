@@ -16,16 +16,14 @@
 
 package zav.discord.blanc.runtime.job;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.SecureRandom;
-import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.databind.Status;
 
 /**
  * Repeatable job which updates the status message of the user account associated with this
@@ -37,7 +35,7 @@ public class PresenceJob implements Runnable {
   
   private final Client self;
   
-  private final List<String> statusMessages;
+  private final Status status;
   
   /**
    * Reads the status messages from disk.
@@ -47,19 +45,15 @@ public class PresenceJob implements Runnable {
    */
   public PresenceJob(Client self) throws IOException {
     this.self = self;
+    this.status = Status.read(PresenceJob.class.getClassLoader(), "Status.json");
     
-    ObjectMapper om = new ObjectMapper();
-    InputStream is = PresenceJob.class.getClassLoader().getResourceAsStream("Status.json");
-    String[] messages = om.readValue(is, String[].class);
-    
-    LOGGER.info("{} status messages have been read.", messages.length);
-    statusMessages = List.of(messages);
+    LOGGER.info("{} status messages have been read.", status.getMessages().size());
   }
   
   @Override
   public void run() {
-    int index = RANDOMIZER.nextInt(statusMessages.size());
-    String statusMessage = statusMessages.get(index);
+    int index = RANDOMIZER.nextInt(status.getMessages().size());
+    String statusMessage = status.getMessages().get(index);
   
   
     LOGGER.info("Change activity to '{}'.", statusMessage);

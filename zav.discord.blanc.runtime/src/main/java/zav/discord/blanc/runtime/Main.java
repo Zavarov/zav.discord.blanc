@@ -73,7 +73,7 @@ public class Main {
 
   @SuppressFBWarnings(value = "BAD_PRACTICE")
   private Main() throws Exception {
-    Credentials credentials = JsonUtils.read(DISCORD_CREDENTIALS, Credentials.class);
+    Credentials credentials = Credentials.read(DISCORD_CREDENTIALS);
     UserlessClient reddit = loadRedditClient();
     Client client = loadDiscordClient(reddit, credentials);
     loadDatabase(client, credentials);
