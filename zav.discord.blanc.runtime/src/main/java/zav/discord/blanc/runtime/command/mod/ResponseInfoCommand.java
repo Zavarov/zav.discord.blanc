@@ -6,7 +6,6 @@ import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -16,7 +15,7 @@ import zav.discord.blanc.databind.GuildEntity;
 /**
  * This command displays all currently registered auto-responses.
  */
-public class ResponseInfoCommand extends AbstractGuildCommand implements RichResponse {
+public class ResponseInfoCommand extends AbstractGuildCommand {
   
   private final GuildCommandManager manager;
   private final SlashCommandEvent event;
@@ -38,8 +37,7 @@ public class ResponseInfoCommand extends AbstractGuildCommand implements RichRes
     manager.submit(getPages());
   }
   
-  @Override
-  public List<Site.Page> getPages() {
+  private List<Site.Page> getPages() {
     Site.Page.Builder builder = new Site.Page.Builder();
     builder.setItemsPerPage(5);
     builder.setLabel("Automatic Responses");

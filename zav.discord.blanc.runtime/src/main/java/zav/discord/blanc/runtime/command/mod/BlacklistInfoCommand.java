@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
-import zav.discord.blanc.api.RichResponse;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
@@ -33,7 +32,7 @@ import zav.discord.blanc.databind.GuildEntity;
  * This command allows to ban certain expressions in a guild. Every message that matches at least
  * one of those banned expressions is deleted automatically.
  */
-public class BlacklistInfoCommand extends AbstractGuildCommand implements RichResponse {
+public class BlacklistInfoCommand extends AbstractGuildCommand {
   
   private final GuildCommandManager manager;
   private final Guild guild;
@@ -55,8 +54,7 @@ public class BlacklistInfoCommand extends AbstractGuildCommand implements RichRe
     manager.submit(getPages());
   }
   
-  @Override
-  public List<Site.Page> getPages() {
+  private List<Site.Page> getPages() {
     Site.Page.Builder builder = new Site.Page.Builder();
     builder.setItemsPerPage(10);
     builder.setLabel("Forbidden Expressions");
