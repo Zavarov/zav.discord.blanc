@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,7 @@ public class GuildCommandManagerTest {
     try (var mocked = mockConstruction(PermissionValidator.class)) {
       when(event.getMember()).thenReturn(member);
       manager = new GuildCommandManager(client, event);
-      page = Site.Page.create(StringUtils.EMPTY, List.of(entry));
+      page = Site.Page.create(entry);
     }
   }
   
@@ -72,7 +71,7 @@ public class GuildCommandManagerTest {
   public void testSubmitEmpty() {
     when(event.reply(captor.capture())).thenReturn(action);
     
-    manager.submit(Collections.emptyList());
+    manager.submit(Collections.emptyList(), "site");
     
     assertEquals(captor.getValue(), "No entries.");
   }
@@ -86,7 +85,7 @@ public class GuildCommandManagerTest {
     when(response.complete()).thenReturn(message);
     when(client.get(SiteCache.class)).thenReturn(cache);
     
-    manager.submit(List.of(page));
+    manager.submit(List.of(page), "site");
     
     verify(cache).put(any(), any());
   }

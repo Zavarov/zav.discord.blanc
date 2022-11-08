@@ -19,24 +19,29 @@ package zav.discord.blanc.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import zav.discord.blanc.api.Site.Group;
 
 /**
  * Test class for interactive messages.
  */
 public class SiteTest {
-  Site site;
+  Site site1;
+  Site site2;
+
+  MessageEmbed content1;
+  MessageEmbed content2;
+  MessageEmbed content3;
   
-  List<MessageEmbed> entries1;
   Site.Page page1;
-  
-  List<MessageEmbed> entries2;
   Site.Page page2;
+  Site.Page page3;
+  
+  Site.Group group;
   
   User owner;
   
@@ -45,53 +50,53 @@ public class SiteTest {
    */
   @BeforeEach
   public void setUp() {
-    entries1 = new ArrayList<>();
-    entries1.add(mock(MessageEmbed.class));
-    entries1.add(mock(MessageEmbed.class));
-    entries1.add(mock(MessageEmbed.class));
-    page1 = Site.Page.create("page1", entries1);
-
-    entries2 = new ArrayList<>();
-    entries2.add(mock(MessageEmbed.class));
-    page2 = Site.Page.create("page2", entries2);
+    content1 = mock(MessageEmbed.class);
+    content2 = mock(MessageEmbed.class);
+    content3 = mock(MessageEmbed.class);
+    
+    page1 = Site.Page.create(content1);
+    page2 = Site.Page.create(content2);
+    page3 = Site.Page.create(content3);
   
     owner = mock(User.class);
     
-    site = Site.create(List.of(page1, page2), owner);
+    site1 = Site.create(List.of(page1, page2, page3), "site1");
+    site2 = Site.create(List.of(page3, page2, page1), "site2");
+    group = Group.create(List.of(site1, site2), owner);
   }
   
   @Test
   public void testMoveLeft() {
     // Roll over
-    site.moveLeft();
-    assertEquals(site.getCurrentPage(), entries1.get(2));
-    site.moveLeft();
-    assertEquals(site.getCurrentPage(), entries1.get(1));
-    site.moveLeft();
-    assertEquals(site.getCurrentPage(), entries1.get(0));
+    site1.moveLeft();
+    assertEquals(site1.getCurrentPage(), content3);
+    site1.moveLeft();
+    assertEquals(site1.getCurrentPage(), content2);
+    site1.moveLeft();
+    assertEquals(site1.getCurrentPage(), content1);
   }
   
   @Test
   public void testMoveRight() {
-    site.moveRight();
-    assertEquals(site.getCurrentPage(), entries1.get(1));
-    site.moveRight();
-    assertEquals(site.getCurrentPage(), entries1.get(2));
+    site1.moveRight();
+    assertEquals(site1.getCurrentPage(), content2);
+    site1.moveRight();
+    assertEquals(site1.getCurrentPage(), content3);
     // Roll over
-    site.moveRight();
-    assertEquals(site.getCurrentPage(), entries1.get(0));
+    site1.moveRight();
+    assertEquals(site1.getCurrentPage(), content1);
   }
   
   @Test
   public void testChangeSelection() {
-    site.changeSelection("page1");
-    assertEquals(site.getCurrentPage(), entries1.get(0));
-    site.changeSelection("page2");
-    assertEquals(site.getCurrentPage(), entries2.get(0));
+    group.changeSelection("site1");
+    assertEquals(group.getCurrentSite(), site1);
+    group.changeSelection("site2");
+    assertEquals(group.getCurrentSite(), site2);
   }
   
   @Test
   public void testGetOwner() {
-    assertEquals(site.getOwner(), owner);
+    assertEquals(group.getOwner(), owner);
   }
 }

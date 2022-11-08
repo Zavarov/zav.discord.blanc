@@ -21,8 +21,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import lombok.Setter;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -33,34 +34,33 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 
 /**
- * Implementation of site.
+ * A site is a collection of pages. The user can flip between the pages using the left and right
+ * arrows. If the user clicks left on the first page, it jumps to the last page and vice versa.
  */
 @NonNullByDefault
 public class Site {
   private final List<Page> pages;
-  private final User owner;
-  private Page currentPage;
+  private final String label;
+  private int index;
   
-  private Site(List<Page> pages, User owner) {
+  private Site(List<Page> pages, String label) {
     this.pages = pages;
-    this.owner = owner;
-    this.currentPage = pages.get(0);
+    this.label = label;
   }
   
   /**
    * Creates a new instance of a site over the provided arguments.<br>
-   * The argument has to contain at least one element. Furthermore, all sites need to contain at
-   * least one page.<br>
+   * The site needs to contain at least one page.
    * Only the owner should be allowed to interact with this site.
    *
    * @param pages All sites of this object.
-   * @param owner The user for which this site was created.
+   * @param label The unique name of this site.
    * @return A new site instance over the argument.
    */
   @Contract(pure = true)
-  public static Site create(List<Page> pages, User owner) {
+  public static Site create(List<Page> pages, String label) {
     Validate.validIndex(pages, 0);
-    return new Site(List.copyOf(pages), owner);
+    return new Site(List.copyOf(pages), label);
   }
   
   /**
@@ -68,7 +68,7 @@ public class Site {
    */
   @Contract(mutates = "this")
   public void moveLeft() {
-    currentPage.index = Math.floorMod(currentPage.index - 1, currentPage.entries.size());
+    index = Math.floorMod(index - 1, pages.size());
   }
   
   /**
@@ -76,7 +76,7 @@ public class Site {
    */
   @Contract(mutates = "this")
   public void moveRight() {
-    currentPage.index = Math.floorMod(currentPage.index + 1, currentPage.entries.size());
+    index = Math.floorMod(index + 1, pages.size());
   }
   
   /**
@@ -86,39 +86,81 @@ public class Site {
    */
   @Contract(pure = true)
   public MessageEmbed getCurrentPage() {
-    return currentPage.entries.get(currentPage.index);
+    return pages.get(index).content;
   }
   
   /**
-   * Returns the number of entry of the currently selected page.
+   * Returns the total number of pages in this site.
    *
    * @return As described.
    */
-  public int getCurrentSize() {
-    return currentPage.entries.size();
+  public int getSize() {
+    return pages.size();
   }
   
   /**
-   * Returns the user for which this site was created.
+   * Returns the unique name of this site.
    *
    * @return As described.
    */
-  @Contract(pure = true)
-  public User getOwner() {
-    return owner;
+  public String getLabel() {
+    return label;
   }
   
   /**
-   * Changes the current page of this site to the one specified by the label.
-   *
-   * @param label The name of the newly selected page.
+   * A group is a collection of sites. Each site 
    */
-  @Contract(mutates = "this")
-  public void changeSelection(String label) {
-    currentPage = pages.stream()
-          .filter(page -> page.label.equals(label))
-          .findFirst()
-          .orElseThrow();
+  public static class Group {
+    private final Map<String, Site> sites;
+    private final User owner;
+    private Site currentSite;
+    
+    private Group(List<Site> sites, User owner) {
+      this.sites = sites.stream().collect(Collectors.toMap(Site::getLabel, site -> site));
+      this.currentSite = sites.get(0);
+      this.owner = owner;
+    }
+    
+    /**
+     * Creates a group of sites. The owner of the group can flip between those sites via their
+     * unique name. A group needs to contain at least one site.
+     *
+     * @param sites All sites contained by this group.
+     * @param owner The user for which this site was created.
+     * @return A group over all sites.
+     */
+    public static Group create(List<Site> sites, User owner) {
+      Validate.validIndex(sites, 0);
+      return new Group(sites, owner);
+    }
+    
+    /**
+     * Changes the selection to the site with the given label.
+     *
+     * @param label The unique name of the site.
+     */
+    public void changeSelection(String label) {
+      currentSite = Objects.requireNonNull(sites.get(label));
+    }
+    
+    /**
+     * Returns the currently selected site.
+     *
+     * @return As described.
+     */
+    public Site getCurrentSite() {
+      return currentSite;
+    }
+    
+    /**
+     * Returns the user for which this site was created.
+     *
+     * @return As described.
+     */
+    @Contract(pure = true)
+    public User getOwner() {
+      return owner;
+    }
   }
   
   /**
@@ -126,33 +168,26 @@ public class Site {
    * can flip.
    */
   public static class Page {
-    private final List<MessageEmbed> entries;
-    private final String label;
-    private int index;
+    private final MessageEmbed content;
     
-    private Page(String label, List<MessageEmbed> entries) {
-      this.label = label;
-      this.entries = entries;
+    private Page(MessageEmbed content) {
+      this.content = content;
     }
-  
+    
     /**
-     * A page must contain at least one entry.
+     * Creates a new page with the given content..
      *
-     * @param label The (unique) name of this page.
-     * @param entries All entries of this page.
-     * @return A new page instance.
+     * @param content The content displayed by the page.
+     * @return As described.
      */
     @Contract(pure = true)
-    public static Page create(String label, List<MessageEmbed> entries) {
-      // Page needs at least one entry
-      Validate.validIndex(entries, 0);
-      return new Page(label, List.copyOf(entries));
+    public static Page create(MessageEmbed content) {
+      return new Page(content);
     }
     
     /**
      * Implements the builder pattern for pages.
      */
-    @Setter
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public static class Builder {
       private int itemsPerPage;
@@ -178,6 +213,16 @@ public class Site {
       public void add(String pattern, Object... args) {
         items.add(MessageFormat.format(pattern, args));
       }
+      
+      /**
+       * Sets the items which are displayed per page. If this number is smaller than the number of
+       * added items, new pages are created as necessary.
+       *
+       * @param itemsPerPage The number of items per page.
+       */
+      public void setItemsPerPage(int itemsPerPage) {
+        this.itemsPerPage = itemsPerPage;
+      }
 
       /**
        * Creates all pages required to represent the given items.
@@ -185,14 +230,11 @@ public class Site {
        * @return A list of pages.
        */
       public List<Site.Page> build() {
-        Objects.requireNonNull(label);
-        
         if (items.isEmpty()) {
           return Collections.emptyList();
         }
         
         List<Site.Page> result = new ArrayList<>();
-        List<MessageEmbed> messages = new ArrayList<>();
         
         for (List<String> chunk : ListUtils.partition(items, itemsPerPage)) {
           EmbedBuilder builder = new EmbedBuilder();
@@ -206,11 +248,10 @@ public class Site {
           builder.setDescription(description.toString());
           builder.setTitle(label);
           
-          messages.add(builder.build());
+          result.add(Site.Page.create(builder.build()));
           
         }
         
-        result.add(Site.Page.create(label, messages));
         return Collections.unmodifiableList(result);
       }
     }

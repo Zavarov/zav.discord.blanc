@@ -51,13 +51,12 @@ public class BlacklistInfoCommand extends AbstractGuildCommand {
 
   @Override
   public void run() {
-    manager.submit(getPages());
+    manager.submit(getPages(), "Forbidden Expressions");
   }
   
   private List<Site.Page> getPages() {
     Site.Page.Builder builder = new Site.Page.Builder();
     builder.setItemsPerPage(10);
-    builder.setLabel("Forbidden Expressions");
     
     GuildEntity entity = GuildEntity.find(guild);
     

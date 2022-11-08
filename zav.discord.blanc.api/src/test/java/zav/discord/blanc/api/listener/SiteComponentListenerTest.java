@@ -58,6 +58,7 @@ public class SiteComponentListenerTest {
   SelectionMenuEvent selectionEvent;
   Site site;
   Site.Page page;
+  Site.Group group;
   
   final String left = "left";
   final String right = "right";
@@ -80,8 +81,9 @@ public class SiteComponentListenerTest {
    */
   @BeforeEach
   public void setUp() {
-    page = Site.Page.create("mainPage", List.of(mainPage));
-    site = spy(Site.create(List.of(page), user));
+    page = Site.Page.create(mainPage);
+    site = spy(Site.create(List.of(page), "mainPage"));
+    group = spy(Site.Group.create(List.of(site), user));
     
     clickEvent = new ButtonClickEvent(jda, responseNumber, buttonInteraction);
     selectionEvent = new SelectionMenuEvent(jda, responseNumber, selectionInteraction);
@@ -117,7 +119,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
     
     listener.onButtonClick(clickEvent);
   
@@ -136,7 +138,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
     // Null for absent buttons
     when(button.getId()).thenReturn(null);
     
@@ -157,7 +159,7 @@ public class SiteComponentListenerTest {
     when(button.getId()).thenReturn(left);
     when(buttonInteraction.deferEdit()).thenReturn(updateAction);
     when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -176,7 +178,7 @@ public class SiteComponentListenerTest {
     when(button.getId()).thenReturn(right);
     when(buttonInteraction.deferEdit()).thenReturn(updateAction);
     when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -193,7 +195,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(user);
     when(buttonInteraction.getButton()).thenReturn(button);
     when(button.getId()).thenReturn(EMPTY);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
   
     listener.onButtonClick(clickEvent);
   
@@ -229,7 +231,7 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.deferReply()).thenReturn(replyAction);
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
   
     listener.onSelectionMenu(selectionEvent);
   
@@ -247,11 +249,11 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getValues()).thenReturn(List.of("mainPage"));
     when(selectionInteraction.deferEdit()).thenReturn(updateAction);
     when(updateAction.setEmbeds(any(MessageEmbed.class))).thenReturn(updateAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
     
     listener.onSelectionMenu(selectionEvent);
   
-    verify(site, times(1)).changeSelection(any());
+    verify(group, times(1)).changeSelection(any());
   }
   
   /**
@@ -264,7 +266,7 @@ public class SiteComponentListenerTest {
     when(buttonInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
     
     listener.onButtonClick(clickEvent);
   
@@ -281,7 +283,7 @@ public class SiteComponentListenerTest {
     when(selectionInteraction.getUser()).thenReturn(mock(User.class));
     when(replyAction.setEphemeral(anyBoolean())).thenReturn(replyAction);
     when(replyAction.setContent(anyString())).thenReturn(replyAction);
-    doReturn(Optional.of(site)).when(siteCache).get(any());
+    doReturn(Optional.of(group)).when(siteCache).get(any());
     
     listener.onSelectionMenu(selectionEvent);
   

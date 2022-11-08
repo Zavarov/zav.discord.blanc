@@ -27,22 +27,21 @@ import zav.discord.blanc.api.Site;
  * Those messages are not persisted.
  */
 @NonNullByDefault
-public class SiteCache extends AbstractCache<Message, Site> {
+public class SiteCache extends AbstractCache<Message, Site.Group> {
   
   /**
    * Caches a new site.
    *
    * @param message The message corresponding to the site.
-   * @param site The site instance.
+   * @param group A collection of sites.
    */
   @Contract(mutates = "this")
-  public void put(Message message, Site site) {
-    cache.put(message, site);
+  public void put(Message message, Site.Group group) {
+    cache.put(message, group);
   }
 
   @Override
-  protected Site fetch(Message key) {
-    // TODO Auto-generated method stub
+  protected Site.Group fetch(Message key) {
     return null;
   }
 }

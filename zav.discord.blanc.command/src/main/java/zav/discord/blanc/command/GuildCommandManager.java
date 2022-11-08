@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Site;
+import zav.discord.blanc.api.Site.Group;
 import zav.discord.blanc.api.cache.SiteCache;
 import zav.discord.blanc.command.internal.PermissionValidator;
 
@@ -78,20 +79,21 @@ public class GuildCommandManager extends CommandManager {
    *
    * @param pages All pages of the interactive message.
    */
-  public void submit(List<Site.Page> pages) {
+  public void submit(List<Site.Page> pages, String label) {
     if (pages.isEmpty()) {
       event.reply("No entries.").complete();
     } else {
       SiteCache cache = client.get(SiteCache.class);
       
       // Build site
-      Site site = Site.create(pages, event.getUser());
+      Site site = Site.create(pages, label);
+      Site.Group group = Group.create(List.of(site), event.getUser());
       
       // Send response
       ReplyAction action = event.deferReply();
       
       // Only add the left & right arrows if necessary
-      if (site.getCurrentSize() > 1) {
+      if (pages.size() > 1) {
         action = action.addActionRows(ActionRow.of(LEFT, RIGHT));
       }
       
@@ -101,7 +103,7 @@ public class GuildCommandManager extends CommandManager {
       
       // Store message in cache
       Message source = response.retrieveOriginal().complete();
-      cache.put(source, site);
+      cache.put(source, group);
     }
   }
 }
