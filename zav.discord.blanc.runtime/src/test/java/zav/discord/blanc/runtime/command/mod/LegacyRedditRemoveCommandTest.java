@@ -19,8 +19,11 @@ package zav.discord.blanc.runtime.command.mod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +33,7 @@ import java.util.EnumSet;
 import java.util.List;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,6 +130,21 @@ public class LegacyRedditRemoveCommandTest extends AbstractTest {
   }
   
   @Test
+  public void testRemoveSubredditByUnknownName() {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn("all");
+    
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    // The Reddit job should not've been updated
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(TextChannel.class));
+    assertEquals(channelEntity.getSubreddits(), List.of("redditdev"));
+  }
+  
+  @Test
   public void testRemoveSubredditByIndex() throws Exception {
     when(event.getOption("name")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
@@ -140,6 +159,57 @@ public class LegacyRedditRemoveCommandTest extends AbstractTest {
     assertNotNull(channelEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexTooLow() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(-1L);
+    
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    assertEquals(channelEntity.getSubreddits(), List.of("redditdev"));
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexTooHigh() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(Long.MAX_VALUE);
+    
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    assertEquals(channelEntity.getSubreddits(), List.of("redditdev"));
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexNoSubreddit() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    
+    channelEntity.setSubreddits(new ArrayList<>());
+    
+    command.run();
+    
+    assertTrue(channelEntity.isEmpty());
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(TextChannel.class));
+  }
+  
+  @Test
+  public void testRemoveInvalidArguments() {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(null);
+    
+    command.run();
+    
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
   }
   
   @Test

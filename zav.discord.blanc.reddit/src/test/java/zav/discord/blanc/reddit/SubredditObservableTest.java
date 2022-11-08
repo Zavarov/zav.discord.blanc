@@ -16,6 +16,8 @@
 
 package zav.discord.blanc.reddit;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -80,34 +82,62 @@ public class SubredditObservableTest {
   }
   
   @Test
-  public void testRemoveTextChannelListener() {
+  public void testRemoveLastTextChannelListener() {
     observable.getObservers().put("subreddit", observer);
     
     observable.removeListener("subreddit", textChannel);
+  
+    assertTrue(observable.getObservers().isEmpty());
+    
+    verify(observer).removeListener(any(TextChannelSubredditListener.class));
+  }
+  
+  @Test
+  public void testRemoveTextChannelListener() {
+    when(observer.size()).thenReturn(1);
+    observable.getObservers().put("subreddit", observer);
+    
+    observable.removeListener("subreddit", textChannel);
+    
+    assertFalse(observable.getObservers().isEmpty());
   
     verify(observer).removeListener(any(TextChannelSubredditListener.class));
   }
   
   @Test
-  public void testRemoveUnknownTextChannelListener() {
+  public void testRemoveTextChannelObserver() {
     observable.removeListener("subreddit", textChannel);
   
     verify(observer, times(0)).removeListener(any(TextChannelSubredditListener.class));
   }
   
   @Test
-  public void testRemoveWebhookListener() {
+  public void testRemoveLastWebhookListener() {
     when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
     
     observable.getObservers().put("subreddit", observer);
-    
     observable.removeListener("subreddit", webhook);
-  
+
+    assertTrue(observable.getObservers().isEmpty());
+    
     verify(observer).removeListener(any(WebhookSubredditListener.class));
   }
   
   @Test
-  public void testRemoveUnknownWebhookListener() {
+  public void testRemoveWebhookListener() {
+    when(observer.size()).thenReturn(1);
+    when(webhook.getToken()).thenReturn(StringUtils.EMPTY);
+    observable.getObservers().put("subreddit", observer);
+    
+    observable.removeListener("subreddit", webhook);
+    
+    assertFalse(observable.getObservers().isEmpty());
+    
+    verify(observer).removeListener(any(WebhookSubredditListener.class));
+  }
+  
+  @Test
+  public void testRemoveWebhookObserver() {
     observable.removeListener("subreddit", webhook);
   
     verify(observer, times(0)).removeListener(any(WebhookSubredditListener.class));

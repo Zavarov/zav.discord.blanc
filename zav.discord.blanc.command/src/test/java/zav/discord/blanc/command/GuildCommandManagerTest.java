@@ -3,6 +3,7 @@ package zav.discord.blanc.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +88,24 @@ public class GuildCommandManagerTest {
     when(client.get(SiteCache.class)).thenReturn(cache);
     
     manager.submit(List.of(page), "site");
+
+    verify(action, times(0)).addActionRows(any(ActionRow.class));
+    verify(cache).put(any(), any());
+  }
+  
+  @Test
+  public void testSubmitWithArrows() {
+    when(event.deferReply()).thenReturn(action);
+    when(action.addEmbeds(any(MessageEmbed.class))).thenReturn(action);
+    when(action.addActionRows(any(ActionRow.class))).thenReturn(action);
+    when(action.complete()).thenReturn(hook);
+    when(hook.retrieveOriginal()).thenReturn(response);
+    when(response.complete()).thenReturn(message);
+    when(client.get(SiteCache.class)).thenReturn(cache);
     
+    manager.submit(List.of(page, page), "site");
+
+    verify(action).addActionRows(any(ActionRow.class));
     verify(cache).put(any(), any());
   }
 }

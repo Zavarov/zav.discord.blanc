@@ -2,8 +2,12 @@ package zav.discord.blanc.api.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,5 +76,16 @@ public class RegularExpressionMatcherTest {
   @Test
   public void testIgnoreUnrelatedString() {
     assertNull(matcher.match("xxx").orElse(null));
+  }
+  
+  @Test
+  public void testFindFirst() {
+    Matcher mock = mock(Matcher.class);
+    
+    when(mock.group(anyString())).thenReturn(null);
+    assertNull(matcher.findFirst(mock));
+    
+    when(mock.group(anyString())).thenReturn("cheats");
+    assertEquals(matcher.findFirst(mock), "#FAQ");
   }
 }

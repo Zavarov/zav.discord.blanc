@@ -23,7 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,9 +51,6 @@ public class BlacklistAddCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    when(event.getOption(anyString())).thenReturn(pattern);
-    when(pattern.getAsString()).thenReturn("foo");
-    
     manager = new GuildCommandManager(client, event);
     command = new BlacklistAddCommand(event, manager);
   }
@@ -61,6 +60,9 @@ public class BlacklistAddCommandTest extends AbstractTest {
    */
   @Test
   public void testAddExpression() throws Exception {
+    when(event.getOption(anyString())).thenReturn(pattern);
+    when(pattern.getAsString()).thenReturn("foo");
+    
     guildEntity.setBlacklist(new ArrayList<>());
     
     command.run();
@@ -74,11 +76,19 @@ public class BlacklistAddCommandTest extends AbstractTest {
    */
   @Test
   public void testAlreadyAddedExpression() throws Exception {
+    when(event.getOption(anyString())).thenReturn(pattern);
+    when(pattern.getAsString()).thenReturn("foo");
+    
     guildEntity.setBlacklist(new ArrayList<>(List.of("foo")));
     
     command.run();
     
     assertEquals(guildEntity.getBlacklist(), List.of("foo"));
     verify(patternCache, times(0)).invalidate(guild);
+  }
+  
+  @Test
+  public void testGetPermissions() {
+    assertEquals(command.getPermissions(), EnumSet.of(Permission.MESSAGE_MANAGE));
   }
 }

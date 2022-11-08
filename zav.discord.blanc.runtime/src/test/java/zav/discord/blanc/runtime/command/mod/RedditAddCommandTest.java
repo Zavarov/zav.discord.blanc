@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,6 +83,19 @@ public class RedditAddCommandTest extends AbstractTest {
     assertNotNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).addListener(anyString(), any(Webhook.class));
+  }
+  
+  @Test
+  public void testSubredditAlreadyAdded() throws Exception {
+    when(event.getOption(anyString())).thenReturn(name);
+    when(name.getAsString()).thenReturn("redditdev");
+    
+    webhookEntity.setSubreddits(List.of("redditdev"));
+    
+    command.run();
+    
+    // The subreddit should not've been updated
+    verify(subredditObservable, times(0)).addListener(anyString(), any(Webhook.class));
   }
   
   @Test

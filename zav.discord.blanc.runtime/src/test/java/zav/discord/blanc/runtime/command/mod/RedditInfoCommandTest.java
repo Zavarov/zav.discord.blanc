@@ -60,13 +60,15 @@ public class RedditInfoCommandTest extends AbstractTest {
     command = new RedditInfoCommand(event, manager);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
+    guildEntity.setWebhooks(new ArrayList<>(List.of(webhookEntity)));
     
     doNothing().when(manager).submit(pages.capture(), anyString());
   }
   
+  
   @Test
   public void testShowEmptyPage() throws Exception {
-    guildEntity.setWebhooks(new ArrayList<>());
+    channelEntity.setId(Long.MAX_VALUE);
     
     command.run();
   
@@ -75,8 +77,6 @@ public class RedditInfoCommandTest extends AbstractTest {
   
   @Test
   public void testShowPage() throws Exception {
-    guildEntity.setWebhooks(new ArrayList<>(List.of(webhookEntity)));
-    
     command.run();
   
     assertEquals(pages.getValue().size(), 1);

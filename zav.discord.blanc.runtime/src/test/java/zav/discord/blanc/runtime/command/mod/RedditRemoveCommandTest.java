@@ -19,6 +19,7 @@ package zav.discord.blanc.runtime.command.mod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -92,6 +93,20 @@ public class RedditRemoveCommandTest extends AbstractTest {
   }
   
   @Test
+  public void testRemoveSubredditByUnknownName() {
+    when(event.getOption("name")).thenReturn(name);
+    when(event.getOption("index")).thenReturn(null);
+    when(name.getAsString()).thenReturn("all");
+    webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    // The Reddit job should not've been updated
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
+    assertEquals(webhookEntity.getSubreddits(), List.of("redditdev"));
+  }
+  
+  @Test
   public void testRemoveSubredditByIndex() throws Exception {
     when(event.getOption("name")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
@@ -106,6 +121,47 @@ public class RedditRemoveCommandTest extends AbstractTest {
     assertNotNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexTooLow() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(-1L);
+    
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    assertEquals(channelEntity.getSubreddits(), List.of("redditdev"));
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexTooHigh() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    when(index.getAsLong()).thenReturn(Long.MAX_VALUE);
+    
+    channelEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
+    
+    command.run();
+    
+    assertEquals(channelEntity.getSubreddits(), List.of("redditdev"));
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
+  }
+  
+  @Test
+  public void testRemoveSubredditByIndexNoSubreddit() throws Exception {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(index);
+    
+    channelEntity.setSubreddits(new ArrayList<>());
+    
+    command.run();
+    
+    assertTrue(channelEntity.isEmpty());
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
   }
   
   /**
@@ -233,6 +289,26 @@ public class RedditRemoveCommandTest extends AbstractTest {
     assertNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
+  }
+  
+  @Test
+  public void testRemoveUnknownSubreddit() {
+    when(webhook.getName()).thenReturn("NOT_REDDIT");
+    
+    command = new RedditRemoveCommand(event, manager);
+    command.run();
+    
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
+  }
+  
+  @Test
+  public void testRemoveInvalidArguments() {
+    when(event.getOption("name")).thenReturn(null);
+    when(event.getOption("index")).thenReturn(null);
+    
+    command.run();
+    
+    verify(subredditObservable, times(0)).removeListener(anyString(), any(Webhook.class));
   }
   
   @Test

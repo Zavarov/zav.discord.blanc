@@ -80,6 +80,18 @@ public class BlacklistRemoveCommandTest extends AbstractTest {
     verify(patternCache).invalidate(guild);
   }
   
+  @Test
+  public void testRemoveByUnknownName() {
+    when(event.getOption("pattern")).thenReturn(pattern);
+    when(event.getOption("index")).thenReturn(null);
+    when(pattern.getAsString()).thenReturn("bar");
+    
+    command.run();
+    
+    assertEquals(guildEntity.getBlacklist(), List.of("foo"));
+    verify(patternCache, times(0)).invalidate(guild);
+  }
+  
   /**
    * Tests whether the expression has been whitelisted, given its index.
    */

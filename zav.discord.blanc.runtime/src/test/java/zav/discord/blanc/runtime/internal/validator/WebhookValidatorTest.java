@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +39,14 @@ public class WebhookValidatorTest extends AbstractTest {
   
   @Test
   public void testUnknownWebhook() {
+    // No other webhooks
     when(channel.canTalk()).thenReturn(true);
     when(selfMember.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(retrieveWebhooks.complete()).thenReturn(Collections.emptyList());
+    assertTrue(validator.test(webhookEntity));
+    // A single webhook with different id
+    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+    when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
     assertTrue(validator.test(webhookEntity));
   }
   

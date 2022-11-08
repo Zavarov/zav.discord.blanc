@@ -91,13 +91,11 @@ public abstract class PersistenceUtil {
     try (EntityManager entityManager = FACTORY.createEntityManager()) {
       T entity = entityManager.find(clazz, primaryKey);
       
-      if (entity == null) {
-        return;
+      if (entity != null) {
+        entityManager.getTransaction().begin();
+        entityManager.remove(entity);
+        entityManager.getTransaction().commit();
       }
-      
-      entityManager.getTransaction().begin();
-      entityManager.remove(entity);
-      entityManager.getTransaction().commit();
     }
   }
 

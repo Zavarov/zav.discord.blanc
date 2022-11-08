@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.api;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -187,7 +186,6 @@ public class Site {
     /**
      * Implements the builder pattern for pages.
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public static class Builder {
       private final String title;
       private int itemsPerPage;
@@ -208,7 +206,7 @@ public class Site {
       
       /**
        * Adds a new item to the page.
-       * 
+       *
        * @param pattern the pattern string
        * @param args object(s) to format
        */

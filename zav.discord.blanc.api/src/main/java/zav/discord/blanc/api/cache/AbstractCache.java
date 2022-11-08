@@ -6,6 +6,16 @@ import java.time.Duration;
 import java.util.Optional;
 import org.jetbrains.annotations.Contract;
 
+/**
+ * The base class for all object caches. Due to the cost of accessing the database, it is
+ * recommended to keep frequently used objects in memory. For as long as possible. An object is
+ * requested once from the database and then reused until it is evicted by the cleanup policy.<br>
+ * If the database is updated, the cache entry has to be explicitly invalidated, in order to return
+ * the new value.
+ *
+ * @param <U> The unique id of the stored object.
+ * @param <V> The object to be stored.
+ */
 public abstract class AbstractCache<U, V> {
   private static final int MAX_CACHE_SIZE = 1024;
   protected final Cache<U, V> cache;

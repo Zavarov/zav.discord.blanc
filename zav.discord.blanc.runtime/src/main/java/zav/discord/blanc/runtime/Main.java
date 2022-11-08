@@ -70,13 +70,16 @@ public class Main {
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
   private final List<CommandData> commands = JsonUtils.getCommands();
   private final List<Object> listeners = new ArrayList<>();
+  private Credentials credentials;
+  private UserlessClient reddit;
+  private Client client;
 
   @SuppressFBWarnings(value = "BAD_PRACTICE")
   private Main() throws Exception {
-    Credentials credentials = Credentials.read(DISCORD_CREDENTIALS);
-    UserlessClient reddit = loadRedditClient();
-    Client client = loadDiscordClient(reddit, credentials);
-    loadDatabase(client, credentials);
+    credentials = Credentials.read(DISCORD_CREDENTIALS);
+    reddit = loadRedditClient();
+    client = loadDiscordClient();
+    loadDatabase();
     LOGGER.info("All Done~");
   }
   
@@ -89,7 +92,7 @@ public class Main {
     return reddit;
   }
   
-  private Client loadDiscordClient(UserlessClient reddit, Credentials credentials) throws IOException {
+  private Client loadDiscordClient() throws IOException {
     LOGGER.info("Loading Discord Client");
     ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
     CommandProvider provider = new SimpleCommandProvider();
@@ -147,7 +150,7 @@ public class Main {
   }
   
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-  private void loadDatabase(Client client, Credentials credentials) {
+  private void loadDatabase() {
     LOGGER.info("Loading Database");
     User owner = client.getShards().get(0).retrieveUserById(credentials.getOwner()).complete();
     

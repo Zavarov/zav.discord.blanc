@@ -1,7 +1,11 @@
 package zav.discord.blanc.databind;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -12,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.internal.PersistenceUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class WebhookEntityTest {
@@ -37,6 +42,28 @@ public class WebhookEntityTest {
   @AfterEach
   public void tearDown() {
     GuildEntity.remove(guild);
+  }
+  
+  @Test
+  public void testFindWebhook() {
+    assertEquals(WebhookEntity.find(webhook).getId(), webhookEntity.getId());
+  }
+  
+  @Test
+  public void testFindUnknownWebhook() {
+    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+    
+    assertNotEquals(WebhookEntity.find(webhook).getId(), webhookEntity.getId());
+  }
+  
+  @Test
+  public void removeUnknownWebhook() {
+    when(webhook.getIdLong()).thenReturn(Long.MAX_VALUE);
+    assertNull(PersistenceUtil.find(WebhookEntity.class, webhook.getIdLong()));
+    
+    WebhookEntity.remove(webhook);
+
+    assertNull(PersistenceUtil.find(WebhookEntity.class, webhook.getIdLong()));
   }
   
   /**

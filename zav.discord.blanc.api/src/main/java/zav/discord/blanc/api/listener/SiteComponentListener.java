@@ -35,6 +35,7 @@ import zav.discord.blanc.api.cache.SiteCache;
  * it.
  */
 @NonNullByDefault
+@SuppressFBWarnings("EI_EXPOSE_REP2")
 public class SiteComponentListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SiteComponentListener.class);
   
@@ -45,7 +46,6 @@ public class SiteComponentListener extends ListenerAdapter {
    *
    * @param siteCache The global site cache.
    */
-  @SuppressFBWarnings(value = "EI_EXPOSE_REP2")
   public SiteComponentListener(SiteCache siteCache) {
     this.siteCache = siteCache;
   }
