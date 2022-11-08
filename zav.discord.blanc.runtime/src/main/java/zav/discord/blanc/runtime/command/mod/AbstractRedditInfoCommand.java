@@ -39,13 +39,12 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand {
 
   @Override
   public void run() {
-    manager.submit(getPages());
+    manager.submit(getPages(), "Subreddit Feeds");
   }
   
   private List<Site.Page> getPages() {
     Site.Page.Builder builder = new Site.Page.Builder();
     builder.setItemsPerPage(10);
-    builder.setLabel("Subreddit Feeds");
     
     GuildEntity entity = GuildEntity.find(guild);
 

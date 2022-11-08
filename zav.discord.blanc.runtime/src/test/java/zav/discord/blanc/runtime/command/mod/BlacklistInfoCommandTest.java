@@ -18,6 +18,7 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -64,7 +65,7 @@ public class BlacklistInfoCommandTest extends AbstractTest {
     manager = spy(new GuildCommandManager(client, event));
     command = new BlacklistInfoCommand(event, manager);
     
-    doNothing().when(manager).submit(captor.capture());
+    doNothing().when(manager).submit(captor.capture(), anyString());
   }
   
   @Test

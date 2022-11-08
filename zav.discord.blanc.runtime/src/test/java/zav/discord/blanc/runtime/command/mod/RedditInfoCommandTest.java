@@ -18,6 +18,7 @@ package zav.discord.blanc.runtime.command.mod;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 
@@ -60,7 +61,7 @@ public class RedditInfoCommandTest extends AbstractTest {
     webhookEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
     
-    doNothing().when(manager).submit(pages.capture());
+    doNothing().when(manager).submit(pages.capture(), anyString());
   }
   
   @Test

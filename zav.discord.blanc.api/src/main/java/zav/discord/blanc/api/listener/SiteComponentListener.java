@@ -53,16 +53,16 @@ public class SiteComponentListener extends ListenerAdapter {
   @Override
   @Contract(mutates = "this")
   public void onButtonClick(ButtonClickEvent event) {
-    @Nullable Site site = siteCache.get(event.getMessage()).orElse(null);
+    Site.Group group = siteCache.get(event.getMessage()).orElse(null);
     
     // Unknown message -> ignore
-    if (site == null) {
+    if (group == null) {
       event.reply("Invalid Message").setEphemeral(true).queue();
       return;
     }
     
     // Invalid user -> reject
-    if (!site.getOwner().equals(event.getUser())) {
+    if (!group.getOwner().equals(event.getUser())) {
       event.reply("Invalid User").setEphemeral(true).queue();
       return;
     }
@@ -83,6 +83,8 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
+    Site site = group.getCurrentSite();
+    
     switch (id) {
       case "left":
         site.moveLeft();
@@ -100,16 +102,16 @@ public class SiteComponentListener extends ListenerAdapter {
   @Override
   @Contract(mutates = "this")
   public void onSelectionMenu(SelectionMenuEvent event) {
-    @Nullable Site site = siteCache.get(event.getMessage()).orElse(null);
+    Site.Group group = siteCache.get(event.getMessage()).orElse(null);
   
     // Unknown message -> ignore
-    if (site == null) {
+    if (group == null) {
       event.reply("Invalid Message").setEphemeral(true).queue();
       return;
     }
   
     // Invalid user -> reject
-    if (!site.getOwner().equals(event.getUser())) {
+    if (!group.getOwner().equals(event.getUser())) {
       event.reply("Invalid user").setEphemeral(true).queue();
       return;
     }
@@ -122,7 +124,7 @@ public class SiteComponentListener extends ListenerAdapter {
       return;
     }
     
-    site.changeSelection(values.get(0));
-    event.editMessageEmbeds(site.getCurrentPage()).complete();
+    group.changeSelection(values.get(0));
+    event.editMessageEmbeds(group.getCurrentSite().getCurrentPage()).complete();
   }
 }

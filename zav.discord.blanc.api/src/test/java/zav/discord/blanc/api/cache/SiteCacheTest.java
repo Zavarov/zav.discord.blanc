@@ -34,7 +34,7 @@ import zav.discord.blanc.api.Site;
 @ExtendWith(MockitoExtension.class)
 public class SiteCacheTest {
   SiteCache cache;
-  @Mock Site site;
+  @Mock Site.Group group;
   @Mock Message message;
   
   @BeforeEach
@@ -55,7 +55,7 @@ public class SiteCacheTest {
    */
   @Test
   public void testGet() {
-    cache.put(message, site);
-    assertEquals(cache.get(message).orElseThrow(), site);
+    cache.put(message, group);
+    assertEquals(cache.get(message).orElseThrow(), group);
   }
 }

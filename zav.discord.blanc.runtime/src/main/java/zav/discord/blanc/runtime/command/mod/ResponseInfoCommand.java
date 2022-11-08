@@ -34,13 +34,12 @@ public class ResponseInfoCommand extends AbstractGuildCommand {
 
   @Override
   public void run() {
-    manager.submit(getPages());
+    manager.submit(getPages(), "Automatic Responses");
   }
   
   private List<Site.Page> getPages() {
     Site.Page.Builder builder = new Site.Page.Builder();
     builder.setItemsPerPage(5);
-    builder.setLabel("Automatic Responses");
     
     GuildEntity entity = GuildEntity.find(event.getGuild());
 
