@@ -43,7 +43,7 @@ public abstract class AbstractRedditInfoCommand extends AbstractGuildCommand {
   }
   
   private List<Site.Page> getPages() {
-    Site.Page.Builder builder = new Site.Page.Builder();
+    Site.Page.Builder builder = new Site.Page.Builder("Subreddit Feeds");
     builder.setItemsPerPage(10);
     
     GuildEntity entity = GuildEntity.find(guild);

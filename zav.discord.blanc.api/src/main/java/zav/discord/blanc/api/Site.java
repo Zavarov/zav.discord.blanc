@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -190,10 +189,13 @@ public class Site {
      */
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public static class Builder {
+      private final String title;
       private int itemsPerPage;
-      @edu.umd.cs.findbugs.annotations.Nullable
-      private @Nullable String label;
       private List<String> items = new ArrayList<>();
+      
+      public Builder(String title) {
+        this.title = title;
+      }
       
       /**
        * Adds a new item to the page.
@@ -246,7 +248,7 @@ public class Site {
           }
           
           builder.setDescription(description.toString());
-          builder.setTitle(label);
+          builder.setTitle(title);
           
           result.add(Site.Page.create(builder.build()));
           
