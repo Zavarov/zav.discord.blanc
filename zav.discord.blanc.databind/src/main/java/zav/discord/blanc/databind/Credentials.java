@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -19,7 +18,6 @@ import lombok.Setter;
     "token",
     "owner"
 })
-@Setter
 @Getter
 @NoArgsConstructor
 public class Credentials {

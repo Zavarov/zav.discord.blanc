@@ -69,9 +69,9 @@ public class ShardSupplierTest {
     jdaBuilder = mockStatic(JDABuilder.class);
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
-    credentials = new Credentials();
-    credentials.setToken("token");
-    credentials.setShardCount(2);
+    credentials = spy(new Credentials());
+    doReturn("token").when(credentials).getToken();
+    doReturn(2L).when(credentials).getShardCount();
     
     supplier = new ShardSupplier(credentials);
   }
