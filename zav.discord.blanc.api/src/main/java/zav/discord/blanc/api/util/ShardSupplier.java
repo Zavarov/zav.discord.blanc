@@ -69,7 +69,7 @@ public class ShardSupplier implements Iterator<JDA> {
    * @param credentials The configuration file.
    */
   public ShardSupplier(Credentials credentials) {
-    this.token = credentials.getDiscordToken();
+    this.token = credentials.getToken();
     this.shardCount = credentials.getShardCount();
   }
   

@@ -70,7 +70,7 @@ public class ShardSupplierTest {
     jdaBuilder.when(() -> JDABuilder.create(anyCollection())).thenReturn(builder);
     
     credentials = new Credentials();
-    credentials.setDiscordToken("token");
+    credentials.setToken("token");
     credentials.setShardCount(2);
     
     supplier = new ShardSupplier(credentials);

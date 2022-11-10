@@ -13,15 +13,10 @@ import lombok.Setter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "botName",
-    "globalPrefix",
+    "name",
     "shardCount",
     "inviteSupportServer",
-    "wikiUrl",
-    "discordToken",
-    "redditId",
-    "redditAccount",
-    "redditSecret",
+    "token",
     "owner"
 })
 @Setter
@@ -29,11 +24,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Credentials {
 
-  @JsonProperty("botName")
-  private String botName;
-
-  @JsonProperty("globalPrefix")
-  private String globalPrefix;
+  @JsonProperty("name")
+  private String name;
 
   @JsonProperty("shardCount")
   private long shardCount;
@@ -41,20 +33,8 @@ public class Credentials {
   @JsonProperty("inviteSupportServer")
   private String inviteSupportServer;
 
-  @JsonProperty("wikiUrl")
-  private String wikiUrl;
-
-  @JsonProperty("discordToken")
-  private String discordToken;
-
-  @JsonProperty("redditId")
-  private String redditId;
-
-  @JsonProperty("redditAccount")
-  private String redditAccount;
-
-  @JsonProperty("redditSecret")
-  private String redditSecret;
+  @JsonProperty("token")
+  private String token;
 
   @JsonProperty("owner")
   private long owner;
