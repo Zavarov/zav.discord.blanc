@@ -63,7 +63,7 @@ import zav.jrc.databind.io.UserAgentEntity;
  */
 public class Main {
   
-  private static final String DISCORD_CREDENTIALS = "DiscordUser.json";
+  private static final File DISCORD_CREDENTIALS = new File("DiscordUser.json");
   private static final File REDDIT_CREDENTIALS = new File("RedditUser.json");
   private static final File USER_AGENT = new File("UserAgent.json");
   
