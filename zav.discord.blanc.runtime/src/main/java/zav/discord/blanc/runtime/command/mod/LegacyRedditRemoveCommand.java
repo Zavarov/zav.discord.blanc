@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Set;
@@ -63,7 +62,6 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
   }
   
   @Override
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void run() {
     GuildEntity guildEntity = GuildEntity.find(guild);
     TextChannelEntity channelEntity = TextChannelEntity.find(channel);

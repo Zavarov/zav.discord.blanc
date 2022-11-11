@@ -58,7 +58,6 @@ public class TextChannelInitializer {
     }
   }
 
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   private void load(TextChannel textChannel) {
     TextChannelEntity entity = TextChannelEntity.find(textChannel);
     

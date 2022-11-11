@@ -59,13 +59,14 @@ public class LegacyRedditInfoCommandTest extends AbstractTest {
     manager = spy(new GuildCommandManager(client, event));
     command = new LegacyRedditInfoCommand(event, manager);
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
+    guildEntity.setTextChannels(new ArrayList<>(List.of(channelEntity)));
     
     doNothing().when(manager).submit(pages.capture(), anyString());
   }
   
   @Test
   public void testShowEmptyPage() throws Exception {
-    guildEntity.setTextChannels(new ArrayList<>());
+    channelEntity.setId(Long.MAX_VALUE);
     
     command.run();
   
@@ -74,8 +75,6 @@ public class LegacyRedditInfoCommandTest extends AbstractTest {
   
   @Test
   public void testShowPage() throws Exception {
-    guildEntity.setTextChannels(new ArrayList<>(List.of(channelEntity)));
-
     command.run();
   
     assertEquals(pages.getValue().size(), 1);

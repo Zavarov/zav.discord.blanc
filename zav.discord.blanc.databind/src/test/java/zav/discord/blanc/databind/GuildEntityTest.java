@@ -2,7 +2,10 @@ package zav.discord.blanc.databind;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -44,8 +47,29 @@ public class GuildEntityTest {
   
   @AfterEach
   public void tearDown() {
-    // Other entities are removed via the cascade
     GuildEntity.remove(guild);
+  }
+  
+  @Test
+  public void testFindGuild() {
+    assertEquals(GuildEntity.find(guild).getId(), guildEntity.getId());
+  }
+  
+  @Test
+  public void testFindUnknownGuild() {
+    when(guild.getIdLong()).thenReturn(Long.MAX_VALUE);
+    
+    assertNotEquals(GuildEntity.find(guild).getId(), guildEntity.getId());
+  }
+  
+  @Test
+  public void removeUnknownGuild() {
+    when(guild.getIdLong()).thenReturn(Long.MAX_VALUE);
+    assertNull(PersistenceUtil.find(GuildEntity.class, guild.getIdLong()));
+    
+    GuildEntity.remove(guild);
+    
+    assertNull(PersistenceUtil.find(GuildEntity.class, guild.getIdLong()));
   }
   
   /**

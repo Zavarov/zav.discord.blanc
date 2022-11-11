@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.security.SecureRandom;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -99,7 +98,6 @@ public class FailsafeCommand extends AbstractCommand {
    * This command makes super-user into developers and developers into super-user.
    */
   @Override
-  @SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"})
   public void run() {
     // Persist entity modifications
     UserEntity entity = UserEntity.find(author);

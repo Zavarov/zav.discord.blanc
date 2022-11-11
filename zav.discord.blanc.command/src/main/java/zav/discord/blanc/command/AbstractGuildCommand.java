@@ -53,7 +53,7 @@ public abstract class AbstractGuildCommand extends AbstractCommand {
   /**
    * Returns the set of permissions required for executing this command. Empty by default, but
    * subclasses may overwrite this method, in order to impose further restrictions.
-   * 
+   *
    * @return An unmodifiable list of permissions required to execute this command.
    */
   protected Set<Permission> getPermissions() {

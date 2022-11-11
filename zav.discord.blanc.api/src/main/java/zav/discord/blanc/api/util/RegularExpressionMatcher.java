@@ -101,14 +101,20 @@ public class RegularExpressionMatcher {
     Matcher matcher = pattern.matcher(source);
     
     if (matcher.find()) {
-      for (int i = 0; i < groupNames.size(); ++i) {
-        // Find the first matching group and return its response
-        if (matcher.group(groupNames.get(i)) != null) {
-          return Optional.of(responses.get(i));
-        }
-      }
+      return Optional.ofNullable(findFirst(matcher));
     }
     
     return Optional.empty();
+  }
+  
+  /*package*/ String findFirst(Matcher matcher) {
+    // Find the first matching group and return its response
+    for (int i = 0; i < groupNames.size(); ++i) {
+      if (matcher.group(groupNames.get(i)) != null) {
+        return responses.get(i);
+      }
+    }
+    
+    return null;
   }
 }

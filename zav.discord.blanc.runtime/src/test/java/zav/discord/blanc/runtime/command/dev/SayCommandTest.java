@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
@@ -54,4 +55,8 @@ public class SayCommandTest extends AbstractTest {
     assertEquals(response.getValue(), "Hello World");
   }
   
+  @Test
+  public void testGetRequiredRank() {
+    assertEquals(command.getRequiredRank(), Rank.DEVELOPER);
+  }
 }

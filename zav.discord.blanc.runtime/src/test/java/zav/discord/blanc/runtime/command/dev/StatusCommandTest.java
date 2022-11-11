@@ -16,6 +16,7 @@
 
 package zav.discord.blanc.runtime.command.dev;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.databind.Rank;
 import zav.discord.blanc.runtime.command.AbstractTest;
 
 /**
@@ -45,5 +47,10 @@ public class StatusCommandTest extends AbstractTest {
     command.run();
     
     verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
+  }
+  
+  @Test
+  public void testGetRequiredRank() {
+    assertEquals(command.getRequiredRank(), Rank.DEVELOPER);
   }
 }

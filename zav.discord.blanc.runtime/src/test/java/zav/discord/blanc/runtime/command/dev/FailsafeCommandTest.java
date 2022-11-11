@@ -63,4 +63,9 @@ public class FailsafeCommandTest extends AbstractTest {
     
     assertEquals(userEntity.getRanks(), List.of(Rank.DEVELOPER));
   }
+  
+  @Test
+  public void testGetRequiredRank() {
+    assertEquals(command.getRequiredRank(), Rank.DEVELOPER);
+  }
 }

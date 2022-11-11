@@ -61,7 +61,7 @@ public class SiteTest {
     owner = mock(User.class);
     
     site1 = Site.create(List.of(page1, page2, page3), "site1");
-    site2 = Site.create(List.of(page3, page2, page1), "site2");
+    site2 = Site.create(List.of(page3, page2), "site2");
     group = Group.create(List.of(site1, site2), owner);
   }
   
@@ -98,5 +98,11 @@ public class SiteTest {
   @Test
   public void testGetOwner() {
     assertEquals(group.getOwner(), owner);
+  }
+  
+  @Test
+  public void testGetCurrentSize() {
+    assertEquals(site1.getSize(), 3);
+    assertEquals(site2.getSize(), 2);
   }
 }

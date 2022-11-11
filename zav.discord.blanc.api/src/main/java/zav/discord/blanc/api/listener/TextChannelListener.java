@@ -16,7 +16,6 @@
 
 package zav.discord.blanc.api.listener;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -35,7 +34,6 @@ public class TextChannelListener extends ListenerAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(TextChannelListener.class);
   
   @Override
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onTextChannelDelete(TextChannelDeleteEvent event) {
     // Update text-channels, webhooks and guilds are updated via a cascade
     TextChannelEntity.remove(event.getChannel());
@@ -44,7 +42,6 @@ public class TextChannelListener extends ListenerAdapter {
   }
   
   @Override
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   public void onGuildLeave(GuildLeaveEvent event) {
     // Update guilds, text-channels and webhooks are updated via the cascade
     GuildEntity.remove(event.getGuild());
