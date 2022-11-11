@@ -51,11 +51,6 @@ public class WebhookEntity implements PersistedEntity {
   private String name;
   
   /**
-   * Boolean value specifying whether the webhook was created by this application.
-   */
-  private boolean owner;
-  
-  /**
    * The textchannel entity this object is contained by.
    */
   @ManyToOne

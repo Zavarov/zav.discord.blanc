@@ -93,7 +93,7 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
       reddit.removeListener(name, webhook);
       
       // Delete webhook if it's no longer needed
-      if (entity.getSubreddits().isEmpty() && entity.isOwner()) {
+      if (entity.getSubreddits().isEmpty()) {
         webhook.delete().complete();
       }
       

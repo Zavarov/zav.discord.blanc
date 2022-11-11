@@ -177,7 +177,6 @@ public class RedditRemoveCommandTest extends AbstractTest {
     when(webhook.delete()).thenReturn(delete);
     when(name.getAsString()).thenReturn(subredditName);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
-    webhookEntity.setOwner(true);
     
     command.run();
 
@@ -198,7 +197,6 @@ public class RedditRemoveCommandTest extends AbstractTest {
     when(webhook.delete()).thenReturn(delete);
     when(index.getAsLong()).thenReturn(0L);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
-    webhookEntity.setOwner(true);
     
     command.run();
 
@@ -218,7 +216,6 @@ public class RedditRemoveCommandTest extends AbstractTest {
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn("redditdev");
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev", "boiledgoulash")));
-    webhookEntity.setOwner(true);
     
     command.run();
 
@@ -238,7 +235,6 @@ public class RedditRemoveCommandTest extends AbstractTest {
     when(event.getOption("index")).thenReturn(index);
     when(index.getAsLong()).thenReturn(0L);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev", "boiledgoulash")));
-    webhookEntity.setOwner(true);
     
     command.run();
 
@@ -259,6 +255,7 @@ public class RedditRemoveCommandTest extends AbstractTest {
     when(event.getOption("name")).thenReturn(name);
     when(event.getOption("index")).thenReturn(null);
     when(name.getAsString()).thenReturn("redditdev");
+    when(webhook.delete()).thenReturn(delete);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
     command.run();
@@ -269,6 +266,7 @@ public class RedditRemoveCommandTest extends AbstractTest {
     assertNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
+    verify(delete).complete();
   }
   
   /**
@@ -278,6 +276,7 @@ public class RedditRemoveCommandTest extends AbstractTest {
   public void testRemoveLastSubredditByIndex() {
     when(event.getOption("name")).thenReturn(null);
     when(event.getOption("index")).thenReturn(index);
+    when(webhook.delete()).thenReturn(delete);
     when(index.getAsLong()).thenReturn(0L);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("redditdev")));
     
@@ -289,11 +288,13 @@ public class RedditRemoveCommandTest extends AbstractTest {
     assertNull(webhookEntity.getGuild());
     // Has the Reddit job been updated?
     verify(subredditObservable).removeListener(eq("redditdev"), any(Webhook.class));
+    verify(delete).complete();
   }
   
   @Test
   public void testRemoveUnknownSubreddit() {
-    when(webhook.getName()).thenReturn("NOT_REDDIT");
+    // The webhook was created by a different user
+    when(selfMember.getIdLong()).thenReturn(Long.MAX_VALUE);
     
     command = new RedditRemoveCommand(event, manager);
     command.run();
