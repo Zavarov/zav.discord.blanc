@@ -37,9 +37,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import zav.discord.blanc.api.Client;
 import zav.discord.blanc.databind.Credentials;
 
 /**
@@ -50,6 +52,7 @@ public class ShardSupplierTest {
   ShardSupplier supplier;
   Credentials credentials;
 
+  @Mock Client client;
   MockedStatic<JDABuilder> jdaBuilder;
   MockedConstruction<TimedSemaphore> rateLimiter;
   
@@ -73,7 +76,7 @@ public class ShardSupplierTest {
     doReturn("token").when(credentials).getToken();
     doReturn(2L).when(credentials).getShardCount();
     
-    supplier = new ShardSupplier(credentials);
+    supplier = new ShardSupplier(client, credentials);
   }
   
   @AfterEach

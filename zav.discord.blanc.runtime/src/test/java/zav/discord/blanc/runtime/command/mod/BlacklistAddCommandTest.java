@@ -51,7 +51,7 @@ public class BlacklistAddCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new BlacklistAddCommand(event, manager);
   }
 

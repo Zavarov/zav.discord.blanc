@@ -27,7 +27,7 @@ public class SimpleCommandParserTest extends AbstractTest {
   
   @BeforeEach
   public void setUp() {
-    parser = new SimpleCommandParser(client, provider);
+    parser = new SimpleCommandParser(shard, provider);
   }
   
   @Test

@@ -37,7 +37,7 @@ public class ResponseAddCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new ResponseAddCommand(event, manager);
 
     guildEntity.setAutoResponses(new ArrayList<>());

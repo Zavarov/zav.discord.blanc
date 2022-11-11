@@ -32,6 +32,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.cache.AutoResponseCache;
 import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.command.CommandManager;
@@ -56,6 +57,7 @@ public class AbstractTest {
   public @Mock SelfUser  selfUser;
   public @Mock TextChannel channel;
   public @Mock JDA jda;
+  public @Mock Shard shard;
   public @Mock Presence presence;
   public @Mock RestAction<List<Webhook>> retrieveWebhooks;
   public @Mock WebhookAction createWebhook;
@@ -88,12 +90,14 @@ public class AbstractTest {
    */
   @BeforeEach
   public void initMocks() {
-    lenient().when(client.getShards()).thenReturn(List.of(jda));
+    lenient().when(client.getShards()).thenReturn(List.of(shard));
     lenient().when(client.get(SubredditObservable.class)).thenReturn(subredditObservable);
-    lenient().when(client.get(ScheduledExecutorService.class)).thenReturn(queue);
-    lenient().when(client.get(PatternCache.class)).thenReturn(patternCache);
     lenient().when(client.get(Credentials.class)).thenReturn(credentials);
-    lenient().when(client.get(AutoResponseCache.class)).thenReturn(responseCache);
+    lenient().when(shard.get(ScheduledExecutorService.class)).thenReturn(queue);
+    lenient().when(shard.get(PatternCache.class)).thenReturn(patternCache);
+    lenient().when(shard.get(AutoResponseCache.class)).thenReturn(responseCache);
+    lenient().when(shard.getJda()).thenReturn(jda);
+    lenient().when(shard.getClient()).thenReturn(client);
     
     lenient().when(jda.getSelfUser()).thenReturn(selfUser);
     lenient().when(jda.getGuilds()).thenReturn(List.of(guild));
@@ -108,7 +112,7 @@ public class AbstractTest {
     lenient().when(createWebhook.complete()).thenReturn(webhook);
     lenient().when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
     lenient().when(webhook.getOwner()).thenReturn(selfMember);
-    lenient().when(manager.getClient()).thenReturn(client);
+    lenient().when(manager.getShard()).thenReturn(shard);
 
     lenient().when(event.getJDA()).thenReturn(jda);
     lenient().when(event.getMember()).thenReturn(member);

@@ -56,7 +56,7 @@ public class LegacyRedditInfoCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = spy(new GuildCommandManager(client, event));
+    manager = spy(new GuildCommandManager(shard, event));
     command = new LegacyRedditInfoCommand(event, manager);
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));
     guildEntity.setTextChannels(new ArrayList<>(List.of(channelEntity)));

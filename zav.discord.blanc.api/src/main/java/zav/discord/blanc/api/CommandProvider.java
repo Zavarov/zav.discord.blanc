@@ -12,9 +12,9 @@ public interface CommandProvider {
    * {@link Optional#empty()} is returned. Each command is uniquely identified by its qualified
    * name.
    *
-   * @param client The Discord instance.
+   * @param shard The current shard.
    * @param event The event from which the command is created.
    * @return An optional containing the created command.
    */
-  Optional<Command> create(Client client, SlashCommandEvent event);
+  Optional<Command> create(Shard shard, SlashCommandEvent event);
 }

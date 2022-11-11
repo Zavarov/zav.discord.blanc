@@ -18,11 +18,11 @@ package zav.discord.blanc.runtime.job;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.databind.Status;
 
 /**
@@ -57,8 +57,8 @@ public class PresenceJob implements Runnable {
   
   
     LOGGER.info("Change activity to '{}'.", statusMessage);
-    for (JDA shard : self.getShards()) {
-      shard.getPresence().setActivity(Activity.playing(statusMessage));
+    for (Shard shard : self.getShards()) {
+      shard.getJda().getPresence().setActivity(Activity.playing(statusMessage));
     }
   }
 }

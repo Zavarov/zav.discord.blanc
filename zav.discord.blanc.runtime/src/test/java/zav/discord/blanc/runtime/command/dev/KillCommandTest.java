@@ -42,7 +42,7 @@ public class KillCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = new CommandManager(client, event);
+    manager = new CommandManager(shard, event);
     command = new KillCommand(event, manager);
   }
   

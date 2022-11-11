@@ -59,7 +59,7 @@ public class RedditAddCommandTest extends AbstractTest {
   public void setUp() {
     // The webhook was created by another user, so we have to create a new instance
     when(selfMember.getIdLong()).thenReturn(Long.MAX_VALUE);
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new RedditAddCommand(event, manager);
   }
   

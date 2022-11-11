@@ -19,7 +19,7 @@ package zav.discord.blanc.command;
 import java.util.List;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.internal.RankValidator;
 import zav.discord.blanc.databind.Rank;
 
@@ -31,9 +31,9 @@ import zav.discord.blanc.databind.Rank;
 public class CommandManager {
   
   /**
-   * The global application instance.
+   * The shard the command was executed in.
    */
-  protected final Client client;
+  protected final Shard shard;
   /**
    * The event from which the active command was created.
    */
@@ -43,11 +43,11 @@ public class CommandManager {
   /**
    * Creates a new manager instance. A new instance is created for each command.
    *
-   * @param client The global application instance.
+   * @param shard The current shard.
    * @param event The event from which the active command was created.
    */
-  public CommandManager(Client client, SlashCommandEvent event) {
-    this.client = client;
+  public CommandManager(Shard shard, SlashCommandEvent event) {
+    this.shard = shard;
     this.event = event;
     this.validator = new RankValidator(event.getUser());
   }
@@ -63,11 +63,11 @@ public class CommandManager {
   }
   
   /**
-   * Returns the application instance.
+   * Returns the current shard.
    *
    * @return  As described.
    */
-  public Client getClient() {
-    return client;
+  public Shard getShard() {
+    return shard;
   }
 }

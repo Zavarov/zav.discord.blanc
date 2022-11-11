@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.CommandParser;
 import zav.discord.blanc.api.CommandProvider;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.cache.AutoResponseCache;
 import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.api.cache.SiteCache;
@@ -69,7 +70,6 @@ public class Main {
   
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
   private final List<CommandData> commands = JsonUtils.getCommands();
-  private final List<Object> listeners = new ArrayList<>();
   private Credentials credentials;
   private UserlessClient reddit;
   private Client client;
@@ -94,23 +94,11 @@ public class Main {
   
   private Client loadDiscordClient() throws IOException {
     LOGGER.info("Loading Discord Client");
-    ScheduledExecutorService pool = Executors.newScheduledThreadPool(8);
-    CommandProvider provider = new SimpleCommandProvider();
+    ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
     Client client = new Client();
     client.bind(Credentials.class, credentials);
-    client.bind(PatternCache.class, new PatternCache());
-    client.bind(AutoResponseCache.class, new AutoResponseCache());
-    client.bind(SiteCache.class, new SiteCache());
-    client.bind(ScheduledExecutorService.class, pool);
     client.bind(SubredditObservable.class, new SubredditObservable(reddit, pool));
-    client.postConstruct(new ShardSupplier(credentials));
-    CommandParser parser = new SimpleCommandParser(client, provider);
-    
-    listeners.add(new SlashCommandListener(pool, parser));
-    listeners.add(new TextChannelListener());
-    listeners.add(new BlacklistListener(client.get(PatternCache.class)));
-    listeners.add(new AutoResponseListener(client.get(AutoResponseCache.class)));
-    listeners.add(new SiteComponentListener(client.get(SiteCache.class)));
+    client.postConstruct(new ShardSupplier(client, credentials));
 
     LOGGER.info("Starting jobs for client");
     Runnable job = new RedditJob(client); 
@@ -123,24 +111,41 @@ public class Main {
     pool.scheduleAtFixedRate(presenceJob, 0, 1, TimeUnit.HOURS);
     
     LOGGER.info("Loading shards");
-    for (JDA shard : client.getShards()) {
+    for (Shard shard : client.getShards()) {
       loadShard(shard);
     }
     
     return client;
   }
   
-  private void loadShard(JDA shard) throws IOException {
-    LOGGER.info("Adding event listeners for shard {}", shard.getShardInfo());
-    shard.addEventListener(listeners.toArray());
+  private void loadShard(Shard shard) throws IOException {
+    final ScheduledExecutorService pool = Executors.newScheduledThreadPool(4);
+    final JDA jda = shard.getJda();
     
-    LOGGER.info("Clear existing guild commands for shard {}", shard.getShardInfo());
-    for (Guild guild : shard.getGuilds()) {
+    LOGGER.info("Initializing Application Context");
+    shard.bind(PatternCache.class, new PatternCache());
+    shard.bind(AutoResponseCache.class, new AutoResponseCache());
+    shard.bind(SiteCache.class, new SiteCache());
+    shard.bind(ScheduledExecutorService.class, pool);
+    
+    LOGGER.info("Adding event listeners for shard {}", jda.getShardInfo());
+    CommandProvider provider = new SimpleCommandProvider();
+    CommandParser parser = new SimpleCommandParser(shard, provider);
+    List<Object> listeners = new ArrayList<>();
+    listeners.add(new SlashCommandListener(pool, parser));
+    listeners.add(new TextChannelListener());
+    listeners.add(new BlacklistListener(shard.get(PatternCache.class)));
+    listeners.add(new AutoResponseListener(shard.get(AutoResponseCache.class)));
+    listeners.add(new SiteComponentListener(shard.get(SiteCache.class)));
+    jda.addEventListener(listeners.toArray());
+    
+    LOGGER.info("Clear existing guild commands for shard {}", jda.getShardInfo());
+    for (Guild guild : jda.getGuilds()) {
       loadGuild(guild);
     }
     
-    LOGGER.info("Updating commands for shard {}", shard.getShardInfo());
-    shard.updateCommands().addCommands(commands).complete();
+    LOGGER.info("Updating commands for shard {}", jda.getShardInfo());
+    jda.updateCommands().addCommands(commands).complete();
   }
   
   private void loadGuild(Guild guild) {
@@ -151,7 +156,7 @@ public class Main {
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   private void loadDatabase() {
     LOGGER.info("Loading Database");
-    User owner = client.getShard(0).retrieveUserById(credentials.getOwner()).complete();
+    User owner = client.getShard(0).getJda().retrieveUserById(credentials.getOwner()).complete();
     
     if (owner == null) {
       LOGGER.error("User with id {} doesn't exist.", credentials.getOwner());

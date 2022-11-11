@@ -68,7 +68,7 @@ public class LegacyRedditRemoveCommandTest extends AbstractTest {
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
     channelEntity.setWebhooks(Collections.emptyList());
 
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new LegacyRedditRemoveCommand(event, manager);
   }
   

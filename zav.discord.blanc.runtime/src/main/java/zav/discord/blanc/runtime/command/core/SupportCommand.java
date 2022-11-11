@@ -17,6 +17,8 @@
 package zav.discord.blanc.runtime.command.core;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Credentials;
@@ -28,6 +30,8 @@ public class SupportCommand extends AbstractCommand {
   
   private final SlashCommandEvent event;
   private final String link;
+  private final Client client;
+  private final Shard shard;
   
   /**
    * Creates a new instance of this command.
@@ -38,7 +42,9 @@ public class SupportCommand extends AbstractCommand {
   public SupportCommand(SlashCommandEvent event, CommandManager manager) {
     super(manager);
     this.event = event;
-    this.link = manager.getClient().get(Credentials.class).getInviteSupportServer();
+    this.shard = manager.getShard();
+    this.client = shard.getClient();
+    this.link = client.get(Credentials.class).getInviteSupportServer();
   }
   
   @Override

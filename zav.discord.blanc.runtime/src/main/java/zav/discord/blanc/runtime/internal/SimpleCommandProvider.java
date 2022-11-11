@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.CommandProvider;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.runtime.command.core.MathCommand;
@@ -38,23 +38,23 @@ import zav.discord.blanc.runtime.command.mod.ResponseRemoveCommand;
 public class SimpleCommandProvider implements CommandProvider {
   
   @Override
-  public Optional<Command> create(Client client, SlashCommandEvent event) {
+  public Optional<Command> create(Shard shard, SlashCommandEvent event) {
     if (event.isFromGuild()) {
-      return Optional.ofNullable(createGuildCommand(client, event));
+      return Optional.ofNullable(createGuildCommand(shard, event));
     } else {
-      return Optional.ofNullable(createCommand(client, event));
+      return Optional.ofNullable(createCommand(shard, event));
     }
   }
   
   /**
    * Creates the guild-less command corresponding to the slash event.
    *
-   * @param client The Discord instance.
+   * @param shard The current shard.
    * @param event The event from which the command is created.
    * @return The created command or {@code null}, if no matching command is found.
    */
-  private static Command createCommand(Client client, SlashCommandEvent event) {
-    CommandManager manager = new CommandManager(client, event);
+  private static Command createCommand(Shard shard, SlashCommandEvent event) {
+    CommandManager manager = new CommandManager(shard, event);
     
     switch (getQualifiedName(event)) {
       case "math":
@@ -78,12 +78,12 @@ public class SimpleCommandProvider implements CommandProvider {
    * Creates the guild command corresponding to the slash event. If no matching guild command is
    * found, a guild-less command is created.
    *
-   * @param client The Discord instance.
+   * @param shard The current shard.
    * @param event The event from which the command is created.
    * @return The created command or {@code null}, if no matching command is found.
    */
-  private static Command createGuildCommand(Client client, SlashCommandEvent event) {
-    GuildCommandManager manager = new GuildCommandManager(client, event);
+  private static Command createGuildCommand(Shard shard, SlashCommandEvent event) {
+    GuildCommandManager manager = new GuildCommandManager(shard, event);
     
     switch (getQualifiedName(event)) {
       case "mod.blacklist.add":
@@ -110,7 +110,7 @@ public class SimpleCommandProvider implements CommandProvider {
         return new ResponseInfoCommand(event, manager);
       default:
         // Guild commands are also normal commands
-        return createCommand(client, event);
+        return createCommand(shard, event);
     }
   }
   

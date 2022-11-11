@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.internal.RankValidator;
 import zav.discord.blanc.databind.Rank;
 
@@ -20,7 +20,7 @@ import zav.discord.blanc.databind.Rank;
 @ExtendWith(MockitoExtension.class)
 public class CommandManagerTest {
   @Mock InsufficientRankException exception;
-  @Mock Client client;
+  @Mock Shard shard;
   @Mock SlashCommandEvent event;
   CommandManager manager;
   
@@ -30,7 +30,7 @@ public class CommandManagerTest {
   @BeforeEach
   public void setUp() {
     try (var mocked = mockConstruction(RankValidator.class)) {
-      manager = new CommandManager(client, event);
+      manager = new CommandManager(shard, event);
     }
   }
   
@@ -41,7 +41,7 @@ public class CommandManagerTest {
   }
   
   @Test
-  public void testGetClient() {
-    assertEquals(manager.getClient(), client);
+  public void testGetShard() {
+    assertEquals(manager.getShard(), shard);
   }
 }

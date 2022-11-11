@@ -25,7 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.api.cache.SiteCache;
 import zav.discord.blanc.command.internal.PermissionValidator;
@@ -40,7 +40,7 @@ public class GuildCommandManagerTest {
   @Mock Message message;
   @Mock RestAction<Message> response;
   @Mock InsufficientPermissionException exception;
-  @Mock Client client;
+  @Mock Shard shard;
   @Mock SlashCommandEvent event;
   @Mock Member member;
   @Mock ReplyAction action;
@@ -58,7 +58,7 @@ public class GuildCommandManagerTest {
   public void setUp() {
     try (var mocked = mockConstruction(PermissionValidator.class)) {
       when(event.getMember()).thenReturn(member);
-      manager = new GuildCommandManager(client, event);
+      manager = new GuildCommandManager(shard, event);
       page = Site.Page.create(entry);
     }
   }
@@ -85,7 +85,7 @@ public class GuildCommandManagerTest {
     when(action.complete()).thenReturn(hook);
     when(hook.retrieveOriginal()).thenReturn(response);
     when(response.complete()).thenReturn(message);
-    when(client.get(SiteCache.class)).thenReturn(cache);
+    when(shard.get(SiteCache.class)).thenReturn(cache);
     
     manager.submit(List.of(page), "site");
 
@@ -101,7 +101,7 @@ public class GuildCommandManagerTest {
     when(action.complete()).thenReturn(hook);
     when(hook.retrieveOriginal()).thenReturn(response);
     when(response.complete()).thenReturn(message);
-    when(client.get(SiteCache.class)).thenReturn(cache);
+    when(shard.get(SiteCache.class)).thenReturn(cache);
     
     manager.submit(List.of(page, page), "site");
 

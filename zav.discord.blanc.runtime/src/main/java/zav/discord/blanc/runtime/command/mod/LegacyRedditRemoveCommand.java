@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
@@ -41,6 +42,7 @@ import zav.discord.blanc.reddit.SubredditObservable;
 @Deprecated
 public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
   private final Client client;
+  private final Shard shard;
   private final SubredditObservable reddit;
   private final TextChannel channel;
   private final SlashCommandEvent event;
@@ -56,7 +58,8 @@ public class LegacyRedditRemoveCommand extends AbstractGuildCommand {
     super(manager);
     this.event = event;
     this.guild = event.getGuild();
-    this.client = manager.getClient();
+    this.shard = manager.getShard();
+    this.client = shard.getClient();
     this.reddit = client.get(SubredditObservable.class);
     this.channel = event.getTextChannel();
   }

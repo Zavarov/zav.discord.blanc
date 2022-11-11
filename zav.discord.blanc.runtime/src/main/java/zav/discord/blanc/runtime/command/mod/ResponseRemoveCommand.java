@@ -27,7 +27,7 @@ public class ResponseRemoveCommand extends AbstractGuildCommand {
   public ResponseRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.cache = manager.getClient().get(AutoResponseCache.class);
+    this.cache = manager.getShard().get(AutoResponseCache.class);
   }
 
   @Override

@@ -17,23 +17,18 @@
 package zav.discord.blanc.api;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import net.dv8tion.jda.api.JDA;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
-import zav.discord.blanc.api.util.ApplicationContext;
+import zav.discord.blanc.api.util.AbstractApplicationContext;
 import zav.discord.blanc.api.util.ShardSupplier;
 
 /**
  * The application instance over all shards.
  */
 @NonNullByDefault
-public class Client implements ApplicationContext {
-  private final List<JDA> shards = new ArrayList<>();
-  private final Map<Class<?>, Object> context = new HashMap<>();
+public class Client extends AbstractApplicationContext {
+  private final List<Shard> shards = new ArrayList<>();
   
   /**
    * Creates and initializes all shards.
@@ -51,7 +46,7 @@ public class Client implements ApplicationContext {
    * @return As described.
    */
   @Contract(pure = true)
-  public List<JDA> getShards() {
+  public List<Shard> getShards() {
     return List.copyOf(shards);
   }
   
@@ -63,27 +58,9 @@ public class Client implements ApplicationContext {
    * @return The shard in which the guild is located.
    */
   @Contract(pure = true)
-  public JDA getShard(long guildId) {
+  public Shard getShard(long guildId) {
     // @See https://discord.com/developers/docs/topics/gateway#sharding
     long index = (guildId >> 22) % shards.size();
     return shards.get((int) index);
-  }
-
-  @Override
-  @Contract(pure = true)
-  public <T> T get(Class<T> clazz) {
-    Object result = context.get(clazz);
-
-    if (result == null) {
-      throw new NoSuchElementException("No element bound for " + clazz.toString());
-    }
-
-    return clazz.cast(result);
-  }
-
-  @Override
-  @Contract(mutates = "this")
-  public <T> void bind(Class<T> clazz, T object) {
-    context.put(clazz, object);
   }
 }

@@ -56,7 +56,7 @@ public class RedditInfoCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = spy(new GuildCommandManager(client, event));
+    manager = spy(new GuildCommandManager(shard, event));
     command = new RedditInfoCommand(event, manager);
     webhookEntity.setSubreddits(new ArrayList<>(List.of("RedditDev")));
     channelEntity.setSubreddits(new ArrayList<>(List.of("RedditDev", "BoatsOnWheels")));

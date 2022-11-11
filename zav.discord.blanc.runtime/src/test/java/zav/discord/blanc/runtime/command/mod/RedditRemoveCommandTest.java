@@ -64,7 +64,7 @@ public class RedditRemoveCommandTest extends AbstractTest {
   public void setUp() {
     when(webhook.getName()).thenReturn(AbstractRedditCommand.WEBHOOK);
 
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new RedditRemoveCommand(event, manager);
   }
   

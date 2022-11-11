@@ -25,7 +25,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import net.dv8tion.jda.api.JDA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +40,7 @@ import zav.discord.blanc.databind.Credentials;
 public class ClientTest {
   @Mock ShardSupplier supplier;
   @Mock Credentials credentials;
-  List<JDA> shards;
+  List<Shard> shards;
   Client client;
   
   /**
@@ -49,7 +48,7 @@ public class ClientTest {
    */
   @BeforeEach
   public void setUp() {
-    shards = List.of(mock(JDA.class), mock(JDA.class));
+    shards = List.of(mock(Shard.class), mock(Shard.class));
     
     doAnswer(invocation -> {
       shards.iterator().forEachRemaining(invocation.getArgument(0));

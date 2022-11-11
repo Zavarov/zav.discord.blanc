@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.reddit.SubredditObservable;
@@ -20,6 +22,8 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   protected final SubredditObservable reddit;
   protected final SlashCommandEvent event;
   protected final TextChannel channel;
+  private final Client client;
+  private final Shard shard;
   private final User self;
   
   /**
@@ -31,7 +35,9 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   public AbstractRedditCommand(SlashCommandEvent event, GuildCommandManager manager) {
     super(manager);
     this.event = event;
-    this.reddit = manager.getClient().get(SubredditObservable.class);
+    this.shard = manager.getShard();
+    this.client = shard.getClient();
+    this.reddit = client.get(SubredditObservable.class);
     this.channel = event.getTextChannel();
     this.self = event.getJDA().getSelfUser();
   }
