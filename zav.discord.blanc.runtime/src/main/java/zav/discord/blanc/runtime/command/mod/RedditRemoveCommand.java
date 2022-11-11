@@ -108,6 +108,6 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
       return removeByName(entity, entity.getSubreddits().get(index));
     }
     
-    return getMessage("subreddit_index_not_found");
+    return getMessage("subreddit_index_not_found", index);
   }
 }
