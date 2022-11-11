@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
@@ -52,6 +53,7 @@ public class AbstractTest {
   public @Mock Member member;
   public @Mock Member selfMember;
   public @Mock User user;
+  public @Mock SelfUser  selfUser;
   public @Mock TextChannel channel;
   public @Mock JDA jda;
   public @Mock Presence presence;
@@ -93,6 +95,7 @@ public class AbstractTest {
     lenient().when(client.get(Credentials.class)).thenReturn(credentials);
     lenient().when(client.get(AutoResponseCache.class)).thenReturn(responseCache);
     
+    lenient().when(jda.getSelfUser()).thenReturn(selfUser);
     lenient().when(jda.getGuilds()).thenReturn(List.of(guild));
     lenient().when(jda.getPresence()).thenReturn(presence);
     lenient().when(guild.getJDA()).thenReturn(jda);
@@ -104,8 +107,10 @@ public class AbstractTest {
     lenient().when(channel.createWebhook(anyString())).thenReturn(createWebhook);
     lenient().when(createWebhook.complete()).thenReturn(webhook);
     lenient().when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
+    lenient().when(webhook.getOwner()).thenReturn(selfMember);
     lenient().when(manager.getClient()).thenReturn(client);
 
+    lenient().when(event.getJDA()).thenReturn(jda);
     lenient().when(event.getMember()).thenReturn(member);
     lenient().when(event.getGuild()).thenReturn(guild);
     lenient().when(event.getUser()).thenReturn(user);

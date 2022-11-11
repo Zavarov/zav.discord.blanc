@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.command.AbstractGuildCommand;
@@ -19,6 +20,7 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
   protected final SubredditObservable reddit;
   protected final SlashCommandEvent event;
   protected final TextChannel channel;
+  private final User self;
   
   /**
    * Creates a new instance of this command.
@@ -31,13 +33,14 @@ public abstract class AbstractRedditCommand extends AbstractGuildCommand {
     this.event = event;
     this.reddit = manager.getClient().get(SubredditObservable.class);
     this.channel = event.getTextChannel();
+    this.self = event.getJDA().getSelfUser();
   }
   
   protected final Optional<Webhook> getWebhook() {
     return channel.retrieveWebhooks()
     .complete()
     .stream()
-    .filter(e -> WEBHOOK.equals(e.getName()))
+    .filter(e -> e.getOwner().getIdLong() == self.getIdLong())
     .findFirst();
   }
   

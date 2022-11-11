@@ -55,6 +55,11 @@ public class WebhookInitializer {
     Member selfMember = textChannel.getGuild().getSelfMember();
     if (selfMember.hasPermission(textChannel, Permission.MANAGE_WEBHOOKS)) {
       for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
+        if (webhook.getToken() == null) {
+          LOGGER.error("Invalid webhook {}! Are you the owner? Skip...", webhook.getName());
+          continue;
+        }
+        
         load(webhook);
       }
     }

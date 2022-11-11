@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,6 +96,7 @@ public class WebhookInitializerTest {
     when(self.hasPermission(any(TextChannel.class), any(Permission.class))).thenReturn(true);
     when(textChannel.retrieveWebhooks()).thenReturn(action);
     when(action.complete()).thenReturn(List.of(webhook1));
+    when(webhook1.getToken()).thenReturn(StringUtils.EMPTY);
     
     initializer.load(textChannel);
     
