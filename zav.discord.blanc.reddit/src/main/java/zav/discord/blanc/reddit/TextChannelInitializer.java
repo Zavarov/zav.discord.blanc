@@ -54,6 +54,7 @@ public class TextChannelInitializer {
    */
   public void load(Guild guild) {
     for (TextChannel textChannel : guild.getTextChannels()) {
+      LOGGER.info("Load subreddits for text channel {}", textChannel.getName());
       load(textChannel);
     }
   }

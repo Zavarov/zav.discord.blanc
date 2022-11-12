@@ -54,9 +54,10 @@ public class WebhookInitializer {
   public void load(TextChannel textChannel) {
     Member selfMember = textChannel.getGuild().getSelfMember();
     if (selfMember.hasPermission(textChannel, Permission.MANAGE_WEBHOOKS)) {
+      LOGGER.info("Load subreddits for text channel {}", textChannel.getName());
       for (Webhook webhook : textChannel.retrieveWebhooks().complete()) {
         if (webhook.getToken() == null) {
-          LOGGER.error("Invalid webhook {}! Are you the owner? Skip...", webhook.getName());
+          LOGGER.info("Foreign webhook {} found. Skip...", webhook.getName());
           continue;
         }
         
