@@ -141,7 +141,6 @@ public class Main {
     
     LOGGER.info("Updating commands for shard {}", shard.getShardInfo());
     shard.updateCommands().addCommands(commands).complete();
-    shard.retrieveCommands().complete();
   }
   
   private void loadGuild(Guild guild) {
