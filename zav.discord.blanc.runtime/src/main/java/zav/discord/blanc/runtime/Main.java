@@ -151,7 +151,7 @@ public class Main {
   @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
   private void loadDatabase() {
     LOGGER.info("Loading Database");
-    User owner = client.getShards().get(0).retrieveUserById(credentials.getOwner()).complete();
+    User owner = client.getShard(0).retrieveUserById(credentials.getOwner()).complete();
     
     if (owner == null) {
       LOGGER.error("User with id {} doesn't exist.", credentials.getOwner());
