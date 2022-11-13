@@ -17,13 +17,13 @@
 package zav.discord.blanc.runtime.job;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.reddit.SubredditObservable;
 import zav.discord.blanc.reddit.TextChannelInitializer;
 import zav.discord.blanc.reddit.WebhookInitializer;
@@ -59,9 +59,9 @@ public class RedditJob implements Runnable {
    */
   public final void postConstruct(Client client, TextChannelInitializer initializer) {
     LOGGER.info("Initializing listeners for all registered text channels.");
-    for (JDA shard : client.getShards()) {
-      LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
-      for (Guild guild : shard.getGuilds()) {
+    for (Shard shard : client.getShards()) {
+      LOGGER.info("Initializing listeners for shard {}.", shard.getJda().getShardInfo());
+      for (Guild guild : shard.getJda().getGuilds()) {
         LOGGER.info("Initializing listeners for guild {}.", guild.getName());
         initializer.load(guild);
       }
@@ -78,9 +78,9 @@ public class RedditJob implements Runnable {
    */
   public final void postConstruct(Client client, WebhookInitializer initializer) {
     LOGGER.info("Initializing listeners for all registered webhooks.");
-    for (JDA shard : client.getShards()) {
-      LOGGER.info("Initializing listeners for shard {}.", shard.getShardInfo());
-      for (Guild guild : shard.getGuilds()) {
+    for (Shard shard : client.getShards()) {
+      LOGGER.info("Initializing listeners for shard {}.", shard.getJda().getShardInfo());
+      for (Guild guild : shard.getJda().getGuilds()) {
         LOGGER.info("Initializing listeners for guild {}.", guild.getName());
         for (TextChannel textChannel : guild.getTextChannels()) {
           if (textChannel.canTalk()) {

@@ -62,7 +62,7 @@ public class BlacklistInfoCommandTest extends AbstractTest {
     when(event.getMember()).thenReturn(member);
     when(event.getGuild()).thenReturn(guild);
     
-    manager = spy(new GuildCommandManager(client, event));
+    manager = spy(new GuildCommandManager(shard, event));
     command = new BlacklistInfoCommand(event, manager);
     
     doNothing().when(manager).submit(captor.capture(), anyString());

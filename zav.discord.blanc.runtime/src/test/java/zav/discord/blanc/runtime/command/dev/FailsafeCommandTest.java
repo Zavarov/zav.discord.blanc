@@ -42,7 +42,7 @@ public class FailsafeCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    manager = new CommandManager(client, event);
+    manager = new CommandManager(shard, event);
     command = new FailsafeCommand(event, manager);
   }
   

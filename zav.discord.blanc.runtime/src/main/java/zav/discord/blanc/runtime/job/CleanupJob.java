@@ -16,11 +16,11 @@
 
 package zav.discord.blanc.runtime.job;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.runtime.internal.validator.TextChannelValidator;
 import zav.discord.blanc.runtime.internal.validator.WebhookValidator;
@@ -46,8 +46,8 @@ public class CleanupJob implements Runnable {
   
   @Override
   public void run() {
-    for (JDA shard : client.getShards()) {
-      for (Guild guild : shard.getGuilds()) {
+    for (Shard shard : client.getShards()) {
+      for (Guild guild : shard.getJda().getGuilds()) {
         GuildEntity entity = GuildEntity.find(guild);
 
         LOGGER.info("Remove invalid text channels from the database.");

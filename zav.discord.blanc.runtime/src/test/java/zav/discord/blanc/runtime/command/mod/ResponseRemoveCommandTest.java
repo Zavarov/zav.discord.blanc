@@ -38,7 +38,7 @@ public class ResponseRemoveCommandTest extends AbstractTest {
     responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
     
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new ResponseRemoveCommand(event, manager);
   }
 

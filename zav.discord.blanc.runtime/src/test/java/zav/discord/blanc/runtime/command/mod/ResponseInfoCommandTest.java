@@ -41,7 +41,7 @@ public class ResponseInfoCommandTest extends AbstractTest {
     responseEntity.setPattern("Hello There");
     responseEntity.setAnswer("General Kenobi");
     
-    manager = spy(new GuildCommandManager(client, event));
+    manager = spy(new GuildCommandManager(shard, event));
     command = new ResponseInfoCommand(event, manager);
     
     doNothing().when(manager).submit(pages.capture(), anyString());

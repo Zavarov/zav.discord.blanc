@@ -109,7 +109,7 @@ public class SimpleCommandProviderTest extends AbstractTest {
     
     setName(name);
     
-    assertEquals(provider.create(client, event).orElseThrow().getClass(), clazz);
+    assertEquals(provider.create(shard, event).orElseThrow().getClass(), clazz);
   }
   
   /**
@@ -141,13 +141,13 @@ public class SimpleCommandProviderTest extends AbstractTest {
     
     setName(name);
     
-    assertEquals(provider.create(client, event).orElseThrow().getClass(), clazz);
+    assertEquals(provider.create(shard, event).orElseThrow().getClass(), clazz);
   }
   
   @Test
   public void testCreateUnknownCommand() {
     setName("foo.bar");
     
-    assertTrue(provider.create(client, event).isEmpty());
+    assertTrue(provider.create(shard, event).isEmpty());
   }
 }

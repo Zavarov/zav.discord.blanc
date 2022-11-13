@@ -59,7 +59,7 @@ public class BlacklistRemoveCommandTest extends AbstractTest {
     when(event.getMember()).thenReturn(member);
     when(event.getGuild()).thenReturn(guild);
     
-    manager = new GuildCommandManager(client, event);
+    manager = new GuildCommandManager(shard, event);
     command = new BlacklistRemoveCommand(event, manager);
 
     guildEntity.setBlacklist(new ArrayList<>(List.of("foo")));

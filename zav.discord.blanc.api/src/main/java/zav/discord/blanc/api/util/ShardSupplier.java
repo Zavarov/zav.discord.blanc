@@ -26,13 +26,15 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.Contract;
+import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.databind.Credentials;
 
 /**
  * Utility class for initializing Discord shards.
  */
 @NonNullByDefault
-public class ShardSupplier implements Iterator<JDA> {
+public class ShardSupplier implements Iterator<Shard> {
   /**
    * A set of all intents that are required for this bot to work.
    */
@@ -59,6 +61,7 @@ public class ShardSupplier implements Iterator<JDA> {
    * We use an additional second as buffer, bringing the time up to 6 seconds.
    */
   private final TimedSemaphore rateLimiter = new TimedSemaphore(6, TimeUnit.SECONDS, 1);
+  private final Client client;
   private final String token;
   private final long shardCount;
   private int index = 0;
@@ -68,7 +71,8 @@ public class ShardSupplier implements Iterator<JDA> {
    *
    * @param credentials The configuration file.
    */
-  public ShardSupplier(Credentials credentials) {
+  public ShardSupplier(Client client, Credentials credentials) {
+    this.client = client;
     this.token = credentials.getToken();
     this.shardCount = credentials.getShardCount();
   }
@@ -81,7 +85,7 @@ public class ShardSupplier implements Iterator<JDA> {
   
   @Override
   @Contract(mutates = "this")
-  public JDA next() {
+  public Shard next() {
     try {
       rateLimiter.acquire();
       
@@ -92,7 +96,7 @@ public class ShardSupplier implements Iterator<JDA> {
             .build();
       
       jda.awaitReady();
-      return jda;
+      return new Shard(client, jda);
     } catch (Exception e)  {
       throw new IllegalStateException(e);
     }

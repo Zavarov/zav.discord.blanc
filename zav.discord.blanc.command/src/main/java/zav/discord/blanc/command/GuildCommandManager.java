@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.Site;
 import zav.discord.blanc.api.Site.Group;
 import zav.discord.blanc.api.cache.SiteCache;
@@ -51,11 +51,11 @@ public class GuildCommandManager extends CommandManager {
   /**
    * Creates a new manager instance. A new instance is created for each command.
    *
-   * @param client The Discord client.
+   * @param shard The current shard.
    * @param event The event from which the active command was created.
    */
-  public GuildCommandManager(Client client, SlashCommandEvent event) {
-    super(client, event);
+  public GuildCommandManager(Shard shard, SlashCommandEvent event) {
+    super(shard, event);
     this.textChannel = event.getTextChannel();
     this.member = Objects.requireNonNull(event.getMember());
     this.validator = new PermissionValidator(member, textChannel);
@@ -83,7 +83,7 @@ public class GuildCommandManager extends CommandManager {
     if (pages.isEmpty()) {
       event.reply("No entries.").complete();
     } else {
-      SiteCache cache = client.get(SiteCache.class);
+      SiteCache cache = shard.get(SiteCache.class);
       
       // Build site
       Site site = Site.create(pages, label);

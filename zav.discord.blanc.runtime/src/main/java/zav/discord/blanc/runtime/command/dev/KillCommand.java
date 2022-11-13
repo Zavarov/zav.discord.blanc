@@ -18,9 +18,9 @@ package zav.discord.blanc.runtime.command.dev;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ScheduledExecutorService;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import zav.discord.blanc.api.Client;
+import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.AbstractCommand;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.Rank;
@@ -30,6 +30,7 @@ import zav.discord.blanc.databind.Rank;
  */
 public class KillCommand extends AbstractCommand {
 
+  private final Shard shard;
   private final Client client;
   private final SlashCommandEvent event;
   private final ScheduledExecutorService eventQueue;
@@ -43,8 +44,9 @@ public class KillCommand extends AbstractCommand {
   public KillCommand(SlashCommandEvent event, CommandManager manager) {
     super(manager);
     this.event = event;
-    this.client = manager.getClient();
-    this.eventQueue = client.get(ScheduledExecutorService.class);
+    this.shard = manager.getShard();
+    this.client = shard.getClient();
+    this.eventQueue = shard.get(ScheduledExecutorService.class);
   }
   
   @Override
@@ -59,8 +61,8 @@ public class KillCommand extends AbstractCommand {
 
     eventQueue.shutdown();
     
-    for (JDA shard : client.getShards()) {
-      shard.shutdown();
+    for (Shard shard : client.getShards()) {
+      shard.getJda().shutdown();
     }
     
     System.exit(0);
