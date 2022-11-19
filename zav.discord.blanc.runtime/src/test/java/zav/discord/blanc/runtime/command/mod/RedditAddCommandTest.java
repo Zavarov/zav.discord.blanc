@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import net.dv8tion.jda.api.Permission;
@@ -98,6 +99,23 @@ public class RedditAddCommandTest extends AbstractTest {
     
     // The subreddit should not've been updated
     verify(subredditObservable, times(0)).addListener(anyString(), any(Webhook.class));
+  }
+  
+  /**
+   * Use Case: There doesn't exist a valid webhook yet, hence why one needs to be created.
+   */
+  @Test
+  public void testAddSubredditCreateWebhook() {
+    when(retrieveWebhooks.complete()).thenReturn(Collections.emptyList());
+    when(event.getOption(anyString())).thenReturn(name);
+    when(name.getAsString()).thenReturn("redditdev");
+    
+    command = new RedditAddCommand(event, manager);
+    command.run();
+    
+    verify(subredditObservable).addListener(anyString(), any(Webhook.class));
+    
+    verify(createWebhook).complete();
   }
   
   @Test

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +47,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.runtime.command.AbstractTest;
+import zav.discord.blanc.runtime.internal.SubredditUtils;
 
 /**
  * Check whether subreddits can be added and removed from the Reddit feed.
@@ -62,7 +65,7 @@ public class RedditRemoveCommandTest extends AbstractTest {
    */
   @BeforeEach
   public void setUp() {
-    when(webhook.getName()).thenReturn(AbstractRedditCommand.WEBHOOK);
+    when(webhook.getName()).thenReturn(SubredditUtils.WEBHOOK);
 
     manager = new GuildCommandManager(shard, event);
     command = new RedditRemoveCommand(event, manager);
@@ -294,7 +297,9 @@ public class RedditRemoveCommandTest extends AbstractTest {
   @Test
   public void testRemoveUnknownSubreddit() {
     // The webhook was created by a different user
-    when(selfMember.getIdLong()).thenReturn(Long.MAX_VALUE);
+    Member owner = mock(Member.class);
+    when(owner.getIdLong()).thenReturn(Long.MAX_VALUE);
+    when(webhook.getOwner()).thenReturn(owner);
     
     command = new RedditRemoveCommand(event, manager);
     command.run();

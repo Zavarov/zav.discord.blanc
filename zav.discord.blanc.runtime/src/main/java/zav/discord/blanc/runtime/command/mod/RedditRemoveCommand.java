@@ -16,14 +16,21 @@
 
 package zav.discord.blanc.runtime.command.mod;
 
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Set;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
+import zav.discord.blanc.reddit.SubredditObservable;
+import zav.discord.blanc.runtime.internal.SubredditUtils;
 
 /**
  * This command allows the user to register webhooks to Reddit feeds. New submissions are directly
@@ -31,7 +38,10 @@ import zav.discord.blanc.databind.WebhookEntity;
  * is created if none with this name exists. If the feed is de-registered and no other feeds share
  * the same webhook, is deleted if and only if it was created by this program.
  */
-public class RedditRemoveCommand extends AbstractRedditCommand {
+public class RedditRemoveCommand extends AbstractGuildCommand {
+  private final SubredditObservable reddit;
+  private final SlashCommandEvent event;
+  private final TextChannel channel;
   private final Webhook webhook;
   
   /**
@@ -41,8 +51,11 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
    * @param manager The manager instance for this command.
    */
   public RedditRemoveCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
-    this.webhook = getWebhook().orElse(null);
+    super(manager);
+    this.event = event;
+    this.channel = event.getTextChannel();
+    this.reddit = manager.getShard().getClient().get(SubredditObservable.class);
+    this.webhook = SubredditUtils.getWebhook(channel).orElse(null);
   }
 
   @Override
@@ -51,6 +64,11 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
     event.reply(modify(entity)).complete();
     entity.merge();
   }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MANAGE_CHANNEL);
+  }
 
   private String modify(GuildEntity entity) {
     OptionMapping name = event.getOption("name");
@@ -58,7 +76,7 @@ public class RedditRemoveCommand extends AbstractRedditCommand {
     
     // Sanity check
     if (webhook == null) {
-      return getMessage("subreddit_missing_webhook", WEBHOOK);
+      return getMessage("subreddit_missing_webhook", SubredditUtils.WEBHOOK);
     }
     
     if (name == null && index == null) {

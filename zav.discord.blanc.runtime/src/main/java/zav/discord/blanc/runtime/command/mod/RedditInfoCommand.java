@@ -17,17 +17,27 @@
 package zav.discord.blanc.runtime.command.mod;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import zav.discord.blanc.command.AbstractGuildCommand;
 import zav.discord.blanc.command.GuildCommandManager;
 import zav.discord.blanc.databind.GuildEntity;
 import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.WebhookEntity;
+import zav.discord.blanc.runtime.internal.SubredditUtils;
 
 /**
  * This command displays all currently registered Reddit feeds.
  */
-public class RedditInfoCommand extends AbstractRedditInfoCommand {
+public class RedditInfoCommand extends AbstractGuildCommand {
+  private final GuildCommandManager manager;
+  private final TextChannel channel;
+  private final Guild guild;
   
   /**
    * Creates a new instance of this command.
@@ -36,11 +46,15 @@ public class RedditInfoCommand extends AbstractRedditInfoCommand {
    * @param manager The manager instance for this command.
    */
   public RedditInfoCommand(SlashCommandEvent event, GuildCommandManager manager) {
-    super(event, manager);
+    super(manager);
+    this.guild = event.getGuild();
+    this.channel = event.getTextChannel();
+    this.manager = manager;
   }
-
-  @Override
-  public List<String> getSubreddits(GuildEntity entity) {
+  
+  private List<String> getSubreddits() {
+    GuildEntity entity = GuildEntity.find(guild);
+    
     // Check all persisted webhooks
     for (WebhookEntity webhookEntity : entity.getWebhooks()) {
       TextChannelEntity channelEntity = webhookEntity.getChannel();
@@ -50,5 +64,15 @@ public class RedditInfoCommand extends AbstractRedditInfoCommand {
     }
     
     return Collections.emptyList();
+  }
+
+  @Override
+  public void run() {
+    manager.submit(SubredditUtils.getPages(getSubreddits()), "Subreddit Feeds");
+  }
+  
+  @Override
+  protected Set<Permission> getPermissions() {
+    return EnumSet.of(Permission.MANAGE_CHANNEL);
   }
 }
