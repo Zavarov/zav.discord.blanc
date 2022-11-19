@@ -389,8 +389,8 @@
             </plugin>
             <!-- License -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
             </plugin>
             <!-- Static Code Analysis -->
             <plugin>
@@ -423,59 +423,32 @@
             <plugins>
                 <!-- Licenses -->
                 <plugin>
+                    <groupId>org.cyclonedx</groupId>
+                    <artifactId>cyclonedx-maven-plugin</artifactId>
+                    <version>2.7.3</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>makeAggregateBom</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <includeLicenseText>true</includeLicenseText>
+                        <includeProvidedScope>false</includeProvidedScope>
+                        <outputFormat>xml</outputFormat>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <configuration>
                         <instructions>
-                            <Include-Resource>{maven-resources},${project.build.directory}/generated-metadata</Include-Resource>
+                            <Include-Resource>{maven-resources},${project.build.directory}/bom.xml</Include-Resource>
                         </instructions>
                         <manifestLocation>${project.build.outputDirectory}/META-INF</manifestLocation>
                         <niceManifest>true</niceManifest>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>copy-licenses</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <resources>
-                                    <resource>
-                                        <directory>${maven.multiModuleProjectDirectory}</directory>
-                                        <includes>
-                                            <include>LICENSE</include>
-                                        </includes>
-                                    </resource>
-                                    <resource>
-                                        <directory>${project.build.directory}/generated-resources</directory>
-                                    </resource>
-                                </resources>
-                                <outputDirectory>${project.build.directory}/generated-metadata/META-INF</outputDirectory>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>download-licenses</id>
-                            <phase>generate-resources</phase>
-                            <goals>
-                                <goal>download-licenses</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <cleanLicensesOutputDirectory>true</cleanLicensesOutputDirectory>
-                        <licensesConfigFile>${maven.multiModuleProjectDirectory}/license.xml</licensesConfigFile>
-                        <includedScopes>compile</includedScopes>
                     </configuration>
                 </plugin>
             </plugins>
