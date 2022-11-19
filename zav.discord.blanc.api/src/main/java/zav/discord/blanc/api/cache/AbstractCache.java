@@ -18,8 +18,15 @@ import org.jetbrains.annotations.Contract;
  */
 public abstract class AbstractCache<U, V> {
   private static final int MAX_CACHE_SIZE = 1024;
+  /**
+   * The internal object cache.
+   */
   protected final Cache<U, V> cache;
 
+  /**
+   * Creates a new cache instance. The elements are set to expire after one hour and the cache may
+   * hold up to {@link #MAX_CACHE_SIZE} elements.
+   */
   protected AbstractCache() {
     this.cache = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofHours(1))
@@ -44,7 +51,7 @@ public abstract class AbstractCache<U, V> {
    * In case a valid value can't be computed, {@link Optional#empty()} is
    * returned.
    *
-   * @param key One of the cached elements.
+   * @param key The key of the cached element.
    * @return The value associated with the key.
    */
   @Contract(pure = true)
@@ -52,5 +59,12 @@ public abstract class AbstractCache<U, V> {
     return Optional.ofNullable(cache.get(key, this::fetch));
   }
 
+  /**
+   * Retrieves the element with the given key from the cache. May be {@code null} if no element with
+   * the given key is stored in the cache.
+   *
+   * @param key The key of the cached element.
+   * @return The value associated with the key or {@code null} if no such entry exists.
+   */
   protected abstract V fetch(U key);
 }

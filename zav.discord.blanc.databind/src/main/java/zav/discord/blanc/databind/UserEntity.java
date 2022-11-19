@@ -30,6 +30,9 @@ import lombok.Setter;
 import net.dv8tion.jda.api.entities.User;
 import zav.discord.blanc.databind.internal.PersistenceUtil;
 
+/**
+ * This PoJo corresponds to a Discord user and contains all channel-specific configurations.
+ */
 @Getter
 @Setter
 @Generated
@@ -59,10 +62,22 @@ public class UserEntity implements PersistedEntity {
   @ElementCollection(fetch = FetchType.EAGER)
   private List<Rank> ranks = new ArrayList<>();
 
+  /**
+   * Removes the user from the database.
+   *
+   * @param user A Discord user.
+   */
   public static void remove(User user) {
     PersistenceUtil.remove(user);
   }
 
+  /**
+   * Returns the PoJo associated with the provided user. It first attempts to load the PoJo from
+   * the database. If no such entry exists, a new entry is created.
+   * 
+   * @param user A Discord user.
+   * @return The PoJo corresponding to the user.
+   */
   public static UserEntity find(User user) {
     return PersistenceUtil.find(user);
   }

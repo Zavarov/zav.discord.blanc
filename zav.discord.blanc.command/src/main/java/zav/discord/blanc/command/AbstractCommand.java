@@ -42,6 +42,13 @@ public abstract class AbstractCommand implements Command {
     this.i18n = ResourceBundle.getBundle("i18n");
   }
 
+  /**
+   * Returns the rank required for executing this command. By default, commands can be executed by
+   * all users with the {@link Rank#USER} rank. Subclasses may overwrite this method to impose
+   * further restrictions.
+   *
+   * @return The rank required for executing this command.
+   */
   protected Rank getRequiredRank() {
     return Rank.USER;
   }

@@ -35,6 +35,9 @@ import lombok.Setter;
 import net.dv8tion.jda.api.entities.Guild;
 import zav.discord.blanc.databind.internal.PersistenceUtil;
 
+/**
+ * This PoJo corresponds to a Discord guild and contains all guild-specific configurations.
+ */
 @Getter
 @Setter
 @Generated
@@ -92,6 +95,12 @@ public class GuildEntity implements PersistedEntity {
           .map(Pattern::compile);
   }
   
+  /**
+   * Adds the given entity to this PoJo. If an entity with this id already exists, it is replaced
+   * with the new object.
+   *
+   * @param entity The object to add to this PoJo.
+   */
   public void add(TextChannelEntity entity) {
     remove(entity);
     
@@ -99,6 +108,12 @@ public class GuildEntity implements PersistedEntity {
     entity.setGuild(this);
   }
   
+  /**
+   * Adds the given entity to this PoJo. If an entity with this id already exists, it is replaced
+   * with the new object.
+   *
+   * @param entity The object to add to this PoJo.
+   */
   public void add(WebhookEntity entity) {
     remove(entity);
     
@@ -106,6 +121,12 @@ public class GuildEntity implements PersistedEntity {
     entity.setGuild(this);
   }
   
+  /**
+   * Adds the given entity to this PoJo. If an entity with this id already exists, it is replaced
+   * with the new object.
+   *
+   * @param entity The object to add to this PoJo.
+   */
   public void add(AutoResponseEntity entity) {
     remove(entity);
     
@@ -113,25 +134,55 @@ public class GuildEntity implements PersistedEntity {
     entity.setGuild(this);
   }
   
+  /**
+   * Removes the entity from this PoJo using its id. Does nothing of the entity is not contained in
+   * this guild.
+   *
+   * @param entity The object to remove from this PoJo.
+   */
   public void remove(TextChannelEntity entity) {
     getTextChannels().removeIf(channel -> channel.getId() == entity.getId());
     entity.setGuild(null);
   }
   
+  /**
+   * Removes the entity from this PoJo using its id. Does nothing of the entity is not contained in
+   * this guild.
+   *
+   * @param entity The object to remove from this PoJo.
+   */
   public void remove(WebhookEntity entity) {
     getWebhooks().removeIf(webhook -> webhook.getId() == entity.getId());
     entity.setGuild(null);
   }
   
+  /**
+   * Removes the entity from this PoJo using its id. Does nothing of the entity is not contained in
+   * this guild.
+   *
+   * @param entity The object to remove from this PoJo.
+   */
   public void remove(AutoResponseEntity entity) {
     getAutoResponses().removeIf(response -> response.getId() == entity.getId());
     entity.setGuild(null);
   }
 
+  /**
+   * Removes the guild from the database.
+   *
+   * @param guild A Discord guild.
+   */
   public static void remove(Guild guild) {
     PersistenceUtil.remove(guild);
   }
 
+  /**
+   * Returns the PoJo associated with the provided guild. It first attempts to load the PoJo from
+   * the database. If no such entry exists, a new entry is created.
+   * 
+   * @param guild A Discord guild.
+   * @return The PoJo corresponding to the guild.
+   */
   public static GuildEntity find(Guild guild) {
     return PersistenceUtil.find(guild);
   }

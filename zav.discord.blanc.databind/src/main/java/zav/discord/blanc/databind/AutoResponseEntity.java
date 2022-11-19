@@ -11,6 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * The PoJo contains all automatic responses which are registered within a guild.
+ */
 @Getter
 @Setter
 @Generated
@@ -42,6 +45,15 @@ public class AutoResponseEntity implements PersistedEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
   
+  /**
+   * Creates a new instance of this PoJo. Given that the id of this object is auto-generated, it is
+   * impossible to lookup an already existing entry. Instead, a new instance has to be created every
+   * time.
+   *
+   * @param regex The pattern the response is matched against.
+   * @param answer The response on a match.
+   * @return A new instance of this class.
+   */
   public static AutoResponseEntity create(String regex, String answer) {
     AutoResponseEntity entity = new AutoResponseEntity();
     

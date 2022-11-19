@@ -22,6 +22,7 @@ public class SimpleCommandParser implements CommandParser {
    * Creates a new instance of this class.
    *
    * @param shard The current shard.
+   * @param provider The provider for all registered commands.
    */
   public SimpleCommandParser(Shard shard, CommandProvider provider) {
     this.shard = shard;

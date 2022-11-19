@@ -35,6 +35,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import zav.discord.blanc.databind.internal.PersistenceUtil;
 
+/**
+ * This PoJo corresponds to a Discord text channel and contains all channel-specific configurations.
+ */
 @Getter
 @Setter
 @Generated
@@ -72,6 +75,12 @@ public class TextChannelEntity implements PersistedEntity {
   @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<WebhookEntity> webhooks = new ArrayList<>();
   
+  /**
+   * Adds the given entity to this PoJo. If an entity with this id already exists, it is replaced
+   * with the new object.
+   *
+   * @param entity The object to add to this PoJo.
+   */
   public void add(WebhookEntity entity) {
     remove(entity);
     
@@ -79,23 +88,51 @@ public class TextChannelEntity implements PersistedEntity {
     entity.setChannel(this);
   }
   
+  /**
+   * Removes the entity from this PoJo using its id. Does nothing of the entity is not contained in
+   * this guild.
+   *
+   * @param entity The object to remove from this PoJo.
+   */
   public void remove(WebhookEntity entity) {
     getWebhooks().removeIf(webhook -> webhook.getId() == entity.getId());
     entity.setChannel(null);
   }
   
+  /**
+   * Checks whether this PoJo has any entries.
+   *
+   * @return {@code false} if this PoJo contains at least one entry, otherwise {@code true}.
+   */
   public boolean isEmpty() {
     return getSubreddits().isEmpty() && getWebhooks().isEmpty();
   }
 
+  /**
+   * Removes the guild from the database.
+   *
+   * @param guild A Discord guild.
+   */
   public static void remove(Guild guild) {
     PersistenceUtil.remove(guild);
   }
 
+  /**
+   * Removes the text channel from the database.
+   *
+   * @param channel A Discord channel.
+   */
   public static void remove(TextChannel channel) {
     PersistenceUtil.remove(channel);
   }
 
+  /**
+   * Returns the PoJo associated with the provided channel. It first attempts to load the PoJo from
+   * the database. If no such entry exists, a new entry is created.
+   * 
+   * @param channel A Discord text channel.
+   * @return The PoJo corresponding to the channel.
+   */
   public static TextChannelEntity find(TextChannel channel) {
     return PersistenceUtil.find(channel);
   }

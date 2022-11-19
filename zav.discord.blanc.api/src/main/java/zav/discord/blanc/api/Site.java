@@ -191,6 +191,11 @@ public class Site {
       private int itemsPerPage;
       private List<String> items = new ArrayList<>();
       
+      /**
+       * Creates a new builder instance.
+       *
+       * @param title The name of the site created by this builder.
+       */
       public Builder(String title) {
         this.title = title;
       }

@@ -10,6 +10,10 @@ import java.io.IOException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * This PoJo represents the Discord credentials, together with additional properties such as the
+ * name and shard count.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "name",

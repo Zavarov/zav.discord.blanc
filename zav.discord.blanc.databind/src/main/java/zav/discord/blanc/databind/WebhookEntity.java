@@ -32,6 +32,9 @@ import lombok.Setter;
 import net.dv8tion.jda.api.entities.Webhook;
 import zav.discord.blanc.databind.internal.PersistenceUtil;
 
+/**
+ * This PoJo corresponds to a Discord webhook and contains all channel-specific configurations.
+ */
 @Getter
 @Setter
 @Generated
@@ -68,15 +71,32 @@ public class WebhookEntity implements PersistedEntity {
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(length = 1000)
   private List<String> subreddits = new ArrayList<>();
-  
+
+  /**
+   * Checks whether this PoJo has any entries.
+   *
+   * @return {@code false} if this PoJo contains at least one entry, otherwise {@code true}.
+   */
   public boolean isEmpty() {
     return getSubreddits().isEmpty();
   }
 
+  /**
+   * Removes the webhook from the database.
+   *
+   * @param webhook A Discord webhook.
+   */
   public static void remove(Webhook webhook) {
     PersistenceUtil.remove(webhook);
   }
 
+  /**
+   * Returns the PoJo associated with the provided webhook. It first attempts to load the PoJo from
+   * the database. If no such entry exists, a new entry is created.
+   * 
+   * @param webhook A Discord webhook.
+   * @return The PoJo corresponding to the webhook.
+   */
   public static WebhookEntity find(Webhook webhook) {
     return PersistenceUtil.find(webhook);
   }

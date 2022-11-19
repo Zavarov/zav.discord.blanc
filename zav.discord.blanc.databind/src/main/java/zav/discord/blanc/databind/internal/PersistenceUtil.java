@@ -15,10 +15,21 @@ import zav.discord.blanc.databind.TextChannelEntity;
 import zav.discord.blanc.databind.UserEntity;
 import zav.discord.blanc.databind.WebhookEntity;
 
+/**
+ * Utility class managing the database access.
+ */
 public abstract class PersistenceUtil {
   private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("discord-entities");
   private PersistenceUtil() {}
 
+  /**
+   * Retrieves the entity corresponding to the provided guild from the database. If no such entry
+   * exists, a new entity is created. The name of the entity is updated, as it might have changed
+   * since it was persisted.
+   *
+   * @param guild A Discord guild.
+   * @return The entity corresponding to the guild.
+   */
   public static GuildEntity find(Guild guild) {
     GuildEntity entity = find(GuildEntity.class, guild.getIdLong());
 
@@ -33,6 +44,14 @@ public abstract class PersistenceUtil {
     return entity;
   }
 
+  /**
+   * Retrieves the entity corresponding to the provided channel from the database. If no such entry
+   * exists, a new entity is created. The name of the entity is updated, as it might have changed
+   * since it was persisted.
+   *
+   * @param channel A Discord text channel.
+   * @return The entity corresponding to the channel.
+   */
   public static TextChannelEntity find(TextChannel channel) {
     TextChannelEntity entity = find(TextChannelEntity.class, channel.getIdLong());
 
@@ -47,6 +66,14 @@ public abstract class PersistenceUtil {
     return entity;
   }
 
+  /**
+   * Retrieves the entity corresponding to the provided user from the database. If no such entry
+   * exists, a new entity is created. The name and discriminator of the entity is updated, as
+   * it might have changed since it was persisted.
+   *
+   * @param user A Discord user.
+   * @return The entity corresponding to the user.
+   */
   public static UserEntity find(User user) {
     UserEntity entity = find(UserEntity.class, user.getIdLong());
     
@@ -63,6 +90,14 @@ public abstract class PersistenceUtil {
     return entity;
   }
 
+  /**
+   * Retrieves the entity corresponding to the provided webhook from the database. If no such entry
+   * exists, a new entity is created. The name of the entity is updated, as it might have changed
+   * since it was persisted.
+   *
+   * @param webhook A Discord webhook.
+   * @return The entity corresponding to the webhook.
+   */
   public static WebhookEntity find(Webhook webhook) {
     WebhookEntity entity = find(WebhookEntity.class, webhook.getIdLong());
 
@@ -77,16 +112,37 @@ public abstract class PersistenceUtil {
     return entity;
   }
 
-  public static <T, U> T find(Class<T> clazz, Object primaryKey) {
+  /**
+   * Retrieves the entity from the database.
+   *
+   * @param <T> The entity type.
+   * @param clazz The entity class.
+   * @param primaryKey The unique id of the requested entity.
+   * @return The persisted object or {@code null} if no such entry exists.
+   */
+  public static <T> T find(Class<T> clazz, Object primaryKey) {
     try (EntityManager entityManager = FACTORY.createEntityManager()) {
       return entityManager.find(clazz, primaryKey);
     }
   }
 
+  /**
+   * Removes the Discord object from the database. The corresponding entity is determined using the
+   * unique id.
+   *
+   * @param snowflake A Discord object.
+   */
   public static void remove(ISnowflake snowflake) {
     remove(GuildEntity.class, snowflake.getIdLong());
   }
 
+  /**
+   * Removes the given entity from the database.
+   * 
+   * @param <T> The entity type.
+   * @param clazz The entity class.
+   * @param primaryKey The unique id of the removed entity.
+   */
   public static <T> void remove(Class<T> clazz, Object primaryKey) {
     try (EntityManager entityManager = FACTORY.createEntityManager()) {
       T entity = entityManager.find(clazz, primaryKey);
@@ -99,6 +155,12 @@ public abstract class PersistenceUtil {
     }
   }
 
+  /**
+   * Writes the entity to the database.
+   *
+   * @param <T> The entity type.
+   * @param entity The entity object.
+   */
   public static <T> void merge(T entity) {
     try (EntityManager entityManager = FACTORY.createEntityManager()) {
       entityManager.getTransaction().begin();

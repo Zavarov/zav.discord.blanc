@@ -33,8 +33,17 @@ import org.jetbrains.annotations.Contract;
  * shouldn't be able to use developer commands.
  */
 public enum Rank {
+  /**
+   * The default rank of every user.
+   */
   USER,
+  /**
+   * Developers of this bot. Required for executed special, bot-specific commands.
+   */
   DEVELOPER,
+  /**
+   * Superuser. Can execute all commands, regardless of required permissions and ranks.
+   */
   ROOT;
   
   private static final Map<Rank, EnumSet<Rank>> effectiveRanks = new HashMap<>();

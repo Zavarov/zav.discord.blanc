@@ -69,6 +69,7 @@ public class ShardSupplier implements Iterator<Shard> {
   /**
    * Creates a new instance of this class.
    *
+   * @param client The application instance.
    * @param credentials The configuration file.
    */
   public ShardSupplier(Client client, Credentials credentials) {

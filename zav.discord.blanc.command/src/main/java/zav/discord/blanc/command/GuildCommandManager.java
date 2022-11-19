@@ -78,6 +78,7 @@ public class GuildCommandManager extends CommandManager {
    * cache, such that this program can respond to any further user interactions.
    *
    * @param pages All pages of the interactive message.
+   * @param label The unique name of the site.
    */
   public void submit(List<Site.Page> pages, String label) {
     if (pages.isEmpty()) {
