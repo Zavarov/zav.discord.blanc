@@ -26,7 +26,7 @@ public class Status {
    */
   public static Status read(ClassLoader classLoader, String fileName) throws IOException {
     ObjectMapper om = new ObjectMapper();
-    InputStream is = classLoader.getResourceAsStream("Status.json");
+    InputStream is = classLoader.getResourceAsStream(fileName);
     String[] messages = om.readValue(is, String[].class);
 
     Status result = new Status();
