@@ -173,7 +173,7 @@ public class GuildEntity implements PersistedEntity {
    * @param guild A Discord guild.
    */
   public static void remove(Guild guild) {
-    PersistenceUtil.remove(guild);
+    PersistenceUtil.remove(GuildEntity.class, guild);
   }
 
   /**

@@ -130,9 +130,11 @@ public abstract class PersistenceUtil {
    * Removes the Discord object from the database. The corresponding entity is determined using the
    * unique id.
    *
+   * @param <T> The entity type.
+   * @param clazz The entity class.
    * @param snowflake A Discord object.
    */
-  public static void remove(ISnowflake snowflake) {
+  public static <T> void remove(Class<T> clazz, ISnowflake snowflake) {
     remove(GuildEntity.class, snowflake.getIdLong());
   }
 

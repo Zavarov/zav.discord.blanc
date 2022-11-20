@@ -68,7 +68,7 @@ public class UserEntity implements PersistedEntity {
    * @param user A Discord user.
    */
   public static void remove(User user) {
-    PersistenceUtil.remove(user);
+    PersistenceUtil.remove(UserEntity.class, user);
   }
 
   /**

@@ -87,7 +87,7 @@ public class WebhookEntity implements PersistedEntity {
    * @param webhook A Discord webhook.
    */
   public static void remove(Webhook webhook) {
-    PersistenceUtil.remove(webhook);
+    PersistenceUtil.remove(WebhookEntity.class, webhook);
   }
 
   /**

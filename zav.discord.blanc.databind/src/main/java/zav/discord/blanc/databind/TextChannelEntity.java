@@ -114,7 +114,7 @@ public class TextChannelEntity implements PersistedEntity {
    * @param guild A Discord guild.
    */
   public static void remove(Guild guild) {
-    PersistenceUtil.remove(guild);
+    PersistenceUtil.remove(GuildEntity.class, guild);
   }
 
   /**
@@ -123,7 +123,7 @@ public class TextChannelEntity implements PersistedEntity {
    * @param channel A Discord channel.
    */
   public static void remove(TextChannel channel) {
-    PersistenceUtil.remove(channel);
+    PersistenceUtil.remove(TextChannelEntity.class, channel);
   }
 
   /**
