@@ -9,7 +9,7 @@ import zav.discord.blanc.api.Site;
 /**
  * Utility class for managing all subreddit-related tasks.
  */
-public class SubredditUtils {
+public abstract class SubredditUtils {
   /**
    * The name of all webhook responsible for posting new Reddit submissions.
    */

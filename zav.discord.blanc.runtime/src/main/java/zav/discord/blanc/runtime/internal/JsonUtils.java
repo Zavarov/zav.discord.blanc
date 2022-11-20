@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 /**
  * Utility class for reading entities from disk and transforming them into Java objects.
  */
-public final class JsonUtils {
+public abstract class JsonUtils {
   
   private JsonUtils() {}
   
