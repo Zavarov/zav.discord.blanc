@@ -157,11 +157,11 @@ public class StatusCommand extends AbstractCommand {
   private String getGlobalMemory() {
     long total = memory.getTotal() / MEBI;
     long free = memory.getAvailable() / MEBI;
-    long used = process.getResidentSetSize() / MEBI;
+    long used = total - free;
     double ratio = (100.0 * used) / total;
     String keys = "`Total | Used  | Free  | Ratio`";
     String pattern = "%s%n`%-5d | %-5d | %-5d | %-4.1f%%`";
     
-    return String.format(pattern, keys, total, free, used, ratio);
+    return String.format(pattern, keys, total, used, free, ratio);
   }
 }
