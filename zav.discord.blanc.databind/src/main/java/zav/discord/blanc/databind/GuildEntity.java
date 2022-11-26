@@ -17,17 +17,12 @@
 package zav.discord.blanc.databind;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,12 +49,6 @@ public class GuildEntity implements PersistedEntity {
    * Human-readable name of the guild.
    */
   private String name;
-  /**
-   * Collection of banned words.
-   */
-  @Column(length = 1000)
-  @ElementCollection(fetch = FetchType.EAGER)
-  private List<String> blacklist = new ArrayList<>();
   
   /**
    * A list of all webhook entities associated with this guild.
@@ -80,20 +69,6 @@ public class GuildEntity implements PersistedEntity {
    */
   @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<AutoResponseEntity> autoResponses = new ArrayList<>();
-  
-  /**
-   * Each expression is concatenated using an {@code or}, meaning the pattern will match any String
-   * that matches at least one banned expression.<br>
-   * This method acts as a utility function to simplify the transformation of multiple Strings into
-   * a single pattern.
-   *
-   * @return The pattern corresponding to all blacklisted expressions.
-   */
-  public Optional<Pattern> getPattern() {
-    return getBlacklist().stream()
-          .reduce((u, v) -> u + "|" + v)
-          .map(Pattern::compile);
-  }
   
   /**
    * Adds the given entity to this PoJo. If an entity with this id already exists, it is replaced

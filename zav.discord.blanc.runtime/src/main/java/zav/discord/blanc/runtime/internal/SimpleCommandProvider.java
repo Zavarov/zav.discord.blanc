@@ -16,9 +16,6 @@ import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
 import zav.discord.blanc.runtime.command.dev.KillCommand;
 import zav.discord.blanc.runtime.command.dev.SayCommand;
 import zav.discord.blanc.runtime.command.dev.StatusCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistAddCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistInfoCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditInfoCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.RedditAddCommand;
@@ -86,12 +83,6 @@ public class SimpleCommandProvider implements CommandProvider {
     GuildCommandManager manager = new GuildCommandManager(shard, event);
     
     switch (getQualifiedName(event)) {
-      case "mod.blacklist.add":
-        return new BlacklistAddCommand(event, manager);
-      case "mod.blacklist.remove":
-        return new BlacklistRemoveCommand(event, manager);
-      case "mod.blacklist.info":
-        return new BlacklistInfoCommand(event, manager);
       case "mod.reddit.add":
         return new RedditAddCommand(event, manager);
       case "mod.reddit.remove":

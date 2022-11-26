@@ -34,7 +34,6 @@ import org.mockito.MockedStatic;
 import zav.discord.blanc.api.Client;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.cache.AutoResponseCache;
-import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.databind.AutoResponseEntity;
 import zav.discord.blanc.databind.Credentials;
@@ -65,7 +64,6 @@ public class AbstractTest {
   public @Mock AuditableRestAction<Void> delete;
   public @Mock SubredditObservable subredditObservable;
   public @Mock ScheduledExecutorService queue;
-  public @Mock PatternCache patternCache;
   public @Mock AutoResponseCache responseCache;
   
   public @Captor ArgumentCaptor<String> response;
@@ -94,7 +92,6 @@ public class AbstractTest {
     lenient().when(client.get(SubredditObservable.class)).thenReturn(subredditObservable);
     lenient().when(client.get(Credentials.class)).thenReturn(credentials);
     lenient().when(shard.get(ScheduledExecutorService.class)).thenReturn(queue);
-    lenient().when(shard.get(PatternCache.class)).thenReturn(patternCache);
     lenient().when(shard.get(AutoResponseCache.class)).thenReturn(responseCache);
     lenient().when(shard.getJda()).thenReturn(jda);
     lenient().when(shard.getClient()).thenReturn(client);

@@ -3,41 +3,6 @@
     "name" : "mod",
     "description" : "All moderator-level commands.",
     "options" : [ {
-        "name" : "blacklist",
-        "description" : "Contains all commands related to blacklisted words and expressions.",
-        "type" : 2,
-        "options" : [ {
-            "name" : "add",
-            "description" : "Add a regular expression to the list of blacklisted words.",
-            "type" : 1,
-            "options" : [ {
-                "name" : "pattern",
-                "description" : "Example: 'http(s)?://discord.gg/.*",
-                "type" : 3,
-                "required" : true
-            } ]
-        }, {
-            "name" : "remove",
-            "description" : "Remove a regular expression to the list of blacklisted words.",
-            "type" : 1,
-            "options" : [ {
-                "name" : "pattern",
-                "description" : "Example: 'http(s)?://discord.gg/.*",
-                "type" : 3,
-                "required" : false
-            }, {
-                "name" : "index",
-                "description" : "The index of a blacklisted expression in the database. Starting from 0.\nExample: 1",
-                "type" : 4,
-                "required" : false
-            } ]
-        }, {
-            "name" : "info",
-            "description" : "List all blacklisted words.",
-            "type" : 1,
-            "options" : [ ]
-        } ]
-    }, {
         "name" : "reddit",
         "description" : "Contains all commands related to subreddit feeds.",
         "type" : 2,

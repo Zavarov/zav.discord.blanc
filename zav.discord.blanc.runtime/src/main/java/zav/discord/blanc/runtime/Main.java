@@ -35,10 +35,8 @@ import zav.discord.blanc.api.CommandParser;
 import zav.discord.blanc.api.CommandProvider;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.api.cache.AutoResponseCache;
-import zav.discord.blanc.api.cache.PatternCache;
 import zav.discord.blanc.api.cache.SiteCache;
 import zav.discord.blanc.api.listener.AutoResponseListener;
-import zav.discord.blanc.api.listener.BlacklistListener;
 import zav.discord.blanc.api.listener.SiteComponentListener;
 import zav.discord.blanc.api.listener.SlashCommandListener;
 import zav.discord.blanc.api.listener.TextChannelListener;
@@ -123,7 +121,6 @@ public class Main {
     final JDA jda = shard.getJda();
     
     LOGGER.info("Initializing Application Context");
-    shard.bind(PatternCache.class, new PatternCache());
     shard.bind(AutoResponseCache.class, new AutoResponseCache());
     shard.bind(SiteCache.class, new SiteCache());
     shard.bind(ScheduledExecutorService.class, pool);
@@ -134,7 +131,6 @@ public class Main {
     List<Object> listeners = new ArrayList<>();
     listeners.add(new SlashCommandListener(pool, parser));
     listeners.add(new TextChannelListener());
-    listeners.add(new BlacklistListener(shard.get(PatternCache.class)));
     listeners.add(new AutoResponseListener(shard.get(AutoResponseCache.class)));
     listeners.add(new SiteComponentListener(shard.get(SiteCache.class)));
     jda.addEventListener(listeners.toArray());

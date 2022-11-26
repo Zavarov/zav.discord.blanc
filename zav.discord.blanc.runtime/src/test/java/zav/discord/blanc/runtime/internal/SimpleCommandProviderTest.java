@@ -23,9 +23,6 @@ import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
 import zav.discord.blanc.runtime.command.dev.KillCommand;
 import zav.discord.blanc.runtime.command.dev.SayCommand;
 import zav.discord.blanc.runtime.command.dev.StatusCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistAddCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistInfoCommand;
-import zav.discord.blanc.runtime.command.mod.BlacklistRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditInfoCommand;
 import zav.discord.blanc.runtime.command.mod.LegacyRedditRemoveCommand;
 import zav.discord.blanc.runtime.command.mod.RedditAddCommand;
@@ -82,9 +79,6 @@ public class SimpleCommandProviderTest extends AbstractTest {
         Arguments.of("dev.kill", KillCommand.class),
         Arguments.of("dev.say", SayCommand.class),
         Arguments.of("dev.status", StatusCommand.class),
-        Arguments.of("mod.blacklist.add", BlacklistAddCommand.class),
-        Arguments.of("mod.blacklist.remove", BlacklistRemoveCommand.class),
-        Arguments.of("mod.blacklist.info", BlacklistInfoCommand.class),
         Arguments.of("mod.reddit.add", RedditAddCommand.class),
         Arguments.of("mod.reddit.remove", RedditRemoveCommand.class),
         Arguments.of("mod.reddit.info", RedditInfoCommand.class),
