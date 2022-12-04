@@ -18,8 +18,8 @@ package zav.discord.blanc.api.listener;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,6 +65,17 @@ public class SlashCommandListenerTest {
   @BeforeEach
   public void setUp() {
     listener = new SlashCommandListener(queue, parser);
+    
+    when(event.getUser()).thenReturn(author);
+    lenient().when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
+    lenient().when(parser.parse(event)).thenReturn(Optional.of(command));
+    
+    // Immediately execute the runnable
+    lenient().doAnswer(invocation -> {
+      Runnable job = invocation.getArgument(0);
+      job.run();
+      return null;
+    }).when(queue).submit(any(Runnable.class));
   }
   
   /**
@@ -72,7 +83,6 @@ public class SlashCommandListenerTest {
    */
   @Test
   public void testIgnoreBotMessages() {
-    when(event.getUser()).thenReturn(author);
     when(author.isBot()).thenReturn(true);
     
     listener.onSlashCommand(event);
@@ -85,7 +95,7 @@ public class SlashCommandListenerTest {
    */
   @Test
   public void testIgnoreInvalidCommand() {
-    when(event.getUser()).thenReturn(author);
+    when(parser.parse(event)).thenReturn(Optional.empty());
     
     listener.onSlashCommand(event);
     
@@ -93,48 +103,14 @@ public class SlashCommandListenerTest {
   }
   
   /**
-   * Use Case: Execute commands from within a guild.
-   *
-   * @throws Exception When an error occurred during command execution.
-   */
-  @Test
-  public void testExecuteGuildCommand() throws Exception {
-    when(event.getUser()).thenReturn(author);
-    when(parser.parse(event)).thenReturn(Optional.of(command));
-
-    // Immediately execute the runnable
-    doAnswer(invocation -> {
-      Runnable job = invocation.getArgument(0);
-      job.run();
-      return null;
-    }).when(queue).submit(any(Runnable.class));
-    
-    listener.onSlashCommand(event);
-    
-    verify(command, times(1)).validate();
-    verify(command, times(1)).run();
-  }
-  
-  /**
-   * Use Case: Execute commands from within a guild, but an internal error occurred.
+   * Use Case: Execute a command, but an internal error occurred.
    *
    * @throws Exception When an error occurred during command execution.
    */
   @ParameterizedTest
   @MethodSource("contentProvider")
-  public void testExecuteGuildCommandWithError(String message, Exception cause) throws Exception {
-    when(event.getUser()).thenReturn(author);
-    when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-    when(parser.parse(event)).thenReturn(Optional.of(command));
-    
+  public void testExecuteCommandWithError(String message, Exception cause) throws Exception {
     doThrow(new Exception(message, cause)).when(command).run();
-
-    // Immediately execute the runnable
-    doAnswer(invocation -> {
-      Runnable job = invocation.getArgument(0);
-      job.run();
-      return null;
-    }).when(queue).submit(any(Runnable.class));
     
     listener.onSlashCommand(event);
     
@@ -142,52 +118,16 @@ public class SlashCommandListenerTest {
   }
   
   /**
-   * Use Case: Execute commands from within a private channel.
+   * Use Case: Execute a valid command.
    *
    * @throws Exception When an error occurred during command execution.
    */
   @Test
-  public void testExecutePrivateCommand() throws Exception {
-    when(event.getUser()).thenReturn(author);
-    when(parser.parse(event)).thenReturn(Optional.of(command));
-
-    // Immediately execute the runnable
-    doAnswer(invocation -> {
-      Runnable job = invocation.getArgument(0);
-      job.run();
-      return null;
-    }).when(queue).submit(any(Runnable.class));
-    
+  public void testExecuteCommand() throws Exception {
     listener.onSlashCommand(event);
     
     verify(command, times(1)).validate();
     verify(command, times(1)).run();
-  }
-  
-  /**
-   * Use Case: Execute commands from within a private channel, but an internal error occurred.
-   *
-   * @throws Exception When an error occurred during command execution.
-   */
-  @ParameterizedTest
-  @MethodSource("contentProvider")
-  public void testExecutePrivateCommandWithError(String message, Exception cause) throws Exception {
-    when(event.getUser()).thenReturn(author);
-    when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
-    when(parser.parse(event)).thenReturn(Optional.of(command));
-    
-    doThrow(new Exception(message, cause)).when(command).run();
-    
-    // Immediately execute the runnable
-    doAnswer(invocation -> {
-      Runnable job = invocation.getArgument(0);
-      job.run();
-      return null;
-    }).when(queue).submit(any(Runnable.class));
-    
-    listener.onSlashCommand(event);
-  
-    verify(event, times(1)).replyEmbeds(any(MessageEmbed.class));
   }
   
   static Stream<Arguments> contentProvider() {
