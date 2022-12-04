@@ -10,6 +10,7 @@ import zav.discord.blanc.api.CommandProvider;
 import zav.discord.blanc.api.Shard;
 import zav.discord.blanc.command.CommandManager;
 import zav.discord.blanc.command.GuildCommandManager;
+import zav.discord.blanc.runtime.command.core.InviteCommand;
 import zav.discord.blanc.runtime.command.core.MathCommand;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
@@ -58,6 +59,8 @@ public class SimpleCommandProvider implements CommandProvider {
         return new MathCommand(event, manager);
       case "support":
         return new SupportCommand(event, manager);
+      case "invite":
+        return new InviteCommand(event, manager);
       case "dev.failsafe":
         return new FailsafeCommand(event, manager);
       case "dev.kill":

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -110,6 +111,8 @@ public class AbstractTest {
     lenient().when(retrieveWebhooks.complete()).thenReturn(List.of(webhook));
     lenient().when(webhook.getOwner()).thenReturn(selfMember);
     lenient().when(manager.getShard()).thenReturn(shard);
+    lenient().when(selfMember.getId()).thenReturn(UUID.randomUUID().toString());
+    lenient().when(selfUser.getId()).thenReturn(UUID.randomUUID().toString());
 
     lenient().when(event.getJDA()).thenReturn(jda);
     lenient().when(event.getMember()).thenReturn(member);

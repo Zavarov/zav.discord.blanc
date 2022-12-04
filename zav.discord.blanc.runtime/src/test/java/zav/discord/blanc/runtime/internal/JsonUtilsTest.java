@@ -16,13 +16,14 @@ public class JsonUtilsTest {
     List<CommandData> commands = JsonUtils.getCommands();
     
     // Should match the content of the JSON files
-    assertEquals(commands.size(), 4);
+    assertEquals(commands.size(), 5);
     assertEquals(commands.get(0).getName(), "math");
     assertEquals(commands.get(1).getName(), "support");
-    assertEquals(commands.get(2).getName(), "dev");
-    assertEquals(commands.get(2).getSubcommands().size(), 4);
-    assertEquals(commands.get(3).getName(), "mod");
-    assertEquals(commands.get(3).getSubcommands().size(), 0);
-    assertEquals(commands.get(3).getSubcommandGroups().size(), 3);
+    assertEquals(commands.get(2).getName(), "invite");
+    assertEquals(commands.get(3).getName(), "dev");
+    assertEquals(commands.get(3).getSubcommands().size(), 4);
+    assertEquals(commands.get(4).getName(), "mod");
+    assertEquals(commands.get(4).getSubcommands().size(), 0);
+    assertEquals(commands.get(4).getSubcommandGroups().size(), 3);
   }
 }

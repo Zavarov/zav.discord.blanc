@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.CommandProvider;
 import zav.discord.blanc.runtime.command.AbstractTest;
+import zav.discord.blanc.runtime.command.core.InviteCommand;
 import zav.discord.blanc.runtime.command.core.MathCommand;
 import zav.discord.blanc.runtime.command.core.SupportCommand;
 import zav.discord.blanc.runtime.command.dev.FailsafeCommand;
@@ -75,6 +76,7 @@ public class SimpleCommandProviderTest extends AbstractTest {
     return Stream.of(
         Arguments.of("math", MathCommand.class),
         Arguments.of("support", SupportCommand.class),
+        Arguments.of("invite", InviteCommand.class),
         Arguments.of("dev.failsafe", FailsafeCommand.class),
         Arguments.of("dev.kill", KillCommand.class),
         Arguments.of("dev.say", SayCommand.class),

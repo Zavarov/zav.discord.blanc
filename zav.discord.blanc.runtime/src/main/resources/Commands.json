@@ -13,4 +13,9 @@
     "name" : "support",
     "description" : "Returns a Discord invitation to the support server.",
     "options" : [ ]
+}, {
+    "default_permission" : true,
+    "name" : "invite",
+    "description" : "Returns the invitation link for this bot.",
+    "options" : [ ]
 } ]
