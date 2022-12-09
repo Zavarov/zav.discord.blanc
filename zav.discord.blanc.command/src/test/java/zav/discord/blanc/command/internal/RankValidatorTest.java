@@ -16,16 +16,20 @@
 
 package zav.discord.blanc.command.internal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
 import java.util.List;
 import java.util.Set;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -83,6 +87,16 @@ public class RankValidatorTest {
   public void testValidateWithInsufficientRanks() {
     userEntity.setRanks(List.of(Rank.USER));
 
-    assertThrows(InsufficientRankException.class, () -> validator.validate(ranks));
+    InsufficientRankException error = validateError(() -> validator.validate(ranks));
+    MessageEmbed errorMessage = error.getErrorMessage();
+
+    assertEquals(errorMessage.getTitle(), "Insufficient Ranks");
+    assertTrue(errorMessage.getDescription().contains(Rank.ROOT.toString()));
+    
+    
+  }
+  
+  private InsufficientRankException validateError(Executable checker) {
+    return assertThrows(InsufficientRankException.class, checker);
   }
 }

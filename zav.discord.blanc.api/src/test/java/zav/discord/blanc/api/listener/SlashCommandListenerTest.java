@@ -42,6 +42,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.CommandParser;
+import zav.discord.blanc.api.util.ValidationException;
 
 /**
  * Test Case for checking whether commands are executed when triggered via slash commands.
@@ -56,6 +57,8 @@ public class SlashCommandListenerTest {
   @Mock ReplyAction reply;
   @Mock ScheduledExecutorService queue;
   @Mock CommandParser parser;
+  @Mock MessageEmbed errorMessage;
+  ValidationException validationError;
   
   SlashCommandListener listener;
   
@@ -65,6 +68,7 @@ public class SlashCommandListenerTest {
   @BeforeEach
   public void setUp() {
     listener = new SlashCommandListener(queue, parser);
+    validationError = new TestValidationException();
     
     when(event.getUser()).thenReturn(author);
     lenient().when(event.replyEmbeds(any(MessageEmbed.class))).thenReturn(reply);
@@ -103,6 +107,20 @@ public class SlashCommandListenerTest {
   }
   
   /**
+   * Use Case: Validation errors should contain a descriptive message instead of the stack trace.
+   *
+   * @throws Exception When an error occurred during command execution.
+   */
+  @Test
+  public void testExecuteCommandWithValidationError() throws Exception {
+    doThrow(validationError).when(command).validate();
+    
+    listener.onSlashCommand(event);
+    
+    verify(event, times(1)).replyEmbeds(errorMessage);
+  }
+  
+  /**
    * Use Case: Execute a command, but an internal error occurred.
    *
    * @throws Exception When an error occurred during command execution.
@@ -137,5 +155,14 @@ public class SlashCommandListenerTest {
           arguments("message", null),
           arguments(null, null)
     );
+  }
+  
+  class TestValidationException extends ValidationException {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public MessageEmbed getErrorMessage() {
+      return errorMessage;
+    }
   }
 }

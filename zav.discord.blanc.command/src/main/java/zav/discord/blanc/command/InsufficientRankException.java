@@ -17,9 +17,12 @@
 package zav.discord.blanc.command;
 
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.util.ValidationException;
 import zav.discord.blanc.databind.Rank;
 
 /**
@@ -29,8 +32,9 @@ import zav.discord.blanc.databind.Rank;
  * @see Rank
  */
 @NonNullByDefault
-public class InsufficientRankException extends ExecutionException {
+public class InsufficientRankException extends ValidationException {
   private static final long serialVersionUID = 8803805769817538792L;
+  private final List<Rank> ranks;
 
   /**
    * Creates a new instance of this class.
@@ -38,10 +42,22 @@ public class InsufficientRankException extends ExecutionException {
    * @param ranks The collection of missing ranks.
    */
   public InsufficientRankException(Collection<Rank> ranks) {
-    super(getMessage(ranks));
+    this.ranks = List.copyOf(ranks);
   }
   
-  private static String getMessage(Collection<Rank> ranks) {
+  @Override
+  public MessageEmbed getErrorMessage() {
+    return new EmbedBuilder()
+        .setTitle(getTitle())
+        .setDescription(getDescription())
+        .build();
+  }
+  
+  private String getTitle() {
+    return "Insufficient Ranks";
+  }
+  
+  private String getDescription() {
     return "You require the following rank(s) to execute this command: "
           + StringUtils.join(ranks, ",");
   }

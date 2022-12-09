@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.CommandParser;
+import zav.discord.blanc.api.util.ValidationException;
 
 /**
  * This class is responsible for handling and executing all user-commands.
@@ -77,6 +78,9 @@ public class SlashCommandListener extends ListenerAdapter {
         LOGGER.info("Execute {}.", command.getClass());
         command.validate();
         command.run();
+      } catch (ValidationException e) {
+        LOGGER.debug(e.getMessage(), e);
+        event.replyEmbeds(e.getErrorMessage()).queue();
       } catch (Exception e) {
         LOGGER.warn(e.getMessage(), e);
         event.replyEmbeds(buildErrorMessage(e)).queue();

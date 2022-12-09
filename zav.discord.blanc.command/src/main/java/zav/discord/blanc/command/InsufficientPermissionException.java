@@ -16,9 +16,15 @@
 
 package zav.discord.blanc.command;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.util.ValidationException;
 
 /**
  * This exception is thrown whenever a user executes a guild command for which they lack the
@@ -27,6 +33,34 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @see Permission
  */
 @NonNullByDefault
-public class InsufficientPermissionException extends ExecutionException {
+public class InsufficientPermissionException extends ValidationException {
   private static final long serialVersionUID = -7228912003018402683L;
+  private final List<Permission> permissions;
+  
+  public InsufficientPermissionException(Collection<Permission> permissions) {
+    this.permissions = List.copyOf(permissions);
+  }
+  
+  @Override
+  public MessageEmbed getErrorMessage() {
+    return new EmbedBuilder()
+        .setTitle(getTitle())
+        .setDescription(getDescription())
+        .build();
+  }
+  
+  private String getTitle() {
+    return "Insufficient Permissions";
+  }
+  
+  private String getDescription() {
+    return "You require the all of the following permission(s) to execute this command: "
+          + StringUtils.join(getPermissions(), ",");
+  }
+  
+  private List<String> getPermissions() {
+    return permissions.stream()
+        .map(permission -> permission.getName())
+        .collect(Collectors.toUnmodifiableList());
+  }
 }

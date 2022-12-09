@@ -53,7 +53,7 @@ public class PermissionValidator implements Validator<Permission> {
   
     // Does the user have the required permissions?
     if (!isRoot && !hasPermission) {
-      throw new InsufficientPermissionException();
+      throw new InsufficientPermissionException(args);
     }
   }
 }

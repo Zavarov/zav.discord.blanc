@@ -16,7 +16,9 @@
 
 package zav.discord.blanc.command.internal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -25,12 +27,14 @@ import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -110,6 +114,14 @@ public class PermissionValidatorTest {
 
     when(author.getPermissions(textChannel)).thenReturn(EnumSet.noneOf(Permission.class));
 
-    assertThrows(InsufficientPermissionException.class, () -> validator.validate(permissions));
+    InsufficientPermissionException error = validateError(() -> validator.validate(permissions));
+    MessageEmbed errorMessage = error.getErrorMessage();
+
+    assertEquals(errorMessage.getTitle(), "Insufficient Permissions");
+    assertTrue(errorMessage.getDescription().contains(Permission.ADMINISTRATOR.getName()));
+  }
+  
+  private InsufficientPermissionException validateError(Executable checker) {
+    return assertThrows(InsufficientPermissionException.class, checker);
   }
 }
