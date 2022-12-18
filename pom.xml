@@ -393,6 +393,7 @@
             <plugin>
                 <groupId>org.cyclonedx</groupId>
                 <artifactId>cyclonedx-maven-plugin</artifactId>
+                <inherited>false</inherited>
             </plugin>
             <!-- Static Code Analysis -->
             <plugin>
@@ -449,6 +450,23 @@
                         </instructions>
                         <manifestLocation>${project.build.outputDirectory}/META-INF</manifestLocation>
                         <niceManifest>true</niceManifest>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <configuration>
+                        <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                        <filesets>
+                            <fileset>
+                                <directory>${project.build.directory}</directory>
+                                <followSymlinks>false</followSymlinks>
+                                <useDefaultExcludes>false</useDefaultExcludes>
+                                <excludes>
+                                    <exclude>bom.xml</exclude>
+                                </excludes>
+                            </fileset>
+                        </filesets>
                     </configuration>
                 </plugin>
             </plugins>
