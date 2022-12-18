@@ -436,7 +436,6 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <includeLicenseText>true</includeLicenseText>
                         <includeProvidedScope>false</includeProvidedScope>
                         <outputFormat>xml</outputFormat>
                     </configuration>
