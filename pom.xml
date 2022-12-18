@@ -33,6 +33,7 @@
         <module>zav.discord.blanc.api</module>
         <module>zav.discord.blanc.command</module>
         <module>zav.discord.blanc.databind</module>
+        <module>zav.discord.blanc.databind.eclipselink</module>
         <module>zav.discord.blanc.reddit</module>
         <module>zav.discord.blanc.runtime</module>
     </modules>
@@ -42,8 +43,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <lombok.version>1.18.24</lombok.version>
     </properties>
-	
-	<url>https://github.com/Zavarov/zav.discord.blanc</url>
+    
+    <url>https://github.com/Zavarov/zav.discord.blanc</url>
 
     <!-- == Repositories ==================================================== -->
 
@@ -183,10 +184,22 @@
                 <version>4.10.0</version>
             </dependency>
             
+            <!-- OSGi Dependencies -->
+            <dependency>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>3.11.100</version>
+            </dependency>
+            
             <!-- JPA -->
             <dependency>
                 <groupId>org.eclipse.persistence</groupId>
                 <artifactId>org.eclipse.persistence.extension</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.persistence</groupId>
+                <artifactId>org.eclipse.persistence.core</artifactId>
                 <version>4.0.0</version>
             </dependency>
             <dependency>
@@ -466,6 +479,13 @@
                                 </excludes>
                             </fileset>
                         </filesets>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <configuration>
+                        <suppressionFile>suppressions.xml</suppressionFile>
                     </configuration>
                 </plugin>
             </plugins>
