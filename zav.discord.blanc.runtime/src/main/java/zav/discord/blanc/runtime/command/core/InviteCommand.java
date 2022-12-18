@@ -25,6 +25,12 @@ public class InviteCommand extends AbstractCommand {
   
   private final SlashCommandEvent event;
   
+  /**
+   * Creates a new instance of this command.
+   *
+   * @param event   The event triggering this command.
+   * @param manager The manager instance for this command.
+   */
   public InviteCommand(SlashCommandEvent event, CommandManager manager) {
     super(manager);
     this.event = event;

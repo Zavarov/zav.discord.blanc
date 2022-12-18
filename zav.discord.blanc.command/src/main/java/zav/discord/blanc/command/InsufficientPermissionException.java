@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.util.ValidationException;
 
 /**
@@ -35,8 +36,17 @@ import zav.discord.blanc.api.util.ValidationException;
 @NonNullByDefault
 public class InsufficientPermissionException extends ValidationException {
   private static final long serialVersionUID = -7228912003018402683L;
+  
+  /**
+   * A list of all permissions required to execute a {@link Command}.
+   */
   private final List<Permission> permissions;
   
+  /**
+   * Creates a new instance of this class.
+   *
+   * @param permissions The collection of all required permissions.
+   */
   public InsufficientPermissionException(Collection<Permission> permissions) {
     this.permissions = List.copyOf(permissions);
   }

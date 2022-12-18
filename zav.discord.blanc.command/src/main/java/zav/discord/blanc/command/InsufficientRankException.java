@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import zav.discord.blanc.api.Command;
 import zav.discord.blanc.api.util.ValidationException;
 import zav.discord.blanc.databind.Rank;
 
@@ -34,6 +35,10 @@ import zav.discord.blanc.databind.Rank;
 @NonNullByDefault
 public class InsufficientRankException extends ValidationException {
   private static final long serialVersionUID = 8803805769817538792L;
+  
+  /**
+   * A list of all ranks required to execute a {@link Command}.
+   */
   private final List<Rank> ranks;
 
   /**

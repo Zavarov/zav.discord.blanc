@@ -11,5 +11,11 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 public abstract class ValidationException extends ExecutionException {
   private static final long serialVersionUID = 8927239723989071327L;
   
+  /**
+   * Constructs a human-readable error message which can be send as a response via
+   * the Discord API.
+   *
+   * @return A Discord message containing the error message.
+   */
   public abstract MessageEmbed getErrorMessage();
 }
